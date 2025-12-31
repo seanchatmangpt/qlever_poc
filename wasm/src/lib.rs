@@ -1,3 +1,13 @@
+// Module declarations
+mod rdf_term;
+mod datafactory;
+mod store;
+
+// Re-export key types for public API
+pub use rdf_term::{RdfTerm, Triple, Quad, QuadPattern};
+pub use datafactory::DataFactory;
+pub use store::Store;
+
 use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::JsFuture;
 use web_sys::{Request, RequestInit, RequestMode, Response};
