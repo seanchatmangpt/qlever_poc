@@ -143,6 +143,60 @@ Build and use QLever as an embedded in-memory RDF database similar to oxigraph w
 - Batch query execution patterns
 - Troubleshooting common issues
 
+### 7. **rust-for-cpp** - Rust for C++ Developers
+Learn Rust idioms and best practices for developers transitioning from C++.
+
+**When to use:**
+- Writing Rust code (especially for QLever Rust bindings like oxigraph integration)
+- Understanding Rust ownership and borrowing system
+- Migrating C++ logic to Rust
+- Learning Rust error handling patterns
+- Understanding Rust concurrency model
+- Implementing Rust FFI (calling C/C++ from Rust)
+- Building and testing Rust projects
+
+**Key topics:**
+- Memory management: Ownership vs RAII
+- Borrowing: Immutable and mutable references
+- Type system: Ownership rules and lifetimes
+- Error handling: Result/Option vs Exceptions
+- Traits: Interfaces and polymorphism
+- Pattern matching and enums
+- Async/await and concurrency
+- Testing frameworks (cargo test)
+- FFI: Calling C++ from Rust
+- Common patterns (Builder, Strategy, PIMPL)
+- Performance considerations (monomorphization, inlining)
+- Cargo package manager
+
+### 8. **js-ts-for-cpp** - JavaScript & TypeScript for C++ Developers
+Learn JavaScript and TypeScript idioms for developers transitioning from C++.
+
+**When to use:**
+- Writing JavaScript/TypeScript for QLever web bindings
+- Understanding async/await and promise patterns
+- Building web interfaces for QLever
+- Creating WebAssembly bindings to QLever C++
+- Learning event-driven programming model
+- Understanding garbage collection vs manual memory management
+- Testing JavaScript code
+
+**Key topics:**
+- Type system: TypeScript basics and type safety
+- Memory model: Garbage collection vs manual management
+- Async patterns: Callbacks, promises, async/await
+- Functions: Closures and scope (let/const/var)
+- Classes and inheritance (ES6)
+- Arrays and collections (functional programming)
+- Object models and prototypes
+- Error handling with try/catch
+- Module system (ES6 and CommonJS)
+- Testing frameworks (Jest)
+- WebAssembly integration with JavaScript
+- Performance considerations and memory leaks
+- Common pitfalls and anti-patterns
+- Build tools and npm package management
+
 ## Skill Usage Examples
 
 ### Example 1: Building the project and running tests
@@ -185,6 +239,22 @@ Build and use QLever as an embedded in-memory RDF database similar to oxigraph w
 # Claude will reference Strategy Pattern and other relevant patterns
 ```
 
+### Example 6: Learning Rust
+
+```bash
+# Use the rust-for-cpp Skill
+# "How do I handle errors in Rust like I do with exceptions in C++?"
+# Claude will explain Result types and error propagation
+```
+
+### Example 7: Writing JavaScript code
+
+```bash
+# Use the js-ts-for-cpp Skill
+# "How do I write async code in JavaScript?"
+# Claude will explain promises and async/await patterns
+```
+
 ## Skill Discovery
 
 Skills are automatically discovered by Claude when:
@@ -199,6 +269,8 @@ For example:
 - "Debug this crash" → Triggers **debug-profile** skill
 - "How should I structure this?" → Triggers **cpp-patterns** skill
 - "Embed QLever in my app" → Triggers **in-memory-db** skill
+- "How do I do this in Rust?" → Triggers **rust-for-cpp** skill
+- "Help me write JavaScript code" → Triggers **js-ts-for-cpp** skill
 
 ## Skill Architecture
 
@@ -271,6 +343,16 @@ The **sparql-rdf** Skill covers SPARQL/RDF concepts executed by the engine:
 | Execute SPARQL query | in-memory-db | Query execution modes |
 | Optimize memory usage | in-memory-db | Memory management |
 | Compare with oxigraph | in-memory-db | Architecture comparison |
+| Write Rust code | rust-for-cpp | Ownership, borrowing, error handling |
+| Handle Rust errors | rust-for-cpp | Result types vs exceptions |
+| Learn Rust FFI | rust-for-cpp | C++ interop, unsafe code |
+| Migrate C++ to Rust | rust-for-cpp | Pattern mapping, idioms |
+| Build Rust project | rust-for-cpp | Cargo, testing, performance |
+| Write async JavaScript | js-ts-for-cpp | Promises, async/await |
+| Understand TypeScript | js-ts-for-cpp | Type system, type safety |
+| Learn event-driven programming | js-ts-for-cpp | Callbacks, async patterns |
+| Build WebAssembly binding | js-ts-for-cpp | WASM integration, FFI |
+| Debug JavaScript code | js-ts-for-cpp | Common pitfalls, memory leaks |
 
 ## Additional Resources
 
