@@ -119,6 +119,30 @@ Apply C++ design patterns, understand QLever's architecture, and write idiomatic
 - Dependency architecture
 - When to apply specific patterns
 
+### 6. **in-memory-db** - In-Memory Database & libqlever
+Build and use QLever as an embedded in-memory RDF database similar to oxigraph with rocksdb.
+
+**When to use:**
+- Embedding QLever in C++ applications without HTTP servers
+- Building RDF indexes from turtle/N-Triples files
+- Executing SPARQL queries programmatically
+- Optimizing memory usage for database operations
+- Integrating RDF data with application logic
+- Benchmarking query performance
+- Deploying serverless RDF solutions
+
+**Key topics:**
+- libqlever API and embedding patterns
+- Index building and loading workflows
+- In-memory storage and memory management
+- Query execution modes (simple, parsed, execution tree)
+- Query optimization for memory-constrained environments
+- Performance profiling and analysis
+- Comparison with oxigraph/rocksdb architecture
+- Building and testing libqlever applications
+- Batch query execution patterns
+- Troubleshooting common issues
+
 ## Skill Usage Examples
 
 ### Example 1: Building the project and running tests
@@ -174,6 +198,7 @@ For example:
 - "Write a SPARQL query" → Triggers **sparql-rdf** skill
 - "Debug this crash" → Triggers **debug-profile** skill
 - "How should I structure this?" → Triggers **cpp-patterns** skill
+- "Embed QLever in my app" → Triggers **in-memory-db** skill
 
 ## Skill Architecture
 
@@ -241,6 +266,11 @@ The **sparql-rdf** Skill covers SPARQL/RDF concepts executed by the engine:
 | Design new feature | cpp-patterns | Design patterns |
 | Understand architecture | cpp-patterns | Code organization |
 | Implement operation | cpp-patterns | Strategy pattern, templates |
+| Embed QLever in app | in-memory-db | libqlever API, patterns |
+| Build RDF index | in-memory-db | Index building, formats |
+| Execute SPARQL query | in-memory-db | Query execution modes |
+| Optimize memory usage | in-memory-db | Memory management |
+| Compare with oxigraph | in-memory-db | Architecture comparison |
 
 ## Additional Resources
 
