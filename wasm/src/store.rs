@@ -4,8 +4,17 @@
 
 use wasm_bindgen::prelude::*;
 use crate::rdf_term::{RdfTerm, Quad, QuadPattern};
+use crate::parsers::RdfParser;
 use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
+
+/// Result of loading RDF data
+#[wasm_bindgen]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct LoadResult {
+    pub quads_loaded: usize,
+    pub errors: Vec<String>,
+}
 
 /// In-memory RDF/Quad store with multi-index design
 #[wasm_bindgen]
@@ -186,6 +195,63 @@ impl Store {
             self.object_index.len(),
             self.graph_index.len()
         )
+    }
+
+    /// Load RDF data from a string into the store
+    #[wasm_bindgen]
+    pub fn load(&mut self, data: &str, format: Option<String>) -> Result<LoadResult, JsValue> {
+        // Parse the data
+        let quads = RdfParser::parse(data, format)?;
+
+        let mut loaded = 0;
+        let mut errors = Vec::new();
+
+        // Add each quad to the store
+        for quad in quads {
+            if self.add(&quad) {
+                loaded += 1;
+            }
+        }
+
+        Ok(LoadResult {
+            quads_loaded: loaded,
+            errors,
+        })
+    }
+
+    /// Export all quads from the store to a string format
+    #[wasm_bindgen]
+    pub fn dump(&self, format: Option<String>) -> Result<String, JsValue> {
+        let fmt = format.unwrap_or_else(|| "nquads".to_string());
+
+        match fmt.to_lowercase().as_str() {
+            "nquads" | "nq" => {
+                let mut output = String::new();
+                for quad in self.quads.values() {
+                    output.push_str(&quad.to_n_quads());
+                    output.push('\n');
+                }
+                Ok(output)
+            }
+            "ntriples" | "nt" => {
+                let mut output = String::new();
+                for quad in self.quads.values() {
+                    if matches!(quad.graph, RdfTerm::DefaultGraph) {
+                        output.push_str(&format!(
+                            "{} {} {} .\n",
+                            quad.subject.to_n_quads(),
+                            quad.predicate.to_n_quads(),
+                            quad.object.to_n_quads()
+                        ));
+                    }
+                }
+                Ok(output)
+            }
+            _ => Err(JsValue::from_str(&format!(
+                "Unsupported export format: {}",
+                fmt
+            ))),
+        }
     }
 
     // --- Private helper methods ---

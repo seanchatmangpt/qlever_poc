@@ -596,3 +596,46 @@ export function set_panic_hook(): void;
  * Get the DataFactory singleton
  */
 export function get_data_factory(): DataFactory;
+
+/**
+ * RDF Format Parser
+ * Supports parsing of N-Triples, N-Quads, Turtle, and other RDF formats
+ */
+export class RdfParser {
+  /**
+   * Parse N-Quads format
+   * @param data - N-Quads data string
+   * @returns Array of quads
+   */
+  static parse_nquads(data: string): Quad[];
+
+  /**
+   * Parse N-Triples format
+   * @param data - N-Triples data string
+   * @returns Array of quads with default graph
+   */
+  static parse_ntriples(data: string): Quad[];
+
+  /**
+   * Parse Turtle format (simplified)
+   * @param data - Turtle data string
+   * @param baseIRI - Optional base IRI for relative IRIs
+   * @returns Array of quads with default graph
+   */
+  static parse_turtle(data: string, baseIRI?: string): Quad[];
+
+  /**
+   * Auto-detect RDF format from content
+   * @param data - The RDF data string
+   * @returns Format string: "nquads", "turtle", "jsonld", etc.
+   */
+  static detect_format(data: string): string;
+
+  /**
+   * Parse RDF data with optional format specification
+   * @param data - The RDF data string
+   * @param format - Optional format string (auto-detected if omitted)
+   * @returns Array of quads
+   */
+  static parse(data: string, format?: string): Quad[];
+}

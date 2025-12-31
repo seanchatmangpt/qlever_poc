@@ -2,11 +2,13 @@
 mod rdf_term;
 mod datafactory;
 mod store;
+mod parsers;
 
 // Re-export key types for public API
 pub use rdf_term::{RdfTerm, Triple, Quad, QuadPattern};
 pub use datafactory::DataFactory;
 pub use store::Store;
+pub use parsers::RdfParser;
 
 use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::JsFuture;
