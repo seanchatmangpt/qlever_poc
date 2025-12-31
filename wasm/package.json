@@ -37,6 +37,8 @@
   "scripts": {
     "build": "wasm-pack build --release",
     "build:dev": "wasm-pack build",
+    "build:libqlever": "bash build_with_emscripten.sh",
+    "build:libqlever:dev": "bash build_with_emscripten.sh --dev",
     "build:browser": "npm run build && npm run build:types && tsc src/browser.ts --outDir dist --target es2020 --module esnext --declaration",
     "build:node": "npm run build && npm run build:types && tsc src/node.ts --outDir dist --target es2020 --module esnext --declaration",
     "build:all": "npm run build:browser && npm run build:node",
@@ -44,7 +46,8 @@
     "dev": "wasm-pack build --dev",
     "test": "wasm-pack test --headless --firefox",
     "test:node": "npm run build:dev && node tests/node.test.js",
-    "clean": "rm -rf pkg dist target",
+    "test:libqlever": "npm run build:libqlever && npm run test:node",
+    "clean": "rm -rf pkg dist target wasm_build",
     "prepublishOnly": "npm run build:all"
   },
   "keywords": [
