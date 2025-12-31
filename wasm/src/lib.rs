@@ -1,6 +1,8 @@
 // Module declarations
-// libqlever bindings will be added in Phase 4
-// mod libqlever_bindings;  // TODO: Add after creating C++ wrapper
+mod libqlever_bindings;
+
+// Re-export libqlever Store for public API
+pub use libqlever_bindings::QleverStore;
 
 use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::JsFuture;
