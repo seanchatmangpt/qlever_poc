@@ -1,0 +1,70 @@
+{
+  "name": "qlever-wasm",
+  "version": "0.1.0",
+  "description": "QLever WebAssembly bindings for JavaScript/Node.js - High-performance SPARQL query client",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ad-freiburg/qlever"
+  },
+  "main": "pkg/qlever_wasm.js",
+  "types": "pkg/qlever_wasm.d.ts",
+  "files": [
+    "pkg/",
+    "dist/",
+    "src/index.d.ts",
+    "README.md"
+  ],
+  "exports": {
+    ".": {
+      "require": "./pkg/qlever_wasm.js",
+      "import": "./pkg/qlever_wasm.js",
+      "types": "./pkg/qlever_wasm.d.ts"
+    },
+    "./browser": {
+      "browser": "./dist/browser.js",
+      "import": "./dist/browser.js",
+      "types": "./src/browser.ts"
+    },
+    "./node": {
+      "node": "./dist/node.js",
+      "import": "./dist/node.js",
+      "require": "./dist/node.js",
+      "types": "./src/node.ts"
+    }
+  },
+  "scripts": {
+    "build": "wasm-pack build --release",
+    "build:dev": "wasm-pack build",
+    "build:browser": "npm run build && npm run build:types && tsc src/browser.ts --outDir dist --target es2020 --module esnext --declaration",
+    "build:node": "npm run build && npm run build:types && tsc src/node.ts --outDir dist --target es2020 --module esnext --declaration",
+    "build:all": "npm run build:browser && npm run build:node",
+    "build:types": "tsc src/index.d.ts --noEmit",
+    "dev": "wasm-pack build --dev",
+    "test": "wasm-pack test --headless --firefox",
+    "test:node": "npm run build:dev && node tests/node.test.js",
+    "clean": "rm -rf pkg dist target",
+    "prepublishOnly": "npm run build:all"
+  },
+  "keywords": [
+    "qlever",
+    "wasm",
+    "sparql",
+    "rdf",
+    "graph-database",
+    "query",
+    "websocket"
+  ],
+  "dependencies": {
+    "urlencoding": "^2.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0",
+    "wasm-pack": "^1.3.4",
+    "wasm-bindgen-cli": "^1.0.1"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QLever WASM Browser Example</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-top: 0;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+        button {
+            background: #0066cc;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background: #0052a3;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .results {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 4px;
+            border-left: 4px solid #0066cc;
+        }
+        .results h2 {
+            margin-top: 0;
+            color: #333;
+        }
+        pre {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.loading {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .info {
+            background: #e7f3ff;
+            color: #004085;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            border-left: 4px solid #0066cc;
+        }
+        .execution-time {
+            color: #666;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 QLever WASM Browser Example</h1>
+
+        <div class="info">
+            <strong>QLever</strong> is a high-performance RDF/SPARQL graph database.
+            This example demonstrates querying a QLever instance directly from your browser using WebAssembly.
+        </div>
+
+        <div class="form-group">
+            <label for="endpoint">Server Endpoint:</label>
+            <input type="text" id="endpoint" value="http://localhost:7023" placeholder="http://localhost:7023">
+        </div>
+
+        <div class="form-group">
+            <label for="query">SPARQL Query:</label>
+            <textarea id="query" placeholder="SELECT * WHERE { ?s ?p ?o } LIMIT 10">SELECT * WHERE { ?s ?p ?o } LIMIT 10</textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="format">Result Format:</label>
+            <select id="format">
+                <option value="json">JSON</option>
+                <option value="xml">XML</option>
+                <option value="csv">CSV</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <button onclick="executeQuery()">Execute Query</button>
+            <button onclick="checkHealth()">Check Server Health</button>
+            <button onclick="clearResults()">Clear Results</button>
+        </div>
+
+        <div id="results" class="results" style="display: none;">
+            <h2>Query Results</h2>
+            <div id="status"></div>
+            <pre id="output"></pre>
+        </div>
+    </div>
+
+    <script type="module">
+        import * as qlever from '../pkg/qlever_wasm.js';
+
+        window.qlever = qlever;
+
+        // Initialize WASM
+        async function init() {
+            try {
+                qlever.set_panic_hook?.();
+                console.log('QLever WASM module loaded successfully');
+            } catch (e) {
+                console.warn('Could not set panic hook:', e);
+            }
+        }
+
+        init();
+
+        window.executeQuery = async function() {
+            const endpoint = document.getElementById('endpoint').value;
+            const query = document.getElementById('query').value;
+            const format = document.getElementById('format').value;
+
+            if (!endpoint || !query) {
+                showStatus('Please enter both endpoint and query', 'error');
+                return;
+            }
+
+            showStatus('Executing query...', 'loading');
+            document.getElementById('results').style.display = 'block';
+
+            try {
+                const client = new qlever.QleverClient(endpoint);
+                const startTime = performance.now();
+                const response = await client.query(query, format);
+                const endTime = performance.now();
+
+                const data = response.data();
+                const output = JSON.stringify(data, null, 2);
+                const executionTime = (endTime - startTime).toFixed(2);
+
+                document.getElementById('output').textContent = output;
+                showStatus(
+                    `Query executed successfully in ${executionTime}ms`,
+                    'success'
+                );
+            } catch (error) {
+                document.getElementById('output').textContent = error.message || String(error);
+                showStatus(`Error: ${error.message || String(error)}`, 'error');
+            }
+        };
+
+        window.checkHealth = async function() {
+            const endpoint = document.getElementById('endpoint').value;
+
+            if (!endpoint) {
+                showStatus('Please enter endpoint', 'error');
+                return;
+            }
+
+            showStatus('Checking server health...', 'loading');
+            document.getElementById('results').style.display = 'block';
+
+            try {
+                const client = new qlever.QleverClient(endpoint);
+                const isHealthy = await client.ping();
+
+                if (isHealthy) {
+                    document.getElementById('output').textContent = 'Server is reachable ✓';
+                    showStatus('Server health check passed', 'success');
+                } else {
+                    document.getElementById('output').textContent = 'Server is not responding';
+                    showStatus('Server health check failed', 'error');
+                }
+            } catch (error) {
+                document.getElementById('output').textContent = error.message || String(error);
+                showStatus(`Error: ${error.message || String(error)}`, 'error');
+            }
+        };
+
+        window.clearResults = function() {
+            document.getElementById('results').style.display = 'none';
+            document.getElementById('output').textContent = '';
+            document.getElementById('status').textContent = '';
+        };
+
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.className = `status ${type}`;
+            statusDiv.textContent = message;
+        }
+    </script>
+</body>
+</html>
