@@ -1,6 +1,9 @@
 # QLever WASM Bindings
 
-High-performance WebAssembly bindings for QLever, enabling SPARQL queries from JavaScript/Node.js in both browser and server environments.
+High-performance WebAssembly bindings for QLever, enabling full SPARQL 1.1 queries from JavaScript/Node.js in both browser and server environments.
+
+**📦 Published on npm as [`qlever-wasm`](https://www.npmjs.com/package/qlever-wasm)**
+**📖 Full documentation available in [README_NPM.md](./README_NPM.md)**
 
 ## Features
 
@@ -204,77 +207,76 @@ Build the final query string.
 
 ## Examples
 
-### Example 1: Simple Query
+See [examples/](./examples/) directory for complete examples:
+- [browser.html](./examples/browser.html) - Browser-based interactive interface
+- [node.js](./examples/node.js) - Node.js server-side usage
+- [advanced.js](./examples/advanced.js) - Complete SPARQL 1.1 feature demonstrations
+
+### Quick Example: Simple Query
 
 ```typescript
 import * as qlever from 'qlever-wasm/browser';
 
 const client = new qlever.QleverClient('http://localhost:7023');
 
-try {
-  const response = await client.query(
-    'SELECT ?s ?p ?o WHERE { ?s ?p ?o } LIMIT 100',
-    'json'
-  );
-  console.log(response.data());
-} catch (error) {
-  console.error('Query failed:', error);
-}
-```
-
-### Example 2: Using Query Builder
-
-```typescript
-import * as qlever from 'qlever-wasm/browser';
-
-const builder = new qlever.QueryBuilder();
-const query = builder
-  .select('?subject ?label')
-  .where_clause('?subject rdfs:label ?label')
-  .build();
-
-const client = new qlever.QleverClient('http://localhost:7023');
-const response = await client.query(query, 'json');
+const response = await client.query(
+  'SELECT ?s ?p ?o WHERE { ?s ?p ?o } LIMIT 100',
+  'json'
+);
 console.log(response.data());
 ```
 
-### Example 3: Batch Queries
+### Quick Example: Using Query Builder
 
 ```typescript
-const { batchQueries } = require('qlever-wasm/node');
+const builder = new qlever.QueryBuilder()
+  .select('?subject ?label')
+  .where_clause('?subject rdfs:label ?label')
+  .filter('STRLEN(?label) > 3')
+  .limit(100)
+  .build();
 
-const queries = [
-  'SELECT * WHERE { ?s a ?type } LIMIT 1',
-  'SELECT DISTINCT ?p WHERE { ?s ?p ?o } LIMIT 5',
-  'SELECT ?s WHERE { ?s ?p ?o } LIMIT 10',
-];
-
-const results = await batchQueries(
-  'http://localhost:7023',
-  queries,
-  'json'
-);
-
-results.forEach((result, i) => {
-  if (result.success) {
-    console.log(`Query ${i + 1}: ${Object.keys(result.data).length} results`);
-  } else {
-    console.error(`Query ${i + 1} failed:`, result.error);
-  }
-});
+const response = await client.query(builder.build(), 'json');
+console.log(response.data());
 ```
 
-### Example 4: Server Health Check
+### Advanced Features Examples
 
+**FILTER with Expressions**
 ```typescript
-const client = new qlever.QleverClient('http://localhost:7023');
-
-if (await client.ping()) {
-  console.log('QLever server is reachable');
-} else {
-  console.log('QLever server is not responding');
-}
+new qlever.QueryBuilder()
+  .select('?name ?age')
+  .where_clause('?person foaf:name ?name ; foaf:age ?age')
+  .filter('?age > 21')
+  .filter('CONTAINS(?name, "John")')
 ```
+
+**OPTIONAL Patterns**
+```typescript
+new qlever.QueryBuilder()
+  .select('?person ?name ?email')
+  .where_clause('?person foaf:name ?name')
+  .optional('?person foaf:mbox ?email')  // Email is optional
+```
+
+**GROUP BY Aggregation**
+```typescript
+new qlever.QueryBuilder()
+  .select('?author COUNT(?book) AS ?bookCount')
+  .where_clause('?book dc:creator ?author')
+  .group_by('?author')
+  .order_by_desc('?bookCount')
+```
+
+**CONSTRUCT Query (Create RDF)**
+```typescript
+new qlever.QueryBuilder()
+  .construct_query()
+  .construct('?person foaf:knows ?friend')
+  .where_clause('?person foaf:knows ?friend')
+```
+
+See [README_NPM.md](./README_NPM.md) for 20+ detailed examples covering all SPARQL features.
 
 ## Building from Source
 

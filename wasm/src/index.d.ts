@@ -1,12 +1,21 @@
 /**
  * QLever WebAssembly Bindings for JavaScript/Node.js
- * High-performance SPARQL query client with TypeScript support
+ * High-performance SPARQL query client with full SPARQL 1.1 support
  */
+
+export enum QueryType {
+  Select = 0,
+  Construct = 1,
+  Describe = 2,
+  Ask = 3,
+}
 
 export enum ResultFormat {
   Json = "json",
   Xml = "xml",
   Csv = "csv",
+  Turtle = "turtle",
+  NTriples = "ntriples",
 }
 
 export interface SparqlBinding {
@@ -99,19 +108,51 @@ export class QleverClient {
 }
 
 /**
- * Query builder for constructing SPARQL queries
+ * Query builder for constructing SPARQL queries with full SPARQL 1.1 support
  */
 export class QueryBuilder {
   /**
-   * Create a new query builder
+   * Create a new query builder (defaults to SELECT)
    */
   constructor();
 
   /**
-   * Add SELECT clause
+   * Set query type to SELECT
+   */
+  select_query(): QueryBuilder;
+
+  /**
+   * Set query type to CONSTRUCT
+   */
+  construct_query(): QueryBuilder;
+
+  /**
+   * Set query type to DESCRIBE
+   */
+  describe_query(): QueryBuilder;
+
+  /**
+   * Set query type to ASK
+   */
+  ask_query(): QueryBuilder;
+
+  /**
+   * Add SELECT variables
    * @param vars - Variables to select (e.g., "?subject ?predicate ?object")
    */
   select(vars: string): QueryBuilder;
+
+  /**
+   * Add CONSTRUCT template
+   * @param template - Triple patterns for result (e.g., "?s ?p ?o")
+   */
+  construct(template: string): QueryBuilder;
+
+  /**
+   * Add DESCRIBE variables
+   * @param vars - Variables to describe
+   */
+  describe(vars: string): QueryBuilder;
 
   /**
    * Add FROM clause
@@ -120,13 +161,74 @@ export class QueryBuilder {
   from(graph: string): QueryBuilder;
 
   /**
-   * Add WHERE clause
-   * @param pattern - Graph pattern
+   * Add WHERE clause pattern
+   * @param pattern - Graph pattern for matching
    */
   where_clause(pattern: string): QueryBuilder;
 
   /**
-   * Build the final query string
+   * Add FILTER condition
+   * @param condition - SPARQL filter expression (without FILTER keyword)
+   */
+  filter(condition: string): QueryBuilder;
+
+  /**
+   * Add OPTIONAL pattern
+   * @param pattern - Optional graph pattern
+   */
+  optional(pattern: string): QueryBuilder;
+
+  /**
+   * Add BIND statement for variable binding
+   * @param expression - Expression to bind
+   * @param var - Variable name (e.g., "?label")
+   */
+  bind(expression: string, var: string): QueryBuilder;
+
+  /**
+   * Add GROUP BY clause
+   * @param vars - Variables to group by (space-separated)
+   */
+  group_by(vars: string): QueryBuilder;
+
+  /**
+   * Add ORDER BY clause in ascending order
+   * @param vars - Variables to order by (space-separated)
+   */
+  order_by(vars: string): QueryBuilder;
+
+  /**
+   * Add ORDER BY clause in descending order
+   * @param vars - Variables to order by (space-separated)
+   */
+  order_by_desc(vars: string): QueryBuilder;
+
+  /**
+   * Add LIMIT clause
+   * @param count - Maximum number of results
+   */
+  limit(count: number): QueryBuilder;
+
+  /**
+   * Add OFFSET clause
+   * @param count - Number of results to skip
+   */
+  offset(count: number): QueryBuilder;
+
+  /**
+   * Add DISTINCT modifier to SELECT
+   */
+  distinct(): QueryBuilder;
+
+  /**
+   * Add VALUES clause for inline data
+   * @param clause - VALUES clause (e.g., "VALUES (?x) { (1) (2) (3) }")
+   */
+  values(clause: string): QueryBuilder;
+
+  /**
+   * Build the final SPARQL query string
+   * @returns Complete SPARQL query as string
    */
   build(): string;
 }

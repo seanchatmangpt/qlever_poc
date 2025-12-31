@@ -4,12 +4,34 @@ use web_sys::{Request, RequestInit, RequestMode, Response};
 use js_sys::Object;
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
+use std::collections::HashMap;
 
 // Set panic hook for better error messages
 #[cfg(feature = "console_error_panic_hook")]
 pub fn set_panic_hook() {
     #[cfg(feature = "console_error_panic_hook")]
     console_error_panic_hook::set_once();
+}
+
+/// Query type enumeration
+#[wasm_bindgen]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum QueryType {
+    Select,
+    Construct,
+    Describe,
+    Ask,
+}
+
+impl QueryType {
+    fn as_str(&self) -> &'static str {
+        match self {
+            QueryType::Select => "SELECT",
+            QueryType::Construct => "CONSTRUCT",
+            QueryType::Describe => "DESCRIBE",
+            QueryType::Ask => "ASK",
+        }
+    }
 }
 
 /// Query result format
@@ -19,6 +41,8 @@ pub enum ResultFormat {
     Json,
     Xml,
     Csv,
+    Turtle,
+    NTriples,
 }
 
 impl FromStr for ResultFormat {
@@ -29,6 +53,8 @@ impl FromStr for ResultFormat {
             "json" => Ok(ResultFormat::Json),
             "xml" => Ok(ResultFormat::Xml),
             "csv" => Ok(ResultFormat::Csv),
+            "turtle" | "ttl" => Ok(ResultFormat::Turtle),
+            "ntriples" | "nt" => Ok(ResultFormat::NTriples),
             _ => Err(format!("Unknown format: {}", s)),
         }
     }
@@ -40,6 +66,8 @@ impl ResultFormat {
             ResultFormat::Json => "application/sparql-results+json",
             ResultFormat::Xml => "application/sparql-results+xml",
             ResultFormat::Csv => "text/csv",
+            ResultFormat::Turtle => "text/turtle",
+            ResultFormat::NTriples => "application/n-triples",
         }
     }
 }
@@ -274,49 +302,297 @@ impl QleverClient {
     }
 }
 
-/// Query builder for constructing SPARQL queries
+/// Query builder for constructing SPARQL queries with full SPARQL support
 #[wasm_bindgen]
 pub struct QueryBuilder {
-    query: String,
+    query_type: QueryType,
+    select_vars: String,
+    construct_template: String,
+    describe_vars: String,
+    from_clauses: Vec<String>,
+    where_pattern: String,
+    filter_conditions: Vec<String>,
+    optional_patterns: Vec<String>,
+    group_by_vars: Vec<String>,
+    order_by_vars: Vec<(String, bool)>, // (var, is_desc)
+    limit: Option<u32>,
+    offset: Option<u32>,
+    distinct: bool,
+    union_queries: Vec<String>,
+    bind_statements: Vec<String>,
+    values_clause: Option<String>,
 }
 
 #[wasm_bindgen]
 impl QueryBuilder {
-    /// Create a new query builder
+    /// Create a new query builder (defaults to SELECT)
     #[wasm_bindgen(constructor)]
     pub fn new() -> QueryBuilder {
         QueryBuilder {
-            query: String::new(),
+            query_type: QueryType::Select,
+            select_vars: String::new(),
+            construct_template: String::new(),
+            describe_vars: String::new(),
+            from_clauses: Vec::new(),
+            where_pattern: String::new(),
+            filter_conditions: Vec::new(),
+            optional_patterns: Vec::new(),
+            group_by_vars: Vec::new(),
+            order_by_vars: Vec::new(),
+            limit: None,
+            offset: None,
+            distinct: false,
+            union_queries: Vec::new(),
+            bind_statements: Vec::new(),
+            values_clause: None,
         }
     }
 
-    /// Add SELECT clause
+    /// Set query type to SELECT
+    pub fn select_query(&mut self) -> QueryBuilder {
+        self.query_type = QueryType::Select;
+        self.clone_builder()
+    }
+
+    /// Set query type to CONSTRUCT
+    pub fn construct_query(&mut self) -> QueryBuilder {
+        self.query_type = QueryType::Construct;
+        self.clone_builder()
+    }
+
+    /// Set query type to DESCRIBE
+    pub fn describe_query(&mut self) -> QueryBuilder {
+        self.query_type = QueryType::Describe;
+        self.clone_builder()
+    }
+
+    /// Set query type to ASK
+    pub fn ask_query(&mut self) -> QueryBuilder {
+        self.query_type = QueryType::Ask;
+        self.clone_builder()
+    }
+
+    /// Add SELECT variables
     pub fn select(&mut self, vars: String) -> QueryBuilder {
-        self.query.push_str(&format!("SELECT {}\n", vars));
-        QueryBuilder {
-            query: self.query.clone(),
-        }
+        self.select_vars = vars;
+        self.clone_builder()
+    }
+
+    /// Add CONSTRUCT template
+    pub fn construct(&mut self, template: String) -> QueryBuilder {
+        self.construct_template = template;
+        self.clone_builder()
+    }
+
+    /// Add DESCRIBE variables
+    pub fn describe(&mut self, vars: String) -> QueryBuilder {
+        self.describe_vars = vars;
+        self.clone_builder()
     }
 
     /// Add FROM clause
     pub fn from(&mut self, graph: String) -> QueryBuilder {
-        self.query.push_str(&format!("FROM <{}>\n", graph));
-        QueryBuilder {
-            query: self.query.clone(),
-        }
+        self.from_clauses.push(format!("FROM <{}>", graph));
+        self.clone_builder()
     }
 
-    /// Add WHERE clause
+    /// Add WHERE clause pattern
     pub fn where_clause(&mut self, pattern: String) -> QueryBuilder {
-        self.query.push_str(&format!("WHERE {{\n  {}\n}}\n", pattern));
-        QueryBuilder {
-            query: self.query.clone(),
+        self.where_pattern = pattern;
+        self.clone_builder()
+    }
+
+    /// Add FILTER condition
+    pub fn filter(&mut self, condition: String) -> QueryBuilder {
+        self.filter_conditions.push(format!("FILTER ({})", condition));
+        self.clone_builder()
+    }
+
+    /// Add OPTIONAL pattern
+    pub fn optional(&mut self, pattern: String) -> QueryBuilder {
+        self.optional_patterns.push(format!("OPTIONAL {{\n    {}\n  }}", pattern));
+        self.clone_builder()
+    }
+
+    /// Add BIND statement
+    pub fn bind(&mut self, expression: String, var: String) -> QueryBuilder {
+        self.bind_statements.push(format!("BIND ({} AS {})", expression, var));
+        self.clone_builder()
+    }
+
+    /// Add GROUP BY clause
+    pub fn group_by(&mut self, vars: String) -> QueryBuilder {
+        self.group_by_vars = vars.split_whitespace()
+            .map(|s| s.to_string())
+            .collect();
+        self.clone_builder()
+    }
+
+    /// Add ORDER BY clause (ascending)
+    pub fn order_by(&mut self, vars: String) -> QueryBuilder {
+        for var in vars.split_whitespace() {
+            self.order_by_vars.push((var.to_string(), false));
         }
+        self.clone_builder()
+    }
+
+    /// Add ORDER BY DESC clause
+    pub fn order_by_desc(&mut self, vars: String) -> QueryBuilder {
+        for var in vars.split_whitespace() {
+            self.order_by_vars.push((var.to_string(), true));
+        }
+        self.clone_builder()
+    }
+
+    /// Add LIMIT clause
+    pub fn limit(&mut self, count: u32) -> QueryBuilder {
+        self.limit = Some(count);
+        self.clone_builder()
+    }
+
+    /// Add OFFSET clause
+    pub fn offset(&mut self, count: u32) -> QueryBuilder {
+        self.offset = Some(count);
+        self.clone_builder()
+    }
+
+    /// Add DISTINCT modifier
+    pub fn distinct(&mut self) -> QueryBuilder {
+        self.distinct = true;
+        self.clone_builder()
+    }
+
+    /// Add VALUES clause
+    pub fn values(&mut self, clause: String) -> QueryBuilder {
+        self.values_clause = Some(clause);
+        self.clone_builder()
     }
 
     /// Build the final query string
     pub fn build(&self) -> String {
-        self.query.clone()
+        let mut query = String::new();
+
+        // Build query prefix
+        match self.query_type {
+            QueryType::Select => {
+                query.push_str("SELECT ");
+                if self.distinct {
+                    query.push_str("DISTINCT ");
+                }
+                query.push_str(&self.select_vars);
+                query.push('\n');
+            }
+            QueryType::Construct => {
+                query.push_str("CONSTRUCT {\n");
+                query.push_str(&self.construct_template);
+                query.push_str("\n}\n");
+            }
+            QueryType::Describe => {
+                query.push_str("DESCRIBE ");
+                query.push_str(&self.describe_vars);
+                query.push('\n');
+            }
+            QueryType::Ask => {
+                query.push_str("ASK\n");
+            }
+        }
+
+        // Add FROM clauses
+        for from in &self.from_clauses {
+            query.push_str(from);
+            query.push('\n');
+        }
+
+        // Build WHERE clause
+        query.push_str("WHERE {\n");
+        query.push_str(&self.where_pattern);
+
+        // Add OPTIONAL patterns
+        for optional in &self.optional_patterns {
+            query.push('\n');
+            query.push_str("  ");
+            query.push_str(optional);
+        }
+
+        // Add FILTER conditions
+        for filter in &self.filter_conditions {
+            query.push('\n');
+            query.push_str("  ");
+            query.push_str(filter);
+        }
+
+        // Add BIND statements
+        for bind in &self.bind_statements {
+            query.push('\n');
+            query.push_str("  ");
+            query.push_str(bind);
+        }
+
+        // Add VALUES clause
+        if let Some(values) = &self.values_clause {
+            query.push('\n');
+            query.push_str("  ");
+            query.push_str(values);
+        }
+
+        query.push_str("\n}\n");
+
+        // Add GROUP BY
+        if !self.group_by_vars.is_empty() {
+            query.push_str("GROUP BY ");
+            query.push_str(&self.group_by_vars.join(" "));
+            query.push('\n');
+        }
+
+        // Add ORDER BY
+        if !self.order_by_vars.is_empty() {
+            query.push_str("ORDER BY ");
+            for (var, is_desc) in &self.order_by_vars {
+                if *is_desc {
+                    query.push_str("DESC(");
+                    query.push_str(var);
+                    query.push_str(") ");
+                } else {
+                    query.push_str(var);
+                    query.push(' ');
+                }
+            }
+            query.push('\n');
+        }
+
+        // Add LIMIT
+        if let Some(limit) = self.limit {
+            query.push_str(&format!("LIMIT {}\n", limit));
+        }
+
+        // Add OFFSET
+        if let Some(offset) = self.offset {
+            query.push_str(&format!("OFFSET {}\n", offset));
+        }
+
+        query
+    }
+
+    /// Helper method to clone builder for chaining
+    fn clone_builder(&self) -> QueryBuilder {
+        QueryBuilder {
+            query_type: self.query_type,
+            select_vars: self.select_vars.clone(),
+            construct_template: self.construct_template.clone(),
+            describe_vars: self.describe_vars.clone(),
+            from_clauses: self.from_clauses.clone(),
+            where_pattern: self.where_pattern.clone(),
+            filter_conditions: self.filter_conditions.clone(),
+            optional_patterns: self.optional_patterns.clone(),
+            group_by_vars: self.group_by_vars.clone(),
+            order_by_vars: self.order_by_vars.clone(),
+            limit: self.limit,
+            offset: self.offset,
+            distinct: self.distinct,
+            union_queries: self.union_queries.clone(),
+            bind_statements: self.bind_statements.clone(),
+            values_clause: self.values_clause.clone(),
+        }
     }
 }
 
@@ -331,14 +607,79 @@ mod tests {
     }
 
     #[test]
-    fn test_query_builder() {
-        let mut builder = QueryBuilder::new();
-        let query = builder
-            .select("?s ?p ?o".to_string())
-            .where_clause("?s ?p ?o".to_string())
-            .build();
+    fn test_result_format_turtle() {
+        let format = ResultFormat::Turtle;
+        assert_eq!(format.to_mime_type(), "text/turtle");
+    }
 
+    #[test]
+    fn test_query_type_select() {
+        let qt = QueryType::Select;
+        assert_eq!(qt.as_str(), "SELECT");
+    }
+
+    #[test]
+    fn test_query_type_construct() {
+        let qt = QueryType::Construct;
+        assert_eq!(qt.as_str(), "CONSTRUCT");
+    }
+
+    #[test]
+    fn test_query_builder_select() {
+        let builder = QueryBuilder::new()
+            .select("?s ?p ?o".to_string())
+            .where_clause("?s ?p ?o".to_string());
+
+        let query = builder.build();
         assert!(query.contains("SELECT ?s ?p ?o"));
         assert!(query.contains("WHERE"));
+    }
+
+    #[test]
+    fn test_query_builder_with_filter() {
+        let builder = QueryBuilder::new()
+            .select("?s".to_string())
+            .where_clause("?s ?p ?o".to_string())
+            .filter("?s = <http://example.org>".to_string());
+
+        let query = builder.build();
+        assert!(query.contains("FILTER"));
+        assert!(query.contains("?s = <http://example.org>"));
+    }
+
+    #[test]
+    fn test_query_builder_with_limit_offset() {
+        let builder = QueryBuilder::new()
+            .select("?s".to_string())
+            .where_clause("?s ?p ?o".to_string())
+            .limit(10)
+            .offset(5);
+
+        let query = builder.build();
+        assert!(query.contains("LIMIT 10"));
+        assert!(query.contains("OFFSET 5"));
+    }
+
+    #[test]
+    fn test_query_builder_construct() {
+        let builder = QueryBuilder::new()
+            .construct_query()
+            .construct("?s ?p ?o".to_string())
+            .where_clause("?s ?p ?o".to_string());
+
+        let query = builder.build();
+        assert!(query.contains("CONSTRUCT"));
+        assert!(query.contains("?s ?p ?o"));
+    }
+
+    #[test]
+    fn test_query_builder_distinct() {
+        let builder = QueryBuilder::new()
+            .select("?s".to_string())
+            .distinct()
+            .where_clause("?s ?p ?o".to_string());
+
+        let query = builder.build();
+        assert!(query.contains("DISTINCT"));
     }
 }
