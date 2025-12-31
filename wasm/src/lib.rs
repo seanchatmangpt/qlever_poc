@@ -1,14 +1,6 @@
 // Module declarations
-mod rdf_term;
-mod datafactory;
-mod store;
-mod parsers;
-
-// Re-export key types for public API
-pub use rdf_term::{RdfTerm, Triple, Quad, QuadPattern};
-pub use datafactory::DataFactory;
-pub use store::Store;
-pub use parsers::RdfParser;
+// libqlever bindings will be added in Phase 4
+// mod libqlever_bindings;  // TODO: Add after creating C++ wrapper
 
 use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::JsFuture;
@@ -694,4 +686,15 @@ mod tests {
         let query = builder.build();
         assert!(query.contains("DISTINCT"));
     }
+}
+
+// Module initialization
+#[wasm_bindgen]
+pub async fn init() -> Result<(), JsValue> {
+    // Initialize panic hook for better error messages
+    #[cfg(feature = "console_error_panic_hook")]
+    console_error_panic_hook::set_once();
+
+    // TODO: Initialize libqlever WASM module when available
+    Ok(())
 }
