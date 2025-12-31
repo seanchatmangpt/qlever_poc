@@ -1,0 +1,172 @@
+cmake_minimum_required(VERSION 3.27)
+project(qlever-wasm CXX)
+
+# Force C++20 for WASM compilation
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# Emscripten specific settings
+if(EMSCRIPTEN)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -flto")
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -lembind -s WASM=1 -s ENVIRONMENT=web,node")
+
+  # Memory and limits for WASM
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s TOTAL_MEMORY=256MB")
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s ALLOW_MEMORY_GROWTH=1")
+
+  # Increase stack size for WASM
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s STACK_SIZE=8MB")
+endif()
+
+# ============================================================================
+# Core QLever Components (minimal set for WASM)
+# ============================================================================
+
+# Include directories
+include_directories(src)
+
+# Boost - minimal components for WASM
+find_package(Boost 1.81 REQUIRED COMPONENTS)
+if(BOOST_FOUND)
+  include_directories(${BOOST_INCLUDE_DIR})
+else()
+  message(FATAL_ERROR "Boost 1.81+ required")
+endif()
+
+# ICU - for Unicode support
+find_package(ICU COMPONENTS data uc i18n REQUIRED)
+include_directories(${ICU_INCLUDE_DIRS})
+
+# Zstandard - for compression
+find_package(zstd REQUIRED)
+include_directories(${ZSTD_INCLUDE_DIR})
+
+# ============================================================================
+# QLever Library (core query engine)
+# ============================================================================
+
+# Utility library
+file(GLOB_RECURSE UTIL_SOURCES src/util/*.cpp src/util/*.h)
+add_library(qlever_util STATIC ${UTIL_SOURCES})
+target_include_directories(qlever_util PUBLIC src)
+
+# Index library
+file(GLOB_RECURSE INDEX_SOURCES
+  src/index/*.cpp
+  src/index/*.h
+  src/rdfTypes/*.cpp
+  src/rdfTypes/*.h
+)
+add_library(qlever_index STATIC ${INDEX_SOURCES})
+target_link_libraries(qlever_index qlever_util ${ICU_LIBRARIES} ${ZSTD_LIBRARY})
+
+# Parser library
+file(GLOB_RECURSE PARSER_SOURCES
+  src/parser/*.cpp
+  src/parser/*.h
+)
+add_library(qlever_parser STATIC ${PARSER_SOURCES})
+target_link_libraries(qlever_parser qlever_util)
+
+# Engine library
+file(GLOB_RECURSE ENGINE_SOURCES
+  src/engine/*.cpp
+  src/engine/*.h
+)
+add_library(qlever_engine STATIC ${ENGINE_SOURCES})
+target_link_libraries(qlever_engine qlever_index qlever_parser qlever_util)
+
+# Global library
+file(GLOB_RECURSE GLOBAL_SOURCES
+  src/global/*.cpp
+  src/global/*.h
+)
+add_library(qlever_global STATIC ${GLOBAL_SOURCES})
+target_link_libraries(qlever_global qlever_util)
+
+# ============================================================================
+# libqlever - Embedded QLever Library
+# ============================================================================
+
+file(GLOB_RECURSE LIBQLEVER_SOURCES
+  src/libqlever/Qlever.cpp
+  src/libqlever/Qlever.h
+  src/libqlever/QleverWasmWrapper.cpp
+  src/libqlever/QleverWasmWrapper.h
+)
+
+add_library(qlever STATIC ${LIBQLEVER_SOURCES})
+target_link_libraries(qlever
+  qlever_engine
+  qlever_index
+  qlever_parser
+  qlever_util
+  qlever_global
+  ${BOOST_LIBRARIES}
+  ${ICU_LIBRARIES}
+  ${ZSTD_LIBRARY}
+)
+
+# ============================================================================
+# WASM Target - Emscripten binding
+# ============================================================================
+
+if(EMSCRIPTEN)
+  # Create WASM module from C++ wrapper
+  add_executable(qlever_wasm
+    src/libqlever/QleverWasmWrapper.cpp
+  )
+
+  target_link_libraries(qlever_wasm
+    qlever
+    qlever_engine
+    qlever_index
+    qlever_parser
+    qlever_util
+    qlever_global
+    ${BOOST_LIBRARIES}
+    ${ICU_LIBRARIES}
+    ${ZSTD_LIBRARY}
+  )
+
+  # Emscripten-specific linking
+  set_target_properties(qlever_wasm PROPERTIES
+    SUFFIX ".js"
+    OUTPUT_NAME "qlever-wasm"
+  )
+
+  target_compile_options(qlever_wasm PRIVATE -fPIC)
+
+  # Export C++ functions for wasm-bindgen
+  target_compile_definitions(qlever_wasm PRIVATE
+    QLEVER_WASM_BUILD=1
+  )
+endif()
+
+# ============================================================================
+# Build Summary
+# ============================================================================
+
+message(STATUS "")
+message(STATUS "╔════════════════════════════════════════════════════════════╗")
+message(STATUS "║           QLever WASM Build Configuration                  ║")
+message(STATUS "╚════════════════════════════════════════════════════════════╝")
+message(STATUS "")
+message(STATUS "  C++ Standard:         ${CMAKE_CXX_STANDARD}")
+message(STATUS "  Build Type:           ${CMAKE_BUILD_TYPE}")
+message(STATUS "  Emscripten:           ${EMSCRIPTEN}")
+message(STATUS "")
+message(STATUS "  Libraries to build:")
+message(STATUS "    • qlever_util")
+message(STATUS "    • qlever_index")
+message(STATUS "    • qlever_parser")
+message(STATUS "    • qlever_engine")
+message(STATUS "    • qlever_global")
+message(STATUS "    • qlever (libqlever)")
+if(EMSCRIPTEN)
+message(STATUS "    • qlever_wasm (WASM module)")
+endif()
+message(STATUS "")
+message(STATUS "  Next step:")
+message(STATUS "    make qlever_wasm  # Build WASM module")
+message(STATUS "")
