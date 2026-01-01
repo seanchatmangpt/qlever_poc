@@ -45,27 +45,34 @@ pub mod model;
 pub mod query;
 pub mod store;
 pub mod cache;
-pub mod ffi;
-pub mod qlever_store;
 pub mod streaming;
+
+// Phase 1: FFI-based libqlever API (feature-gated)
+#[cfg(feature = "libqlever")]
+pub mod ffi;
+
+#[cfg(feature = "libqlever")]
+pub mod qlever_store;
+
+#[cfg(feature = "libqlever")]
+pub mod libqlever;
 
 #[cfg(target_arch = "wasm32")]
 pub mod wasm;
 
-// Phase 1: FFI-based libqlever API (feature-gated)
-#[cfg(feature = "libqlever")]
-pub mod libqlever;
-
 pub use error::{Error, Result};
 pub use model::{BlankNode, Literal, NamedNode, Quad, Term, Triple};
 pub use query::QuerySolution;
-pub use qlever_store::{Store, QueryPlan};  // Primary Store is QLever-backed
 pub use store::Store as MemoryStore;  // In-memory store available as fallback
 pub use cache::{QueryCache, CacheStats};
 pub use streaming::{ResultIterator, LazyQueryResult, ChunkedResultIterator};
 
-#[cfg(target_arch = "wasm32")]
-pub use wasm::WasmStore;
+// Phase 1: FFI-based libqlever API exports (feature-gated)
+#[cfg(feature = "libqlever")]
+pub use qlever_store::{Store, QueryPlan};  // Primary Store is QLever-backed
 
 #[cfg(feature = "libqlever")]
 pub use libqlever::{Qlever, EngineConfig, MediaType};
+
+#[cfg(target_arch = "wasm32")]
+pub use wasm::WasmStore;
