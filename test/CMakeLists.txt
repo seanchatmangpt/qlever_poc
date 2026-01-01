@@ -516,3 +516,4 @@ addLinkAndDiscoverTest(ConstructCausationModeTest engine)
 addLinkAndDiscoverTest(EpochCacheInvalidationHookTest)
 
 addLinkAndDiscoverTest(EpochManifestTest)
+addLinkAndDiscoverTest(engine/queryCanonical/CanonicalSerializerTest engine)

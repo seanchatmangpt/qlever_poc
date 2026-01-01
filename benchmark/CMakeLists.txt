@@ -44,3 +44,10 @@ addAndLinkBenchmark(RdfParserBenchmark engine testUtil queryPlanner parser)
 
 # Epoch performance benchmark - verifies overhead is <1% latency increase
 addAndLinkBenchmark(EpochBenchmark engine testUtil queryPlanner parser)
+
+# Epoch Manifest performance benchmark
+addAndLinkBenchmark(EpochManifestBenchmark engine testUtil queryPlanner parser)
+
+# Query Shape Canonicalization benchmark - EPIC 2 performance verification
+add_executable(CanonicalBenchmark queryCanonical/CanonicalBenchmark.cpp)
+linkBenchmark(CanonicalBenchmark)

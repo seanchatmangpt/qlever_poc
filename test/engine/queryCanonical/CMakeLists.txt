@@ -1,0 +1,1 @@
+addLinkAndDiscoverTest(QueryFingerprintingPipelineTest engine)
