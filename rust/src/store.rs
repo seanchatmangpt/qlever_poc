@@ -12,14 +12,28 @@ use std::sync::Arc;
 use url::Url;
 
 /// Configuration for Store connection
+///
+/// Use the builder pattern for fluent configuration:
+///
+/// ```ignore
+/// let config = StoreConfig::builder()
+///     .url("http://localhost:7777")
+///     .timeout_secs(60)
+///     .build()?;
+/// ```
 #[derive(Debug, Clone)]
 pub struct StoreConfig {
-    pub url: String,
-    pub timeout_secs: u64,
+    url: String,
+    timeout_secs: u64,
 }
 
 impl StoreConfig {
-    /// Creates a new store configuration
+    /// Creates a new builder for StoreConfig
+    pub fn builder() -> StoreConfigBuilder {
+        StoreConfigBuilder::default()
+    }
+
+    /// Creates a new store configuration with default timeout
     pub fn new(url: impl Into<String>) -> Self {
         StoreConfig {
             url: url.into(),
@@ -27,10 +41,53 @@ impl StoreConfig {
         }
     }
 
-    /// Sets the timeout for requests
+    /// Sets the timeout for requests (builder pattern)
     pub fn with_timeout(mut self, secs: u64) -> Self {
         self.timeout_secs = secs;
         self
+    }
+
+    /// Gets the configured URL
+    pub fn url(&self) -> &str {
+        &self.url
+    }
+
+    /// Gets the configured timeout in seconds
+    pub fn timeout_secs(&self) -> u64 {
+        self.timeout_secs
+    }
+}
+
+/// Builder for StoreConfig with fluent interface
+#[derive(Debug, Default)]
+pub struct StoreConfigBuilder {
+    url: Option<String>,
+    timeout_secs: u64,
+}
+
+impl StoreConfigBuilder {
+    /// Sets the endpoint URL
+    pub fn url(mut self, url: impl Into<String>) -> Self {
+        self.url = Some(url.into());
+        self
+    }
+
+    /// Sets the timeout duration in seconds (default: 30)
+    pub fn timeout_secs(mut self, secs: u64) -> Self {
+        self.timeout_secs = secs;
+        self
+    }
+
+    /// Builds the StoreConfig, validating the URL
+    pub fn build(self) -> Result<StoreConfig> {
+        let url = self.url.ok_or_else(|| Error::InvalidUrl("URL is required".to_string()))?;
+        // Validate URL format
+        Url::parse(&url).map_err(|_| Error::InvalidUrl(url.clone()))?;
+
+        Ok(StoreConfig {
+            url,
+            timeout_secs: self.timeout_secs,
+        })
     }
 }
 
@@ -53,27 +110,44 @@ impl Store {
     /// # Errors
     ///
     /// Returns an error if the URL is invalid or the connection cannot be established.
+    ///
+    /// # Example
+    ///
+    /// ```ignore
+    /// let store = Store::new("http://localhost:7777")?;
+    /// let results = store.query("SELECT ?s ?p ?o WHERE { ?s ?p ?o } LIMIT 10").await?;
+    /// ```
     pub fn new(url: impl Into<String>) -> Result<Self> {
         let url = url.into();
         Self::with_config(StoreConfig::new(url))
     }
 
     /// Creates a new Store with custom configuration
+    ///
+    /// # Example
+    ///
+    /// ```ignore
+    /// let config = StoreConfig::builder()
+    ///     .url("http://localhost:7777")
+    ///     .timeout_secs(60)
+    ///     .build()?;
+    /// let store = Store::with_config(config)?;
+    /// ```
     pub fn with_config(config: StoreConfig) -> Result<Self> {
         // Validate the URL
-        Url::parse(&config.url).map_err(|_| Error::InvalidUrl(config.url.clone()))?;
+        Url::parse(config.url()).map_err(|_| Error::InvalidUrl(config.url().to_string()))?;
 
-        let timeout = std::time::Duration::from_secs(config.timeout_secs);
+        let timeout = std::time::Duration::from_secs(config.timeout_secs());
         let client = Client::builder()
             .timeout(timeout)
             .build()
             .map_err(Error::Http)?;
 
         // Ensure endpoint URL ends with /
-        let endpoint_url = if config.url.ends_with('/') {
-            config.url
+        let endpoint_url = if config.url().ends_with('/') {
+            config.url().to_string()
         } else {
-            format!("{}/", config.url)
+            format!("{}/", config.url())
         };
 
         Ok(Store {
@@ -299,6 +373,35 @@ impl Store {
         Ok(suggestions)
     }
 
+    /// Helper method for making SPARQL queries and handling responses
+    async fn execute_sparql_request(
+        &self,
+        query: &str,
+        accept_header: &str,
+    ) -> Result<String> {
+        let query_url = format!("{}api/sparql", self.endpoint_url);
+
+        let response = self
+            .client
+            .post(&query_url)
+            .header("Accept", accept_header)
+            .form(&[("query", query)])
+            .send()
+            .await
+            .map_err(Error::Http)?;
+
+        if !response.status().is_success() {
+            let status = response.status();
+            let text = response.text().await.unwrap_or_default();
+            return Err(Error::QueryError(format!(
+                "Query failed with status {}: {}",
+                status, text
+            )));
+        }
+
+        response.text().await.map_err(Error::Http)
+    }
+
     // Helper methods for parsing RDF formats
 
     /// Parses Turtle format RDF
@@ -390,13 +493,42 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_store_config() {
+    fn test_store_config_new() {
         let config = StoreConfig::new("http://localhost:7777");
-        assert_eq!(config.url, "http://localhost:7777");
-        assert_eq!(config.timeout_secs, 30);
+        assert_eq!(config.url(), "http://localhost:7777");
+        assert_eq!(config.timeout_secs(), 30);
+    }
 
-        let config = config.with_timeout(60);
-        assert_eq!(config.timeout_secs, 60);
+    #[test]
+    fn test_store_config_with_timeout() {
+        let config = StoreConfig::new("http://localhost:7777").with_timeout(60);
+        assert_eq!(config.timeout_secs(), 60);
+    }
+
+    #[test]
+    fn test_store_config_builder() {
+        let config = StoreConfig::builder()
+            .url("http://localhost:7777")
+            .timeout_secs(45)
+            .build()
+            .expect("Builder should succeed");
+
+        assert_eq!(config.url(), "http://localhost:7777");
+        assert_eq!(config.timeout_secs(), 45);
+    }
+
+    #[test]
+    fn test_store_config_builder_missing_url() {
+        let result = StoreConfig::builder().timeout_secs(30).build();
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_store_config_builder_invalid_url() {
+        let result = StoreConfig::builder()
+            .url("not a valid url")
+            .build();
+        assert!(result.is_err());
     }
 
     #[test]
