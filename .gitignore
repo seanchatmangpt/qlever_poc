@@ -56,3 +56,7 @@ wasm/target/
 Cargo.lock
 **/*.lock
 benchmark_optimizations_simple
+
+# EPIC 8 runtime artifacts
+.artifacts/
+.config/

@@ -196,18 +196,42 @@ setup_conan() {
 # Install system dependencies
 install_system_deps() {
     echo "Installing system dependencies..."
-    
+
     # Update package list (non-fatal if it fails)
     echo "  Updating package list..."
     sudo apt-get update >/dev/null 2>&1 || echo "${YELLOW}Warning: apt-get update failed (may be in restricted environment)${NC}"
-    
-    # Install essential packages
+
+    # Core build tools and compilers
     install_if_missing "build-essential" "Build tools (GCC, make, etc.)"
+    install_if_missing "cmake" "CMake build system"
     install_if_missing "ninja-build" "Ninja build system"
-    install_if_missing "libicu-dev" "ICU development libraries"
     install_if_missing "pkg-config" "pkg-config"
-    
-    # Verify python3-pip (usually present, but check)
+    install_if_missing "git" "Git version control"
+    install_if_missing "wget" "Wget HTTP client"
+
+    # Internationalization and localization
+    install_if_missing "libicu-dev" "ICU development libraries"
+    install_if_missing "tzdata" "Timezone data"
+
+    # UUID support
+    install_if_missing "uuid-runtime" "UUID runtime utilities"
+    install_if_missing "uuid-dev" "UUID development libraries"
+
+    # Memory management and compression
+    install_if_missing "libjemalloc-dev" "Jemalloc memory allocator"
+    install_if_missing "libzstd-dev" "Zstandard compression library"
+
+    # Security libraries
+    install_if_missing "libssl-dev" "OpenSSL development libraries"
+
+    # Boost libraries (required for QLever) - version pinned for deterministic builds
+    install_if_missing "libboost1.83-dev" "Boost development libraries (1.83)"
+    install_if_missing "libboost-program-options1.83-dev" "Boost program options (1.83)"
+    install_if_missing "libboost-iostreams1.83-dev" "Boost iostreams (1.83)"
+    install_if_missing "libboost-url1.83-dev" "Boost URL library (1.83)"
+    install_if_missing "libboost-container1.83-dev" "Boost container library (1.83)"
+
+    # Python development
     if ! command_exists "pip" && ! command_exists "pip3"; then
         echo "  Installing python3-pip..."
         install_if_missing "python3-pip" "Python pip"
