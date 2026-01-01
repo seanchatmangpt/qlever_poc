@@ -41,3 +41,6 @@ addAndLinkBenchmark(ConstructAdvancedBenchmark engine testUtil queryPlanner pars
 addAndLinkBenchmark(N3BenchmarkTest parser)
 
 addAndLinkBenchmark(RdfParserBenchmark engine testUtil queryPlanner parser)
+
+# Epoch performance benchmark - verifies overhead is <1% latency increase
+addAndLinkBenchmark(EpochBenchmark engine testUtil queryPlanner parser)

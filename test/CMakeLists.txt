@@ -124,6 +124,20 @@ add_subdirectory(backports)
 add_subdirectory(rdfTypes)
 add_subdirectory(joinAlgorithms)
 add_subdirectory(libqlever)
+add_subdirectory(integration)
+
+# Epoch system tests
+if (SINGLE_TEST_BINARY)
+    target_sources(QLeverAllUnitTestsMain PUBLIC global/EpochTest.cpp global/EpochCacheInvalidationHookTest.cpp global/EpochManifestTest.cpp)
+    qlever_target_link_libraries(QLeverAllUnitTestsMain)
+else ()
+    add_executable(EpochTest global/EpochTest.cpp)
+    linkAndDiscoverTest(EpochTest)
+    add_executable(EpochCacheInvalidationHookTest global/EpochCacheInvalidationHookTest.cpp)
+    linkAndDiscoverTest(EpochCacheInvalidationHookTest)
+    add_executable(EpochManifestTest global/EpochManifestTest.cpp)
+    linkAndDiscoverTest(EpochManifestTest)
+endif ()
 
 addLinkAndDiscoverTest(ValueIdComparatorsTest util)
 
@@ -511,3 +525,7 @@ addLinkAndDiscoverTest(MaterializedViewsTest qlever engine server)
 addLinkAndDiscoverTestNoLibs(ConstexprMapTest)
 
 addLinkAndDiscoverTest(ConstructCausationModeTest engine)
+
+addLinkAndDiscoverTest(EpochCacheInvalidationHookTest)
+
+addLinkAndDiscoverTest(EpochManifestTest)
