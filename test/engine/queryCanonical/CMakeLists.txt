@@ -1,0 +1,1 @@
+addLinkAndDiscoverTest(IriNormalizerTest engine)
