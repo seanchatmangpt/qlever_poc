@@ -1110,4 +1110,23 @@ EnhancedValidationReport ShExValidator::validateDatasetEnhanced(
   return report;
 }
 
+// ============================================================================
+// 80/20 Performance Optimizations Implementation
+// ============================================================================
+
+void ShExValidator::buildPredicateIndex() {
+  // Build index mapping predicates to shapes that use them
+  std::vector<std::pair<std::string, std::vector<std::string>>> shapes;
+
+  for (const auto& [shapeId, shape] : schema_.getShapes()) {
+    std::vector<std::string> predicates;
+    for (const auto& prop : shape.properties) {
+      predicates.push_back(prop.predicate);
+    }
+    shapes.push_back({shapeId, predicates});
+  }
+
+  predicateIndex_.buildIndex(shapes);
+}
+
 }  // namespace shex
