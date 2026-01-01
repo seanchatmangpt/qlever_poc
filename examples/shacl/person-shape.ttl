@@ -1,0 +1,107 @@
+# SHACL Person Shape Example
+# This file demonstrates SHACL shape definition for a Person class
+# Following the 80/20 principle: focus on most common constraints
+
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex: <http://example.org/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+# Define a shape for Person class
+ex:PersonShape a sh:NodeShape ;
+  sh:targetClass foaf:Person ;
+  sh:name "Person Shape" ;
+  sh:description "Validates that a person has required and valid properties" ;
+  sh:property [
+    sh:path foaf:name ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 1 ;
+    sh:maxLength 200 ;
+    sh:name "Name" ;
+    sh:description "Person must have exactly one name (1-200 characters)"
+  ] ;
+  sh:property [
+    sh:path foaf:email ;
+    sh:maxCount 3 ;
+    sh:pattern "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$" ;
+    sh:name "Email" ;
+    sh:description "Person may have up to 3 email addresses matching standard email format"
+  ] ;
+  sh:property [
+    sh:path foaf:age ;
+    sh:datatype xsd:integer ;
+    sh:minInclusive 0 ;
+    sh:maxInclusive 150 ;
+    sh:name "Age" ;
+    sh:description "Age must be an integer between 0 and 150"
+  ] ;
+  sh:property [
+    sh:path foaf:givenName ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:name "Given Name" ;
+    sh:description "Given name should be a single string value"
+  ] ;
+  sh:property [
+    sh:path foaf:familyName ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:name "Family Name" ;
+    sh:description "Family name should be a single string value"
+  ] ;
+  sh:closed false ;
+  sh:ignoredProperties ( rdf:type ) .
+
+# Define a shape for Contact (more restrictive)
+ex:ContactShape a sh:NodeShape ;
+  sh:targetClass ex:Contact ;
+  sh:name "Contact Shape" ;
+  sh:description "Strict constraints for contact information" ;
+  sh:property [
+    sh:path foaf:name ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:name "Name" ;
+    sh:description "Contact must have exactly one name"
+  ] ;
+  sh:property [
+    sh:path foaf:email ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:pattern "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$" ;
+    sh:name "Email" ;
+    sh:description "Contact must have exactly one valid email"
+  ] ;
+  sh:property [
+    sh:path foaf:phone ;
+    sh:maxCount 1 ;
+    sh:pattern "^\\+?[0-9\\-\\s()]{7,}$" ;
+    sh:name "Phone" ;
+    sh:description "Phone number in international format"
+  ] .
+
+# Define a shape for Organization
+ex:OrganizationShape a sh:NodeShape ;
+  sh:targetClass foaf:Organization ;
+  sh:name "Organization Shape" ;
+  sh:description "Validates organization information" ;
+  sh:property [
+    sh:path foaf:name ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 1 ;
+    sh:maxLength 255 ;
+    sh:name "Name" ;
+    sh:description "Organization must have exactly one name"
+  ] ;
+  sh:property [
+    sh:path foaf:homepage ;
+    sh:maxCount 1 ;
+    sh:nodeKind sh:IRI ;
+    sh:name "Homepage" ;
+    sh:description "Homepage should be an IRI"
+  ] .
