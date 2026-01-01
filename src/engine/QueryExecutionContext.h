@@ -225,14 +225,25 @@ class QueryExecutionContext {
 
   // Query fingerprint accessors for query shape canonicalization (EPIC 2)
   // Set the fingerprint for this query execution context
-  void setQueryFingerprint(const ad_utility::QueryFingerprint& fingerprint) {
+  void setQueryFingerprint(
+      const queryCanonical::QueryFingerprint& fingerprint) {
     queryFingerprint_ = fingerprint;
   }
 
   // Get the query fingerprint if one has been set
-  [[nodiscard]] const std::optional<ad_utility::QueryFingerprint>&
+  [[nodiscard]] const std::optional<queryCanonical::QueryFingerprint>&
   getQueryFingerprint() const {
     return queryFingerprint_;
+  }
+
+  // Get statistics from query fingerprint (if available)
+  [[nodiscard]] std::optional<queryCanonical::QueryFingerprintStats> getStats()
+      const {
+    if (queryFingerprint_.has_value() &&
+        queryFingerprint_->stats().has_value()) {
+      return queryFingerprint_->stats().value();
+    }
+    return std::nullopt;
   }
 
   // Hook point for cache invalidation on epoch SERVE transition.
@@ -313,8 +324,10 @@ class QueryExecutionContext {
   // Query fingerprint for query shape canonicalization (EPIC 2)
   // Contains complete deterministic identifier for this query's shape,
   // enabling advanced caching strategies and query optimization.
+    // Query fingerprint for this execution context (EPIC 2).
   // Set during query planning when canonicalization is enabled.
-  std::optional<ad_utility::QueryFingerprint> queryFingerprint_;
+  // Captures the normalized "shape" of the query for caching and analytics.
+  std::optional<queryCanonical::QueryFingerprint> queryFingerprint_;
 
   // The last point in time when a websocket update was sent. This is used for
   // limiting the update frequency when `sendPriority` is `IfDue`.
