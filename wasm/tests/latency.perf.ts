@@ -127,13 +127,26 @@ describe('Latency Performance Tests', () => {
         'Start with: ServerMain -p 7023'
       );
     }
+
+    // WARMUP: Execute queries to warm up WASM module and QLever caches
+    console.log('Warming up WASM module for latency tests...');
+    for (let i = 0; i < 10; i++) {
+      try {
+        const response = await client.query('SELECT ?s WHERE { ?s ?p ?o } LIMIT 100', 'json');
+        response.data();
+      } catch (e) {
+        // Ignore warmup errors
+      }
+    }
+    console.log('WASM warmup complete');
   });
 
   /**
    * Test 1: Tiny Result Set Latency
    *
-   * Measures latency for minimal queries returning 1-10 results.
-   * Establishes baseline latency with minimal network/processing overhead.
+   * Measures end-to-end latency for minimal queries returning 1-10 results.
+   * Measures: JS call time → WASM processing → Result serialization → JS deserialization
+   * WASM is warmed up at this point.
    */
   it('Tiny result set latency (1-10 results)', async () => {
     const testCase = LATENCY_TEST_QUERIES.tiny;

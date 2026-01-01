@@ -89,6 +89,18 @@ describe('Memory Efficiency Tests', () => {
         'Start with: ServerMain -p 7023'
       );
     }
+
+    // WARMUP: Execute queries to warm up WASM module
+    console.log('Warming up WASM module for memory tests...');
+    for (let i = 0; i < 5; i++) {
+      try {
+        const response = await client.query('SELECT ?s WHERE { ?s ?p ?o } LIMIT 100', 'json');
+        response.data();
+      } catch (e) {
+        // Ignore warmup errors
+      }
+    }
+    console.log('WASM warmup complete');
   });
 
   /**

@@ -84,6 +84,18 @@ describe('Throughput Performance Tests', () => {
         'Start with: ServerMain -p 7023'
       );
     }
+
+    // WARMUP: Execute queries to warm up WASM module and QLever caches
+    console.log('Warming up WASM module...');
+    for (let i = 0; i < 10; i++) {
+      try {
+        const response = await client.query('SELECT ?s WHERE { ?s ?p ?o } LIMIT 100', 'json');
+        response.data();
+      } catch (e) {
+        // Ignore warmup errors
+      }
+    }
+    console.log('WASM warmup complete');
   });
 
   /**
@@ -285,10 +297,63 @@ describe('Throughput Performance Tests', () => {
   });
 
   /**
-   * Test 7: Throughput Consistency Check
+   * Test 7: Large Result Set Throughput (500K+ triples)
+   *
+   * Tests end-to-end throughput for large result sets.
+   * Measures: JS call → WASM → QLever C++ → serialization → JS receives results
+   * This is the real-world throughput metric for WASM binding.
+   */
+  it('Large result set throughput (500K+ triples)', async () => {
+    // Query that returns many results (~500K+ triples)
+    const largeResultQuery = `
+      SELECT ?s ?p ?o WHERE {
+        ?s ?p ?o .
+      }
+      LIMIT 500000
+    `;
+
+    const iterations = 3;
+    const timings: number[] = [];
+    let totalResults = 0;
+
+    for (let i = 0; i < iterations; i++) {
+      const start = performance.now();
+      const response = await client.query(largeResultQuery, 'json');
+      const data = response.data();
+      const duration = performance.now() - start;
+
+      expect(data.results.bindings).toBeDefined();
+      const resultCount = data.results.bindings.length;
+      totalResults += resultCount;
+
+      timings.push(duration);
+
+      console.log(
+        `Large result iteration ${i + 1}: ${resultCount} results in ${duration.toFixed(2)}ms ` +
+        `(${(resultCount / (duration / 1000)).toFixed(0)} results/sec)`
+      );
+    }
+
+    const avgTime = timings.reduce((a, b) => a + b) / timings.length;
+    const avgResults = totalResults / iterations;
+    const avgThroughput = avgResults / (avgTime / 1000); // results per second
+
+    console.log(
+      `Average large result throughput: ${avgThroughput.toFixed(0)} results/sec ` +
+      `(avg ${avgResults.toFixed(0)} results in ${avgTime.toFixed(2)}ms)`
+    );
+
+    // Should achieve >50K results/second for large result sets
+    // (accounting for serialization overhead)
+    expect(avgThroughput).toBeGreaterThan(50000);
+  });
+
+  /**
+   * Test 8: Throughput Consistency Check
    *
    * Verifies that query execution times remain consistent.
    * Detects performance regressions or bottlenecks.
+   * WASM should be warmed up at this point.
    */
   it('Throughput consistency (latency variance)', async () => {
     const queryCount = 100;

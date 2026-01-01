@@ -36,6 +36,19 @@ describe('Concurrency Performance Tests', () => {
         'Start with: ServerMain -p 7023'
       );
     }
+
+    // WARMUP: Execute queries to warm up WASM module and caches
+    console.log('Warming up WASM module for concurrency tests...');
+    const warmupPromises = [];
+    for (let i = 0; i < 20; i++) {
+      warmupPromises.push(
+        client.query('SELECT ?s WHERE { ?s ?p ?o } LIMIT 100', 'json')
+          .then((r: any) => r.data())
+          .catch(() => {/* ignore */})
+      );
+    }
+    await Promise.all(warmupPromises);
+    console.log('WASM warmup complete');
   });
 
   /**
