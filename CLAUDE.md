@@ -176,7 +176,17 @@ git push -u origin claude/add-claude-documentation-LP2W5
 
 ### Building & Testing
 
-**Setup:**
+**Quick Start (Recommended):**
+```bash
+# One-time setup
+./scripts/setup-dev-env.sh
+
+# Build and test
+./scripts/build-release.sh
+cd build && ctest --output-on-failure
+```
+
+**Manual Setup:**
 ```bash
 mkdir build && cd build
 cmake -DCMAKE_BUILD_TYPE=Release -GNinja ..
@@ -185,7 +195,7 @@ cmake --build .
 
 **Running Tests:**
 ```bash
-# All tests
+# All tests (fast, parallel)
 ctest --output-on-failure
 
 # Specific test
@@ -194,6 +204,13 @@ ctest -R TestName --output-on-failure
 # With verbose output
 ctest --verbose --output-on-failure
 ```
+
+**Helper Scripts** (in `scripts/` directory):
+- `./scripts/setup-dev-env.sh` - Install pre-commit hooks and dependencies
+- `./scripts/build-release.sh` - Build optimized for performance
+- `./scripts/build-debug.sh` - Build with debug symbols (separate build dir)
+- `./scripts/run-tests.sh` - Run tests with various filters
+- `./scripts/format.sh` - Format code manually without committing
 
 **Important Build Flags:**
 - `-DCMAKE_BUILD_TYPE=Release` - Optimize for performance
@@ -210,7 +227,24 @@ ctest --verbose --output-on-failure
 - **Style**: Google C++ style
 - **Line Length**: 100 characters
 - **Pre-commit Hooks**: Automatically applied
-- **Setup**: `pre-commit install` after cloning
+- **Setup**: Run `./scripts/setup-dev-env.sh` (sets up pre-commit automatically)
+
+**Pre-commit Hook Workflow:**
+```bash
+# Normal workflow: format is applied automatically
+git commit -m "message"
+# If files need formatting, commit fails but files are fixed
+# Simply run again - no need to re-stage files
+git commit -m "message"  # This time it succeeds
+
+# Alternative: Format manually before committing
+./scripts/format.sh      # Format all files
+git add <files>
+git commit -m "message"
+
+# Emergency: Skip hooks (not recommended)
+git commit --no-verify
+```
 
 **Spell Checking:**
 - **Tool**: codespell v2.2.6
@@ -328,6 +362,76 @@ Constrained execution model:
 - `AllocatorWithLimit` - Prevent OOM in operations
 - Memory tracking throughout execution
 - **Convention**: Query operations must respect memory limits; track allocations
+
+---
+
+## Developer Experience Tips
+
+This section addresses the most common DX pain points and how to solve them efficiently.
+
+### Pre-commit Hook Friction (Fastest Resolution)
+
+**Problem**: "My commit failed because clang-format reformatted files"
+
+**Solution**: This is expected behavior. Simply run `git commit` again:
+```bash
+git commit -m "my message"
+# Output: hook reformatted files
+git commit -m "my message"  # Success
+```
+
+**Why it works**: Git doesn't unstage your changes, so just re-run commit with the same message.
+
+**Pro Tip**: Avoid this entirely by formatting before committing:
+```bash
+./scripts/format.sh
+git add <files>
+git commit -m "message"
+```
+
+---
+
+### Build Configuration Scenarios
+
+**Scenario 1: First-time setup**
+```bash
+./scripts/setup-dev-env.sh    # One-time: install pre-commit
+./scripts/build-release.sh    # Build optimized version
+cd build && ctest -j$(nproc) --output-on-failure
+```
+
+**Scenario 2: Debugging crashes or memory issues**
+```bash
+./scripts/build-debug.sh
+cd build-debug
+ctest -R SuspiciousTest --output-on-failure
+gdb ./bin/TestBinary       # Debug with GDB
+```
+
+**Scenario 3: Heavy header changes (disable precompiled headers)**
+```bash
+cd build
+cmake -DUSE_PRECOMPILED_HEADERS=OFF .
+cmake --build .
+```
+
+**Scenario 4: Parallel test execution**
+```bash
+ctest -j4 --output-on-failure     # Run 4 tests in parallel
+ctest -j$(nproc) --output-on-failure  # Use all cores
+```
+
+---
+
+### Build Troubleshooting Quick Reference
+
+| Problem | Solution |
+|---------|----------|
+| Build fails with format errors | Run `./scripts/format.sh` then rebuild |
+| Pre-commit hook fails | Run `git commit` again (files already fixed) |
+| Slow build after header changes | `cmake -DUSE_PRECOMPILED_HEADERS=OFF .` |
+| Out of memory during build | Reduce parallelism: `cmake --build . -- -j2` |
+| Tests fail locally but pass on CI | `cmake -DCMAKE_BUILD_TYPE=Debug` + run tests |
 
 ---
 
@@ -721,16 +825,39 @@ cmake -DPERFTOOLS_PROFILER=ON ..
 
 ## Useful Commands
 
+### Quick Development Workflow
+
+```bash
+# One-time setup
+./scripts/setup-dev-env.sh
+
+# Build and test (recommended approach)
+./scripts/build-release.sh
+cd build && ctest --output-on-failure
+
+# Format code (alternative: pre-commit handles this on commit)
+./scripts/format.sh
+
+# Run specific tests
+./scripts/run-tests.sh JoinTest
+./scripts/run-tests.sh 'Filter.*'  # Regex pattern
+
+# Debug build (separate directory)
+./scripts/build-debug.sh
+cd build-debug && ctest -R TestName --output-on-failure
+```
+
+### Manual Commands (if not using scripts)
+
 ```bash
 # Clone and setup
 git clone <repo>
 cd qlever
-git checkout claude/add-claude-documentation-LP2W5
 
 # Build
 mkdir build && cd build
 cmake -DCMAKE_BUILD_TYPE=Release -GNinja ..
-cmake --build .
+cmake --build . -- -j$(nproc)
 
 # Test
 ctest --output-on-failure
@@ -738,18 +865,28 @@ ctest -R TestName --output-on-failure
 
 # Format
 pre-commit run --all-files
-# or
+# or manually:
 clang-format -i src/engine/file.cpp
-
-# Search for patterns
-grep -r "class Operation" src/
-grep -r "IdTableStatic" src/
 
 # Git operations
 git status
 git add <files>
 git commit -m "message"
-git push -u origin claude/add-claude-documentation-LP2W5
+git push -u origin <branch-name>
+```
+
+### Code Navigation & Search
+
+```bash
+# Find class definitions
+grep -r "class Operation" src/
+grep -r "IdTableStatic" src/
+
+# Find specific functions
+grep -rn "void execute()" src/engine/
+
+# List test files
+find test -name "*Test.cpp" | head -20
 ```
 
 ---
