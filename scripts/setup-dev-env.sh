@@ -207,6 +207,7 @@ install_system_deps() {
     install_if_missing "ninja-build" "Ninja build system"
     install_if_missing "pkg-config" "pkg-config"
     install_if_missing "git" "Git version control"
+    install_if_missing "wget" "Wget HTTP client"
 
     # Internationalization and localization
     install_if_missing "libicu-dev" "ICU development libraries"
@@ -223,12 +224,12 @@ install_system_deps() {
     # Security libraries
     install_if_missing "libssl-dev" "OpenSSL development libraries"
 
-    # Boost libraries (required for QLever)
-    install_if_missing "libboost-dev" "Boost development libraries"
-    install_if_missing "libboost-program-options-dev" "Boost program options"
-    install_if_missing "libboost-iostreams-dev" "Boost iostreams"
-    install_if_missing "libboost-url-dev" "Boost URL library"
-    install_if_missing "libboost-container-dev" "Boost container library"
+    # Boost libraries (required for QLever) - version pinned for deterministic builds
+    install_if_missing "libboost1.83-dev" "Boost development libraries (1.83)"
+    install_if_missing "libboost-program-options1.83-dev" "Boost program options (1.83)"
+    install_if_missing "libboost-iostreams1.83-dev" "Boost iostreams (1.83)"
+    install_if_missing "libboost-url1.83-dev" "Boost URL library (1.83)"
+    install_if_missing "libboost-container1.83-dev" "Boost container library (1.83)"
 
     # Python development
     if ! command_exists "pip" && ! command_exists "pip3"; then

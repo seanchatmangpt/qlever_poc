@@ -31,13 +31,15 @@ phase-a: ensure-build-dir
 	@echo "PHASE_A: Toolchain sealing" >&2
 	@$(SHELL) -c '\
 		set -e; \
-		CXX=$$(command -v clang++ || command -v g++); \
+		if command -v clang++ >/dev/null 2>&1; then CXX=$$(command -v clang++); else CXX=$$(command -v g++); fi; \
 		test -n "$$CXX" || exit 1; \
 		CXXID=$$($$CXX -v 2>&1 | head -1); \
 		echo "$$CXXID" > $(COMPILER_ID_FILE); \
+		SOURCE_DATE_EPOCH=$$(git log -1 --format=%ct); \
 		NORMALIZED_FLAGS="-std=c++20 -O3 -DNDEBUG"; \
-		echo "NORMALIZED_CXXFLAGS=$$NORMALIZED_FLAGS" > $(ARTIFACTS_DIR)/flags.env; \
-		echo "CXX=$$CXX" >> $(ARTIFACTS_DIR)/flags.env; \
+		echo "NORMALIZED_CXXFLAGS=\"$$NORMALIZED_FLAGS\"" > $(ARTIFACTS_DIR)/flags.env; \
+		echo "CXX=\"$$CXX\"" >> $(ARTIFACTS_DIR)/flags.env; \
+		echo "SOURCE_DATE_EPOCH=\"$$SOURCE_DATE_EPOCH\"" >> $(ARTIFACTS_DIR)/flags.env; \
 		exit 0 \
 	'
 
@@ -68,16 +70,20 @@ phase-c: phase-b setup-dev-env
 	@echo "PHASE_C: Core compilation" >&2
 	@$(SHELL) -c '\
 		set -e; \
-		source $(ARTIFACTS_DIR)/flags.env; \
+		. $(ARTIFACTS_DIR)/flags.env; \
+		export SOURCE_DATE_EPOCH; \
 		cd $(BUILD_DIR); \
 		cmake -DCMAKE_BUILD_TYPE=Release \
-		      -DCMAKE_CXX_COMPILER=$$CXX \
+		      -DCMAKE_CXX_COMPILER="$$CXX" \
+		      -DCMAKE_CXX_FLAGS="$$NORMALIZED_CXXFLAGS" \
+		      -DCMAKE_AR="$$(which ar)" \
+		      -DCMAKE_RANLIB="$$(which ranlib)" \
 		      -GNinja \
 		      -DUSE_PARALLEL=true \
 		      -DLOGLEVEL=INFO \
 		      -D_NO_TIMING_TESTS=ON \
 		      .. >/dev/null 2>&1 || exit 1; \
-		ninja -j$$(($$(nproc) + 1)) >/dev/null 2>&1 || exit 1; \
+		ninja -j4 >/dev/null 2>&1 || exit 1; \
 		exit 0 \
 	'
 
