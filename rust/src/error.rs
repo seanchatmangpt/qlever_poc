@@ -22,4 +22,7 @@ pub enum Error {
 
     #[error("Invalid C string: null byte in string")]
     NullInString(#[from] std::ffi::NulError),
+
+    #[error("JSON error: {0}")]
+    Json(#[from] serde_json::Error),
 }

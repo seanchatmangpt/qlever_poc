@@ -18,5 +18,5 @@ thiserror = "1.0"
 # High-performance locking for concurrent triple store access
 parking_lot = "0.12"
 
-# Optional: For future FFI integration with C++
-# libqlever = { path = "../target/libqlever" }  # When C++ bindings are ready
+# JSON parsing for QLever query results (FFI)
+serde_json = "1.0"

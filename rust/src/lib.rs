@@ -1,45 +1,40 @@
-//! QLever Rust - Fast in-memory SPARQL database
+//! QLever Rust - Bindings to libqlever SPARQL engine
 //!
-//! A high-performance, thread-safe RDF/SPARQL engine designed for embedding in Erlang.
-//! All operations are synchronous with zero serialization overhead.
+//! A high-performance Rust wrapper around the QLever C++ SPARQL engine, designed for
+//! embedding in Erlang applications. All operations are synchronous with zero-copy data sharing.
 //!
 //! # Core Components
 //!
-//! - **Store**: Fast in-memory triple store with concurrent access
+//! - **Store**: QLever index wrapper via C FFI
 //! - **RDF Data Model**: NamedNode, BlankNode, Literal, Term, Triple, Quad types
 //! - **Query Results**: QuerySolution bindings from SPARQL queries
 //! - **Query Cache**: Optional LRU cache with TTL for result caching
-//! - **Zero Overhead**: No serialization, no async runtime, no networking
+//! - **FFI Layer**: Safe C bindings to libqlever
 //!
 //! # Design Philosophy
 //!
-//! This library is minimal and focused:
-//! - Pure data structures with no bloat
-//! - Fast in-memory operations
-//! - Thread-safe via parking_lot RwLock
+//! This library wraps the C++ QLever engine via FFI:
+//! - Minimal marshalling (C strings, JSON results)
+//! - Zero-copy where possible (pointers to C++ memory)
+//! - Thread-safe (Rust owns the handle)
 //! - Optional caching for frequently executed queries
 //! - Erlang handles networking and distribution
 //!
-//! # Examples
+//! # Usage
 //!
 //! ```ignore
-//! use qlever::{Store, NamedNode, Term, Triple};
+//! use qlever::Store;
 //!
 //! fn main() -> Result<(), Box<dyn std::error::Error>> {
-//!     let store = Store::new();
+//!     // Open a pre-built QLever index
+//!     let store = Store::open("/path/to/index")?;
 //!
-//!     // Add triples
-//!     let subject = NamedNode::new("http://example.org/alice".to_string())?;
-//!     let predicate = NamedNode::new("http://example.org/knows".to_string())?;
-//!     let object = Term::NamedNode(
-//!         NamedNode::new("http://example.org/bob".to_string())?
-//!     );
-//!     let triple = Triple::new(subject, predicate, object);
-//!     store.insert(triple)?;
+//!     // Execute SPARQL query
+//!     let results = store.query("SELECT ?s ?p ?o WHERE { ?s ?p ?o } LIMIT 10")?;
 //!
-//!     // Query triples
-//!     let results = store.query_triples(None, None, None)?;
-//!     println!("Found {} triples", results.len());
+//!     for solution in results {
+//!         println!("{:?}", solution);
+//!     }
 //!
 //!     Ok(())
 //! }
@@ -50,9 +45,12 @@ pub mod model;
 pub mod query;
 pub mod store;
 pub mod cache;
+pub mod ffi;
+pub mod qlever_store;
 
 pub use error::{Error, Result};
 pub use model::{BlankNode, Literal, NamedNode, Quad, Term, Triple};
 pub use query::QuerySolution;
-pub use store::Store;
+pub use qlever_store::Store;  // Primary Store is QLever-backed
+pub use store::Store as MemoryStore;  // In-memory store available as fallback
 pub use cache::{QueryCache, CacheStats};
