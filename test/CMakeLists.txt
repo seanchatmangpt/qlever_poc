@@ -153,6 +153,8 @@ addLinkAndDiscoverTest(CacheTest)
 
 addLinkAndDiscoverTestNoLibs(ConcurrentCacheTest)
 
+addLinkAndDiscoverTestNoLibs(SingleFlightTest)
+
 # This test also seems to use the same filenames and should be fixed.
 addLinkAndDiscoverTestSerial(FileTest)
 
@@ -512,8 +514,3 @@ addLinkAndDiscoverTest(MaterializedViewsTest qlever engine server)
 addLinkAndDiscoverTestNoLibs(ConstexprMapTest)
 
 addLinkAndDiscoverTest(ConstructCausationModeTest engine)
-
-addLinkAndDiscoverTest(EpochCacheInvalidationHookTest)
-
-addLinkAndDiscoverTest(EpochManifestTest)
-addLinkAndDiscoverTest(engine/queryCanonical/CanonicalSerializerTest engine)

@@ -5,7 +5,7 @@
 #include <optional>
 #include <stdexcept>
 
-#include "ad_utility/Synchronized.h"
+#include "util/Synchronized.h"
 
 namespace ad_utility {
 

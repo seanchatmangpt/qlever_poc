@@ -29,7 +29,11 @@ add_library(engine
         queryCanonical/DeterminismClassifier.cpp queryCanonical/CanonicalSerializer.cpp
         queryCanonical/FingerprintRegistry.cpp queryCanonical/QueryFingerprint.cpp
         queryCanonical/QueryFingerprintingPipeline.cpp queryCanonical/TriplePatternNormalizer.cpp
-        queryCanonical/VariableNormalizer.cpp queryCanonical/FingerprintEvents.cpp)
+        queryCanonical/VariableNormalizer.cpp queryCanonical/FingerprintEvents.cpp
+        readCache/ReadCacheKeys.cpp readCache/SerializerPaging.cpp
+        readCache/BytesCache.cpp readCache/PlanCache.cpp readCache/NegativeCache.cpp
+        readCache/ReadCacheManager.cpp readCache/AdmissionPolicy.cpp
+        readCache/CacheMetrics.cpp readCache/MetricsExport.cpp)
 
 qlever_target_link_libraries(engine util index parser global sparqlExpressions SortPerformanceEstimator Boost::iostreams s2 spatialjoin-dev pb_util pb_util_geo)
 
