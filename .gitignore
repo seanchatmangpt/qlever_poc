@@ -55,3 +55,4 @@ rust/target/
 wasm/target/
 Cargo.lock
 **/*.lock
+benchmark_optimizations_simple
