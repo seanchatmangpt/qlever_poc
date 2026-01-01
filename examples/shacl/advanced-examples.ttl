@@ -1,0 +1,752 @@
+# SHACL Advanced Examples for QLever
+# Comprehensive collection of SHACL shapes demonstrating all features
+
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex: <http://example.org/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# =============================================================================
+# Section 1: Basic Constraints
+# =============================================================================
+
+ex:BasicPersonShape a sh:NodeShape ;
+  sh:name "Basic Person Shape" ;
+  sh:description "Demonstrates basic cardinality and datatype constraints" ;
+  sh:targetClass foaf:Person ;
+
+  # Required string property
+  sh:property [
+    sh:path foaf:name ;
+    sh:name "Name" ;
+    sh:description "Person must have exactly one name" ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 1 ;
+    sh:maxLength 200
+  ] ;
+
+  # Optional email with pattern
+  sh:property [
+    sh:path foaf:email ;
+    sh:name "Email" ;
+    sh:maxCount 1 ;
+    sh:pattern "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$" ;
+    sh:message "Email must be in valid format (user@domain.com)"
+  ] ;
+
+  # Numeric range constraint
+  sh:property [
+    sh:path foaf:age ;
+    sh:name "Age" ;
+    sh:datatype xsd:integer ;
+    sh:minInclusive 0 ;
+    sh:maxInclusive 150 ;
+    sh:message "Age must be between 0 and 150"
+  ] .
+
+# =============================================================================
+# Section 2: Recursive Shapes
+# =============================================================================
+
+ex:EmployeeShape a sh:NodeShape ;
+  sh:name "Employee Shape with Recursive Manager" ;
+  sh:description "Demonstrates recursive validation with sh:node" ;
+  sh:targetClass ex:Employee ;
+
+  sh:property [
+    sh:path foaf:name ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string
+  ] ;
+
+  sh:property [
+    sh:path ex:employeeId ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:pattern "^EMP[0-9]{6}$" ;
+    sh:message "Employee ID must be in format EMP123456"
+  ] ;
+
+  # Recursive: manager must also be a valid employee
+  sh:property [
+    sh:path ex:manager ;
+    sh:maxCount 1 ;
+    sh:node ex:EmployeeShape ;  # Recursive reference
+    sh:message "Manager must be a valid employee"
+  ] .
+
+ex:TreeNodeShape a sh:NodeShape ;
+  sh:name "Recursive Tree Node" ;
+  sh:description "Validates tree structures with parent/child relationships" ;
+  sh:targetClass ex:TreeNode ;
+
+  sh:property [
+    sh:path ex:value ;
+    sh:minCount 1 ;
+    sh:maxCount 1
+  ] ;
+
+  # Parent reference (recursive)
+  sh:property [
+    sh:path ex:parent ;
+    sh:maxCount 1 ;
+    sh:node ex:TreeNodeShape
+  ] ;
+
+  # Children references (recursive, multiple)
+  sh:property [
+    sh:path ex:children ;
+    sh:node ex:TreeNodeShape
+  ] .
+
+# =============================================================================
+# Section 3: SPARQL-Based Constraints
+# =============================================================================
+
+ex:AgeConsistencyShape a sh:NodeShape ;
+  sh:name "Age Consistency Check" ;
+  sh:description "SPARQL constraint validating age matches birth date" ;
+  sh:targetClass foaf:Person ;
+
+  sh:sparql [
+    sh:message "Age {?age} does not match birth date {?birthDate}" ;
+    sh:select """
+      SELECT $this ?age ?birthDate
+      WHERE {
+        $this foaf:age ?age .
+        $this ex:birthDate ?birthDate .
+        BIND(YEAR(NOW()) - YEAR(?birthDate) AS ?calculatedAge)
+        FILTER (?age != ?calculatedAge)
+      }
+    """
+  ] .
+
+ex:UniqueEmailShape a sh:NodeShape ;
+  sh:name "Unique Email Constraint" ;
+  sh:description "Ensures email addresses are unique across all persons" ;
+  sh:targetClass foaf:Person ;
+
+  sh:sparql [
+    sh:message "Email {?email} is already used by another person {?other}" ;
+    sh:severity sh:Warning ;
+    sh:select """
+      SELECT $this ?email ?other
+      WHERE {
+        $this foaf:email ?email .
+        ?other foaf:email ?email .
+        FILTER ($this != ?other)
+      }
+    """
+  ] .
+
+ex:TeamSizeConstraint a sh:NodeShape ;
+  sh:name "Minimum Team Size" ;
+  sh:description "Team must have at least 3 members using aggregation" ;
+  sh:targetClass ex:Team ;
+
+  sh:sparql [
+    sh:message "Team has only {?count} members (minimum 3 required)" ;
+    sh:select """
+      SELECT $this (COUNT(?member) AS ?count)
+      WHERE {
+        $this ex:member ?member .
+      }
+      GROUP BY $this
+      HAVING (COUNT(?member) < 3)
+    """
+  ] .
+
+ex:DateRangeShape a sh:NodeShape ;
+  sh:name "Date Range Validation" ;
+  sh:description "Start date must be before end date" ;
+  sh:targetClass ex:Event ;
+
+  sh:sparql [
+    sh:message "Start date {?start} must be before end date {?end}" ;
+    sh:select """
+      SELECT $this ?start ?end
+      WHERE {
+        $this ex:startDate ?start .
+        $this ex:endDate ?end .
+        FILTER (?start >= ?end)
+      }
+    """
+  ] .
+
+# =============================================================================
+# Section 4: Complex Property Paths
+# =============================================================================
+
+ex:InversePathShape a sh:NodeShape ;
+  sh:name "Inverse Path Example" ;
+  sh:description "Validates using inverse property paths" ;
+  sh:targetClass ex:Author ;
+
+  # Author must have written at least one document
+  sh:property [
+    sh:path [ sh:inversePath ex:author ] ;
+    sh:minCount 1 ;
+    sh:message "Author must have written at least one document"
+  ] .
+
+ex:SequencePathShape a sh:NodeShape ;
+  sh:name "Sequence Path Example" ;
+  sh:description "Validates through property path sequences" ;
+  sh:targetClass ex:Person ;
+
+  # Person must have city through address
+  sh:property [
+    sh:path ( ex:address ex:city ) ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Person must have a city through their address"
+  ] .
+
+ex:AlternativePathShape a sh:NodeShape ;
+  sh:name "Alternative Path Example" ;
+  sh:description "Validates using alternative property paths" ;
+  sh:targetClass ex:Contact ;
+
+  # Contact must have either email or phone
+  sh:property [
+    sh:path [ sh:alternativePath ( foaf:email foaf:phone ) ] ;
+    sh:minCount 1 ;
+    sh:message "Contact must have either email or phone number"
+  ] .
+
+ex:TransitivePathShape a sh:NodeShape ;
+  sh:name "Transitive Path Example" ;
+  sh:description "Validates using transitive closure (zero or more)" ;
+  sh:targetClass ex:Employee ;
+
+  # Validate manager hierarchy (transitive)
+  sh:property [
+    sh:path [ sh:zeroOrMorePath ex:manager ] ;
+    sh:maxCount 10 ;  # Limit depth to prevent deep hierarchies
+    sh:message "Manager hierarchy is too deep (max 10 levels)"
+  ] .
+
+ex:ComplexPathComposition a sh:NodeShape ;
+  sh:name "Complex Path Composition" ;
+  sh:description "Combines multiple path operators" ;
+  sh:targetClass ex:Organization ;
+
+  # Navigate through organization hierarchy and get all contact emails
+  sh:property [
+    sh:path (
+      [ sh:zeroOrMorePath ex:subOrganization ]
+      ex:contactPerson
+      foaf:email
+    ) ;
+    sh:minCount 1 ;
+    sh:message "Organization must have at least one contact email in hierarchy"
+  ] .
+
+# =============================================================================
+# Section 5: Shape Composition
+# =============================================================================
+
+ex:BasePersonShape a sh:NodeShape ;
+  sh:name "Base Person Shape" ;
+  sh:description "Reusable base shape for person entities" ;
+
+  sh:property [
+    sh:path foaf:name ;
+    sh:minCount 1 ;
+    sh:datatype xsd:string
+  ] ;
+
+  sh:property [
+    sh:path foaf:givenName ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string
+  ] ;
+
+  sh:property [
+    sh:path foaf:familyName ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string
+  ] .
+
+ex:ContactInfoShape a sh:NodeShape ;
+  sh:name "Contact Information Shape" ;
+  sh:description "Reusable contact information constraints" ;
+
+  sh:property [
+    sh:path foaf:email ;
+    sh:maxCount 1 ;
+    sh:pattern "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+  ] ;
+
+  sh:property [
+    sh:path foaf:phone ;
+    sh:maxCount 1 ;
+    sh:pattern "^\\+?[0-9\\-\\s()]{7,}$"
+  ] .
+
+ex:ComposedPersonShape a sh:NodeShape ;
+  sh:name "Composed Person Shape" ;
+  sh:description "Composes multiple shapes using sh:node" ;
+  sh:targetClass ex:VerifiedPerson ;
+
+  # Must conform to base person shape
+  sh:node ex:BasePersonShape ;
+
+  # AND must have contact info
+  sh:node ex:ContactInfoShape ;
+
+  # Plus additional constraints
+  sh:property [
+    sh:path ex:verified ;
+    sh:hasValue true ;
+    sh:message "Person must be verified"
+  ] .
+
+# =============================================================================
+# Section 6: Logical Operators
+# =============================================================================
+
+ex:AndShape a sh:NodeShape ;
+  sh:name "Logical AND Example" ;
+  sh:description "All sub-shapes must conform" ;
+  sh:targetClass ex:PremiumMember ;
+
+  sh:and (
+    [  # Must be a paid member
+      sh:property [
+        sh:path ex:paid ;
+        sh:hasValue true
+      ]
+    ]
+    [  # Must be active
+      sh:property [
+        sh:path ex:status ;
+        sh:hasValue "active"
+      ]
+    ]
+    [  # Must be verified
+      sh:property [
+        sh:path ex:verified ;
+        sh:hasValue true
+      ]
+    ]
+  ) .
+
+ex:OrShape a sh:NodeShape ;
+  sh:name "Logical OR Example" ;
+  sh:description "At least one sub-shape must conform" ;
+  sh:targetClass ex:Contactable ;
+
+  sh:or (
+    [  # Has email
+      sh:property [
+        sh:path foaf:email ;
+        sh:minCount 1
+      ]
+    ]
+    [  # Has phone
+      sh:property [
+        sh:path foaf:phone ;
+        sh:minCount 1
+      ]
+    ]
+    [  # Has postal address
+      sh:property [
+        sh:path ex:postalAddress ;
+        sh:minCount 1
+      ]
+    ]
+  ) .
+
+ex:XoneShape a sh:NodeShape ;
+  sh:name "Logical XONE (Exclusive OR) Example" ;
+  sh:description "Exactly one sub-shape must conform" ;
+  sh:targetClass ex:Payment ;
+
+  sh:xone (
+    [  # Credit card payment
+      sh:property [
+        sh:path ex:creditCardNumber ;
+        sh:minCount 1
+      ]
+    ]
+    [  # Bank transfer
+      sh:property [
+        sh:path ex:bankAccount ;
+        sh:minCount 1
+      ]
+    ]
+    [  # Cryptocurrency
+      sh:property [
+        sh:path ex:cryptoWallet ;
+        sh:minCount 1
+      ]
+    ]
+  ) ;
+  sh:message "Must use exactly one payment method" .
+
+ex:NotShape a sh:NodeShape ;
+  sh:name "Logical NOT Example" ;
+  sh:description "Must not conform to sub-shape" ;
+  sh:targetClass ex:FreeUser ;
+
+  sh:not [
+    sh:property [
+      sh:path ex:premiumFeatures ;
+      sh:minCount 1
+    ]
+  ] ;
+  sh:message "Free users cannot have premium features" .
+
+# =============================================================================
+# Section 7: Property Pair Constraints
+# =============================================================================
+
+ex:EqualsConstraintShape a sh:NodeShape ;
+  sh:name "Equals Constraint Example" ;
+  sh:description "Two properties must have same values" ;
+  sh:targetClass ex:UserRegistration ;
+
+  sh:property [
+    sh:path ex:email ;
+    sh:minCount 1 ;
+    sh:equals ex:confirmEmail ;
+    sh:message "Email and confirmation must match"
+  ] ;
+
+  sh:property [
+    sh:path ex:password ;
+    sh:minCount 1 ;
+    sh:equals ex:confirmPassword ;
+    sh:message "Password and confirmation must match"
+  ] .
+
+ex:DisjointConstraintShape a sh:NodeShape ;
+  sh:name "Disjoint Constraint Example" ;
+  sh:description "Two properties must have no common values" ;
+  sh:targetClass ex:Person ;
+
+  sh:property [
+    sh:path ex:primaryContact ;
+    sh:disjoint ex:emergencyContact ;
+    sh:message "Primary and emergency contacts must be different people"
+  ] .
+
+ex:LessThanConstraintShape a sh:NodeShape ;
+  sh:name "Less Than Constraint Example" ;
+  sh:description "Property value must be less than another property" ;
+  sh:targetClass ex:Event ;
+
+  sh:property [
+    sh:path ex:startDate ;
+    sh:lessThan ex:endDate ;
+    sh:message "Start date must be before end date"
+  ] ;
+
+  sh:property [
+    sh:path ex:minParticipants ;
+    sh:lessThanOrEquals ex:maxParticipants ;
+    sh:message "Minimum participants must not exceed maximum"
+  ] .
+
+# =============================================================================
+# Section 8: Qualified Value Shapes
+# =============================================================================
+
+ex:QualifiedValueShape a sh:NodeShape ;
+  sh:name "Qualified Value Shape Example" ;
+  sh:description "Validates specific count of values matching criteria" ;
+  sh:targetClass ex:Team ;
+
+  sh:property [
+    sh:path ex:member ;
+    sh:minCount 3 ;  # At least 3 members total
+
+    # At least 1 administrator
+    sh:qualifiedValueShape [
+      sh:property [
+        sh:path ex:role ;
+        sh:hasValue "administrator"
+      ]
+    ] ;
+    sh:qualifiedMinCount 1 ;
+    sh:qualifiedMaxCount 3 ;
+    sh:message "Team must have 1-3 administrators"
+  ] .
+
+ex:MultipleQualifiedShape a sh:NodeShape ;
+  sh:name "Multiple Qualified Constraints" ;
+  sh:description "Multiple qualified value constraints on same property" ;
+  sh:targetClass ex:Project ;
+
+  sh:property [
+    sh:path ex:member ;
+
+    # At least 1 project manager
+    sh:qualifiedValueShape [
+      sh:property [
+        sh:path ex:role ;
+        sh:hasValue "manager"
+      ]
+    ] ;
+    sh:qualifiedMinCount 1 ;
+    sh:qualifiedMaxCount 2
+  ] ;
+
+  sh:property [
+    sh:path ex:member ;
+
+    # At least 2 developers
+    sh:qualifiedValueShape [
+      sh:property [
+        sh:path ex:role ;
+        sh:hasValue "developer"
+      ]
+    ] ;
+    sh:qualifiedMinCount 2
+  ] .
+
+# =============================================================================
+# Section 9: Advanced Datatype Constraints
+# =============================================================================
+
+ex:DatatypeShape a sh:NodeShape ;
+  sh:name "Advanced Datatype Examples" ;
+  sh:description "Demonstrates various XSD datatype constraints" ;
+  sh:targetClass ex:DataRecord ;
+
+  # Boolean
+  sh:property [
+    sh:path ex:active ;
+    sh:datatype xsd:boolean
+  ] ;
+
+  # Date
+  sh:property [
+    sh:path ex:createdDate ;
+    sh:datatype xsd:date ;
+    sh:minInclusive "2020-01-01"^^xsd:date
+  ] ;
+
+  # DateTime
+  sh:property [
+    sh:path ex:timestamp ;
+    sh:datatype xsd:dateTime
+  ] ;
+
+  # Decimal with precision
+  sh:property [
+    sh:path ex:price ;
+    sh:datatype xsd:decimal ;
+    sh:minInclusive 0.00 ;
+    sh:maxExclusive 1000000.00
+  ] ;
+
+  # URI
+  sh:property [
+    sh:path ex:homepage ;
+    sh:nodeKind sh:IRI ;
+    sh:pattern "^https?://"
+  ] ;
+
+  # Language-tagged string
+  sh:property [
+    sh:path rdfs:label ;
+    sh:datatype rdf:langString ;
+    sh:languageIn ( "en" "de" "fr" ) ;
+    sh:uniqueLang true
+  ] .
+
+# =============================================================================
+# Section 10: Closed Shapes
+# =============================================================================
+
+ex:ClosedShape a sh:NodeShape ;
+  sh:name "Closed Shape Example" ;
+  sh:description "Restricts properties to those explicitly defined" ;
+  sh:targetClass ex:StrictPerson ;
+
+  sh:closed true ;
+  sh:ignoredProperties ( rdf:type ) ;
+
+  sh:property [
+    sh:path foaf:name ;
+    sh:minCount 1
+  ] ;
+
+  sh:property [
+    sh:path foaf:email ;
+    sh:maxCount 1
+  ] ;
+
+  sh:property [
+    sh:path foaf:age ;
+    sh:maxCount 1
+  ] ;
+
+  sh:message "Only name, email, and age properties are allowed" .
+
+# =============================================================================
+# Section 11: Multi-Language Support
+# =============================================================================
+
+ex:MultiLanguageShape a sh:NodeShape ;
+  sh:name "Multi-Language Shape" ;
+  sh:description "Validates multi-language properties" ;
+  sh:targetClass ex:InternationalResource ;
+
+  sh:property [
+    sh:path rdfs:label ;
+    sh:minCount 1 ;
+    sh:datatype rdf:langString ;
+    sh:languageIn ( "en" "de" "fr" "es" "it" ) ;
+    sh:uniqueLang true ;
+    sh:message "Label must be in at least one of: en, de, fr, es, it (unique per language)"
+  ] ;
+
+  sh:property [
+    sh:path rdfs:comment ;
+    sh:datatype rdf:langString ;
+    sh:languageIn ( "en" "de" "fr" "es" "it" )
+  ] .
+
+# =============================================================================
+# Section 12: Real-World Example: E-Commerce Product
+# =============================================================================
+
+ex:ProductShape a sh:NodeShape ;
+  sh:name "E-Commerce Product Shape" ;
+  sh:description "Comprehensive product validation for e-commerce" ;
+  dcterms:created "2024-01-01"^^xsd:date ;
+  dcterms:modified "2024-06-15"^^xsd:date ;
+  sh:targetClass ex:Product ;
+
+  # Required properties
+  sh:property [
+    sh:path ex:sku ;
+    sh:name "SKU" ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:pattern "^[A-Z]{3}-[0-9]{6}$" ;
+    sh:message "SKU must be in format ABC-123456"
+  ] ;
+
+  sh:property [
+    sh:path ex:name ;
+    sh:name "Product Name" ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:minLength 3 ;
+    sh:maxLength 200
+  ] ;
+
+  sh:property [
+    sh:path ex:price ;
+    sh:name "Price" ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:decimal ;
+    sh:minInclusive 0.01 ;
+    sh:message "Price must be greater than 0"
+  ] ;
+
+  # Optional but validated properties
+  sh:property [
+    sh:path ex:description ;
+    sh:name "Description" ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:maxLength 5000
+  ] ;
+
+  sh:property [
+    sh:path ex:category ;
+    sh:name "Category" ;
+    sh:minCount 1 ;
+    sh:class ex:Category ;
+    sh:message "Product must have at least one valid category"
+  ] ;
+
+  sh:property [
+    sh:path ex:inStock ;
+    sh:name "In Stock" ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:boolean ;
+    sh:hasValue true ;
+    sh:message "Product must be in stock"
+  ] ;
+
+  sh:property [
+    sh:path ex:stockQuantity ;
+    sh:name "Stock Quantity" ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:integer ;
+    sh:minInclusive 0
+  ] ;
+
+  # SPARQL constraint: discount price must be less than regular price
+  sh:sparql [
+    sh:message "Discount price {?discount} must be less than regular price {?regular}" ;
+    sh:select """
+      SELECT $this ?regular ?discount
+      WHERE {
+        $this ex:price ?regular .
+        $this ex:discountPrice ?discount .
+        FILTER (?discount >= ?regular)
+      }
+    """
+  ] .
+
+# =============================================================================
+# Section 13: Performance-Optimized Shapes
+# =============================================================================
+
+ex:OptimizedShape a sh:NodeShape ;
+  sh:name "Performance-Optimized Shape" ;
+  sh:description "Demonstrates best practices for validation performance" ;
+  sh:targetClass ex:LargeDataset ;
+
+  # Order constraints from cheapest to most expensive
+
+  # 1. Simple cardinality (very fast)
+  sh:property [
+    sh:path ex:id ;
+    sh:minCount 1 ;
+    sh:maxCount 1
+  ] ;
+
+  # 2. Datatype check (fast)
+  sh:property [
+    sh:path ex:timestamp ;
+    sh:datatype xsd:dateTime
+  ] ;
+
+  # 3. Enumeration (fast)
+  sh:property [
+    sh:path ex:status ;
+    sh:in ( "active" "inactive" "pending" )
+  ] ;
+
+  # 4. Numeric range (fast)
+  sh:property [
+    sh:path ex:value ;
+    sh:minInclusive 0 ;
+    sh:maxInclusive 100
+  ] ;
+
+  # 5. Pattern matching (slower - place last)
+  sh:property [
+    sh:path ex:code ;
+    sh:pattern "^[A-Z0-9]{8}$"
+  ] .
+
+# =============================================================================
+# End of Examples
+# =============================================================================
