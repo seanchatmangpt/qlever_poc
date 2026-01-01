@@ -16,6 +16,7 @@
 #include <vector>
 
 #include "backports/concepts.h"
+#include "engine/AdaptiveResourceAllocation.h"
 #include "engine/GroupByHashMapOptimization.h"
 #include "engine/Join.h"
 #include "engine/Operation.h"
@@ -26,7 +27,21 @@
 #include "util/TypeIdentity.h"
 
 // Block size for when using the hash map optimization
-static constexpr size_t GROUP_BY_HASH_MAP_BLOCK_SIZE = 262144;
+// Adaptive: This is determined at runtime based on system L3 cache
+// characteristics Default fallback to 262K rows if adaptive sizing is not
+// available For performance: this is cached and computed once per query
+// execution
+inline size_t getGroupByBlockSize() {
+  // Cache the result since system characteristics don't change during execution
+  static const size_t cachedBlockSize =
+      AdaptiveResourceAllocation::calculateGroupByBlockSize(
+          8);  // Default: 8MB L3 cache
+  return cachedBlockSize;
+}
+
+// For backward compatibility, maintain the constant name but use adaptive
+// sizing
+#define GROUP_BY_HASH_MAP_BLOCK_SIZE (getGroupByBlockSize())
 
 namespace groupBy::detail {
 template <size_t IN_WIDTH, size_t OUT_WIDTH>

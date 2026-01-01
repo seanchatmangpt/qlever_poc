@@ -11,6 +11,7 @@
 #include <string>
 
 #include "backports/three_way_comparison.h"
+#include "engine/MemoryAllocationOptimizer.h"
 #include "engine/QueryPlanningCostFactors.h"
 #include "engine/Result.h"
 #include "engine/RuntimeInformation.h"
@@ -146,6 +147,14 @@ class QueryExecutionContext {
   [[nodiscard]] double getCostFactor(const std::string& key) const {
     return _costFactors.getCostFactor(key);
   };
+
+  // Adaptive memory allocation optimization:
+  // Get recommendations for memory transfer and allocation strategies
+  // based on query execution characteristics
+  [[nodiscard]] MemoryAllocationOptimizer::TransferStrategy
+  getMemoryTransferStrategy(size_t bytesToTransfer) const {
+    return MemoryAllocationOptimizer::selectTransferStrategy(bytesToTransfer);
+  }
 
   const ad_utility::AllocatorWithLimit<Id>& getAllocator() const {
     return _allocator;
