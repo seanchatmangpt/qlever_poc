@@ -349,6 +349,8 @@ addLinkAndDiscoverTestSerial(ValuesForTestingTest index)
 
 addLinkAndDiscoverTestSerial(ExportQueryExecutionTreesTest index engine parser)
 
+addLinkAndDiscoverTestSerial(ConstructStressTest index engine parser)
+
 addLinkAndDiscoverTestSerial(AggregateExpressionTest parser sparqlExpressions index engine)
 
 addLinkAndDiscoverTest(OnDestructionDontThrowDuringStackUnwindingTest)
