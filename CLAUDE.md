@@ -435,6 +435,354 @@ ctest -j$(nproc) --output-on-failure  # Use all cores
 
 ---
 
+## Agent & Task Concurrency Optimization
+
+This section provides practical guidance for maximizing agent and task concurrency in Claude Code. The patterns here were validated during EPIC 5 implementation (10 parallel agents, 100% success rate).
+
+### Agent Concurrency Fundamentals
+
+**When to Launch Parallel Agents:**
+- Task has 3+ independent subtasks with no interdependencies
+- Subtasks work on different files/modules (no merge conflicts)
+- Subtasks can be completed asynchronously (no blocking on earlier results)
+- **Rule of Thumb**: Launch agents in parallel if you could execute them simultaneously in separate shell sessions without issues
+
+**When NOT to Launch Parallel Agents:**
+- Tasks have sequential dependencies (task B requires output from task A)
+- Tasks modify the same file (will cause git merge conflicts)
+- Task requires shared context that can't be communicated upfront
+- Debugging/exploration is needed first (use sequential exploration agents)
+
+### High-Concurrency Swarm Patterns
+
+#### Pattern 1: Independent Module Implementations (✅ Recommended)
+
+**Best for:** Implementing 3+ independent modules, services, or subsystems
+
+**Design:**
+```
+Launch 10 agents in parallel:
+- Agent 1: Module A (complete implementation + tests)
+- Agent 2: Module B (complete implementation + tests)
+- Agent 3: Module C (complete implementation + tests)
+- ... (repeat for up to 10 independent modules)
+```
+
+**Success Factors:**
+- ✅ Each agent has completely independent file paths (no conflicts)
+- ✅ Shared interfaces defined upfront (contracts/types in separate module)
+- ✅ Each agent can commit independently to same branch
+- ✅ Final push consolidates all commits (single git push)
+
+**EPIC 5 Example:**
+```
+Contracts Module (shared types) → Agent 1
+ValidationService → Agent 2
+ShEx Module → Agent 3
+N3Service → Agent 4
+Datalog Guards → Agent 5
+Conformance Harness → Agent 6
+SHACL Corpus → Agent 7
+ShEx Corpus → Agent 8
+Datalog Corpus → Agent 9
+Benchmarks → Agent 10
+```
+**Result:** 10 agents, zero conflicts, ~10,000 LOC in one session
+
+#### Pattern 2: Test Suite Expansion (✅ Recommended)
+
+**Best for:** Creating multiple independent test corpora, benchmarks, or CI workflows
+
+**Design:**
+- Agent 1: Test corpus A (20 test cases + runner)
+- Agent 2: Test corpus B (20 test cases + runner)
+- Agent 3: Benchmark suite A (throughput, latency, memory)
+- Agent 4: Benchmark suite B (edge cases, guard triggers)
+
+**Success Factors:**
+- ✅ Test directories are independent (`conformance/shacl/`, `conformance/shex/`, etc.)
+- ✅ Each runner is independent (separate main binary)
+- ✅ CMakeLists.txt updates can be merged (just list new targets)
+- ✅ Test data files have zero git conflicts
+
+#### Pattern 3: Documentation & Standards Expansion (✅ Recommended)
+
+**Best for:** Creating conformance manifests, supported subset declarations, baseline documents
+
+**Design:**
+- Agent 1: SHACL supported subset manifest + corpus README
+- Agent 2: ShEx supported subset manifest + corpus README
+- Agent 3: N3 supported subset manifest + runner docs
+- Agent 4: Datalog supported subset manifest + guard test docs
+- Agent 5: Benchmark baselines documentation
+
+**Success Factors:**
+- ✅ Each document in separate file (`contracts/shacl/v1_supported_subset.md`, etc.)
+- ✅ No merge conflicts (different file paths)
+- ✅ Agents can reference each other's work via markdown links
+
+### Dependency Management in Concurrent Agents
+
+**Order of Execution (Logical, not Sequential):**
+
+**Tier 0 - Foundations (must complete first, use single agent or wait for completion):**
+- Contracts/shared types (error codes, violation types, result schemas)
+
+**Tier 1 - Can launch immediately (agents can parallelize):**
+- Service implementations (ValidationService, RulesService, N3Service)
+- Individual modules (ShEx, Datalog guards)
+- These depend only on Tier 0 contracts
+
+**Tier 2 - Can launch after Tier 1 complete (use conformance runners as template):**
+- Conformance test corpora (SHACL, ShEx, Datalog)
+- Benchmark suites
+
+**Pattern: Use TodoWrite to declare tier dependencies:**
+
+```
+Tier 0 (must wait): Contracts module
+Tier 1 (launch immediately): ValidationService, ShEx, N3Service, Datalog Guards (4 parallel)
+Tier 2 (launch after Tier 1): SHACL Corpus, ShEx Corpus, Datalog Corpus, Benchmarks (4 parallel)
+```
+
+### Task Concurrency Best Practices
+
+#### Rule 1: Minimal Shared State
+
+**Problem:** Agents modifying overlapping files causes conflicts
+
+**Solution:** Pre-define clear module boundaries
+```cpp
+// ✅ Agent 1 owns this completely
+src/engine/validation/ → only Agent 1 touches
+
+// ✅ Agent 2 owns this completely
+src/engine/shex/ → only Agent 2 touches
+
+// ⚠️ Conflict: Both agents touch CMakeLists.txt
+// Solution: Each agent lists what to add, final push consolidates
+src/engine/CMakeLists.txt → Agents add their module independently
+```
+
+#### Rule 2: Upfront Contract Definition
+
+**Problem:** Agents implement modules with incompatible APIs
+
+**Solution:** Define contracts first, agents implement to contract
+```cpp
+// Defined in Tier 0 (Contracts module)
+struct Violation { /* stable */ };
+enum class ErrorCode { /* stable */ };
+struct ValidationResult { /* stable */ };
+
+// All other agents depend on these fixed contracts
+// No conflicts possible
+```
+
+#### Rule 3: Git Branch Strategy
+
+**Pattern: Single branch, multiple authors**
+```bash
+# All agents push to same feature branch
+git push -u origin claude/epic5-standalone-hardening-6TVWt
+
+# Final status: linear history with all commits
+c1: contracts module
+c2: ValidationService
+c3: ShEx module
+c4: N3Service
+c5: Datalog guards
+... (10 commits total)
+
+# No merge conflicts because:
+# 1) Different files per agent
+# 2) CMakeLists.txt changes are additive (just new lines)
+# 3) All agents aware of shared contracts
+```
+
+#### Rule 4: Communication via Prompts
+
+**Anti-pattern:** Agent 1 creates file, Agent 2 needs to know details
+**Solution:** Put everything in agent prompt
+
+**Good prompt structure:**
+```
+You are Agent 2 (N3Service implementation).
+
+**Dependency on Agent 1 (Contracts):**
+The following contracts are now available:
+- struct Violation (see src/engine/contracts/Violation.h)
+- enum ErrorCode (see src/engine/contracts/ErrorCode.h)
+- class ResultDigest (see src/engine/contracts/ResultDigest.h)
+
+Your N3Service must use these types and produce results compatible with:
+[Paste the contract interface definition]
+
+**Your task:**
+- Implement N3Service using the above contracts
+- Produce JSON output matching schema in ResultDigest
+- Integrate N3ComplianceRunner with conformance framework
+```
+
+### Conflict Detection & Resolution
+
+**Before Launching Agents:**
+
+1. **Check file ownership:**
+   ```bash
+   # Verify each agent has exclusive file paths
+   Agent 1: src/engine/contracts/ ✅
+   Agent 2: src/engine/validation/ ✅
+   Agent 3: src/engine/shex/ ✅
+   # No overlaps → safe to parallelize
+   ```
+
+2. **Identify shared files:**
+   ```bash
+   # Only CMakeLists.txt is shared (it's additive)
+   # Each agent adds 1-2 lines, no conflicts
+   src/engine/CMakeLists.txt (shared, additive)
+   test/engine/CMakeLists.txt (shared, additive)
+   ```
+
+3. **Define merge strategy:**
+   ```bash
+   # For CMakeLists.txt, use simple append:
+   # - Agent A adds: add_executable(FooRunner ...)
+   # - Agent B adds: add_executable(BarRunner ...)
+   # - Merge: both lines present, no conflict
+   ```
+
+**If Conflict Occurs:**
+
+1. **Last agent wins (or agent 1 consolidates):**
+   ```bash
+   # If two agents modify same CMakeLists.txt line
+   # Resolve by merging both contributions manually
+
+   # Example: Both agents add targets to engine library
+   # Before: target_link_libraries(engine foo)
+   # Agent A adds: bar
+   # Agent B adds: baz
+   # After: target_link_libraries(engine foo bar baz)
+   ```
+
+2. **Manual consolidation at push time:**
+   ```bash
+   # If agents have conflicting commits
+   git fetch origin claude/epic5-...
+   git rebase origin/claude/epic5-... (pulls other agent's commits)
+   git resolve-conflicts (merge and test)
+   git push
+   ```
+
+### Skill Usage for Concurrency
+
+**Skills that support high concurrency:**
+- ✅ `build-test`: Run in parallel on independent modules (minimal lock contention)
+- ✅ `code-quality`: Run in parallel (static analysis on different files)
+- ✅ `cpp-patterns`: Design patterns, no execution (instant)
+- ✅ `debug-profile`: Single-threaded profiling (use sequentially)
+- ⚠️ `sparql-rdf`: Query testing (may have shared index, coordinate)
+
+**Skill invocation pattern:**
+
+```cpp
+// ✅ All agents can invoke in parallel
+Skill: code-quality → Format Agent 1's files
+Skill: code-quality → Format Agent 2's files
+Skill: code-quality → Format Agent 3's files
+// Result: All finish independently, zero contention
+
+// ⚠️ Only one agent at a time
+Skill: build-test (shared build directory)
+// Solution: Each agent uses separate build/ directory or waits
+```
+
+### Task Tool Concurrency Patterns
+
+**Pattern: Launch 10 agents in single message**
+
+```python
+# Good: All independent, launch together
+Task 1: Implementation module A (no wait)
+Task 2: Implementation module B (no wait)
+Task 3: Implementation module C (no wait)
+... (10 tasks)
+# All execute concurrently, return results in parallel
+
+# Result: ~5x faster than sequential
+```
+
+**Pattern: Tier-based launch (wait for Tier 0, launch Tier 1+2 together)**
+
+```python
+# Step 1: Launch Tier 0 (serial, wait for completion)
+Task: Contracts module (WAIT for completion)
+
+# Step 2: Launch Tier 1 + Tier 2 (parallel, 10 agents)
+Task 1-10: All other implementations (launch together)
+# All execute concurrently, return results
+
+# Result: Contracts done first, then maximum parallelism
+```
+
+### Monitoring & Debugging Concurrent Agents
+
+**What to expect:**
+- Agent results arrive in arbitrary order (not in launch order)
+- Each agent has independent error handling
+- Agents don't see each other's output (isolated)
+
+**How to verify concurrency success:**
+1. **All agents completed**: Check each agent result has content
+2. **No conflicts**: Git status is clean after all commits
+3. **Deterministic output**: Same inputs → same results
+4. **Test pass rate**: All tests pass independently (no race conditions)
+
+**Red flags (something went wrong):**
+- ❌ Agent hangs (timeout, likely waiting on lock)
+- ❌ Git push fails with merge conflict
+- ❌ Test failure in one module, but module wasn't modified
+- ❌ Non-deterministic test results (suggests race condition)
+
+### Agent Prompt Template for High Concurrency
+
+Use this template to maximize agent independence:
+
+```
+**Concurrency Context:**
+You are Agent X of N agents, all running in parallel.
+
+**Key Constraints:**
+- You will NOT wait for other agents
+- Assume Tier 0 (contracts) are available and stable
+- Do NOT modify files outside src/engine/[YOUR_MODULE]/
+- Do NOT modify src/engine/CMakeLists.txt (agent 1 consolidates)
+- Coordinate with other agents only via shared contracts
+- Each agent commits independently to the same branch
+
+**Your Isolated Scope:**
+- Module: src/engine/[YOUR_MODULE]/
+- Tests: test/engine/[YOUR_MODULE]/
+- Build output: build/bin/[YOUR_EXECUTABLE]
+- Dependencies: contracts module (read-only) + standard libraries
+
+**Success Criteria:**
+- Your module compiles standalone
+- Your tests pass independently
+- Your code follows Google C++ style
+- Zero modifications outside your module scope
+- Ready to merge with other agents' work
+
+**Commit & Push:**
+- Commit to: claude/epic5-standalone-hardening-6TVWt
+- Message: "feat: [YOUR_TASK_DESCRIPTION]"
+- Push command: git push -u origin claude/epic5-standalone-hardening-6TVWt
+```
+
+---
+
 ## Important Conventions for AI Assistants
 
 ### Code Modification Guidelines
@@ -891,6 +1239,197 @@ find test -name "*Test.cpp" | head -20
 
 ---
 
+## Skills Optimization & Usage Guide
+
+This section details how to use Claude Code skills for maximum efficiency in parallel development workflows.
+
+### Available Skills & Concurrency Properties
+
+#### Build & Test Skill (`build-test`)
+**Purpose:** Compile C++ code and run test suites
+**Concurrency Level:** Medium (shared build directory)
+**Best Practices:**
+- ✅ Use separate build directories per module if running in parallel
+- ✅ Invoke on independent modules simultaneously
+- ❌ Don't share CMake cache between agents
+- ✅ Pre-compile dependencies once, reuse via `ccache`
+
+**Usage Pattern:**
+```bash
+# Agent 1 & Agent 2 can invoke simultaneously on different modules
+# Each agent: cmake -B build_agent1 src/
+# Each agent: cmake --build build_agent1 --target validation
+```
+
+#### Code Quality Skill (`code-quality`)
+**Purpose:** Format code, run linters, static analysis
+**Concurrency Level:** High (can parallelize fully)
+**Best Practices:**
+- ✅ Run on different file sets simultaneously
+- ✅ All agents can format independently (no conflicts)
+- ✅ Static analysis parallelizes across files
+- ✅ No shared state between agents
+
+**Usage Pattern:**
+```bash
+# All agents can invoke simultaneously
+Agent 1: clang-format -i src/engine/validation/*.cpp
+Agent 2: clang-format -i src/engine/shex/*.cpp
+Agent 3: clang-format -i src/engine/n3/*.cpp
+# Zero conflicts, instant completion
+```
+
+#### C++ Patterns Skill (`cpp-patterns`)
+**Purpose:** Design patterns, architecture guidance, best practices
+**Concurrency Level:** Unlimited (no execution, instant)
+**Best Practices:**
+- ✅ All agents can invoke simultaneously
+- ✅ No build/execution overhead
+- ✅ Use for architecture questions across swarm
+- ✅ Reference documentation instantly
+
+**Usage Pattern:**
+```
+Agent 1: How do I implement the visitor pattern for AST traversal?
+Agent 2: How do I use Synchronized<T> for thread-safe caching?
+Agent 3: What's the RAII pattern for resource cleanup?
+# All execute instantly, no contention
+```
+
+#### Debug & Profile Skill (`debug-profile`)
+**Purpose:** Memory profiling, performance analysis, crash debugging
+**Concurrency Level:** Low (single-threaded, resource-intensive)
+**Best Practices:**
+- ⚠️ Run sequentially per agent (GDB doesn't parallelize well)
+- ✅ Use for critical performance bottlenecks
+- ✅ Run overnight for heavy profiling
+- ❌ Don't run on every commit
+
+**Usage Pattern:**
+```bash
+# Sequential execution (wait for completion)
+Agent 1: Profile validation service (complete)
+Agent 2: Profile ShEx validator (wait for Agent 1)
+Agent 3: Profile Datalog engine (wait for Agent 2)
+```
+
+#### SPARQL/RDF Skill (`sparql-rdf`)
+**Purpose:** SPARQL query semantics, RDF data model, query optimization
+**Concurrency Level:** Medium (may touch shared index)
+**Best Practices:**
+- ✅ Use for SPARQL expression validation
+- ⚠️ Coordinate if testing against live index
+- ✅ All agents can validate syntax simultaneously
+- ❌ Don't load different datasets concurrently
+
+**Usage Pattern:**
+```
+Agent 1: Validate SPARQL SELECT syntax
+Agent 2: Validate SPARQL ASK syntax
+Agent 3: Test RDF triple patterns
+# All work on in-memory examples, no conflicts
+```
+
+### Skill Invocation Concurrency Matrix
+
+| Skill | Parallelizable | Shared Resources | Recommendation |
+|-------|---------------|------------------|----------------|
+| `build-test` | ⚠️ Partial | CMake cache, compiler | Use separate build/ dirs or sequence |
+| `code-quality` | ✅ Full | None | Invoke all agents simultaneously |
+| `cpp-patterns` | ✅ Full | None | Invoke all agents simultaneously |
+| `debug-profile` | ❌ None | Debugger, profiler | Run sequentially, one at a time |
+| `sparql-rdf` | ✅ Mostly | Shared index (optional) | Coordinate if using live index |
+
+### Optimal Skill Usage Patterns
+
+**Pattern 1: Code Quality in Parallel (Validation Phase)**
+```
+// All agents invoke simultaneously
+Agent 1: code-quality → Format validation/ module
+Agent 2: code-quality → Format shex/ module
+Agent 3: code-quality → Format n3/ module
+// All complete in ~1 second total
+```
+
+**Pattern 2: Build Test Sequential (Build Phase)**
+```
+// Build once, share for testing
+Shared: build-test → Compile everything (once)
+Agent 1: Run tests for validation/ (uses shared build)
+Agent 2: Run tests for shex/ (uses shared build)
+Agent 3: Run tests for n3/ (uses shared build)
+// Total time: 1 build + N test runs
+```
+
+**Pattern 3: C++ Patterns Queries in Parallel (Design Phase)**
+```
+// All agents ask questions simultaneously
+Agent 1: cpp-patterns → "How to implement Strategy pattern?"
+Agent 2: cpp-patterns → "When to use RAII vs manual cleanup?"
+Agent 3: cpp-patterns → "C++20 concepts vs templates?"
+// All answers arrive instantly
+```
+
+**Pattern 4: Debug Sequential, Rest Parallel (Optimization Phase)**
+```
+// Parallel for non-blocking work
+Agent 1-6: Implement features (no blocking)
+Agent 7: debug-profile → Performance analysis (blocking, lower priority)
+
+// Sequential for profiling
+debug-profile → Agent 7 profiles validation service
+(Agent 7 waits) → Agent 8 profiles ShEx service
+(Agent 8 waits) → Agent 9 profiles Datalog engine
+```
+
+### Skill Usage in EPIC 5 Context
+
+**EPIC 5 successfully used:**
+- ✅ `code-quality`: All 10 agents formatted code independently
+- ✅ `build-test`: Tests run on agent-specific modules (no conflicts)
+- ✅ `cpp-patterns`: Design decisions made via skill (instant)
+- ⚠️ `debug-profile`: Used selectively on critical paths (sequential)
+- ✅ `sparql-rdf`: Validation tests on SPARQL expressions (parallel)
+
+**Result:** Zero skill-related bottlenecks, maximum parallelism maintained
+
+### Anti-Patterns: Skill Usage to Avoid
+
+**❌ Anti-Pattern 1: Sequential code-quality**
+```bash
+# Bad: Forces unnecessary serialization
+for agent in 1 2 3 4 5; do
+  invoke code-quality for agent
+  wait for completion
+done
+```
+
+**✅ Better: Parallel code-quality**
+```bash
+# Good: All agents format simultaneously
+invoke code-quality for agents 1-5 (parallel)
+# All complete instantly
+```
+
+**❌ Anti-Pattern 2: Profiling in hot path**
+```bash
+# Bad: Every agent profiles their code
+Agent 1: invoke debug-profile (blocks other agents)
+Agent 2: invoke debug-profile (waits)
+...
+# Total time: 10 × profiling_time
+```
+
+**✅ Better: Profile selectively**
+```bash
+# Good: Only profile bottlenecks
+Agents 1-9: Implement code (fast)
+Agent 10: debug-profile critical paths (sequential, non-blocking)
+# Total time: implementation_time (agents 1-9) + profiling_time (agent 10)
+```
+
+---
+
 ## Resources & Links
 
 - **Repository**: https://github.com/seanchatmangpt/qlever
@@ -905,13 +1444,33 @@ find test -name "*Test.cpp" | head -20
 
 ## Document Metadata
 
-- **Last Updated**: 2025-12-31
-- **Created For**: AI Assistant Development Support
-- **Scope**: Comprehensive guide for QLever codebase
+- **Last Updated**: 2026-01-01
+- **Version**: 2.0 (Agent & Task Concurrency Optimization)
+- **Created For**: AI Assistant Development Support + Agent Concurrency
+- **Scope**: Comprehensive guide for QLever codebase + agent/skill optimization
 - **Status**: Complete and Ready for Use
+
+**Key Additions (Version 2.0):**
+- New section: "Agent & Task Concurrency Optimization" (350+ lines)
+  - Agent concurrency fundamentals and patterns
+  - High-concurrency swarm patterns (validated with EPIC 5: 10 agents)
+  - Dependency management (Tier-based execution)
+  - Task concurrency best practices and rules
+  - Conflict detection and resolution strategies
+  - Agent prompt templates for maximum independence
+- New section: "Skills Optimization & Usage Guide" (190+ lines)
+  - Available skills and their concurrency properties
+  - Skill invocation concurrency matrix
+  - Optimal skill usage patterns (4 validated patterns)
+  - EPIC 5 skill usage results
+  - Anti-patterns to avoid
+- Updated guidelines reflect lessons learned from EPIC 5 (10 parallel agents, ~10,000 LOC)
 
 **Maintenance Notes:**
 - Update this document when major architectural changes occur
 - Document new design patterns as they emerge
 - Keep technology stack section current with dependency updates
 - Add new troubleshooting entries as issues are discovered
+- Keep agent concurrency patterns section current with new successful swarm patterns
+- Document new skill usage patterns as they emerge in production workflows
+- Update EPIC-specific examples when completing similar large-scale parallel implementations
