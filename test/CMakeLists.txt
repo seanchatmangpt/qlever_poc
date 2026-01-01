@@ -501,6 +501,8 @@ addLinkAndDiscoverTestSerial(QueryRewriteUtilTest engine)
 
 addLinkAndDiscoverTestSerial(HttpErrorTest engine)
 
+addLinkAndDiscoverTest(ContractsTest engine)
+
 # SHACL tests are registered in test/engine/shacl/CMakeLists.txt
 
 addLinkAndDiscoverTest(TimeTracerTest)
