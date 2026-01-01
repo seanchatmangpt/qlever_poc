@@ -46,6 +46,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use parking_lot::RwLock;
 use serde::{Serialize, Deserialize};
+use uuid::Uuid;
 
 pub use crate::ffi::bindings::MediaType;
 
@@ -183,16 +184,46 @@ impl Qlever {
     ///
     /// Execute multiple queries without overhead of repeated context switching.
     /// Results pinned in C++ for efficient retrieval.
+    ///
+    /// Uses UUID-based naming to prevent result collisions across concurrent batches.
     pub fn query_batch(&self, queries: &[(&str, MediaType)]) -> Result<Vec<String>> {
+        // Generate unique batch ID to prevent collisions
+        let batch_id = Uuid::new_v4().to_string();
         let mut results = Vec::with_capacity(queries.len());
+        let mut pinned_names = Vec::new();
 
-        for (query, format) in queries {
-            // Use C++ named result pinning for batch efficiency
-            let pin_name = format!("batch_{}", results.len());
-            self.handle.query_and_pin(&pin_name, query)?;
+        for (i, (query, format)) in queries.iter().enumerate() {
+            // Use UUID-namespaced result names for collision-free pinning
+            let pin_name = format!("_batch_{}-{}", batch_id, i);
 
-            let result = self.handle.get_pinned_result(&pin_name)?;
-            results.push(result);
+            match self.handle.query_and_pin(&pin_name, query) {
+                Ok(()) => {
+                    match self.handle.get_pinned_result(&pin_name) {
+                        Ok(result) => {
+                            pinned_names.push(pin_name);
+                            results.push(result);
+                        }
+                        Err(e) => {
+                            // Rollback: Clean up all pinned results on error
+                            for name in &pinned_names {
+                                let _ = self.handle.get_pinned_result(name);
+                            }
+                            return Err(Error::QueryError(
+                                format!("Failed to retrieve query result at index {}: {}", i, e)
+                            ));
+                        }
+                    }
+                }
+                Err(e) => {
+                    // Rollback: Clean up all pinned results on error
+                    for name in &pinned_names {
+                        let _ = self.handle.get_pinned_result(name);
+                    }
+                    return Err(Error::QueryError(
+                        format!("Batch execution failed at query {}: {}", i, e)
+                    ));
+                }
+            }
         }
 
         Ok(results)

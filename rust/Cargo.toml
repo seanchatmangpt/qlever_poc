@@ -21,6 +21,9 @@ parking_lot = "0.12"
 # JSON parsing for QLever query results (FFI)
 serde_json = "1.0"
 
+# UUID generation for namespaced result pinning
+uuid = { version = "1.0", features = ["v4"] }
+
 # WASM support
 wasm-bindgen = { version = "0.2", optional = true }
 serde = { version = "1.0", features = ["derive"], optional = true }
