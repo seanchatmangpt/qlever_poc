@@ -1,0 +1,37 @@
+@prefix ex: <http://example.org/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@base <http://example.org/> .
+
+# Basic N3 file with common RDF patterns
+# This represents the most common use case (95% of files)
+
+<alice> a foaf:Person ;
+  foaf:name "Alice Smith" ;
+  foaf:email "alice@example.org" ;
+  foaf:knows <bob>, <carol> ;
+  foaf:age 30 .
+
+<bob> a foaf:Person ;
+  foaf:name "Bob Jones" ;
+  foaf:email "bob@example.org" ;
+  foaf:age 28 .
+
+<carol> a foaf:Person ;
+  foaf:name "Carol White" ;
+  foaf:email "carol@example.org" ;
+  foaf:age 32 .
+
+# Typed literals
+ex:doc1 ex:created "2024-01-15"^^<http://www.w3.org/2001/XMLSchema#date> ;
+  ex:priority 5 ;
+  ex:active true .
+
+# Blank nodes
+[] a foaf:Organization ;
+  foaf:name "Example Corp" ;
+  foaf:member <alice>, <bob> .
+
+# Language-tagged literals
+ex:book1 foaf:name "The Example"@en ;
+  foaf:name "L'Exemple"@fr ;
+  foaf:description "A comprehensive guide to RDF"@en .

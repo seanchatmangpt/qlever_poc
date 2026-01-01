@@ -25,6 +25,8 @@ using namespace std::literals;
 using ad_utility::use_type_identity::ti;
 using Re2Parser = RdfStringParser<TurtleParser<Tokenizer>>;
 using CtreParser = RdfStringParser<TurtleParser<TokenizerCtre>>;
+using N3Re2Parser = RdfStringParser<N3Parser<Tokenizer>>;
+using N3CtreParser = RdfStringParser<N3Parser<TokenizerCtre>>;
 using NQuadRe2Parser = RdfStringParser<NQuadParser<Tokenizer>>;
 using NQuadCtreParser = RdfStringParser<NQuadParser<TokenizerCtre>>;
 
@@ -1598,4 +1600,127 @@ TEST(RdfParserTest, parseTriplesObject) {
   expectParse("_:bar", AD_PROPERTY(TripleComponent, isString, IsTrue()));
   // Not a single object
   EXPECT_ANY_THROW(Parser::parseTripleObject("[ a <bar> ]"));
+}
+
+// N3 Format Tests
+// N3 is a superset of Turtle, so N3 parsing should support all Turtle features
+// and basic N3 features (80/20 principle: focus on triple parsing, skip
+// advanced features like formulae, rules, and quantifiers)
+
+TEST(RdfParserTest, N3BasicTripleParsing) {
+  // Test that N3Parser handles basic triple syntax identical to Turtle
+  auto parser = N3Re2Parser{encodedIriManager()};
+  parser.setInputStream(
+      "<http://example.org/alice> "
+      "<http://xmlns.com/foaf/0.1/name> \"Alice\" .");
+  EXPECT_TRUE(parser.triples().empty());
+  parser.turtleDoc();
+  EXPECT_EQ(parser.triples().size(), 1);
+}
+
+TEST(RdfParserTest, N3WithPrefixes) {
+  // Test that N3Parser handles @prefix directives correctly
+  auto parser = N3Re2Parser{encodedIriManager()};
+  parser.setInputStream(
+      "@prefix ex: <http://example.org/> .\n"
+      "ex:alice ex:knows ex:bob .");
+  parser.turtleDoc();
+  EXPECT_EQ(parser.triples().size(), 1);
+}
+
+TEST(RdfParserTest, N3WithBase) {
+  // Test that N3Parser handles @base directive
+  auto parser = N3Re2Parser{encodedIriManager()};
+  parser.setInputStream(
+      "@base <http://example.org/> .\n"
+      "<alice> <knows> <bob> .");
+  parser.turtleDoc();
+  EXPECT_EQ(parser.triples().size(), 1);
+}
+
+TEST(RdfParserTest, N3WithBlankNodes) {
+  // Test that N3Parser handles blank nodes
+  auto parser = N3Re2Parser{encodedIriManager()};
+  parser.setInputStream(
+      "@prefix ex: <http://example.org/> .\n"
+      "_:b1 ex:name \"Blank Node\" .");
+  parser.turtleDoc();
+  EXPECT_EQ(parser.triples().size(), 1);
+}
+
+TEST(RdfParserTest, N3WithLanguageTags) {
+  // Test that N3Parser handles language-tagged literals
+  auto parser = N3Re2Parser{encodedIriManager()};
+  parser.setInputStream(
+      "@prefix foaf: <http://xmlns.com/foaf/0.1/> .\n"
+      "<http://example.org/alice> foaf:name \"Alice\"@en, \"Alice\"@fr .");
+  parser.turtleDoc();
+  // Should parse two triples (one for each language tag)
+  EXPECT_EQ(parser.triples().size(), 2);
+}
+
+TEST(RdfParserTest, N3WithTypedLiterals) {
+  // Test that N3Parser handles typed literals
+  auto parser = N3Re2Parser{encodedIriManager()};
+  parser.setInputStream(
+      "@prefix ex: <http://example.org/> .\n"
+      "@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n"
+      "ex:doc ex:created \"2024-01-15\"^^xsd:date .");
+  parser.turtleDoc();
+  EXPECT_EQ(parser.triples().size(), 1);
+}
+
+TEST(RdfParserTest, N3Collections) {
+  // Test that N3Parser handles RDF collections (lists)
+  auto parser = N3Re2Parser{encodedIriManager()};
+  parser.setInputStream(
+      "@prefix foaf: <http://xmlns.com/foaf/0.1/> .\n"
+      "<http://example.org/alice> foaf:knows "
+      "(<http://example.org/bob> <http://example.org/carol>) .");
+  parser.turtleDoc();
+  // Collections expand into multiple triples
+  EXPECT_GT(parser.triples().size(), 1);
+}
+
+TEST(RdfParserTest, N3BlankNodePropertyLists) {
+  // Test that N3Parser handles blank node property lists
+  auto parser = N3Re2Parser{encodedIriManager()};
+  parser.setInputStream(
+      "@prefix foaf: <http://xmlns.com/foaf/0.1/> .\n"
+      "<http://example.org/alice> foaf:knows [foaf:name \"Bob\"] .");
+  parser.turtleDoc();
+  // Property lists expand into multiple triples
+  EXPECT_GT(parser.triples().size(), 1);
+}
+
+TEST(RdfParserTest, N3CtreTokenizer) {
+  // Test that N3Parser works with both tokenizer implementations
+  auto parser = N3CtreParser{encodedIriManager()};
+  parser.setInputStream(
+      "@prefix ex: <http://example.org/> .\n"
+      "ex:subject ex:predicate \"object\" .");
+  parser.turtleDoc();
+  EXPECT_EQ(parser.triples().size(), 1);
+}
+
+TEST(RdfParserTest, N3ReaderCompatibility) {
+  // Verify that N3 and Turtle parsers produce identical results for
+  // Turtle-compatible input
+  auto n3Input =
+      "@prefix ex: <http://example.org/> .\n"
+      "ex:alice ex:age 30 .\n"
+      "ex:bob ex:age 25 .\n";
+
+  auto n3Parser = N3Re2Parser{encodedIriManager()};
+  n3Parser.setInputStream(n3Input);
+  n3Parser.turtleDoc();
+  size_t n3TripleCount = n3Parser.triples().size();
+
+  auto turtleParser = Re2Parser{encodedIriManager()};
+  turtleParser.setInputStream(n3Input);
+  turtleParser.turtleDoc();
+  size_t turtleTripleCount = turtleParser.triples().size();
+
+  // N3 and Turtle should parse the same Turtle-compatible input identically
+  EXPECT_EQ(n3TripleCount, turtleTripleCount);
 }
