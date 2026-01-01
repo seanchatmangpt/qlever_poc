@@ -14,7 +14,7 @@
 
 #include "engine/queryCanonical/QueryFingerprint.h"
 
-namespace ad_utility {
+namespace queryCanonical {
 
 // Parameter table entry - maps placeholder to actual value
 // Used to reconstruct original query from canonical form
@@ -108,6 +108,6 @@ struct CanonicalQuery {
   static CanonicalQuery deserialize(const std::string& data);
 };
 
-}  // namespace ad_utility
+}  // namespace queryCanonical
 
 #endif  // QLEVER_SRC_ENGINE_QUERYCANONICAL_CANONICALQUERY_H

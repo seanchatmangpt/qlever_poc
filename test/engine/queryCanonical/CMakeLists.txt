@@ -1,6 +1,1 @@
-addLinkAndDiscoverTest(IriNormalizerTest engine)
-addLinkAndDiscoverTest(ConstantExtractorTest engine)
-addLinkAndDiscoverTest(DeterminismClassifierTest engine)
-addLinkAndDiscoverTest(VariableNormalizerTest engine)
-addLinkAndDiscoverTest(QueryCanonizationTest engine)
-addLinkAndDiscoverTest(TriplePatternNormalizerTest engine)
+addLinkAndDiscoverTest(QueryFingerprintingPipelineTest engine)

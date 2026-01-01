@@ -321,10 +321,7 @@ class QueryExecutionContext {
   // and prevent stale cache hits when data versions differ.
   std::optional<ad_utility::EpochManifest> boundEpochManifest_;
 
-  // Query fingerprint for query shape canonicalization (EPIC 2)
-  // Contains complete deterministic identifier for this query's shape,
-  // enabling advanced caching strategies and query optimization.
-    // Query fingerprint for this execution context (EPIC 2).
+  // Query fingerprint for this execution context (EPIC 2).
   // Set during query planning when canonicalization is enabled.
   // Captures the normalized "shape" of the query for caching and analytics.
   std::optional<queryCanonical::QueryFingerprint> queryFingerprint_;

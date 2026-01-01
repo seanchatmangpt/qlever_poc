@@ -37,12 +37,11 @@ TEST_F(DeterminismClassifierTest, DetectNowFunction) {
   )";
 
   ParsedQuery parsed = parseQuery(query);
-  DeterminismClassifier classifier(parsed);
+  DeterminismClassifier classifier;
+  auto features = classifier.analyze(parsed);
 
-  EXPECT_FALSE(classifier.isResultCacheable());
-  uint32_t flags = classifier.analyzeFeatures();
-  EXPECT_TRUE(hasFlag(flags, FeatureFlag::NON_DETERMINISTIC));
-  EXPECT_TRUE(hasFlag(flags, FeatureFlag::BIND));
+  EXPECT_TRUE(features.hasNow);
+  EXPECT_FALSE(features.isDeterministic());
 }
 
 TEST_F(DeterminismClassifierTest, DetectRandFunction) {
@@ -54,11 +53,11 @@ TEST_F(DeterminismClassifierTest, DetectRandFunction) {
   )";
 
   ParsedQuery parsed = parseQuery(query);
-  DeterminismClassifier classifier(parsed);
+  DeterminismClassifier classifier;
+  auto features = classifier.analyze(parsed);
 
-  EXPECT_FALSE(classifier.isResultCacheable());
-  uint32_t flags = classifier.analyzeFeatures();
-  EXPECT_TRUE(hasFlag(flags, FeatureFlag::NON_DETERMINISTIC));
+  EXPECT_TRUE(features.hasRand);
+  EXPECT_FALSE(features.isDeterministic());
 }
 
 TEST_F(DeterminismClassifierTest, DetectUuidFunction) {
@@ -70,11 +69,27 @@ TEST_F(DeterminismClassifierTest, DetectUuidFunction) {
   )";
 
   ParsedQuery parsed = parseQuery(query);
-  DeterminismClassifier classifier(parsed);
+  DeterminismClassifier classifier;
+  auto features = classifier.analyze(parsed);
 
-  EXPECT_FALSE(classifier.isResultCacheable());
-  uint32_t flags = classifier.analyzeFeatures();
-  EXPECT_TRUE(hasFlag(flags, FeatureFlag::NON_DETERMINISTIC));
+  EXPECT_TRUE(features.hasUuid);
+  EXPECT_FALSE(features.isDeterministic());
+}
+
+TEST_F(DeterminismClassifierTest, DetectStruuidFunction) {
+  std::string query = R"(
+    SELECT ?x WHERE {
+      ?x ?p ?o .
+      BIND(STRUUID() AS ?id)
+    }
+  )";
+
+  ParsedQuery parsed = parseQuery(query);
+  DeterminismClassifier classifier;
+  auto features = classifier.analyze(parsed);
+
+  EXPECT_TRUE(features.hasUuid);
+  EXPECT_FALSE(features.isDeterministic());
 }
 
 TEST_F(DeterminismClassifierTest, DetectNowInFilter) {
@@ -86,12 +101,11 @@ TEST_F(DeterminismClassifierTest, DetectNowInFilter) {
   )";
 
   ParsedQuery parsed = parseQuery(query);
-  DeterminismClassifier classifier(parsed);
+  DeterminismClassifier classifier;
+  auto features = classifier.analyze(parsed);
 
-  EXPECT_FALSE(classifier.isResultCacheable());
-  uint32_t flags = classifier.analyzeFeatures();
-  EXPECT_TRUE(hasFlag(flags, FeatureFlag::NON_DETERMINISTIC));
-  EXPECT_TRUE(hasFlag(flags, FeatureFlag::FILTER));
+  EXPECT_TRUE(features.hasNow);
+  EXPECT_FALSE(features.isDeterministic());
 }
 
 TEST_F(DeterminismClassifierTest, DetectServiceClause) {
@@ -105,12 +119,11 @@ TEST_F(DeterminismClassifierTest, DetectServiceClause) {
   )";
 
   ParsedQuery parsed = parseQuery(query);
-  DeterminismClassifier classifier(parsed);
+  DeterminismClassifier classifier;
+  auto features = classifier.analyze(parsed);
 
-  EXPECT_FALSE(classifier.isResultCacheable());
-  uint32_t flags = classifier.analyzeFeatures();
-  EXPECT_TRUE(hasFlag(flags, FeatureFlag::SERVICE));
-  EXPECT_TRUE(hasFlag(flags, FeatureFlag::NON_DETERMINISTIC));
+  EXPECT_TRUE(features.hasService);
+  EXPECT_FALSE(features.isDeterministic());
 }
 
 // ===========================================================================
@@ -125,11 +138,15 @@ TEST_F(DeterminismClassifierTest, DeterministicSimpleQuery) {
   )";
 
   ParsedQuery parsed = parseQuery(query);
-  DeterminismClassifier classifier(parsed);
+  DeterminismClassifier classifier;
+  auto features = classifier.analyze(parsed);
 
-  EXPECT_TRUE(classifier.isResultCacheable());
-  uint32_t flags = classifier.analyzeFeatures();
-  EXPECT_FALSE(hasFlag(flags, FeatureFlag::NON_DETERMINISTIC));
+  EXPECT_TRUE(features.isDeterministic());
+  EXPECT_FALSE(features.hasNow);
+  EXPECT_FALSE(features.hasRand);
+  EXPECT_FALSE(features.hasUuid);
+  EXPECT_FALSE(features.hasBnode);
+  EXPECT_FALSE(features.hasService);
 }
 
 TEST_F(DeterminismClassifierTest, DeterministicFilterQuery) {
@@ -141,12 +158,10 @@ TEST_F(DeterminismClassifierTest, DeterministicFilterQuery) {
   )";
 
   ParsedQuery parsed = parseQuery(query);
-  DeterminismClassifier classifier(parsed);
+  DeterminismClassifier classifier;
+  auto features = classifier.analyze(parsed);
 
-  EXPECT_TRUE(classifier.isResultCacheable());
-  uint32_t flags = classifier.analyzeFeatures();
-  EXPECT_FALSE(hasFlag(flags, FeatureFlag::NON_DETERMINISTIC));
-  EXPECT_TRUE(hasFlag(flags, FeatureFlag::FILTER));
+  EXPECT_TRUE(features.isDeterministic());
 }
 
 TEST_F(DeterminismClassifierTest, DeterministicBindQuery) {
@@ -158,47 +173,13 @@ TEST_F(DeterminismClassifierTest, DeterministicBindQuery) {
   )";
 
   ParsedQuery parsed = parseQuery(query);
-  DeterminismClassifier classifier(parsed);
+  DeterminismClassifier classifier;
+  auto features = classifier.analyze(parsed);
 
-  EXPECT_TRUE(classifier.isResultCacheable());
-  uint32_t flags = classifier.analyzeFeatures();
-  EXPECT_FALSE(hasFlag(flags, FeatureFlag::NON_DETERMINISTIC));
-  EXPECT_TRUE(hasFlag(flags, FeatureFlag::BIND));
+  EXPECT_TRUE(features.isDeterministic());
 }
 
-// ===========================================================================
-// Feature Flag Detection Tests
-// ===========================================================================
-
-TEST_F(DeterminismClassifierTest, DetectDistinct) {
-  std::string query = R"(
-    SELECT DISTINCT ?x WHERE {
-      ?x ?p ?o
-    }
-  )";
-
-  ParsedQuery parsed = parseQuery(query);
-  DeterminismClassifier classifier(parsed);
-
-  uint32_t flags = classifier.analyzeFeatures();
-  EXPECT_TRUE(hasFlag(flags, FeatureFlag::DISTINCT));
-}
-
-TEST_F(DeterminismClassifierTest, DetectReduced) {
-  std::string query = R"(
-    SELECT REDUCED ?x WHERE {
-      ?x ?p ?o
-    }
-  )";
-
-  ParsedQuery parsed = parseQuery(query);
-  DeterminismClassifier classifier(parsed);
-
-  uint32_t flags = classifier.analyzeFeatures();
-  EXPECT_TRUE(hasFlag(flags, FeatureFlag::REDUCED));
-}
-
-TEST_F(DeterminismClassifierTest, DetectOptional) {
+TEST_F(DeterminismClassifierTest, DeterministicOptionalQuery) {
   std::string query = R"(
     SELECT ?x ?y WHERE {
       ?x ?p ?o .
@@ -207,13 +188,13 @@ TEST_F(DeterminismClassifierTest, DetectOptional) {
   )";
 
   ParsedQuery parsed = parseQuery(query);
-  DeterminismClassifier classifier(parsed);
+  DeterminismClassifier classifier;
+  auto features = classifier.analyze(parsed);
 
-  uint32_t flags = classifier.analyzeFeatures();
-  EXPECT_TRUE(hasFlag(flags, FeatureFlag::OPTIONAL));
+  EXPECT_TRUE(features.isDeterministic());
 }
 
-TEST_F(DeterminismClassifierTest, DetectUnion) {
+TEST_F(DeterminismClassifierTest, DeterministicUnionQuery) {
   std::string query = R"(
     SELECT ?x WHERE {
       { ?x ?p ?o } UNION { ?x ?q ?r }
@@ -221,122 +202,13 @@ TEST_F(DeterminismClassifierTest, DetectUnion) {
   )";
 
   ParsedQuery parsed = parseQuery(query);
-  DeterminismClassifier classifier(parsed);
+  DeterminismClassifier classifier;
+  auto features = classifier.analyze(parsed);
 
-  uint32_t flags = classifier.analyzeFeatures();
-  EXPECT_TRUE(hasFlag(flags, FeatureFlag::UNION));
+  EXPECT_TRUE(features.isDeterministic());
 }
 
-TEST_F(DeterminismClassifierTest, DetectMinus) {
-  std::string query = R"(
-    SELECT ?x WHERE {
-      ?x ?p ?o .
-      MINUS { ?x ?q ?r }
-    }
-  )";
-
-  ParsedQuery parsed = parseQuery(query);
-  DeterminismClassifier classifier(parsed);
-
-  uint32_t flags = classifier.analyzeFeatures();
-  EXPECT_TRUE(hasFlag(flags, FeatureFlag::MINUS));
-}
-
-TEST_F(DeterminismClassifierTest, DetectValues) {
-  std::string query = R"(
-    SELECT ?x WHERE {
-      ?x ?p ?o .
-      VALUES ?o { 1 2 3 }
-    }
-  )";
-
-  ParsedQuery parsed = parseQuery(query);
-  DeterminismClassifier classifier(parsed);
-
-  uint32_t flags = classifier.analyzeFeatures();
-  EXPECT_TRUE(hasFlag(flags, FeatureFlag::VALUES));
-}
-
-TEST_F(DeterminismClassifierTest, DetectGroupBy) {
-  std::string query = R"(
-    SELECT ?x (COUNT(?o) AS ?count) WHERE {
-      ?x ?p ?o
-    }
-    GROUP BY ?x
-  )";
-
-  ParsedQuery parsed = parseQuery(query);
-  DeterminismClassifier classifier(parsed);
-
-  uint32_t flags = classifier.analyzeFeatures();
-  EXPECT_TRUE(hasFlag(flags, FeatureFlag::GROUP_BY));
-  EXPECT_TRUE(hasFlag(flags, FeatureFlag::AGGREGATES));
-}
-
-TEST_F(DeterminismClassifierTest, DetectOrderBy) {
-  std::string query = R"(
-    SELECT ?x WHERE {
-      ?x ?p ?o
-    }
-    ORDER BY ?x
-  )";
-
-  ParsedQuery parsed = parseQuery(query);
-  DeterminismClassifier classifier(parsed);
-
-  uint32_t flags = classifier.analyzeFeatures();
-  EXPECT_TRUE(hasFlag(flags, FeatureFlag::ORDER_BY));
-}
-
-TEST_F(DeterminismClassifierTest, DetectLimit) {
-  std::string query = R"(
-    SELECT ?x WHERE {
-      ?x ?p ?o
-    }
-    LIMIT 10
-  )";
-
-  ParsedQuery parsed = parseQuery(query);
-  DeterminismClassifier classifier(parsed);
-
-  uint32_t flags = classifier.analyzeFeatures();
-  EXPECT_TRUE(hasFlag(flags, FeatureFlag::LIMIT));
-}
-
-TEST_F(DeterminismClassifierTest, DetectOffset) {
-  std::string query = R"(
-    SELECT ?x WHERE {
-      ?x ?p ?o
-    }
-    OFFSET 5
-  )";
-
-  ParsedQuery parsed = parseQuery(query);
-  DeterminismClassifier classifier(parsed);
-
-  uint32_t flags = classifier.analyzeFeatures();
-  EXPECT_TRUE(hasFlag(flags, FeatureFlag::OFFSET));
-}
-
-TEST_F(DeterminismClassifierTest, DetectHaving) {
-  std::string query = R"(
-    SELECT ?x (COUNT(?o) AS ?count) WHERE {
-      ?x ?p ?o
-    }
-    GROUP BY ?x
-    HAVING (COUNT(?o) > 5)
-  )";
-
-  ParsedQuery parsed = parseQuery(query);
-  DeterminismClassifier classifier(parsed);
-
-  uint32_t flags = classifier.analyzeFeatures();
-  EXPECT_TRUE(hasFlag(flags, FeatureFlag::HAVING));
-  EXPECT_TRUE(hasFlag(flags, FeatureFlag::GROUP_BY));
-  EXPECT_TRUE(hasFlag(flags, FeatureFlag::AGGREGATES));
-}
-
-TEST_F(DeterminismClassifierTest, DetectSubquery) {
+TEST_F(DeterminismClassifierTest, DeterministicSubquery) {
   std::string query = R"(
     SELECT ?x WHERE {
       ?x ?p ?o .
@@ -349,70 +221,76 @@ TEST_F(DeterminismClassifierTest, DetectSubquery) {
   )";
 
   ParsedQuery parsed = parseQuery(query);
-  DeterminismClassifier classifier(parsed);
+  DeterminismClassifier classifier;
+  auto features = classifier.analyze(parsed);
 
-  uint32_t flags = classifier.analyzeFeatures();
-  EXPECT_TRUE(hasFlag(flags, FeatureFlag::SUBQUERY));
+  EXPECT_TRUE(features.isDeterministic());
 }
 
 // ===========================================================================
 // Complex Query Tests
 // ===========================================================================
 
-TEST_F(DeterminismClassifierTest, ComplexQueryWithMultipleFeatures) {
+TEST_F(DeterminismClassifierTest, SubqueryWithNonDeterministicFunction) {
   std::string query = R"(
-    SELECT DISTINCT ?x (COUNT(?o) AS ?count) WHERE {
+    SELECT ?x WHERE {
+      ?x ?p ?o .
+      {
+        SELECT ?y WHERE {
+          ?y ?q ?r .
+          BIND(NOW() AS ?time)
+        }
+      }
+    }
+  )";
+
+  ParsedQuery parsed = parseQuery(query);
+  DeterminismClassifier classifier;
+  auto features = classifier.analyze(parsed);
+
+  EXPECT_TRUE(features.hasNow);
+  EXPECT_FALSE(features.isDeterministic());
+}
+
+TEST_F(DeterminismClassifierTest, NestedOptionalWithRand) {
+  std::string query = R"(
+    SELECT ?x WHERE {
+      ?x ?p ?o .
+      OPTIONAL {
+        ?x ?q ?r .
+        BIND(RAND() AS ?random)
+      }
+    }
+  )";
+
+  ParsedQuery parsed = parseQuery(query);
+  DeterminismClassifier classifier;
+  auto features = classifier.analyze(parsed);
+
+  EXPECT_TRUE(features.hasRand);
+  EXPECT_FALSE(features.isDeterministic());
+}
+
+TEST_F(DeterminismClassifierTest, ComplexDeterministicQuery) {
+  std::string query = R"(
+    SELECT DISTINCT ?x WHERE {
       ?x ?p ?o .
       FILTER(?o > 10)
       OPTIONAL { ?x ?q ?r }
+      {
+        SELECT ?y WHERE {
+          ?y ?s ?t
+        }
+      }
     }
-    GROUP BY ?x
-    HAVING (COUNT(?o) > 5)
-    ORDER BY DESC(?count)
-    LIMIT 100
-    OFFSET 10
-  )";
-
-  ParsedQuery parsed = parseQuery(query);
-  DeterminismClassifier classifier(parsed);
-
-  uint32_t flags = classifier.analyzeFeatures();
-  EXPECT_TRUE(hasFlag(flags, FeatureFlag::DISTINCT));
-  EXPECT_TRUE(hasFlag(flags, FeatureFlag::FILTER));
-  EXPECT_TRUE(hasFlag(flags, FeatureFlag::OPTIONAL));
-  EXPECT_TRUE(hasFlag(flags, FeatureFlag::GROUP_BY));
-  EXPECT_TRUE(hasFlag(flags, FeatureFlag::HAVING));
-  EXPECT_TRUE(hasFlag(flags, FeatureFlag::ORDER_BY));
-  EXPECT_TRUE(hasFlag(flags, FeatureFlag::LIMIT));
-  EXPECT_TRUE(hasFlag(flags, FeatureFlag::OFFSET));
-  EXPECT_TRUE(hasFlag(flags, FeatureFlag::AGGREGATES));
-
-  // Should be cacheable (no NOW/RAND/SERVICE)
-  EXPECT_TRUE(classifier.isResultCacheable());
-}
-
-TEST_F(DeterminismClassifierTest, ComplexNonDeterministicQuery) {
-  std::string query = R"(
-    SELECT DISTINCT ?x ?time WHERE {
-      ?x ?p ?o .
-      BIND(NOW() AS ?time)
-      OPTIONAL { ?x ?q ?r }
-    }
-    ORDER BY ?time
+    ORDER BY ?x
     LIMIT 100
   )";
 
   ParsedQuery parsed = parseQuery(query);
-  DeterminismClassifier classifier(parsed);
+  DeterminismClassifier classifier;
+  auto features = classifier.analyze(parsed);
 
-  uint32_t flags = classifier.analyzeFeatures();
-  EXPECT_TRUE(hasFlag(flags, FeatureFlag::DISTINCT));
-  EXPECT_TRUE(hasFlag(flags, FeatureFlag::BIND));
-  EXPECT_TRUE(hasFlag(flags, FeatureFlag::OPTIONAL));
-  EXPECT_TRUE(hasFlag(flags, FeatureFlag::ORDER_BY));
-  EXPECT_TRUE(hasFlag(flags, FeatureFlag::LIMIT));
-  EXPECT_TRUE(hasFlag(flags, FeatureFlag::NON_DETERMINISTIC));
-
-  // Should NOT be cacheable (contains NOW)
-  EXPECT_FALSE(classifier.isResultCacheable());
+  // Should be deterministic (no NOW/RAND/SERVICE)
+  EXPECT_TRUE(features.isDeterministic());
 }
