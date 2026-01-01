@@ -1,0 +1,13 @@
+@prefix ex: <http://example.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# Person with no email (valid)
+ex:Person1 rdf:type ex:Person .
+
+# Person with one email (valid)
+ex:Person2 rdf:type ex:Person ;
+           ex:email "alice@example.org" .
+
+# Person with three emails (violation - exceeds maxCount)
+ex:Person3 rdf:type ex:Person ;
+           ex:email "bob@example.org", "bob@work.com", "bob@personal.net" .

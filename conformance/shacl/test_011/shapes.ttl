@@ -1,0 +1,12 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix ex: <http://example.org/> .
+
+ex:PersonShape
+    a sh:NodeShape ;
+    sh:targetClass ex:Person ;
+    sh:property [
+        sh:path ex:username ;
+        sh:minLength 3 ;
+        sh:maxLength 20 ;
+        sh:message "Username must be 3-20 characters long" ;
+    ] .

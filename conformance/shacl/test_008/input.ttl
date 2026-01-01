@@ -1,0 +1,13 @@
+@prefix ex: <http://example.org/> .
+
+# Valid: IRI reference
+ex:Person1 rdf:type ex:Person ;
+           ex:manager ex:Manager1 .
+
+# Invalid: literal value instead of IRI
+ex:Person2 rdf:type ex:Person ;
+           ex:manager "Manager Name" .
+
+# Invalid: blank node instead of IRI
+ex:Person3 rdf:type ex:Person ;
+           ex:manager _:blankManager .

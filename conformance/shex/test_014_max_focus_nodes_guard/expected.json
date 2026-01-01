@@ -1,0 +1,9 @@
+{
+  "conforms": true,
+  "violations": [],
+  "stats": {
+    "focus_nodes_checked": 20,
+    "total_violations": 0,
+    "guards_triggered": ["MAX_FOCUS_NODES"]
+  }
+}

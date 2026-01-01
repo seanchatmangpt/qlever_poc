@@ -1,0 +1,31 @@
+{
+  "conforms": false,
+  "violations": [
+    {
+      "focus_node": ":invalidResource",
+      "shape": ":Resource",
+      "property": ":iriProperty",
+      "message": "Value is not an IRI",
+      "error_code": "NODE_KIND_VIOLATION"
+    },
+    {
+      "focus_node": ":invalidResource",
+      "shape": ":Resource",
+      "property": ":literalProperty",
+      "message": "Value is not a Literal",
+      "error_code": "NODE_KIND_VIOLATION"
+    },
+    {
+      "focus_node": ":invalidResource",
+      "shape": ":Resource",
+      "property": ":blankNodeProperty",
+      "message": "Value is not a BNode",
+      "error_code": "NODE_KIND_VIOLATION"
+    }
+  ],
+  "stats": {
+    "focus_nodes_checked": 2,
+    "total_violations": 3,
+    "guards_triggered": []
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "ok": false,
+  "violations_count": 1,
+  "stats": {
+    "focus_nodes_evaluated": 3,
+    "constraints_evaluated": 3,
+    "runtime_ms": 10
+  },
+  "violations": [
+    {
+      "severity": "violation",
+      "message": "Person must have at least one name",
+      "focus_node": "http://example.org/Person1",
+      "shape": "http://example.org/PersonShape",
+      "constraint": "sh:minCount",
+      "path": "http://example.org/name"
+    }
+  ]
+}

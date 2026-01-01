@@ -1,0 +1,16 @@
+@prefix ex: <http://example.org/> .
+
+# Valid: recursive structure with proper validation
+ex:Person1 rdf:type ex:Person ;
+           ex:name "Alice" ;
+           ex:knows ex:Person2 .
+
+ex:Person2 rdf:type ex:Person ;
+           ex:name "Bob" .
+
+# Invalid: Person3 knows Person4 who has no name
+ex:Person3 rdf:type ex:Person ;
+           ex:name "Charlie" ;
+           ex:knows ex:Person4 .
+
+ex:Person4 rdf:type ex:Person .

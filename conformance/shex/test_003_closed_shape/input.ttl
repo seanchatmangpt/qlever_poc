@@ -1,0 +1,9 @@
+@prefix : <http://example.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+:validPerson a :Person ;
+    :name "Valid Person" .
+
+:invalidPerson a :Person ;
+    :name "Invalid Person" ;
+    :extraProperty "This should violate CLOSED constraint" .

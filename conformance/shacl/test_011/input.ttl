@@ -1,0 +1,13 @@
+@prefix ex: <http://example.org/> .
+
+# Valid: username within length constraints
+ex:Person1 rdf:type ex:Person ;
+           ex:username "alice" .
+
+# Invalid: username too short
+ex:Person2 rdf:type ex:Person ;
+           ex:username "ab" .
+
+# Invalid: username too long
+ex:Person3 rdf:type ex:Person ;
+           ex:username "verylongusernamethatexceedsmaximum" .

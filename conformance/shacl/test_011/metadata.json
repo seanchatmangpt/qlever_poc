@@ -1,0 +1,9 @@
+{
+  "test_name": "length_constraints",
+  "description": "Test sh:minLength and sh:maxLength constraints",
+  "expected_violations_count": 2,
+  "expected_error_codes": [],
+  "guards_triggered": false,
+  "subsystem": "shacl",
+  "feature_coverage": ["sh:minLength", "sh:maxLength"]
+}

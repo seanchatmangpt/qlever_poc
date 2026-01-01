@@ -1,0 +1,9 @@
+{
+  "test_name": "pattern_constraint",
+  "description": "Test sh:pattern constraint for regex validation",
+  "expected_violations_count": 2,
+  "expected_error_codes": [],
+  "guards_triggered": false,
+  "subsystem": "shacl",
+  "feature_coverage": ["sh:pattern"]
+}

@@ -1,0 +1,9 @@
+PREFIX : <http://example.org/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+:TreeNode {
+    a [ :TreeNode ] ;
+    :value xsd:integer ;
+    :leftChild @:TreeNode ? ;
+    :rightChild @:TreeNode ?
+}

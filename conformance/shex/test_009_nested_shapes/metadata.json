@@ -1,0 +1,10 @@
+{
+  "test_name": "nested_shapes",
+  "description": "Test nested shape validation - Company references Address shape",
+  "start_shape": ":Company",
+  "expected_violations_count": 0,
+  "expected_error_codes": [],
+  "guards_triggered": false,
+  "subsystem": "shex",
+  "feature_coverage": ["Shape", "TripleConstraint", "ShapeReference", "NestedValidation"]
+}

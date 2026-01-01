@@ -1,0 +1,9 @@
+{
+  "test_name": "value_in_constraint",
+  "description": "Test sh:in constraint for allowed values",
+  "expected_violations_count": 1,
+  "expected_error_codes": [],
+  "guards_triggered": false,
+  "subsystem": "shacl",
+  "feature_coverage": ["sh:in"]
+}

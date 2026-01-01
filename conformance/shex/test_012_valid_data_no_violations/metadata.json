@@ -1,0 +1,10 @@
+{
+  "test_name": "valid_data_no_violations",
+  "description": "Test completely valid data with multiple entities - should produce no violations",
+  "start_shape": ":Course",
+  "expected_violations_count": 0,
+  "expected_error_codes": [],
+  "guards_triggered": false,
+  "subsystem": "shex",
+  "feature_coverage": ["Shape", "TripleConstraint", "ShapeReference", "MultipleEntities"]
+}

@@ -1,0 +1,19 @@
+@prefix ex: <http://example.org/> .
+
+# Generate many violations to trigger max_violations guard
+# Each person is missing required name property
+ex:Person1 rdf:type ex:Person .
+ex:Person2 rdf:type ex:Person .
+ex:Person3 rdf:type ex:Person .
+ex:Person4 rdf:type ex:Person .
+ex:Person5 rdf:type ex:Person .
+ex:Person6 rdf:type ex:Person .
+ex:Person7 rdf:type ex:Person .
+ex:Person8 rdf:type ex:Person .
+ex:Person9 rdf:type ex:Person .
+ex:Person10 rdf:type ex:Person .
+ex:Person11 rdf:type ex:Person .
+ex:Person12 rdf:type ex:Person .
+ex:Person13 rdf:type ex:Person .
+ex:Person14 rdf:type ex:Person .
+ex:Person15 rdf:type ex:Person .

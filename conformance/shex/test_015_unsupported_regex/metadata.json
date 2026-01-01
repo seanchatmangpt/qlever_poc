@@ -1,0 +1,11 @@
+{
+  "test_name": "unsupported_regex_feature",
+  "description": "Test unsupported regex constraint - should reject with UNSUPPORTED_SHEX_FEATURE",
+  "start_shape": ":EmailAddress",
+  "expected_violations_count": 0,
+  "expected_error_codes": ["UNSUPPORTED_SHEX_FEATURE"],
+  "guards_triggered": false,
+  "subsystem": "shex",
+  "feature_coverage": ["UnsupportedFeature", "RegexConstraint"],
+  "expects_rejection": true
+}

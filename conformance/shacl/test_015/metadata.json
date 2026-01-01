@@ -1,0 +1,9 @@
+{
+  "test_name": "no_violations",
+  "description": "Test fully conforming data with no violations",
+  "expected_violations_count": 0,
+  "expected_error_codes": [],
+  "guards_triggered": false,
+  "subsystem": "shacl",
+  "feature_coverage": ["validation success"]
+}

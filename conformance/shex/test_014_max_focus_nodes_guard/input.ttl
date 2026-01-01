@@ -1,0 +1,24 @@
+@prefix : <http://example.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+:user1 a :User ; :username "user1" .
+:user2 a :User ; :username "user2" .
+:user3 a :User ; :username "user3" .
+:user4 a :User ; :username "user4" .
+:user5 a :User ; :username "user5" .
+:user6 a :User ; :username "user6" .
+:user7 a :User ; :username "user7" .
+:user8 a :User ; :username "user8" .
+:user9 a :User ; :username "user9" .
+:user10 a :User ; :username "user10" .
+:user11 a :User ; :username "user11" .
+:user12 a :User ; :username "user12" .
+:user13 a :User ; :username "user13" .
+:user14 a :User ; :username "user14" .
+:user15 a :User ; :username "user15" .
+:user16 a :User ; :username "user16" .
+:user17 a :User ; :username "user17" .
+:user18 a :User ; :username "user18" .
+:user19 a :User ; :username "user19" .
+:user20 a :User ; :username "user20" .
+:user21 a :User ; :username "user21" .

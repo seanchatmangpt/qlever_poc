@@ -1,0 +1,27 @@
+{
+  "ok": false,
+  "violations_count": 2,
+  "stats": {
+    "focus_nodes_evaluated": 8,
+    "constraints_evaluated": 24,
+    "runtime_ms": 20
+  },
+  "violations": [
+    {
+      "severity": "violation",
+      "message": "Person must have age >= 18",
+      "focus_node": "http://example.org/Person3",
+      "shape": "http://example.org/PersonShape",
+      "constraint": "sh:minCount",
+      "path": "http://example.org/age"
+    },
+    {
+      "severity": "violation",
+      "message": "Address must have a city",
+      "focus_node": "http://example.org/Address3",
+      "shape": "http://example.org/AddressShape",
+      "constraint": "sh:minCount",
+      "path": "http://example.org/city"
+    }
+  ]
+}

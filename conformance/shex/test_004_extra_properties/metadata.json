@@ -1,0 +1,10 @@
+{
+  "test_name": "extra_properties_allowed",
+  "description": "Test EXTRA keyword - allows specific properties in CLOSED shape",
+  "start_shape": ":Document",
+  "expected_violations_count": 0,
+  "expected_error_codes": [],
+  "guards_triggered": false,
+  "subsystem": "shex",
+  "feature_coverage": ["Shape", "CLOSED", "EXTRA", "TripleConstraint"]
+}

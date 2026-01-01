@@ -1,0 +1,24 @@
+{
+  "conforms": false,
+  "violations": [
+    {
+      "focus_node": ":invalidTask",
+      "shape": ":Task",
+      "property": ":status",
+      "message": "Value not in allowed set",
+      "error_code": "VALUE_SET_VIOLATION"
+    },
+    {
+      "focus_node": ":invalidTask",
+      "shape": ":Task",
+      "property": ":priority",
+      "message": "Value not in allowed set",
+      "error_code": "VALUE_SET_VIOLATION"
+    }
+  ],
+  "stats": {
+    "focus_nodes_checked": 2,
+    "total_violations": 2,
+    "guards_triggered": []
+  }
+}

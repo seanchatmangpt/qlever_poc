@@ -1,0 +1,19 @@
+{
+  "ok": false,
+  "violations_count": 1,
+  "stats": {
+    "focus_nodes_evaluated": 4,
+    "constraints_evaluated": 9,
+    "runtime_ms": 10
+  },
+  "violations": [
+    {
+      "severity": "violation",
+      "message": "Address must have a city",
+      "focus_node": "http://example.org/Address2",
+      "shape": "http://example.org/AddressShape",
+      "constraint": "sh:minCount",
+      "path": "http://example.org/city"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "conforms": false,
+  "violations": [
+    {
+      "focus_node": ":invalidAccount",
+      "shape": ":Account",
+      "property": ":email",
+      "message": "Maximum cardinality 1 exceeded (found 2)",
+      "error_code": "MAX_CARDINALITY_VIOLATION"
+    }
+  ],
+  "stats": {
+    "focus_nodes_checked": 2,
+    "total_violations": 1,
+    "guards_triggered": []
+  }
+}

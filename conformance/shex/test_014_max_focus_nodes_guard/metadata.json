@@ -1,0 +1,13 @@
+{
+  "test_name": "max_focus_nodes_guard",
+  "description": "Test max_focus_nodes guard - should stop after checking limit (assume max=20)",
+  "start_shape": ":User",
+  "expected_violations_count": 0,
+  "expected_error_codes": [],
+  "guards_triggered": true,
+  "subsystem": "shex",
+  "feature_coverage": ["Shape", "Guard", "MaxFocusNodes"],
+  "validation_config": {
+    "max_focus_nodes": 20
+  }
+}

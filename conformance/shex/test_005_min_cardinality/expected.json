@@ -1,0 +1,17 @@
+{
+  "conforms": false,
+  "violations": [
+    {
+      "focus_node": ":invalidBook",
+      "shape": ":Book",
+      "property": ":author",
+      "message": "Minimum cardinality 2 not met (found 0)",
+      "error_code": "MIN_CARDINALITY_VIOLATION"
+    }
+  ],
+  "stats": {
+    "focus_nodes_checked": 2,
+    "total_violations": 1,
+    "guards_triggered": []
+  }
+}

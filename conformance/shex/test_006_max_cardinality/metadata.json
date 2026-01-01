@@ -1,0 +1,10 @@
+{
+  "test_name": "max_cardinality_constraint",
+  "description": "Test maximum cardinality constraint {0,1} - allows at most 1 email",
+  "start_shape": ":Account",
+  "expected_violations_count": 1,
+  "expected_error_codes": ["MAX_CARDINALITY_VIOLATION"],
+  "guards_triggered": false,
+  "subsystem": "shex",
+  "feature_coverage": ["Shape", "TripleConstraint", "maxCardinality"]
+}

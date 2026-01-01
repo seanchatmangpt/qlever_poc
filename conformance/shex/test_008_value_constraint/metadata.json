@@ -1,0 +1,10 @@
+{
+  "test_name": "value_set_constraint",
+  "description": "Test value set constraints - only allows specific values",
+  "start_shape": ":Task",
+  "expected_violations_count": 2,
+  "expected_error_codes": ["VALUE_SET_VIOLATION"],
+  "guards_triggered": false,
+  "subsystem": "shex",
+  "feature_coverage": ["Shape", "TripleConstraint", "ValueSet"]
+}

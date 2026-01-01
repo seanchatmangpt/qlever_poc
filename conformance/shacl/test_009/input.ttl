@@ -1,0 +1,13 @@
+@prefix ex: <http://example.org/> .
+
+# Valid: status within allowed values
+ex:Person1 rdf:type ex:Person ;
+           ex:status "active" .
+
+# Valid: another allowed value
+ex:Person2 rdf:type ex:Person ;
+           ex:status "inactive" .
+
+# Invalid: value not in allowed list
+ex:Person3 rdf:type ex:Person ;
+           ex:status "pending" .

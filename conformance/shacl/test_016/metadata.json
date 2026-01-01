@@ -1,0 +1,12 @@
+{
+  "test_name": "guard_max_violations",
+  "description": "Test guard trigger when max_violations limit is exceeded",
+  "expected_violations_count": 0,
+  "expected_error_codes": ["MAX_VIOLATIONS_EXCEEDED"],
+  "guards_triggered": true,
+  "subsystem": "shacl",
+  "feature_coverage": ["guard: max_violations"],
+  "guard_config": {
+    "max_violations": 10
+  }
+}

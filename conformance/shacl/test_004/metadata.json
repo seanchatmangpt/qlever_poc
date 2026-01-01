@@ -1,0 +1,9 @@
+{
+  "test_name": "cardinality_exact_range",
+  "description": "Test combined sh:minCount and sh:maxCount for range",
+  "expected_violations_count": 2,
+  "expected_error_codes": [],
+  "guards_triggered": false,
+  "subsystem": "shacl",
+  "feature_coverage": ["sh:minCount", "sh:maxCount"]
+}

@@ -1,0 +1,13 @@
+@prefix ex: <http://example.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# Person with allowed properties only (valid)
+ex:Person1 rdf:type ex:Person ;
+           ex:name "Alice" ;
+           ex:age 30 .
+
+# Person with extra property (violation)
+ex:Person2 rdf:type ex:Person ;
+           ex:name "Bob" ;
+           ex:age 25 ;
+           ex:nickname "Bobby" .

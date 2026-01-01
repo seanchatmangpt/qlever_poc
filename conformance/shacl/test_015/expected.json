@@ -1,0 +1,10 @@
+{
+  "ok": true,
+  "violations_count": 0,
+  "stats": {
+    "focus_nodes_evaluated": 3,
+    "constraints_evaluated": 9,
+    "runtime_ms": 10
+  },
+  "violations": []
+}

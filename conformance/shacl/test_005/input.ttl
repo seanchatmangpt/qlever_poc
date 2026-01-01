@@ -1,0 +1,13 @@
+@prefix ex: <http://example.org/> .
+
+# Valid: age within range
+ex:Person1 rdf:type ex:Person ;
+           ex:age 25 .
+
+# Invalid: age too low
+ex:Person2 rdf:type ex:Person ;
+           ex:age 10 .
+
+# Invalid: age too high
+ex:Person3 rdf:type ex:Person ;
+           ex:age 150 .

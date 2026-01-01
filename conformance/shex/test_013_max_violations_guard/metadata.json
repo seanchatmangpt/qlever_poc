@@ -1,0 +1,13 @@
+{
+  "test_name": "max_violations_guard",
+  "description": "Test max_violations guard - should stop after reaching limit (assume max=10)",
+  "start_shape": ":Item",
+  "expected_violations_count": 10,
+  "expected_error_codes": ["MIN_CARDINALITY_VIOLATION"],
+  "guards_triggered": true,
+  "subsystem": "shex",
+  "feature_coverage": ["Shape", "Guard", "MaxViolations"],
+  "validation_config": {
+    "max_violations": 10
+  }
+}

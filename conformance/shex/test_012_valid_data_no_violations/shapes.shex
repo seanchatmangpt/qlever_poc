@@ -1,0 +1,16 @@
+PREFIX : <http://example.org/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+:Course {
+    a [ :Course ] ;
+    :courseCode xsd:string ;
+    :title xsd:string ;
+    :credits xsd:integer ;
+    :instructor @:Professor
+}
+
+:Professor {
+    a [ :Professor ] ;
+    :name xsd:string ;
+    :department IRI
+}

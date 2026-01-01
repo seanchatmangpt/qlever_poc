@@ -1,0 +1,27 @@
+{
+  "ok": false,
+  "violations_count": 2,
+  "stats": {
+    "focus_nodes_evaluated": 3,
+    "constraints_evaluated": 6,
+    "runtime_ms": 10
+  },
+  "violations": [
+    {
+      "severity": "violation",
+      "message": "Person must have 2-3 phone numbers",
+      "focus_node": "http://example.org/Person2",
+      "shape": "http://example.org/PersonShape",
+      "constraint": "sh:minCount",
+      "path": "http://example.org/phone"
+    },
+    {
+      "severity": "violation",
+      "message": "Person must have 2-3 phone numbers",
+      "focus_node": "http://example.org/Person3",
+      "shape": "http://example.org/PersonShape",
+      "constraint": "sh:maxCount",
+      "path": "http://example.org/phone"
+    }
+  ]
+}

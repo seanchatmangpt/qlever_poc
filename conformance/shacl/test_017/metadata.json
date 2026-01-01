@@ -1,0 +1,12 @@
+{
+  "test_name": "guard_max_focus_nodes",
+  "description": "Test guard trigger when max_focus_nodes limit is exceeded",
+  "expected_violations_count": 0,
+  "expected_error_codes": ["MAX_FOCUS_NODES_EXCEEDED"],
+  "guards_triggered": true,
+  "subsystem": "shacl",
+  "feature_coverage": ["guard: max_focus_nodes"],
+  "guard_config": {
+    "max_focus_nodes": 20
+  }
+}

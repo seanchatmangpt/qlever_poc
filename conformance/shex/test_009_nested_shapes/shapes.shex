@@ -1,0 +1,15 @@
+PREFIX : <http://example.org/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+:Company {
+    a [ :Company ] ;
+    :name xsd:string ;
+    :address @:Address
+}
+
+:Address {
+    a [ :Address ] ;
+    :street xsd:string ;
+    :city xsd:string ;
+    :zipCode xsd:string
+}

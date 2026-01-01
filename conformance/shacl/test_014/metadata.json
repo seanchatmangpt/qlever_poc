@@ -1,0 +1,9 @@
+{
+  "test_name": "multiple_shapes_same_node",
+  "description": "Test multiple shapes applying to the same node",
+  "expected_violations_count": 2,
+  "expected_error_codes": [],
+  "guards_triggered": false,
+  "subsystem": "shacl",
+  "feature_coverage": ["sh:targetClass", "multiple shapes"]
+}

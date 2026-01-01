@@ -1,0 +1,9 @@
+{
+  "test_name": "closed_shape",
+  "description": "Test sh:closed constraint to restrict properties",
+  "expected_violations_count": 1,
+  "expected_error_codes": [],
+  "guards_triggered": false,
+  "subsystem": "shacl",
+  "feature_coverage": ["sh:closed", "sh:ignoredProperties"]
+}

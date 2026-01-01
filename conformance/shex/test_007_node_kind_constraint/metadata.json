@@ -1,0 +1,10 @@
+{
+  "test_name": "node_kind_constraints",
+  "description": "Test different node kind constraints (IRI, Literal, BNode)",
+  "start_shape": ":Resource",
+  "expected_violations_count": 3,
+  "expected_error_codes": ["NODE_KIND_VIOLATION"],
+  "guards_triggered": false,
+  "subsystem": "shex",
+  "feature_coverage": ["Shape", "TripleConstraint", "IRINodeKind", "LiteralNodeKind", "BNodeNodeKind"]
+}

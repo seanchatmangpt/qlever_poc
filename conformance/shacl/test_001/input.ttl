@@ -1,0 +1,13 @@
+@prefix ex: <http://example.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# Person with no name property (violation)
+ex:Person1 rdf:type ex:Person .
+
+# Person with one name property (valid)
+ex:Person2 rdf:type ex:Person ;
+           ex:name "Alice" .
+
+# Person with two names (valid)
+ex:Person3 rdf:type ex:Person ;
+           ex:name "Bob", "Robert" .

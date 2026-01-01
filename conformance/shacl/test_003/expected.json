@@ -1,0 +1,19 @@
+{
+  "ok": false,
+  "violations_count": 1,
+  "stats": {
+    "focus_nodes_evaluated": 2,
+    "constraints_evaluated": 2,
+    "runtime_ms": 10
+  },
+  "violations": [
+    {
+      "severity": "violation",
+      "message": "Person has properties not defined in shape",
+      "focus_node": "http://example.org/Person2",
+      "shape": "http://example.org/PersonShape",
+      "constraint": "sh:closed",
+      "path": "http://example.org/nickname"
+    }
+  ]
+}

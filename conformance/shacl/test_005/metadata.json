@@ -1,0 +1,9 @@
+{
+  "test_name": "value_range_constraints",
+  "description": "Test sh:minInclusive and sh:maxInclusive",
+  "expected_violations_count": 2,
+  "expected_error_codes": [],
+  "guards_triggered": false,
+  "subsystem": "shacl",
+  "feature_coverage": ["sh:minInclusive", "sh:maxInclusive"]
+}

@@ -1,0 +1,16 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix ex: <http://example.org/> .
+
+ex:PersonShape
+    a sh:NodeShape ;
+    sh:targetClass ex:Person ;
+    sh:property [
+        sh:path ex:name ;
+        sh:minCount 1 ;
+        sh:message "Person must have a name" ;
+    ] ;
+    sh:property [
+        sh:path ex:knows ;
+        sh:node ex:PersonShape ;
+        sh:message "Known person must be valid" ;
+    ] .

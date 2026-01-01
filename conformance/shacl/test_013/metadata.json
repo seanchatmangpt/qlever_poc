@@ -1,0 +1,9 @@
+{
+  "test_name": "recursive_shapes",
+  "description": "Test recursive shape references with sh:node",
+  "expected_violations_count": 1,
+  "expected_error_codes": [],
+  "guards_triggered": false,
+  "subsystem": "shacl",
+  "feature_coverage": ["sh:node", "recursive shapes"]
+}

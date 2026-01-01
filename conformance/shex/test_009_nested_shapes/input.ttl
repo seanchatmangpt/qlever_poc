@@ -1,0 +1,11 @@
+@prefix : <http://example.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+:company1 a :Company ;
+    :name "Tech Corp" ;
+    :address :addr1 .
+
+:addr1 a :Address ;
+    :street "123 Main St" ;
+    :city "Techville" ;
+    :zipCode "12345" .

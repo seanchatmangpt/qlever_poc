@@ -1,0 +1,80 @@
+{
+  "conforms": false,
+  "violations": [
+    {
+      "focus_node": ":item1",
+      "shape": ":Item",
+      "property": ":requiredProperty",
+      "message": "Required property missing",
+      "error_code": "MIN_CARDINALITY_VIOLATION"
+    },
+    {
+      "focus_node": ":item2",
+      "shape": ":Item",
+      "property": ":requiredProperty",
+      "message": "Required property missing",
+      "error_code": "MIN_CARDINALITY_VIOLATION"
+    },
+    {
+      "focus_node": ":item3",
+      "shape": ":Item",
+      "property": ":requiredProperty",
+      "message": "Required property missing",
+      "error_code": "MIN_CARDINALITY_VIOLATION"
+    },
+    {
+      "focus_node": ":item4",
+      "shape": ":Item",
+      "property": ":requiredProperty",
+      "message": "Required property missing",
+      "error_code": "MIN_CARDINALITY_VIOLATION"
+    },
+    {
+      "focus_node": ":item5",
+      "shape": ":Item",
+      "property": ":requiredProperty",
+      "message": "Required property missing",
+      "error_code": "MIN_CARDINALITY_VIOLATION"
+    },
+    {
+      "focus_node": ":item6",
+      "shape": ":Item",
+      "property": ":requiredProperty",
+      "message": "Required property missing",
+      "error_code": "MIN_CARDINALITY_VIOLATION"
+    },
+    {
+      "focus_node": ":item7",
+      "shape": ":Item",
+      "property": ":requiredProperty",
+      "message": "Required property missing",
+      "error_code": "MIN_CARDINALITY_VIOLATION"
+    },
+    {
+      "focus_node": ":item8",
+      "shape": ":Item",
+      "property": ":requiredProperty",
+      "message": "Required property missing",
+      "error_code": "MIN_CARDINALITY_VIOLATION"
+    },
+    {
+      "focus_node": ":item9",
+      "shape": ":Item",
+      "property": ":requiredProperty",
+      "message": "Required property missing",
+      "error_code": "MIN_CARDINALITY_VIOLATION"
+    },
+    {
+      "focus_node": ":item10",
+      "shape": ":Item",
+      "property": ":requiredProperty",
+      "message": "Required property missing",
+      "error_code": "MIN_CARDINALITY_VIOLATION"
+    }
+  ],
+  "stats": {
+    "focus_nodes_checked": 10,
+    "total_violations": 10,
+    "guards_triggered": ["MAX_VIOLATIONS"]
+  }
+}

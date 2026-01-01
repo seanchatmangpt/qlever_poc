@@ -1,0 +1,40 @@
+@prefix ex: <http://example.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Complex graph with many nodes and relationships
+ex:Company1 rdf:type ex:Company ;
+            ex:name "Acme Corp" ;
+            ex:employee ex:Person1, ex:Person2, ex:Person3 .
+
+ex:Person1 rdf:type ex:Person ;
+           ex:name "Alice" ;
+           ex:age 30 ;
+           ex:email "alice@acme.com" ;
+           ex:address ex:Address1 ;
+           ex:knows ex:Person2 ;
+           ex:worksFor ex:Company1 .
+
+ex:Person2 rdf:type ex:Person ;
+           ex:name "Bob" ;
+           ex:age 28 ;
+           ex:email "bob@acme.com" ;
+           ex:address ex:Address2 ;
+           ex:knows ex:Person1, ex:Person3 ;
+           ex:worksFor ex:Company1 .
+
+ex:Person3 rdf:type ex:Person ;
+           ex:name "Charlie" ;
+           ex:email "charlie@acme.com" ;
+           ex:address ex:Address3 ;
+           ex:worksFor ex:Company1 .
+
+ex:Address1 ex:street "123 Main St" ;
+            ex:city "Springfield" ;
+            ex:zipcode "12345" .
+
+ex:Address2 ex:street "456 Oak Ave" ;
+            ex:city "Springfield" ;
+            ex:zipcode "12345" .
+
+ex:Address3 ex:street "789 Pine Rd" ;
+            ex:zipcode "12346" .

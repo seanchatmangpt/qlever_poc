@@ -1,0 +1,13 @@
+{
+  "ok": false,
+  "violations_count": 0,
+  "outcome": "GUARDED",
+  "guard_triggered": "MAX_FOCUS_NODES_EXCEEDED",
+  "stats": {
+    "focus_nodes_evaluated": 20,
+    "constraints_evaluated": 20,
+    "runtime_ms": 15
+  },
+  "violations": [],
+  "error_message": "Validation terminated: maximum focus nodes limit (20) exceeded"
+}

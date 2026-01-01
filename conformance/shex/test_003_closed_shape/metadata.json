@@ -1,0 +1,10 @@
+{
+  "test_name": "closed_shape",
+  "description": "Test CLOSED shape constraint - rejects extra properties",
+  "start_shape": ":Person",
+  "expected_violations_count": 1,
+  "expected_error_codes": ["CLOSED_SHAPE_VIOLATION"],
+  "guards_triggered": false,
+  "subsystem": "shex",
+  "feature_coverage": ["Shape", "CLOSED", "TripleConstraint"]
+}

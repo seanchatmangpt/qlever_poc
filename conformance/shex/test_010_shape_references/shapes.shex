@@ -1,0 +1,15 @@
+PREFIX : <http://example.org/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+:Project {
+    a [ :Project ] ;
+    :title xsd:string ;
+    :manager @:Person ;
+    :member @:Person *
+}
+
+:Person {
+    a [ :Person ] ;
+    :name xsd:string ;
+    :email xsd:string
+}

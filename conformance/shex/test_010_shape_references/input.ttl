@@ -1,0 +1,22 @@
+@prefix : <http://example.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+:project1 a :Project ;
+    :title "Project Alpha" ;
+    :manager :person1 ;
+    :member :person2 .
+
+:person1 a :Person ;
+    :name "Manager Name" ;
+    :email "manager@example.com" .
+
+:person2 a :Person ;
+    :name "Member Name" ;
+    :email "member@example.com" .
+
+:invalidProject a :Project ;
+    :title "Invalid Project" ;
+    :manager :invalidPerson .
+
+:invalidPerson a :Person ;
+    :name "No Email Person" .

@@ -1,0 +1,8 @@
+PREFIX : <http://example.org/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+:Account {
+    a [ :Account ] ;
+    :username xsd:string {1} ;
+    :email xsd:string {0,1}
+}

@@ -1,0 +1,10 @@
+{
+  "test_name": "recursive_shape",
+  "description": "Test recursive shape definitions - TreeNode references itself",
+  "start_shape": ":TreeNode",
+  "expected_violations_count": 0,
+  "expected_error_codes": [],
+  "guards_triggered": false,
+  "subsystem": "shex",
+  "feature_coverage": ["Shape", "TripleConstraint", "ShapeReference", "Recursion"]
+}

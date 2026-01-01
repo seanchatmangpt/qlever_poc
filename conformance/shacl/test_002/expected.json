@@ -1,0 +1,19 @@
+{
+  "ok": false,
+  "violations_count": 1,
+  "stats": {
+    "focus_nodes_evaluated": 3,
+    "constraints_evaluated": 3,
+    "runtime_ms": 10
+  },
+  "violations": [
+    {
+      "severity": "violation",
+      "message": "Person must have at most 2 email addresses",
+      "focus_node": "http://example.org/Person3",
+      "shape": "http://example.org/PersonShape",
+      "constraint": "sh:maxCount",
+      "path": "http://example.org/email"
+    }
+  ]
+}

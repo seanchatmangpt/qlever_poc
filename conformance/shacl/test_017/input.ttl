@@ -1,0 +1,24 @@
+@prefix ex: <http://example.org/> .
+
+# Generate many focus nodes to trigger max_focus_nodes guard
+ex:Person1 rdf:type ex:Person ; ex:name "Person1" .
+ex:Person2 rdf:type ex:Person ; ex:name "Person2" .
+ex:Person3 rdf:type ex:Person ; ex:name "Person3" .
+ex:Person4 rdf:type ex:Person ; ex:name "Person4" .
+ex:Person5 rdf:type ex:Person ; ex:name "Person5" .
+ex:Person6 rdf:type ex:Person ; ex:name "Person6" .
+ex:Person7 rdf:type ex:Person ; ex:name "Person7" .
+ex:Person8 rdf:type ex:Person ; ex:name "Person8" .
+ex:Person9 rdf:type ex:Person ; ex:name "Person9" .
+ex:Person10 rdf:type ex:Person ; ex:name "Person10" .
+ex:Person11 rdf:type ex:Person ; ex:name "Person11" .
+ex:Person12 rdf:type ex:Person ; ex:name "Person12" .
+ex:Person13 rdf:type ex:Person ; ex:name "Person13" .
+ex:Person14 rdf:type ex:Person ; ex:name "Person14" .
+ex:Person15 rdf:type ex:Person ; ex:name "Person15" .
+ex:Person16 rdf:type ex:Person ; ex:name "Person16" .
+ex:Person17 rdf:type ex:Person ; ex:name "Person17" .
+ex:Person18 rdf:type ex:Person ; ex:name "Person18" .
+ex:Person19 rdf:type ex:Person ; ex:name "Person19" .
+ex:Person20 rdf:type ex:Person ; ex:name "Person20" .
+ex:Person21 rdf:type ex:Person ; ex:name "Person21" .

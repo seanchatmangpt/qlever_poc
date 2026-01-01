@@ -1,0 +1,10 @@
+@prefix : <http://example.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+:validBook a :Book ;
+    :title "Valid Book" ;
+    :author "Author 1" ;
+    :author "Author 2" .
+
+:invalidBook a :Book ;
+    :title "Invalid Book" .

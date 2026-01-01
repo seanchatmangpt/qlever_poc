@@ -1,0 +1,9 @@
+{
+  "test_name": "datatype_integer",
+  "description": "Test sh:datatype with xsd:integer",
+  "expected_violations_count": 1,
+  "expected_error_codes": [],
+  "guards_triggered": false,
+  "subsystem": "shacl",
+  "feature_coverage": ["sh:datatype"]
+}

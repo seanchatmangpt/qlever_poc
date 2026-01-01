@@ -1,0 +1,16 @@
+@prefix ex: <http://example.org/> .
+
+# Valid: address has all required nested properties
+ex:Person1 rdf:type ex:Person ;
+           ex:address ex:Address1 .
+
+ex:Address1 ex:street "123 Main St" ;
+            ex:city "Springfield" ;
+            ex:zipcode "12345" .
+
+# Invalid: address missing required city
+ex:Person2 rdf:type ex:Person ;
+           ex:address ex:Address2 .
+
+ex:Address2 ex:street "456 Oak Ave" ;
+            ex:zipcode "67890" .

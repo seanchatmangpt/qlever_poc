@@ -1,0 +1,17 @@
+{
+  "conforms": false,
+  "violations": [
+    {
+      "focus_node": ":invalidPerson",
+      "shape": ":Person",
+      "property": ":extraProperty",
+      "message": "Property not allowed in CLOSED shape",
+      "error_code": "CLOSED_SHAPE_VIOLATION"
+    }
+  ],
+  "stats": {
+    "focus_nodes_checked": 2,
+    "total_violations": 1,
+    "guards_triggered": []
+  }
+}

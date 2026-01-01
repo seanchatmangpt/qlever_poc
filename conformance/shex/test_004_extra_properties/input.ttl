@@ -1,0 +1,7 @@
+@prefix : <http://example.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+:doc1 a :Document ;
+    :title "Document 1" ;
+    :author "Alice" ;
+    :extraMetadata "This is allowed with EXTRA" .

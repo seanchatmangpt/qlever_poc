@@ -1,0 +1,11 @@
+@prefix : <http://example.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+:validAccount a :Account ;
+    :username "user1" ;
+    :email "user@example.com" .
+
+:invalidAccount a :Account ;
+    :username "user2" ;
+    :email "email1@example.com" ;
+    :email "email2@example.com" .

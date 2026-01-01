@@ -1,0 +1,12 @@
+@prefix : <http://example.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+:resource1 a :Resource ;
+    :iriProperty :someIRI ;
+    :literalProperty "Some Literal" ;
+    :blankNodeProperty _:bn1 .
+
+:invalidResource a :Resource ;
+    :iriProperty "This should be an IRI, not a literal" ;
+    :literalProperty :thisIsAnIRI ;
+    :blankNodeProperty "This should be a blank node" .

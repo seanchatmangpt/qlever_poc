@@ -1,0 +1,35 @@
+@prefix : <http://example.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+:item1 a :Item ;
+    :name "Item 1" .
+
+:item2 a :Item ;
+    :name "Item 2" .
+
+:item3 a :Item ;
+    :name "Item 3" .
+
+:item4 a :Item ;
+    :name "Item 4" .
+
+:item5 a :Item ;
+    :name "Item 5" .
+
+:item6 a :Item ;
+    :name "Item 6" .
+
+:item7 a :Item ;
+    :name "Item 7" .
+
+:item8 a :Item ;
+    :name "Item 8" .
+
+:item9 a :Item ;
+    :name "Item 9" .
+
+:item10 a :Item ;
+    :name "Item 10" .
+
+:item11 a :Item ;
+    :name "Item 11" .

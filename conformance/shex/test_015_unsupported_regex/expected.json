@@ -1,0 +1,14 @@
+{
+  "conforms": false,
+  "violations": [],
+  "error": {
+    "code": "UNSUPPORTED_SHEX_FEATURE",
+    "message": "Regex constraints are not supported in the minimal ShEx subset",
+    "feature": "regex_constraint"
+  },
+  "stats": {
+    "focus_nodes_checked": 0,
+    "total_violations": 0,
+    "guards_triggered": []
+  }
+}

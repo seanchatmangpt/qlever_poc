@@ -1,0 +1,8 @@
+PREFIX : <http://example.org/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+:Book {
+    a [ :Book ] ;
+    :title xsd:string ;
+    :author xsd:string {2,}
+}

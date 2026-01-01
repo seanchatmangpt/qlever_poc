@@ -1,0 +1,10 @@
+{
+  "test_name": "min_cardinality_constraint",
+  "description": "Test minimum cardinality constraint {2,} - requires at least 2 authors",
+  "start_shape": ":Book",
+  "expected_violations_count": 1,
+  "expected_error_codes": ["MIN_CARDINALITY_VIOLATION"],
+  "guards_triggered": false,
+  "subsystem": "shex",
+  "feature_coverage": ["Shape", "TripleConstraint", "minCardinality"]
+}

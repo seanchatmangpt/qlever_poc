@@ -1,0 +1,10 @@
+{
+  "test_name": "shape_references",
+  "description": "Test shape references - Project references Person shape multiple times",
+  "start_shape": ":Project",
+  "expected_violations_count": 1,
+  "expected_error_codes": ["SHAPE_REFERENCE_VIOLATION"],
+  "guards_triggered": false,
+  "subsystem": "shex",
+  "feature_coverage": ["Shape", "TripleConstraint", "ShapeReference", "Cardinality"]
+}

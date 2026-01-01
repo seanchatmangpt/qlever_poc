@@ -1,0 +1,52 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix ex: <http://example.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+ex:PersonShape
+    a sh:NodeShape ;
+    sh:targetClass ex:Person ;
+    sh:property [
+        sh:path ex:name ;
+        sh:minCount 1 ;
+        sh:message "Person must have a name" ;
+    ] ;
+    sh:property [
+        sh:path ex:age ;
+        sh:minCount 1 ;
+        sh:minInclusive 18 ;
+        sh:message "Person must have age >= 18" ;
+    ] ;
+    sh:property [
+        sh:path ex:email ;
+        sh:minCount 1 ;
+        sh:pattern "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$" ;
+    ] ;
+    sh:property [
+        sh:path ex:address ;
+        sh:minCount 1 ;
+        sh:node ex:AddressShape ;
+    ] .
+
+ex:AddressShape
+    a sh:NodeShape ;
+    sh:property [
+        sh:path ex:street ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path ex:city ;
+        sh:minCount 1 ;
+        sh:message "Address must have a city" ;
+    ] ;
+    sh:property [
+        sh:path ex:zipcode ;
+        sh:minCount 1 ;
+    ] .
+
+ex:CompanyShape
+    a sh:NodeShape ;
+    sh:targetClass ex:Company ;
+    sh:property [
+        sh:path ex:name ;
+        sh:minCount 1 ;
+    ] .

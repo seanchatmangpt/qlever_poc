@@ -1,0 +1,10 @@
+@prefix : <http://example.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+:alice a :Person ;
+    :name "Alice" ;
+    :age 30 .
+
+:bob a :Person ;
+    :name "Bob" ;
+    :age 25 .

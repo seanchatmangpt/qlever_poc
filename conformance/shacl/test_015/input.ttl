@@ -1,0 +1,18 @@
+@prefix ex: <http://example.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# All persons fully conform to shape
+ex:Person1 rdf:type ex:Person ;
+           ex:name "Alice" ;
+           ex:age 30 ;
+           ex:email "alice@example.org" .
+
+ex:Person2 rdf:type ex:Person ;
+           ex:name "Bob" ;
+           ex:age 25 ;
+           ex:email "bob@example.org" .
+
+ex:Person3 rdf:type ex:Person ;
+           ex:name "Charlie" ;
+           ex:age 35 ;
+           ex:email "charlie@example.org" .

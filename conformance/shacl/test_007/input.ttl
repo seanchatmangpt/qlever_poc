@@ -1,0 +1,10 @@
+@prefix ex: <http://example.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Valid: integer value
+ex:Person1 rdf:type ex:Person ;
+           ex:age 30 .
+
+# Invalid: string value instead of integer
+ex:Person2 rdf:type ex:Person ;
+           ex:age "thirty" .

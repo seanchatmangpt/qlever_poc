@@ -1,0 +1,10 @@
+{
+  "test_name": "basic_node_validation",
+  "description": "Test node validation with IRI node kind constraint",
+  "start_shape": ":Employee",
+  "expected_violations_count": 0,
+  "expected_error_codes": [],
+  "guards_triggered": false,
+  "subsystem": "shex",
+  "feature_coverage": ["Shape", "TripleConstraint", "IRINodeKind"]
+}

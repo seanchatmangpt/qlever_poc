@@ -1,0 +1,13 @@
+{
+  "ok": false,
+  "violations_count": 0,
+  "outcome": "GUARDED",
+  "guard_triggered": "MAX_VIOLATIONS_EXCEEDED",
+  "stats": {
+    "focus_nodes_evaluated": 10,
+    "constraints_evaluated": 10,
+    "runtime_ms": 15
+  },
+  "violations": [],
+  "error_message": "Validation terminated: maximum violations limit (10) exceeded"
+}

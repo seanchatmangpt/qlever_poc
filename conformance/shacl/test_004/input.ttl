@@ -1,0 +1,13 @@
+@prefix ex: <http://example.org/> .
+
+# Valid: exactly 2 phone numbers
+ex:Person1 rdf:type ex:Person ;
+           ex:phone "+1-555-0100", "+1-555-0101" .
+
+# Invalid: only 1 phone number (needs at least 2)
+ex:Person2 rdf:type ex:Person ;
+           ex:phone "+1-555-0200" .
+
+# Invalid: 4 phone numbers (exceeds max of 3)
+ex:Person3 rdf:type ex:Person ;
+           ex:phone "+1-555-0300", "+1-555-0301", "+1-555-0302", "+1-555-0303" .

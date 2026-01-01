@@ -1,0 +1,22 @@
+@prefix : <http://example.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+:course1 a :Course ;
+    :courseCode "CS101" ;
+    :title "Introduction to Computer Science" ;
+    :credits 3 ;
+    :instructor :prof1 .
+
+:prof1 a :Professor ;
+    :name "Dr. Smith" ;
+    :department :ComputerScience .
+
+:course2 a :Course ;
+    :courseCode "MATH201" ;
+    :title "Calculus II" ;
+    :credits 4 ;
+    :instructor :prof2 .
+
+:prof2 a :Professor ;
+    :name "Dr. Johnson" ;
+    :department :Mathematics .

@@ -1,0 +1,9 @@
+{
+  "test_name": "basic_property_maxcount",
+  "description": "Test basic sh:property with sh:maxCount constraint",
+  "expected_violations_count": 1,
+  "expected_error_codes": [],
+  "guards_triggered": false,
+  "subsystem": "shacl",
+  "feature_coverage": ["sh:property", "sh:maxCount"]
+}

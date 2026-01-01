@@ -1,0 +1,9 @@
+{
+  "test_name": "nested_shapes",
+  "description": "Test sh:node with nested shape validation",
+  "expected_violations_count": 1,
+  "expected_error_codes": [],
+  "guards_triggered": false,
+  "subsystem": "shacl",
+  "feature_coverage": ["sh:node", "nested shapes"]
+}

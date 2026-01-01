@@ -1,0 +1,8 @@
+PREFIX : <http://example.org/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+:Document CLOSED {
+    a [ :Document ] ;
+    :title xsd:string ;
+    :author xsd:string
+} EXTRA :extraMetadata

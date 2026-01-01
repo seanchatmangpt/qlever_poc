@@ -1,0 +1,17 @@
+{
+  "conforms": false,
+  "violations": [
+    {
+      "focus_node": ":invalidPerson",
+      "shape": ":Person",
+      "property": ":email",
+      "message": "Required property missing",
+      "error_code": "SHAPE_REFERENCE_VIOLATION"
+    }
+  ],
+  "stats": {
+    "focus_nodes_checked": 4,
+    "total_violations": 1,
+    "guards_triggered": []
+  }
+}

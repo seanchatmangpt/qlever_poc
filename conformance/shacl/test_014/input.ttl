@@ -1,0 +1,14 @@
+@prefix ex: <http://example.org/> .
+
+# Valid: satisfies both shapes
+ex:Employee1 rdf:type ex:Employee, ex:Person ;
+             ex:name "Alice" ;
+             ex:employeeId "E001" .
+
+# Invalid: missing employeeId (violates EmployeeShape)
+ex:Employee2 rdf:type ex:Employee, ex:Person ;
+             ex:name "Bob" .
+
+# Invalid: missing name (violates PersonShape)
+ex:Employee3 rdf:type ex:Employee, ex:Person ;
+             ex:employeeId "E003" .

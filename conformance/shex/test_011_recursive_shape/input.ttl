@@ -1,0 +1,17 @@
+@prefix : <http://example.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+:node1 a :TreeNode ;
+    :value 1 ;
+    :leftChild :node2 ;
+    :rightChild :node3 .
+
+:node2 a :TreeNode ;
+    :value 2 .
+
+:node3 a :TreeNode ;
+    :value 3 ;
+    :leftChild :node4 .
+
+:node4 a :TreeNode ;
+    :value 4 .
