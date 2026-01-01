@@ -1,4 +1,34 @@
+# ⚠️ DEPRECATED: Running QLever natively
+
+**This documentation is outdated. Please use current build instructions instead.**
+
+> **Status:** Deprecated as of 2025-01-01
+> **Last Updated:** 2024-12-31
+> **Current Guide:** See [CLAUDE.md](../CLAUDE.md) for up-to-date build instructions
+
+### Why This Is Deprecated
+
+This document references Ubuntu 18.04, GCC 7.x, and CMake 2.8.4, which are all obsolete. Current QLever requires:
+- **OS:** Ubuntu 22.04 LTS or later
+- **GCC:** 11.0 or later
+- **CMake:** 3.27 or later
+- **Python:** 3.8 or later
+
+Following this guide on modern systems will result in compilation errors like:
+```
+fatal error: C++20 is not supported by your compiler
+```
+
+### What to Do Instead
+
+**For current build instructions:** [See CLAUDE.md](../CLAUDE.md)
+**For quick setup:** [See QUICK_START.md](../QUICK_START.md)
+
+---
+
 # Running QLever natively on a Linux or Unix-like (untested) host
+
+**DEPRECATED - See current instructions above**
 ## Requirements:
 QLever is primarily tested on a Ubuntu 18.04 based container as well as current
 Arch Linux.

@@ -1,12 +1,16 @@
 # Usage:
-# - Install pre-commit: `pip install pre-commit` (once).ci:
-# - In the main directory of QLever run
-#   - `pre-commit install` to use a package version of clang-format
-#   - `pre-commit install -c .pre-commit-config-local.yaml` to use the local clang-format
-# - Each git commit will now automatically be formatted. Note that
-# - commits will fail if the hook reformats your files, so you
-# - have to run git commit twice in order to first format and then
-# - actually commit.
+# - Install pre-commit: `pip install pre-commit` (once)
+# - In the main directory of QLever run: `pre-commit install`
+# - Each git commit will now automatically be formatted
+# - If the hook reformats files, the commit fails but files are fixed
+# - Simply run `git commit` again (no need to stage changes again)
+#
+# TIP: To bypass pre-commit hooks (not recommended):
+#   git commit --no-verify
+#
+# To run formatters manually without committing:
+#   pre-commit run --all-files
+#   clang-format -i <file>
 repos:
   # Uses a packaged version of clang-format from https://github.com/ssciwr/clang-format-wheel
   - repo: https://github.com/pre-commit/mirrors-clang-format
