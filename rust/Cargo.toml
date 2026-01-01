@@ -11,10 +11,6 @@ path = "src/lib.rs"
 name = "query"
 path = "examples/query.rs"
 
-[[bin]]
-name = "ffi_benchmark"
-path = "benches/ffi_benchmark.rs"
-
 [dependencies]
 # Error handling
 thiserror = "1.0"
@@ -25,10 +21,18 @@ parking_lot = "0.12"
 # JSON parsing for QLever query results (FFI)
 serde_json = "1.0"
 
+# UUID generation for namespaced result pinning
+uuid = { version = "1.0", features = ["v4"] }
+
 # WASM support
 wasm-bindgen = { version = "0.2", optional = true }
 serde = { version = "1.0", features = ["derive"], optional = true }
 console_error_panic_hook = { version = "0.1", optional = true }
 
 [features]
+# WASM support for web deployment
 wasm = ["wasm-bindgen", "serde", "console_error_panic_hook"]
+
+# Phase 1: Direct C++ integration via FFI (enables libqlever API)
+# Requires: libqlever.so/dylib installed and accessible to linker
+libqlever = ["serde"]
