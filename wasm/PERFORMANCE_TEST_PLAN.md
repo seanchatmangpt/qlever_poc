@@ -1,362 +1,153 @@
 # QLever WASM Performance Test Plan
-## Adversarial QA - Speed & Throughput Focused
+## Real-World JavaScript Integration Performance
 
-**Goal**: Measure if this WASM wrapper is actually faster than alternatives. No fluff. Only metrics that matter.
+**Goal**: Measure actual end-to-end performance from JavaScript to WASM to QLever C++ and back with results.
+
+**Key Principle**: All measurements include **JavaScript marshaling, WASM processing, and result serialization/deserialization**. This is how the WASM binding is actually used.
+
+**Baseline**: QLever C++ native performance (from official benchmarks on 390M DBLP triples):
+- Simple queries: 0.02s (50 q/s)
+- Filtered queries: 0.05s (20 q/s)
+- Complex joins: 0.11s (9 q/s)
+- Large results (7.2M triples): 4.2s
+
+**Target**: 80% of native C++ performance (20% overhead for WASM FFI and serialization)
 
 ---
 
 ## Core Metrics We Care About
 
-| Metric | Target | Pass/Fail |
-|--------|--------|-----------|
-| Query Throughput | 100+ q/s | ✓ |
-| P50 Latency | < 50ms | ✓ |
-| P95 Latency | < 500ms | ✓ |
-| P99 Latency | < 2s | ✓ |
-| Memory Per Query | < 5MB | ✓ |
-| Concurrent Queries (100x) | No degradation | ? |
-| WASM Load Time | < 500ms | ✓ |
-| Query + Result Size | < 10MB | ? |
+| Metric | QLever C++ | WASM Target (80%) | Status |
+|--------|-----------|-------------------|--------|
+| Simple Query Throughput | 50 q/s | 32+ q/s | Test: throughput.perf.ts |
+| Filtered Query Throughput | 20 q/s | 16+ q/s | Test: throughput.perf.ts |
+| Complex Query Throughput | 9 q/s | 6+ q/s | Test: throughput.perf.ts |
+| P50 Latency (small results) | 20ms | 31ms | Test: latency.perf.ts |
+| P99 Latency (interactive) | 250ms | 500ms | Test: latency.perf.ts |
+| Large Result Throughput | 1.7M results/s | 50K+ results/s | Test: throughput.perf.ts |
+| Memory Growth (100 queries) | baseline | < 5MB | Test: memory.perf.ts |
+| Concurrent Scaling | Linear | Linear up to 10 | Test: concurrency.perf.ts |
+| Memory Leak (500 queries) | None | < 2MB | Test: memory.perf.ts |
 
 ---
 
-## Test 1: Raw Throughput
+## Test Suite 1: Throughput Performance
+**File**: `tests/throughput.perf.ts`
 
-**Objective**: How many queries per second can we execute?
+**What It Measures**: Queries per second for different query complexities.
 
-```bash
-npm run perf:throughput
-```
+**WASM Warmup**: 10 warmup queries before timing starts.
 
-**Implementation**:
-```javascript
-for (let i = 0; i < 10000; i++) {
-  const result = await store.query('SELECT * WHERE { ?s ?p ?o } LIMIT 1');
-}
-// Measure: queries/second
-// Expected: > 100 q/s
-```
+**End-to-End Measurement**:
+- Start timer before `client.query()` call
+- Include WASM processing time
+- Include result serialization/deserialization
+- Stop timer after `response.data()` completes
 
-**Measurement**:
-- Time 10,000 simple queries
-- Calculate: operations / elapsed_time
-- Report P50, P95, P99 latency
+**Tests**:
+1. **Simple triple pattern** - Target: 32+ q/s
+2. **Filtered patterns** - Target: 16+ q/s
+3. **Multi-pattern joins** - Target: 11+ q/s
+4. **GROUP BY aggregation** - Target: 6+ q/s
+5. **UNION patterns** - Target: 8+ q/s
+6. **Sustained load (1000 queries)** - Target: 28+ q/s sustained
+7. **Mixed complexity** - Target: 20+ q/s
+8. **Large result throughput (500K+ results)** - Target: 50K+ results/second
 
-**Failure Criteria**:
-- < 50 q/s = FAIL (too slow for production)
-- 50-100 q/s = WARNING (acceptable but not great)
-- > 100 q/s = PASS
+**Key Insight**: Large result set throughput measures how fast WASM can serialize and transfer massive result sets back to JavaScript.
 
 ---
 
-## Test 2: Latency Distribution
+## Test Suite 2: Latency Distribution
+**File**: `tests/latency.perf.ts`
 
-**Objective**: Understand latency profile under load.
+**What It Measures**: Response time percentiles (P50, P95, P99) for different result sizes.
 
-```bash
-npm run perf:latency
-```
+**WASM Warmup**: 10 warmup queries before timing starts.
 
-**Measurement**:
-```javascript
-const latencies = [];
+**Latency Measurements** (end-to-end from JavaScript):
+1. **Tiny results (1-10)** - P50: 31ms, P95: 63ms, P99: 125ms
+2. **Small results (10-100)** - P50: 31ms, P95: 63ms, P99: 125ms
+3. **Medium results (100-1000)** - P50: 63ms, P95: 125ms, P99: 250ms
+4. **Large results (1000+)** - P50: 138ms, P95: 275ms, P99: 550ms
+5. **Interactive queries** - P50: <100ms, P95: <250ms, P99: <500ms
+6. **Distribution analysis** - Skewness, tail ratio, normality check
+7. **Percentile sweep** - P10 through P99 detailed breakdown
 
-for (let i = 0; i < 1000; i++) {
-  const start = performance.now();
-  await store.query('SELECT * WHERE { ?s ?p ?o } LIMIT 10');
-  latencies.push(performance.now() - start);
-}
-
-// Sort and compute percentiles
-latencies.sort((a, b) => a - b);
-const p50 = latencies[500];
-const p95 = latencies[950];
-const p99 = latencies[990];
-
-console.log(`P50: ${p50}ms, P95: ${p95}ms, P99: ${p99}ms`);
-```
-
-**Targets**:
-- P50: < 50ms (50% of queries finish this fast)
-- P95: < 500ms (95% finish this fast)
-- P99: < 2s (99% finish this fast)
-- Max: < 10s (worst case acceptable)
-
-**Failure Criteria**:
-- P50 > 100ms = FAIL
-- P95 > 1s = FAIL
-- P99 > 5s = FAIL
+**Key Metric**: Interactive queries should complete in <500ms P99 for good user experience.
 
 ---
 
-## Test 3: Memory Efficiency
+## Test Suite 3: Memory Efficiency
+**File**: `tests/memory.perf.ts`
 
-**Objective**: Don't leak memory. Keep per-query overhead minimal.
+**What It Measures**: Heap memory growth, leak detection, and memory scaling with result size.
 
-```bash
-npm run perf:memory
-```
+**WASM Warmup**: 5 warmup queries before measurements.
 
-**Measurement**:
-```javascript
-// Baseline
-const baseline = performance.memory.usedJSHeapSize;
+**Memory Tests**:
+1. **Baseline heap** - Establish initial memory footprint
+2. **Single query impact** - Memory delta for one query
+3. **Stability (100 queries)** - Growth: <5MB, Leak: <1MB
+4. **Memory scaling** - With result sizes 10 to 10,000
+5. **Extended session (500 queries)** - Growth: <10MB, Leak: <2MB
+6. **Result retention** - Verify garbage collection
+7. **Concurrent queries** - 10 parallel: <20MB delta
+8. **WASM module footprint** - <300MB heap for runtime
 
-// Execute 100 queries
-for (let i = 0; i < 100; i++) {
-  const result = await store.query('SELECT * WHERE { ?s ?p ?o } LIMIT 100');
-}
-
-// Check growth
-const after = performance.memory.usedJSHeapSize;
-const growth = (after - baseline) / 1024 / 1024; // MB
-
-console.log(`Memory growth for 100 queries: ${growth}MB`);
-
-// Per-query average
-const perQuery = growth / 100;
-console.log(`Per-query memory: ${perQuery}MB`);
-```
-
-**Targets**:
-- Per-query: < 5MB (including result set)
-- 100-query total: < 100MB
-- No growth trend (queries 50-100 same as 1-50)
-
-**Failure Criteria**:
-- Per-query > 10MB = FAIL
-- Growth trend (memory increase over time) = FAIL (memory leak)
+**Key Goal**: No memory leaks detected over extended session, minimal per-query overhead.
 
 ---
 
-## Test 4: Concurrent Operations
+## Test Suite 4: Concurrency & Parallelism
+**File**: `tests/concurrency.perf.ts`
 
-**Objective**: Can it handle parallel queries without tanking?
+**What It Measures**: Scaling behavior with multiple concurrent queries.
 
-```bash
-npm run perf:concurrent
-```
+**WASM Warmup**: 20 concurrent warmup queries.
 
-**Measurement**:
-```javascript
-const concurrency = [1, 5, 10, 25, 50];
+**Concurrency Tests**:
+1. **Sequential baseline** - 1 client: 20+ q/s
+2. **Dual concurrent** - 2 clients: 30+ q/s
+3. **Multiple concurrent** - 5 clients: 40+ q/s
+4. **High concurrency** - 10 clients: 60+ q/s
+5. **Extreme concurrency** - 20 clients: 50+ q/s
+6. **Mixed complexity** - 70% simple, 30% complex: 20+ q/s
+7. **Sustained 30s load** - 5 concurrent: 20+ q/s sustained
+8. **Scalability analysis** - Efficiency across 1,2,4,8 concurrent clients
 
-for (const c of concurrency) {
-  const start = performance.now();
-
-  const promises = [];
-  for (let i = 0; i < 1000; i++) {
-    // Run up to `c` queries in parallel
-    if (promises.length >= c) {
-      await Promise.race(promises);
-      promises.pop();
-    }
-    promises.push(store.query('SELECT * WHERE { ?s ?p ?o } LIMIT 10'));
-  }
-
-  await Promise.all(promises);
-  const elapsed = performance.now() - start;
-
-  console.log(`${c} concurrent: ${1000 / (elapsed / 1000)} q/s`);
-}
-```
-
-**Expected**:
-- 1 concurrent: baseline throughput (e.g., 100 q/s)
-- 5 concurrent: ~400-500 q/s (4-5x improvement)
-- 10 concurrent: ~700-1000 q/s (7-10x improvement)
-- 25 concurrent: ~1500-2000 q/s (degradation starts)
-- 50 concurrent: ~1500-2500 q/s (no further improvement)
-
-**Failure Criteria**:
-- Concurrent 5 slower than concurrent 1 = FAIL (no parallelism)
-- Throughput drops with higher concurrency = FAIL (bottleneck)
+**Key Insight**: System should scale linearly up to saturation point (around 10 concurrent), then plateau.
 
 ---
 
-## Test 5: Query Complexity Impact
-
-**Objective**: How much does query complexity affect performance?
-
-```bash
-npm run perf:complexity
-```
-
-**Queries to Test**:
-
-1. **Trivial** (< 1ms):
-   ```sparql
-   SELECT * WHERE { ?s ?p ?o } LIMIT 1
-   ```
-
-2. **Simple** (10-50ms):
-   ```sparql
-   SELECT * WHERE { ?s ?p ?o . ?o ?p2 ?x } LIMIT 100
-   ```
-
-3. **Medium** (50-500ms):
-   ```sparql
-   SELECT * WHERE {
-     ?s ?p1 ?o1 .
-     ?s ?p2 ?o2 .
-     ?s ?p3 ?o3 .
-     FILTER (?s = <http://example.org/x>)
-   }
-   LIMIT 100
-   ```
-
-4. **Complex** (500ms-5s):
-   ```sparql
-   SELECT * WHERE {
-     ?s ?p1 ?x . ?x ?p2 ?y . ?y ?p3 ?z . ?z ?p4 ?w .
-     ?w ?p5 ?v . ?v ?p6 ?u . ?u ?p7 ?t .
-     FILTER (?s = <http://example.org/start>)
-   }
-   ```
-
-**Measurement**: 100 iterations per complexity level, report latency distribution
-
-**Failure Criteria**:
-- Exponential slowdown (complex 100x slower than trivial) = INVESTIGATE
-- Linear slowdown = ACCEPTABLE
-
 ---
 
-## Test 6: Bundle Size & Load Time
+## Running the Test Suite
 
-**Objective**: Ensure WASM module isn't bloated.
+All tests are written using **Vitest** and measure end-to-end JavaScript performance.
 
+**Key Setup**:
+- WASM module is warmed up before each test suite
+- Tests require QLever server running at `http://localhost:7023` (or `QLEVER_ENDPOINT` env var)
+- All timings include marshaling, processing, and serialization
+
+**Running Tests**:
 ```bash
-npm run perf:bundle
+# Run all performance tests
+npm test
+
+# Run specific test file
+npm test throughput.perf.ts
+npm test latency.perf.ts
+npm test memory.perf.ts
+npm test concurrency.perf.ts
+
+# With custom endpoint
+QLEVER_ENDPOINT=http://custom-host:7023 npm test
+
+# Watch mode
+npm run test:watch
 ```
-
-**Measurements**:
-```javascript
-// 1. Bundle size
-const wasmSize = fs.statSync('pkg/qlever_wasm.wasm').size;
-console.log(`WASM module: ${(wasmSize / 1024 / 1024).toFixed(2)}MB`);
-
-// 2. Load time
-const start = performance.now();
-const module = await import('pkg/qlever_wasm.js');
-const loadTime = performance.now() - start;
-console.log(`Load time: ${loadTime}ms`);
-
-// 3. Instantiation time
-const start2 = performance.now();
-const store = new module.QleverStore();
-const instantiateTime = performance.now() - start2;
-console.log(`Instantiate time: ${instantiateTime}ms`);
-```
-
-**Targets**:
-- WASM size: < 5MB uncompressed (1-2MB gzipped)
-- Load time: < 500ms
-- Instantiation: < 100ms
-
-**Failure Criteria**:
-- Size > 10MB = BLOAT
-- Load > 1s = TOO SLOW
-
----
-
-## Test 7: Stress Test (Saturation)
-
-**Objective**: Find the breaking point.
-
-```bash
-npm run perf:stress
-```
-
-**Implementation**:
-```javascript
-let activeQueries = 0;
-let totalQueries = 0;
-let errors = 0;
-
-const maxConcurrent = 500; // Start high
-const duration = 60000; // 1 minute
-
-const start = performance.now();
-while (performance.now() - start < duration) {
-  if (activeQueries < maxConcurrent) {
-    activeQueries++;
-    store.query('SELECT * WHERE { ?s ?p ?o } LIMIT 10')
-      .then(() => { totalQueries++; activeQueries--; })
-      .catch(() => { errors++; activeQueries--; });
-  }
-}
-
-await new Promise(r => setTimeout(r, 5000)); // Wait for stragglers
-
-console.log(`Total queries in 60s: ${totalQueries}`);
-console.log(`Throughput: ${(totalQueries / 60).toFixed(2)} q/s`);
-console.log(`Errors: ${errors}`);
-```
-
-**Expected**:
-- Should handle at least 100 concurrent queries
-- No memory growth > 500MB
-- No errors
-
-**Failure Criteria**:
-- Crashes under load
-- Errors increase over time
-- Memory leak (continuous growth)
-
----
-
-## Test 8: Real-World Scenario
-
-**Objective**: Simulate actual usage pattern.
-
-```bash
-npm run perf:realistic
-```
-
-**Pattern**:
-```javascript
-// Mix of query types with realistic distribution
-const queries = [
-  // 60% simple LIMIT queries
-  { weight: 60, query: 'SELECT * WHERE { ?s ?p ?o } LIMIT 10' },
-  // 25% medium complexity
-  { weight: 25, query: 'SELECT * WHERE { ?s ?p1 ?x . ?x ?p2 ?o } LIMIT 100' },
-  // 10% complex with filters
-  { weight: 10, query: 'SELECT * WHERE { ?s ?p ?o . FILTER (?p = <x>) } LIMIT 100' },
-  // 5% large result sets
-  { weight: 5, query: 'SELECT * WHERE { ?s ?p ?o } LIMIT 1000' },
-];
-
-// Run for 5 minutes with variable concurrency (1-10)
-const concurrency = Math.floor(Math.random() * 10) + 1;
-// Execute queries...
-```
-
-**Expected**:
-- Maintain > 50 q/s average
-- P95 < 1s
-- No errors
-
----
-
-## Test 9: Comparison Baseline
-
-**Objective**: Prove it's actually better than alternatives.
-
-```bash
-npm run perf:baseline
-```
-
-**Compare Against**:
-1. Pure JavaScript SPARQL parser (if available)
-2. Remote SPARQL endpoint (localhost)
-3. Browser native implementation
-
-**Metrics**:
-- Throughput ratio (should be 5-10x faster)
-- Latency ratio
-- Memory efficiency
 
 ---
 
