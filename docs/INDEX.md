@@ -1,13 +1,20 @@
 # QLever Documentation
 
-Welcome to QLever's comprehensive documentation. Find what you need using the four pillars of our documentation:
+⚠️ **IMPORTANT:** This repository contains the **C++ backend** (query engine). For the user-friendly **Python CLI tool** (`qlever setup-config`, `qlever index`, `qlever start`), see [`qlever-control`](https://github.com/ad-freiburg/qlever-control).
+
+**Confused?**
+- **End users**: Install `pip install qlever` → [qlever-control docs](https://github.com/ad-freiburg/qlever-control)
+- **Developers/Contributors**: Continue with docs below
+- **Docker users**: See [Quickstart](./tutorials/01-quickstart.md)
+
+---
 
 ## 📚 [Tutorials](./tutorials/) — Learn by Doing
-Step-by-step guides to get you productive quickly.
+Step-by-step guides for Docker users and developers.
 
-- **[Quick Start](./tutorials/01-quickstart.md)** — Run your first QLever instance in 5 minutes
+- **[Quick Start](./tutorials/01-quickstart.md)** — Run QLever in Docker (5 minutes)
 - **[Your First Query](./tutorials/02-first-query.md)** — Write basic SPARQL queries
-- **[Load Your Data](./tutorials/03-load-data.md)** — Index RDF datasets
+- **[Build from Source](./tutorials/03-load-data.md)** — Compile and run natively
 
 ## 🔧 [How-to Guides](./how-to/) — Solve Specific Problems
 Practical solutions for common tasks.
@@ -18,12 +25,12 @@ Practical solutions for common tasks.
 - **[Configure QLever](./how-to/configuration.md)** — Tune memory, indexing, and server settings
 
 ## 📖 [Reference](./reference/) — Look Things Up
-Complete, structured information.
+Complete, structured information for developers.
 
-- **[CLI Reference](./reference/cli.md)** — All `qlever` command-line options
-- **[Configuration Guide](./reference/configuration.md)** — All Qleverfile options
+- **[C++ Binaries](./reference/cli.md)** — IndexBuilderMain & ServerMain options (for building from source)
+- **[JSON Configuration](./reference/configuration.md)** — Settings files for IndexBuilderMain
 - **[SPARQL Support](./reference/sparql.md)** — SPARQL features and limitations
-- **[API Reference](./reference/api.md)** — REST API endpoints and responses
+- **[HTTP API](./reference/api.md)** — ServerMain REST API endpoints
 
 ## 💡 [Explanation](./explanation/) — Understand the System
 Big-picture concepts and architecture.
@@ -37,11 +44,13 @@ Big-picture concepts and architecture.
 
 ## ⚡ Quick Navigation
 
-**Just want to get started?** → [Quick Start](./tutorials/01-quickstart.md)
+**Copy-paste ready to go?** → [Quick Start Commands](./QUICK_START.md) ⭐ START HERE
+
+**Having problems?** → [Troubleshooting Guide](./TROUBLESHOOTING.md)
+
+**Just want to get started?** → [Quick Start Tutorial](./tutorials/01-quickstart.md)
 
 **Looking for a specific command?** → [CLI Reference](./reference/cli.md)
-
-**Troubleshooting?** → Check the [How-to Guides](./how-to/)
 
 **Understanding concepts?** → See [Explanation](./explanation/)
 

@@ -1,376 +1,255 @@
-# CLI Reference
+# C++ Binary Reference
 
-Complete reference for the `qlever` command-line interface.
+Reference for `IndexBuilderMain` and `ServerMain` — the compiled C++ binaries used to build indexes and run queries.
 
-Use `qlever --help` for command overview or `qlever <command> --help` for command details.
+> **Note:** If using the Python `qlever` CLI tool from `qlever-control`, refer to that repository's documentation instead. These docs are for developers building from source.
 
-## Global Options
+## IndexBuilderMain
 
-Available with all commands:
+Build RDF indexes from raw data.
+
+### Usage
 
 ```bash
-qlever --help              # Show help
-qlever --version           # Show version
-qlever --config FILE       # Use specific Qleverfile
+IndexBuilderMain [OPTIONS]
 ```
 
-## Commands
+### Required Options
 
-### setup-config
+| Option | Short | Argument | Purpose |
+|--------|-------|----------|---------|
+| `--index-basename` | `-i` | STRING | Output index file basename (e.g., "wikidata") |
+| `--kg-input-file` | `-f` | FILE | Input RDF file (use `-` for stdin) |
+| `--file-format` | `-F` | FORMAT | Input format: `ttl`, `nt`, `nq`, `rdf`, `jsonld` |
 
-Download a pre-configured `Qleverfile` for a known dataset.
+### Optional Options
 
+| Option | Short | Argument | Purpose |
+|--------|-------|----------|---------|
+| `--settings-file` | `-s` | FILE | JSON settings file for parsing options |
+| `--text-docs-input-file` | `-d` | FILE | Text search: documents input |
+| `--text-words-input-file` | `-w` | FILE | Text search: words/scores input |
+| `--text-words-from-literals` | `-W` | (flag) | Include RDF literals in text index |
+| `--default-graph` | `-g` | IRI | Default graph IRI for triples |
+| `--parse-parallel` | `-p` | (flag) | Enable parallel RDF parsing |
+| `--vocabulary-type` | — | TYPE | Vocabulary implementation (auto-selected) |
+| `--bm25-b` | — | FLOAT | BM25 parameter b (0-1, default 0.75) |
+| `--bm25-k` | — | FLOAT | BM25 parameter k1 (>=0, default 1.2) |
+
+### Examples
+
+**Simple Turtle indexing:**
 ```bash
-qlever setup-config <config-name>
+IndexBuilderMain -F ttl -f data.ttl -i my-index
 ```
 
-**Available configs:**
-- `wikidata-small` — Wikidata sample (~1M triples)
-- `wikidata-full` — Full Wikidata (recommended for advanced users)
-- `dbpedia` — DBpedia dataset
-- `dblp` — DBLP computer science publications
-- `openstreetmap` — Geographic data
-- `uniprot` — Protein database
-
-**Example:**
+**From stdin with settings:**
 ```bash
+cat data.nt | IndexBuilderMain -F nt -f - -i my-index -s settings.json
+```
+
+**With parallel parsing:**
+```bash
+IndexBuilderMain -F ttl -f large.ttl -i big-index -p -s settings.json
+```
+
+**With text indexing:**
+```bash
+IndexBuilderMain -F ttl -f data.ttl -i my-index \
+  -d text-docs.txt -w text-words.txt -W
+```
+
+### Settings File (JSON)
+
+Create a `settings.json` file for parsing options:
+
+```json
+{
+  "ascii-prefixes-only": false,
+  "num-triples-per-batch": 50000000,
+  "parser-batch-size": 1000,
+  "parallel-parsing": true,
+  "languages-internal": ["en"],
+  "prefixes-external": [
+    "<http://www.wikidata.org/entity/statement>"
+  ],
+  "locale": {
+    "language": "en",
+    "country": "US",
+    "ignore-punctuation": true
+  }
+}
+```
+
+**Key Options:**
+- `num-triples-per-batch` — Batching during parsing (larger = faster, more memory)
+- `parallel-parsing` — Use multiple threads for parsing
+- `languages-internal` — Languages to optimize for (storage efficiency)
+- `ascii-prefixes-only` — Only ASCII IRIs (memory optimization)
+
+## ServerMain
+
+Run the QLever query server.
+
+### Usage
+
+```bash
+ServerMain [OPTIONS]
+```
+
+### Required Options
+
+| Option | Short | Argument | Purpose |
+|--------|-------|----------|---------|
+| `--index-basename` | `-i` | STRING | Index file basename (must exist) |
+| `--port` | `-p` | INTEGER | HTTP port (e.g., 7023) |
+
+### Optional Options
+
+| Option | Short | Argument | Purpose |
+|--------|-------|----------|---------|
+| `--memory-max-size` | `-m` | SIZE | Max memory for queries (e.g., "16GB") |
+| `--cache-max-size` | `-c` | SIZE | Cache size limit |
+| `--num-simultaneous-queries` | `-j` | INTEGER | Parallel queries (default: 1) |
+| `--access-token` | `-a` | STRING | Authentication token (empty = no auth) |
+| `--text` | `-t` | (flag) | Load text index if available |
+| `--no-patterns` | `-P` | (flag) | Disable ql:has-predicate pattern queries |
+| `--only-pso-and-pos-permutations` | `-o` | (flag) | Use only PSO/POS indexes |
+
+### Examples
+
+**Start server on port 7023 with 16GB memory:**
+```bash
+ServerMain -i my-index -p 7023 -m 16GB
+```
+
+**With multiple concurrent queries:**
+```bash
+ServerMain -i my-index -p 7023 -m 32GB -j 4
+```
+
+**With text search enabled:**
+```bash
+ServerMain -i my-index -p 7023 -t
+```
+
+**With authentication:**
+```bash
+ServerMain -i my-index -p 7023 -a "my-secret-token"
+```
+
+## Querying the Server
+
+Once `ServerMain` is running, query via HTTP:
+
+### REST API
+
+```bash
+# SPARQL query
+curl -Gs http://localhost:7023 \
+  --data-urlencode "query=SELECT ?x WHERE { ?x a ?type } LIMIT 10"
+
+# Response formats
+curl -Gs http://localhost:7023 \
+  --data-urlencode "query=..." \
+  -H "Accept: application/json"       # JSON (default)
+  # or "application/sparql-results+json"
+  # or "text/csv"
+  # or "text/tab-separated-values"
+```
+
+### Query Parameters
+
+| Parameter | Required | Values | Purpose |
+|-----------|----------|--------|---------|
+| `query` | Yes | SPARQL string | The query to execute |
+| `format` | No | json, csv, tsv, xml | Result format |
+| `send` | No | string or file | How to send (usually default) |
+
+## Real-World Example: Complete Workflow
+
+```bash
+#!/bin/bash
+set -e
+
+# 1. Prepare data
+wget https://example.org/data.nt.gz
+gunzip data.nt.gz
+
+# 2. Create settings
+cat > settings.json << 'EOF'
+{
+  "num-triples-per-batch": 50000000,
+  "parallel-parsing": true,
+  "languages-internal": ["en"]
+}
+EOF
+
+# 3. Build index (takes time)
+IndexBuilderMain -F nt -f data.nt -i my-knowledge-graph -s settings.json
+
+# 4. Start server
+ServerMain -i my-knowledge-graph -p 7023 -m 16GB -j 4 &
+sleep 2
+
+# 5. Query
+curl -Gs http://localhost:7023 \
+  --data-urlencode "query=SELECT ?x WHERE { ?x a ?type } LIMIT 10"
+
+# 6. Stop server
+kill %1
+```
+
+## Troubleshooting
+
+**"Index not found" error**
+```bash
+# Verify index files exist
+ls my-index.* | head -10
+# Should show: my-index.vocabulary, my-index.pso, etc.
+```
+
+**"Port already in use"**
+```bash
+# Use a different port
+ServerMain -i my-index -p 8000
+```
+
+**Out of memory during indexing**
+```bash
+# Reduce batch size in settings.json
+"num-triples-per-batch": 10000000
+# or disable parallel parsing
+"parallel-parsing": false
+```
+
+**Out of memory during queries**
+```bash
+# Increase server memory
+ServerMain -i my-index -p 7023 -m 32GB
+
+# or reduce concurrent queries
+ServerMain -i my-index -p 7023 -j 2
+```
+
+## For End Users
+
+If you're **not building from source**, use the Python CLI tool instead:
+
+```bash
+pip install qlever
 qlever setup-config wikidata-small
-# Creates Qleverfile configured for Wikidata sample
-```
-
-### index
-
-Build an index from RDF data.
-
-```bash
-qlever index [OPTIONS]
-```
-
-**Options:**
-- `--config FILE` — Use specific Qleverfile
-- `--show` — Show command that will be executed, don't run it
-- `--force` — Force rebuild, overwriting existing index
-
-**Example:**
-```bash
-# Build index using Qleverfile
 qlever index
-
-# Show what command will run
-qlever index --show
-
-# Rebuild from scratch
-qlever index --force
-```
-
-### start
-
-Start the QLever server.
-
-```bash
-qlever start [OPTIONS]
-```
-
-**Options:**
-- `--port PORT` — Use specific port (default: 7023)
-- `--memory SIZE` — Max memory (default: 16GB)
-  - Examples: `8GB`, `4096MB`, `1024MB`
-- `--docker` — Run in Docker container
-- `--background` — Run in background
-- `--show` — Show command, don't run it
-- `--host ADDRESS` — Bind to specific address (default: localhost)
-
-**Example:**
-```bash
-# Start server on default port 7023
 qlever start
-
-# Start on custom port with more memory
-qlever start --port 8000 --memory 32GB
-
-# Run in background
-qlever start --background
-
-# In Docker
-qlever start --docker
-```
-
-### query
-
-Execute a SPARQL query.
-
-```bash
-qlever query [OPTIONS] "SPARQL QUERY"
-```
-
-**Options:**
-- `--show` — Show command, don't run it
-- `--format FORMAT` — Output format: json, csv, tsv, xml
-- `--output FILE` — Save results to file
-- `--show-timing` — Show query execution time
-
-**Example:**
-```bash
-# Simple query
-qlever query "SELECT ?x WHERE { ?x a ?type } LIMIT 10"
-
-# Show timing information
-qlever query --show-timing "SELECT ?x WHERE { ?x a ?type }"
-
-# Save results to file
-qlever query --output results.json "SELECT ?x WHERE { ?x a ?type }"
-
-# Different output format
-qlever query --format csv "SELECT ?x WHERE { ?x a ?type }"
-```
-
-### stop
-
-Stop the running QLever server.
-
-```bash
-qlever stop
-```
-
-Gracefully shuts down the server. Any running queries are completed first.
-
-### status
-
-Check server status and statistics.
-
-```bash
-qlever status
-```
-
-**Output includes:**
-- Server running? (yes/no)
-- Memory usage (current / limit)
-- Queries running (count)
-- Index information
-
-**Example output:**
-```
-Status: Running
-Memory: 8.2 GB / 32 GB (25.6%)
-Queries: 1 running
-Index: my-index (45.3M triples)
-```
-
-### index-info
-
-Show information about the current index.
-
-```bash
-qlever index-info
-```
-
-**Output includes:**
-- Number of triples
-- Number of unique subjects/predicates/objects
-- Index size
-- Permutations available
-- Text search enabled?
-- Spatial search enabled?
-
-### logs
-
-Show recent server logs.
-
-```bash
-qlever logs [OPTIONS]
-```
-
-**Options:**
-- `--follow` — Follow logs in real-time
-- `--lines N` — Show last N lines (default: 50)
-
-**Example:**
-```bash
-# Show last 50 lines
-qlever logs
-
-# Follow logs live
-qlever logs --follow
-
-# Show last 100 lines
-qlever logs --lines 100
-```
-
-### restart
-
-Stop and start the server.
-
-```bash
-qlever restart [OPTIONS]
-```
-
-Same options as `start`.
-
-### export
-
-Export indexed data to RDF format.
-
-```bash
-qlever export [OPTIONS] --output FILE
-```
-
-**Options:**
-- `--format FORMAT` — Output format: ttl, nt, nq
-- `--output FILE` — Output file (required)
-
-**Example:**
-```bash
-# Export to N-Triples
-qlever export --format nt --output dump.nt
-
-# Export to Turtle
-qlever export --format ttl --output dump.ttl
-```
-
-### validate-data
-
-Check RDF data for syntax errors.
-
-```bash
-qlever validate-data [OPTIONS] FILE
-```
-
-**Options:**
-- `--format FORMAT` — Explicit format (auto-detected by default)
-- `--strict` — Strict validation (fail on warnings)
-
-**Example:**
-```bash
-# Validate RDF file
-qlever validate-data data.ttl
-
-# Validate with strict rules
-qlever validate-data --strict data.ttl
-```
-
-### compact
-
-Optimize index for better performance.
-
-```bash
-qlever compact
-```
-
-Rebuilds internal data structures for faster queries. Run periodically on large indexes.
-
-## Common Workflows
-
-### First-Time Setup
-
-```bash
-# 1. Create config
-qlever setup-config wikidata-small
-
-# 2. Build index
-qlever index
-
-# 3. Start server
-qlever start
-
-# 4. Query
 qlever query "SELECT ?x WHERE { ?x a ?type } LIMIT 10"
 ```
 
-### Production Deployment
-
-```bash
-# 1. Setup with custom data
-qlever setup-config custom
-# Edit Qleverfile as needed
-
-# 2. Build and validate
-qlever validate-data data.ttl
-qlever index
-
-# 3. Start with sufficient memory
-qlever start --memory 64GB --port 7023
-
-# 4. Check status
-qlever status
-
-# 5. Follow logs
-qlever logs --follow
-```
-
-### Development Iteration
-
-```bash
-# Make changes to Qleverfile
-vi Qleverfile
-
-# Rebuild index
-qlever index --force
-
-# Restart server
-qlever restart --memory 8GB
-
-# Test query
-qlever query --show-timing "SELECT ..."
-```
-
-## Output Formats
-
-### JSON (default)
-
-```bash
-qlever query --format json "SELECT ?x ?y WHERE { ... }"
-# Returns: {"results": [{"x": "...", "y": "..."}]}
-```
-
-### CSV
-
-```bash
-qlever query --format csv "SELECT ?x ?y WHERE { ... }"
-# Returns: x,y
-#          value1,value2
-```
-
-### TSV (Tab-separated)
-
-```bash
-qlever query --format tsv "SELECT ?x ?y WHERE { ... }"
-# Same as CSV but tab-separated
-```
-
-### XML
-
-```bash
-qlever query --format xml "SELECT ?x ?y WHERE { ... }"
-# Returns SPARQL-compliant XML
-```
-
-## Tips & Tricks
-
-**Measure query performance:**
-```bash
-qlever query --show-timing "SELECT ..."
-```
-
-**Dry-run (see command without executing):**
-```bash
-qlever index --show
-qlever start --show
-qlever query --show "SELECT ..."
-```
-
-**Use environment variables:**
-```bash
-export QLEVER_PORT=8000
-export QLEVER_MEMORY=32GB
-qlever start
-```
-
-**Check exact command being run:**
-```bash
-qlever query --show "SELECT ?x WHERE { ?x a ?type }"
-# Shows the exact curl command
-```
+See the [`qlever-control` repository](https://github.com/ad-freiburg/qlever-control) for full documentation.
 
 ---
 
-For more details, run `qlever <command> --help` or see [How-to Guides](../how-to/).
+**Related:**
+- [JSON Configuration Reference](./configuration.md)
+- [SPARQL Support](./sparql.md)
+- [How-to: Performance](../how-to/performance.md)
+- [Architecture Overview](../explanation/architecture.md)

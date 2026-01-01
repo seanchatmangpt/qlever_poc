@@ -1,10 +1,12 @@
 # How to: Configure QLever
 
-Tune QLever for your specific use case using the `Qleverfile`.
+Configure QLever using the `Qleverfile` with the **Python CLI tool** (`pip install qlever`).
+
+> **Note:** For developers building from source, see [JSON Settings Reference](../reference/configuration.md) instead.
 
 ## What is a Qleverfile?
 
-A YAML configuration file (`Qleverfile`) controls everything QLever does:
+A YAML configuration file (`Qleverfile`) controls the Python `qlever` CLI tool:
 - What data to index
 - How to optimize the index
 - Server settings (port, memory, etc.)
