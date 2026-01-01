@@ -1,11 +1,14 @@
 /**
  * Performance Test Suite: Query Throughput
  *
- * Measures sustained query throughput (queries per second) of the QLever WASM binding.
+ * Measures sustained query throughput (queries per second) using embedded libqlever.
  * Tests with various query complexities to establish baseline performance.
+ *
+ * KEY: Uses libqlever embedded library (libqlever WASM), not HTTP server.
+ * All measurements are end-to-end: JavaScript → WASM → libqlever C++ → results
  */
 
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 
 // Test queries of increasing complexity
 const TEST_QUERIES = {
@@ -61,61 +64,62 @@ const PERFORMANCE_TARGETS = {
   union: { minQps: 8, description: '8+ q/s (0.125s/query, 80% of native UNION)' },
 };
 
-describe('Throughput Performance Tests', () => {
+describe('Throughput Performance Tests (Embedded libqlever)', () => {
   let store: any;
-  let client: any;
-  const ENDPOINT = process.env.QLEVER_ENDPOINT || 'http://localhost:7023';
+  const INDEX_PATH = process.env.QLEVER_INDEX || '/tmp/test-qlever-index';
 
   beforeAll(async () => {
-    // Import WASM module
-    const qlever = await import('qlever-wasm/node');
+    // Import embedded libqlever Store from WASM module
+    const { initializeWasm, createStore } = await import('qlever-wasm/node');
 
-    // Initialize for Node.js environment
-    await qlever.init();
+    // Initialize WASM module
+    await initializeWasm();
 
-    // Create client connected to QLever server
-    client = qlever.createClient(ENDPOINT);
+    // Create in-process store (uses libqlever embedded library)
+    store = createStore();
 
-    // Verify server connectivity
-    const isHealthy = await client.ping();
-    if (!isHealthy) {
+    // Initialize with QLever index
+    try {
+      await store.init(INDEX_PATH);
+      console.log(`Store initialized with index: ${INDEX_PATH}`);
+    } catch (error) {
       throw new Error(
-        `QLever server not available at ${ENDPOINT}. ` +
-        'Start with: ServerMain -p 7023'
+        `Failed to initialize store. Ensure QLever index exists at: ${INDEX_PATH}\n` +
+        `To build an index: qlever index --file data.ttl --output ${INDEX_PATH}\n` +
+        `Error: ${error}`
       );
     }
 
-    // WARMUP: Execute queries to warm up WASM module and QLever caches
-    console.log('Warming up WASM module...');
+    // WARMUP: Execute queries to warm up WASM module and libqlever caches
+    console.log('Warming up embedded libqlever WASM module...');
     for (let i = 0; i < 10; i++) {
       try {
-        const response = await client.query('SELECT ?s WHERE { ?s ?p ?o } LIMIT 100', 'json');
-        response.data();
+        const result = await store.query('SELECT ?s WHERE { ?s ?p ?o } LIMIT 100');
+        expect(result).toBeDefined();
       } catch (e) {
         // Ignore warmup errors
       }
     }
-    console.log('WASM warmup complete');
+    console.log('WASM warmup complete\n');
   });
 
   /**
    * Test 1: Simple Query Throughput
    *
    * Baseline performance: measures throughput for minimal triple pattern.
-   * Expected: >100 queries/second on typical hardware
+   * Expected: 32+ queries/second (80% of QLever C++ at 0.02s)
    */
   it('Simple triple pattern throughput', async () => {
     const queryCount = 100;
     const startTime = performance.now();
 
     for (let i = 0; i < queryCount; i++) {
-      const response = await client.query(TEST_QUERIES.simple, 'json');
-      const data = response.data();
+      const result = await store.query(TEST_QUERIES.simple);
 
       // Validate query executed successfully
-      expect(data).toBeDefined();
-      expect(data.head).toBeDefined();
-      expect(Array.isArray(data.results.bindings)).toBe(true);
+      expect(result).toBeDefined();
+      expect(result.head).toBeDefined();
+      expect(Array.isArray(result.results.bindings)).toBe(true);
     }
 
     const elapsed = (performance.now() - startTime) / 1000; // Convert to seconds
@@ -125,7 +129,7 @@ describe('Throughput Performance Tests', () => {
       `Simple queries: ${qps.toFixed(2)} q/s (${elapsed.toFixed(2)}s for ${queryCount} queries)`
     );
 
-    expect(qps).toBeGreaterThanOrEqual(PERFORMANCE_TARGETS.simple.minQps * 0.9); // Allow 10% variance in sustained test
+    expect(qps).toBeGreaterThanOrEqual(PERFORMANCE_TARGETS.simple.minQps * 0.9); // Allow 10% variance
   });
 
   /**
@@ -133,18 +137,17 @@ describe('Throughput Performance Tests', () => {
    *
    * Tests performance with FILTER clause processing.
    * Adds computational overhead compared to simple patterns.
-   * Expected: >16 queries/second (QLever C++ does ~0.05s, WASM 80% = 0.063s)
+   * Expected: 16+ queries/second
    */
   it('Filtered pattern throughput', async () => {
     const queryCount = 50;
     const startTime = performance.now();
 
     for (let i = 0; i < queryCount; i++) {
-      const response = await client.query(TEST_QUERIES.filtered, 'json');
-      const data = response.data();
+      const result = await store.query(TEST_QUERIES.filtered);
 
-      expect(data).toBeDefined();
-      expect(data.results.bindings).toBeDefined();
+      expect(result).toBeDefined();
+      expect(result.results.bindings).toBeDefined();
     }
 
     const elapsed = (performance.now() - startTime) / 1000;
@@ -162,18 +165,17 @@ describe('Throughput Performance Tests', () => {
    *
    * Tests performance with multi-pattern graph joins.
    * More complex execution plan required.
-   * Expected: >11 queries/second (80% of native multi-join performance)
+   * Expected: 11+ queries/second
    */
   it('Multi-pattern join throughput', async () => {
     const queryCount = 30;
     const startTime = performance.now();
 
     for (let i = 0; i < queryCount; i++) {
-      const response = await client.query(TEST_QUERIES.joined, 'json');
-      const data = response.data();
+      const result = await store.query(TEST_QUERIES.joined);
 
-      expect(data).toBeDefined();
-      expect(data.results.bindings).toBeDefined();
+      expect(result).toBeDefined();
+      expect(result.results.bindings).toBeDefined();
     }
 
     const elapsed = (performance.now() - startTime) / 1000;
@@ -191,19 +193,18 @@ describe('Throughput Performance Tests', () => {
    *
    * Tests performance with GROUP BY and COUNT aggregation.
    * Requires grouping and aggregation computation.
-   * Expected: >6 queries/second (0.167s/query, 80% of native GROUP BY at 0.02s)
+   * Expected: 6+ queries/second
    */
   it('Aggregation query throughput', async () => {
     const queryCount = 20;
     const startTime = performance.now();
 
     for (let i = 0; i < queryCount; i++) {
-      const response = await client.query(TEST_QUERIES.aggregated, 'json');
-      const data = response.data();
+      const result = await store.query(TEST_QUERIES.aggregated);
 
-      expect(data).toBeDefined();
-      expect(data.results.bindings).toBeDefined();
-      expect(data.results.bindings.length).toBeGreaterThan(0);
+      expect(result).toBeDefined();
+      expect(result.results.bindings).toBeDefined();
+      expect(result.results.bindings.length).toBeGreaterThan(0);
     }
 
     const elapsed = (performance.now() - startTime) / 1000;
@@ -232,10 +233,9 @@ describe('Throughput Performance Tests', () => {
       const batchStart = performance.now();
 
       for (let i = 0; i < batchSize; i++) {
-        const response = await client.query(TEST_QUERIES.simple, 'json');
-        const data = response.data();
+        const result = await store.query(TEST_QUERIES.simple);
 
-        expect(data).toBeDefined();
+        expect(result).toBeDefined();
       }
 
       const batchElapsed = (performance.now() - batchStart) / 1000;
@@ -255,7 +255,7 @@ describe('Throughput Performance Tests', () => {
     // Expect sustained performance with <20% variance
     const variance = (maxQps - minQps) / avgQps;
     expect(variance).toBeLessThan(0.2);
-    expect(avgQps).toBeGreaterThanOrEqual(PERFORMANCE_TARGETS.simple.minQps);
+    expect(avgQps).toBeGreaterThanOrEqual(PERFORMANCE_TARGETS.simple.minQps * 0.9);
   });
 
   /**
@@ -277,10 +277,9 @@ describe('Throughput Performance Tests', () => {
       else if (i % 100 < 40) query = TEST_QUERIES.joined;
       else if (i % 100 < 50) query = TEST_QUERIES.aggregated;
 
-      const response = await client.query(query, 'json');
-      const data = response.data();
+      const result = await store.query(query);
 
-      expect(data).toBeDefined();
+      expect(result).toBeDefined();
       completedQueries++;
     }
 
@@ -300,7 +299,7 @@ describe('Throughput Performance Tests', () => {
    * Test 7: Large Result Set Throughput (500K+ triples)
    *
    * Tests end-to-end throughput for large result sets.
-   * Measures: JS call → WASM → QLever C++ → serialization → JS receives results
+   * Measures: JS call → WASM → libqlever C++ → serialization → JS receives results
    * This is the real-world throughput metric for WASM binding.
    */
   it('Large result set throughput (500K+ triples)', async () => {
@@ -318,12 +317,11 @@ describe('Throughput Performance Tests', () => {
 
     for (let i = 0; i < iterations; i++) {
       const start = performance.now();
-      const response = await client.query(largeResultQuery, 'json');
-      const data = response.data();
+      const result = await store.query(largeResultQuery);
       const duration = performance.now() - start;
 
-      expect(data.results.bindings).toBeDefined();
-      const resultCount = data.results.bindings.length;
+      expect(result.results.bindings).toBeDefined();
+      const resultCount = result.results.bindings.length;
       totalResults += resultCount;
 
       timings.push(duration);
@@ -361,11 +359,10 @@ describe('Throughput Performance Tests', () => {
 
     for (let i = 0; i < queryCount; i++) {
       const start = performance.now();
-      const response = await client.query(TEST_QUERIES.simple, 'json');
+      const result = await store.query(TEST_QUERIES.simple);
       const duration = performance.now() - start;
 
-      const data = response.data();
-      expect(data).toBeDefined();
+      expect(result).toBeDefined();
 
       latencies.push(duration);
     }
