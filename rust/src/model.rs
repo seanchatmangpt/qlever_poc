@@ -1,7 +1,7 @@
 //! RDF data model types
 //!
-//! This module provides types for representing RDF terms and statements,
-//! similar to oxigraph's model module.
+//! This module provides lightweight, zero-overhead types for representing RDF terms
+//! and statements. No serialization overhead - designed for maximum performance.
 
 use crate::error::{Error, Result};
 use std::fmt;
