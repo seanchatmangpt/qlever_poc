@@ -447,31 +447,27 @@ set(PRECOMPILED_HEADER_FILES_ENGINE src/util/HashMap.h src/engine/Operation.h sr
 set(PRECOMPILED_HEADER_FILES_PARSER src/engine/sparqlExpressions/AggregateExpression.h ${ctre_SOURCE_DIR}/single-header/ctre-unicode.hpp ${antlr_SOURCE_DIR}/runtime/Cpp/runtime/src/antlr4-runtime.h)
 
 add_subdirectory(src/parser)
+
+# EPIC 7: Vendored simdjson for SIMD ingestion (added once here, not repeated)
 add_subdirectory(vendors/simdjson)
+include_directories("${CMAKE_SOURCE_DIR}/vendors/simdjson/include")
+
 add_subdirectory(src/engine)
 add_subdirectory(src/engine/ingress)
-add_subdirectory(vendors/simdjson)
 if (USE_PRECOMPILED_HEADERS)
     target_precompile_headers(parser PRIVATE ${PRECOMPILED_HEADER_FILES_PARSER})
     target_precompile_headers(engine PRIVATE ${PRECOMPILED_HEADER_FILES_ENGINE})
 endif ()
 add_subdirectory(src/index)
-add_subdirectory(vendors/simdjson)
 add_subdirectory(src/util)
-add_subdirectory(vendors/simdjson)
 add_subdirectory(src/rdfTypes)
-add_subdirectory(vendors/simdjson)
 add_subdirectory(src/global)
-add_subdirectory(vendors/simdjson)
 add_subdirectory(src/libqlever)
-add_subdirectory(vendors/simdjson)
 add_subdirectory(benchmark)
-add_subdirectory(vendors/simdjson)
 
 enable_testing()
 option(SINGLE_TEST_BINARY "Link all unit tests into a single binary. This is useful e.g. for code coverage tools and greatly reduces the total disk space required when building all unit tests with debug symbols" OFF)
 add_subdirectory(test)
-add_subdirectory(vendors/simdjson)
 
 # Add the library with the constants declared in `CompilationInfo.h` and defined
 # in `CompilationInfo.cpp` created by `CompilationInfo.cmake`.
