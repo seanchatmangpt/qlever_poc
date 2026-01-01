@@ -26,8 +26,10 @@ pub mod error;
 pub mod model;
 pub mod query;
 pub mod store;
+pub mod cache;
 
 pub use error::{Error, Result};
 pub use model::{BlankNode, Literal, NamedNode, Quad, Term, Triple};
 pub use query::{QueryResults, QuerySolution};
 pub use store::Store;
+pub use cache::{QueryCache, CacheStats};

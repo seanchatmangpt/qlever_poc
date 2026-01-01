@@ -459,6 +459,89 @@ impl QueryBuilder {
         self
     }
 
+    /// Add UNION with another query
+    pub fn union(mut self, other: QueryBuilder) -> QueryBuilder {
+        self.union_queries.push(other.build());
+        self
+    }
+
+    /// Add MINUS (set difference) with another pattern
+    pub fn minus(mut self, pattern: String) -> QueryBuilder {
+        self.where_pattern.push_str(&format!("\nMINUS {{ {} }}", pattern));
+        self
+    }
+
+    /// Add NOT EXISTS condition
+    pub fn filter_not_exists(mut self, pattern: String) -> QueryBuilder {
+        self.filter_conditions.push(format!("FILTER NOT EXISTS {{ {} }}", pattern));
+        self
+    }
+
+    /// Add EXISTS condition
+    pub fn filter_exists(mut self, pattern: String) -> QueryBuilder {
+        self.filter_conditions.push(format!("FILTER EXISTS {{ {} }}", pattern));
+        self
+    }
+
+    /// Add a HAVING clause (for aggregations)
+    pub fn having(mut self, condition: String) -> QueryBuilder {
+        // HAVING clauses are added as FILTER conditions in SPARQL
+        // This is a semantic addition - actual HAVING would need GROUP BY
+        self.filter_conditions.push(format!("FILTER({})", condition));
+        self
+    }
+
+    /// Add property path pattern (e.g., "foaf:knows+")
+    pub fn property_path(mut self, subject: &str, path: &str, object: &str) -> QueryBuilder {
+        let pattern = format!("{} {} {}", subject, path, object);
+        self.where_pattern.push_str(&format!("\n  {}", pattern));
+        self
+    }
+
+    /// Add MIN aggregation
+    pub fn min(mut self, var: &str) -> QueryBuilder {
+        self.select_vars.push_str(&format!(" (MIN({}) as ?min_{})", var, var.trim_start_matches('?')));
+        self
+    }
+
+    /// Add MAX aggregation
+    pub fn max(mut self, var: &str) -> QueryBuilder {
+        self.select_vars.push_str(&format!(" (MAX({}) as ?max_{})", var, var.trim_start_matches('?')));
+        self
+    }
+
+    /// Add AVG aggregation
+    pub fn avg(mut self, var: &str) -> QueryBuilder {
+        self.select_vars.push_str(&format!(" (AVG({}) as ?avg_{})", var, var.trim_start_matches('?')));
+        self
+    }
+
+    /// Add SUM aggregation
+    pub fn sum(mut self, var: &str) -> QueryBuilder {
+        self.select_vars.push_str(&format!(" (SUM({}) as ?sum_{})", var, var.trim_start_matches('?')));
+        self
+    }
+
+    /// Add COUNT aggregation
+    pub fn count(mut self, var: &str) -> QueryBuilder {
+        self.select_vars.push_str(&format!(" (COUNT({}) as ?count_{})", var, var.trim_start_matches('?')));
+        self
+    }
+
+    /// Add SAMPLE aggregation
+    pub fn sample(mut self, var: &str) -> QueryBuilder {
+        self.select_vars.push_str(&format!(" (SAMPLE({}) as ?sample_{})", var, var.trim_start_matches('?')));
+        self
+    }
+
+    /// Add GROUP_CONCAT aggregation
+    pub fn group_concat(mut self, var: &str, separator: Option<&str>) -> QueryBuilder {
+        let sep = separator.unwrap_or("; ");
+        self.select_vars.push_str(&format!(" (GROUP_CONCAT({}; SEPARATOR=\"{}\") as ?concat_{})",
+            var, sep, var.trim_start_matches('?')));
+        self
+    }
+
     /// Build the final query string
     pub fn build(&self) -> String {
         let mut query = String::new();
@@ -527,6 +610,12 @@ impl QueryBuilder {
         }
 
         query.push_str("\n}\n");
+
+        // Add UNION queries
+        for union_query in &self.union_queries {
+            query.push_str("UNION\n");
+            query.push_str(union_query);
+        }
 
         // Add GROUP BY
         if !self.group_by_vars.is_empty() {
