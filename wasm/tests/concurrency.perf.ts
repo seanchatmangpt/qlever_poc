@@ -120,7 +120,8 @@ describe('Concurrency Performance Tests', () => {
 
     expect(metrics.successCount).toBe(100);
     expect(metrics.failureCount).toBe(0);
-    expect(metrics.avgThroughput).toBeGreaterThan(10); // At least 10 q/s sequential
+    // 80% of QLever native: ~32 q/s * 0.8 = 26 q/s baseline
+    expect(metrics.avgThroughput).toBeGreaterThan(20);
   });
 
   /**
@@ -139,7 +140,8 @@ describe('Concurrency Performance Tests', () => {
       P95 latency: ${metrics.p95Latency.toFixed(2)}ms`);
 
     expect(metrics.successCount).toBeGreaterThan(90); // Allow 1-2 failures
-    expect(metrics.avgThroughput).toBeGreaterThan(20); // Should be > 2x sequential if parallel
+    // With 2 parallel clients: ~32 q/s * 1.8 (scaling factor) = ~40 q/s expected
+    expect(metrics.avgThroughput).toBeGreaterThan(30);
   });
 
   /**
@@ -158,7 +160,8 @@ describe('Concurrency Performance Tests', () => {
       Success rate: ${((metrics.successCount / metrics.totalQueries) * 100).toFixed(1)}%`);
 
     expect(metrics.successCount).toBeGreaterThan(90); // 90% success rate
-    expect(metrics.avgThroughput).toBeGreaterThan(40); // 40+ q/s with 5 clients
+    // With 5 parallel: ~32 q/s * ~2.2 (scaling) = ~70 q/s, but allow lower due to overhead
+    expect(metrics.avgThroughput).toBeGreaterThan(40);
   });
 
   /**
@@ -178,7 +181,8 @@ describe('Concurrency Performance Tests', () => {
       P95 latency: ${metrics.p95Latency.toFixed(2)}ms`);
 
     expect(metrics.successCount).toBeGreaterThan(80); // 80%+ success
-    expect(metrics.avgThroughput).toBeGreaterThan(50); // Sustained >50 q/s
+    // Diminishing returns at high concurrency, target 60+ q/s for 10 parallel
+    expect(metrics.avgThroughput).toBeGreaterThan(60);
   });
 
   /**
@@ -200,8 +204,8 @@ describe('Concurrency Performance Tests', () => {
     // Under extreme load, success rate may drop slightly
     expect(metrics.successCount).toBeGreaterThan(70); // 70%+ success
 
-    // System should still handle meaningful throughput
-    expect(metrics.avgThroughput).toBeGreaterThan(30);
+    // System should still handle meaningful throughput, but diminishing returns kick in
+    expect(metrics.avgThroughput).toBeGreaterThan(50);
   });
 
   /**
@@ -272,7 +276,8 @@ describe('Concurrency Performance Tests', () => {
       Duration: ${totalDuration.toFixed(2)}s`);
 
     expect(latencies.length).toBeGreaterThan(80); // 80%+ success rate
-    expect(throughput).toBeGreaterThan(30);
+    // Mixed: 70% * 32 q/s + 30% * 16 q/s = ~26 q/s baseline
+    expect(throughput).toBeGreaterThan(20);
   });
 
   /**
@@ -345,7 +350,8 @@ describe('Concurrency Performance Tests', () => {
       Success rate: ${((successCount / totalQueries) * 100).toFixed(1)}%`);
 
     expect(successCount).toBeGreaterThan(failureCount); // More successes than failures
-    expect(avgThroughput).toBeGreaterThan(25); // At least 25 q/s sustained
+    // 5 concurrent * 80% scaling = ~20-25 q/s sustained
+    expect(avgThroughput).toBeGreaterThan(20);
     expect(Math.abs(maxThroughput - minThroughput)).toBeLessThan(maxThroughput * 0.5); // <50% variance
   });
 

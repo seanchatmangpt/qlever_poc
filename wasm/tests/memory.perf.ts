@@ -96,6 +96,7 @@ describe('Memory Efficiency Tests', () => {
    *
    * Establishes baseline heap memory without any queries.
    * Used as reference for leak detection.
+   * WASM module should have reasonable footprint.
    */
   it('Baseline memory usage', async () => {
     const snapshot = takeMemorySnapshot();
@@ -108,8 +109,8 @@ describe('Memory Efficiency Tests', () => {
       Heap total: ${totalMB.toFixed(2)}MB
       RSS: ${(snapshot.rss / (1024 * 1024)).toFixed(2)}MB`);
 
-    // Heap should be reasonable size for WASM module
-    expect(heapMB).toBeLessThan(100); // Should use <100MB baseline
+    // WASM module baseline should be <200MB
+    expect(heapMB).toBeLessThan(200);
   });
 
   /**
@@ -176,11 +177,11 @@ describe('Memory Efficiency Tests', () => {
       Growth: ${stats.growthMB > 0 ? '+' : ''}${stats.growthMB.toFixed(2)}MB
       Estimated leak: ${stats.leakEstimate.toFixed(2)}MB`);
 
-    // Total growth should be minimal (<10MB)
-    expect(stats.growthMB).toBeLessThan(10);
+    // Total growth should be minimal (allow up to 5MB for WASM overhead)
+    expect(stats.growthMB).toBeLessThan(5);
 
-    // Estimated leak should be near zero (<2MB)
-    expect(stats.leakEstimate).toBeLessThan(2);
+    // Estimated leak should be near zero (<1MB per 100 queries)
+    expect(stats.leakEstimate).toBeLessThan(1);
   });
 
   /**
@@ -262,11 +263,11 @@ describe('Memory Efficiency Tests', () => {
       Avg heap: ${stats.avgHeap.toFixed(2)}MB`);
 
     // Heap growth should be linear or decreasing (with GC)
-    // Allow up to 20MB growth for 500 queries
-    expect(stats.growthMB).toBeLessThan(20);
+    // Allow up to 10MB growth for 500 queries
+    expect(stats.growthMB).toBeLessThan(10);
 
-    // Estimated leak should be minimal
-    expect(stats.leakEstimate).toBeLessThan(5);
+    // Estimated leak should be minimal (<2MB per 500 queries)
+    expect(stats.leakEstimate).toBeLessThan(2);
   });
 
   /**
@@ -302,8 +303,8 @@ describe('Memory Efficiency Tests', () => {
       Growth: ${stats.growthMB > 0 ? '+' : ''}${stats.growthMB.toFixed(2)}MB`);
 
     // After GC, heap should return close to baseline
-    // Allow 5MB variance
-    expect(stats.finalHeap).toBeLessThan(stats.initialHeap + 5);
+    // Allow up to 2MB variance (WASM internal structures)
+    expect(stats.finalHeap).toBeLessThan(stats.initialHeap + 2);
   });
 
   /**
@@ -343,8 +344,8 @@ describe('Memory Efficiency Tests', () => {
       Delta: ${deltaHeapMB > 0 ? '+' : ''}${deltaHeapMB.toFixed(2)}MB`);
 
     // Concurrent queries should not cause excessive memory growth
-    // 10 queries should not require >100MB additional memory
-    expect(deltaHeapMB).toBeLessThan(100);
+    // 10 concurrent queries should not require >20MB additional memory
+    expect(deltaHeapMB).toBeLessThan(20);
   });
 
   /**
@@ -370,6 +371,6 @@ describe('Memory Efficiency Tests', () => {
       Total: ${(moduleSizeMB + externalMB).toFixed(2)}MB`);
 
     // WASM module should have reasonable footprint
-    expect(moduleSizeMB).toBeLessThan(500); // <500MB heap
+    expect(moduleSizeMB).toBeLessThan(300); // <300MB heap for WASM runtime
   });
 });

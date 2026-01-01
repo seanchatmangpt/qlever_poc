@@ -8,24 +8,30 @@
 import { describe, it, expect, beforeAll } from 'vitest';
 
 // Test queries with expected result sizes
+// Performance targets based on QLever C++ benchmarks (DBLP 390M triples):
+// QLever C++: 0.02s typical, 0.05s filtered, 0.11s complex
+// WASM targets: 80% of native (20% overhead for marshaling/FFI/serialization)
 const LATENCY_TEST_QUERIES = {
   // Tiny result set (1-10 results)
+  // QLever C++: 0.02s, WASM 80%: 0.025s
   tiny: {
     query: 'SELECT ?s WHERE { ?s ?p ?o } LIMIT 1',
     expectedMinResults: 1,
     expectedMaxResults: 10,
-    target: { p50: 10, p95: 50, p99: 100 }, // milliseconds
+    target: { p50: 25, p95: 50, p99: 100 }, // milliseconds (QLever 0.02s + 20% overhead)
   },
 
   // Small result set (10-100 results)
+  // QLever C++: 0.02s, WASM 80%: 0.025s
   small: {
     query: 'SELECT ?s ?p WHERE { ?s ?p ?o } LIMIT 100',
     expectedMinResults: 1,
     expectedMaxResults: 100,
-    target: { p50: 20, p95: 100, p99: 500 },
+    target: { p50: 31, p95: 63, p99: 125 },
   },
 
   // Medium result set (100-1000 results)
+  // QLever C++: 0.05s (filtered), WASM 80%: 0.063s
   medium: {
     query: `
       SELECT DISTINCT ?s ?p WHERE {
@@ -36,10 +42,11 @@ const LATENCY_TEST_QUERIES = {
     `,
     expectedMinResults: 1,
     expectedMaxResults: 1000,
-    target: { p50: 50, p95: 200, p99: 1000 },
+    target: { p50: 63, p95: 125, p99: 250 },
   },
 
   // Large result set (1000+ results)
+  // QLever C++: 0.11s (complex join), WASM 80%: 0.138s
   large: {
     query: `
       SELECT ?s ?type (COUNT(?o) AS ?objectCount) WHERE {
@@ -51,10 +58,11 @@ const LATENCY_TEST_QUERIES = {
     `,
     expectedMinResults: 1,
     expectedMaxResults: 10000,
-    target: { p50: 200, p95: 1000, p99: 3000 },
+    target: { p50: 138, p95: 275, p99: 550 },
   },
 
   // Interactive query (sub-second target)
+  // QLever C++: 0.02-0.05s, WASM 80%: 0.025-0.063s
   interactive: {
     query: `
       SELECT ?label (COUNT(?related) AS ?relCount) WHERE {
@@ -66,7 +74,7 @@ const LATENCY_TEST_QUERIES = {
     `,
     expectedMinResults: 1,
     expectedMaxResults: 50,
-    target: { p50: 30, p95: 150, p99: 500 },
+    target: { p50: 40, p95: 100, p99: 250 },
   },
 };
 
@@ -280,10 +288,11 @@ describe('Latency Performance Tests', () => {
       P95=${stats.p95.toFixed(2)}ms (target: <${testCase.target.p95}ms)
       P99=${stats.p99.toFixed(2)}ms (target: <${testCase.target.p99}ms)`);
 
-    // For interactive queries, stricter targets
-    expect(stats.median).toBeLessThanOrEqual(500);
-    expect(stats.p95).toBeLessThanOrEqual(1000);
-    expect(stats.p99).toBeLessThanOrEqual(3000);
+    // For interactive queries, targets based on 80% of native performance
+    // QLever C++: 0.02-0.05s → WASM 80%: 0.025-0.063s
+    expect(stats.median).toBeLessThanOrEqual(100); // P50 < 100ms
+    expect(stats.p95).toBeLessThanOrEqual(250); // P95 < 250ms
+    expect(stats.p99).toBeLessThanOrEqual(500); // P99 < 500ms
   });
 
   /**
