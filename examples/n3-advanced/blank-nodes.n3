@@ -1,0 +1,457 @@
+# blank-nodes.n3 - Various Blank Node Patterns
+# ==============================================
+#
+# This file demonstrates:
+# - Different ways to represent blank nodes in N3
+# - Named blank nodes (_:label)
+# - Anonymous blank nodes (square brackets)
+# - When to use blank nodes vs named nodes
+# - Blank node reuse patterns
+#
+# Blank nodes represent resources without global identifiers
+# Useful for: intermediate values, structured values, existential statements
+
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix ex: <http://example.org/> .
+@prefix data: <http://example.org/data/> .
+
+# ==================
+# NAMED BLANK NODES
+# ==================
+
+# Example 1: Named blank nodes using _:label syntax
+# These can be referenced multiple times within the same document
+
+# Address as a named blank node (can be reused)
+_:addr1 rdf:type ex:Address ;
+    ex:street "123 Main Street" ;
+    ex:city "San Francisco" ;
+    ex:state "CA" ;
+    ex:zipCode "94102" .
+
+# Person referencing the named blank node
+data:person-001 rdf:type ex:Person ;
+    ex:name "Alice Johnson" ;
+    ex:homeAddress _:addr1 ;  # Reference to named blank node
+    ex:workAddress _:addr1 .  # Same blank node reused
+
+# Example 2: Multiple named blank nodes
+_:contact1 rdf:type ex:ContactInfo ;
+    ex:email "alice@example.org" ;
+    ex:phone "+1-555-0101" .
+
+_:contact2 rdf:type ex:ContactInfo ;
+    ex:email "bob@example.org" ;
+    ex:phone "+1-555-0102" .
+
+data:person-001 ex:primaryContact _:contact1 .
+data:person-002 rdf:type ex:Person ;
+    ex:name "Bob Smith" ;
+    ex:primaryContact _:contact2 .
+
+# Example 3: Blank nodes in a chain
+_:company1 rdf:type ex:Company ;
+    ex:name "TechCorp" ;
+    ex:address _:companyAddr1 .
+
+_:companyAddr1 rdf:type ex:Address ;
+    ex:street "456 Innovation Drive" ;
+    ex:city "Palo Alto" ;
+    ex:location _:geo1 .
+
+_:geo1 rdf:type ex:GeoCoordinates ;
+    ex:latitude "37.4419"^^xsd:decimal ;
+    ex:longitude "-122.1430"^^xsd:decimal .
+
+# ==================
+# ANONYMOUS BLANK NODES (SQUARE BRACKETS)
+# ==================
+
+# Example 4: Inline blank nodes using [ ]
+# These are anonymous and cannot be referenced elsewhere
+
+data:person-003 rdf:type ex:Person ;
+    ex:name "Charlie Brown" ;
+    ex:address [
+        rdf:type ex:Address ;
+        ex:street "789 Oak Avenue" ;
+        ex:city "New York" ;
+        ex:state "NY" ;
+        ex:zipCode "10001"
+    ] ;
+    ex:contact [
+        ex:email "charlie@example.org" ;
+        ex:phone "+1-555-0103"
+    ] .
+
+# Example 5: Multiple anonymous blank nodes
+data:product-001 rdf:type ex:Product ;
+    ex:name "Laptop Pro" ;
+    ex:manufacturer [
+        rdf:type ex:Company ;
+        ex:name "TechManufacturing Inc" ;
+        ex:country "USA"
+    ] ;
+    ex:specification [
+        ex:processor "Intel i9" ;
+        ex:ram "32GB" ;
+        ex:storage "1TB SSD"
+    ] ;
+    ex:pricing [
+        ex:msrp "2999.99"^^xsd:decimal ;
+        ex:salePrice "2499.99"^^xsd:decimal ;
+        ex:currency "USD"
+    ] .
+
+# ==================
+# NESTED BLANK NODES
+# ==================
+
+# Example 6: Deeply nested anonymous blank nodes
+data:order-001 rdf:type ex:Order ;
+    ex:orderId "ORD-001" ;
+    ex:customer [
+        ex:customerId "CUST-123" ;
+        ex:name "Diana Prince" ;
+        ex:address [
+            ex:street "321 Elm Street" ;
+            ex:city "Boston" ;
+            ex:state "MA" ;
+            ex:coordinates [
+                ex:lat "42.3601"^^xsd:decimal ;
+                ex:lon "-71.0589"^^xsd:decimal
+            ]
+        ] ;
+        ex:payment [
+            ex:method "Credit Card" ;
+            ex:card [
+                ex:type "Visa" ;
+                ex:lastFour "1234" ;
+                ex:expiry [
+                    ex:month "12"^^xsd:integer ;
+                    ex:year "2025"^^xsd:integer
+                ]
+            ]
+        ]
+    ] .
+
+# Example 7: Tree structure with blank nodes
+data:organization-tree rdf:type ex:OrganizationChart ;
+    ex:rootNode [
+        ex:position "CEO" ;
+        ex:name "Jane Doe" ;
+        ex:reports [
+            ex:position "CTO" ;
+            ex:name "John Tech" ;
+            ex:reports [
+                ex:position "Engineering Manager" ;
+                ex:name "Alice Coder"
+            ] , [
+                ex:position "DevOps Manager" ;
+                ex:name "Bob Ops"
+            ]
+        ] , [
+            ex:position "CFO" ;
+            ex:name "Charlie Finance"
+        ]
+    ] .
+
+# ==================
+# BLANK NODES IN COLLECTIONS
+# ==================
+
+# Example 8: List of blank nodes
+data:team-001 rdf:type ex:Team ;
+    ex:teamName "Development Team" ;
+    ex:members (
+        [
+            ex:name "Alice" ;
+            ex:role "Team Lead" ;
+            ex:yearsExperience "10"^^xsd:integer
+        ]
+        [
+            ex:name "Bob" ;
+            ex:role "Senior Developer" ;
+            ex:yearsExperience "8"^^xsd:integer
+        ]
+        [
+            ex:name "Charlie" ;
+            ex:role "Developer" ;
+            ex:yearsExperience "3"^^xsd:integer
+        ]
+    ) .
+
+# Example 9: Bag of blank nodes
+data:survey-responses rdf:type rdf:Bag ;
+    rdfs:label "Customer Satisfaction Survey" ;
+    rdf:_1 [
+        ex:rating "5"^^xsd:integer ;
+        ex:comment "Excellent service!" ;
+        ex:date "2024-11-15"^^xsd:date
+    ] ;
+    rdf:_2 [
+        ex:rating "4"^^xsd:integer ;
+        ex:comment "Very good, minor issues" ;
+        ex:date "2024-11-16"^^xsd:date
+    ] ;
+    rdf:_3 [
+        ex:rating "5"^^xsd:integer ;
+        ex:comment "Perfect!" ;
+        ex:date "2024-11-17"^^xsd:date
+    ] .
+
+# ==================
+# MIXED NAMED AND ANONYMOUS BLANK NODES
+# ==================
+
+# Example 10: Combining both patterns
+_:event1 rdf:type ex:Event ;
+    ex:name "Tech Conference 2024" ;
+    ex:date "2024-10-15"^^xsd:date ;
+    # Anonymous blank node for venue
+    ex:venue [
+        ex:name "Convention Center" ;
+        ex:capacity "5000"^^xsd:integer ;
+        ex:address [
+            ex:street "100 Conference Way" ;
+            ex:city "San Francisco"
+        ]
+    ] ;
+    # Reference to named blank node for organizer
+    ex:organizer _:org1 .
+
+_:org1 rdf:type ex:Organization ;
+    ex:name "Tech Events Inc" ;
+    ex:founded "2010"^^xsd:gYear .
+
+# Same organizer for another event
+_:event2 rdf:type ex:Event ;
+    ex:name "Developer Summit 2024" ;
+    ex:date "2024-11-20"^^xsd:date ;
+    ex:organizer _:org1 .  # Reused named blank node
+
+# ==================
+# BLANK NODES FOR REIFICATION
+# ==================
+
+# Example 11: Statement about a statement (reification pattern)
+# Traditional reification using blank nodes
+
+# The original statement
+data:alice-knows-bob data:alice ex:knows data:bob .
+
+# Blank node representing the statement itself
+_:statement1 rdf:type rdf:Statement ;
+    rdf:subject data:alice ;
+    rdf:predicate ex:knows ;
+    rdf:object data:bob ;
+    # Metadata about the statement
+    ex:since "2020-01-15"^^xsd:date ;
+    ex:confidence "0.95"^^xsd:decimal ;
+    ex:source "Social Network Analysis" ;
+    ex:verifiedBy data:charlie .
+
+data:alice rdf:type ex:Person ; ex:name "Alice" .
+data:bob rdf:type ex:Person ; ex:name "Bob" .
+data:charlie rdf:type ex:Person ; ex:name "Charlie" .
+
+# Example 12: Multiple reified statements
+data:paper-001 ex:cites data:paper-002 .
+
+_:citation1 rdf:type rdf:Statement ;
+    rdf:subject data:paper-001 ;
+    rdf:predicate ex:cites ;
+    rdf:object data:paper-002 ;
+    ex:citationContext "Background section" ;
+    ex:pageNumber "5"^^xsd:integer ;
+    ex:citationType "supportive" .
+
+# ==================
+# BLANK NODES FOR N-ARY RELATIONS
+# ==================
+
+# Example 13: N-ary relation pattern
+# Representing: "Alice worked at TechCorp from 2018 to 2023 as Senior Engineer"
+
+data:alice-employment-history ex:hasEmployment _:employment1 .
+
+_:employment1 rdf:type ex:Employment ;
+    ex:employee data:alice ;
+    ex:employer data:techcorp ;
+    ex:position "Senior Engineer" ;
+    ex:startDate "2018-03-15"^^xsd:date ;
+    ex:endDate "2023-06-30"^^xsd:date ;
+    ex:salary "120000"^^xsd:decimal ;
+    ex:department "Engineering" .
+
+data:techcorp rdf:type ex:Company ; ex:name "TechCorp" .
+
+# Example 14: Multiple n-ary relations
+_:purchase1 rdf:type ex:Purchase ;
+    ex:buyer data:customer1 ;
+    ex:seller data:store1 ;
+    ex:item data:product1 ;
+    ex:quantity "2"^^xsd:integer ;
+    ex:unitPrice "49.99"^^xsd:decimal ;
+    ex:totalPrice "99.98"^^xsd:decimal ;
+    ex:date "2024-11-15"^^xsd:date ;
+    ex:paymentMethod "Credit Card" .
+
+data:customer1 rdf:type ex:Customer ; ex:name "Customer One" .
+data:store1 rdf:type ex:Store ; ex:name "Electronics Store" .
+data:product1 rdf:type ex:Product ; ex:name "Wireless Mouse" .
+
+# ==================
+# BLANK NODES FOR PROVENANCE
+# ==================
+
+# Example 15: Provenance information using blank nodes
+data:temperature-reading ex:value "23.5"^^xsd:decimal ;
+    ex:unit "Celsius" ;
+    ex:provenance [
+        ex:measuredBy data:sensor-42 ;
+        ex:timestamp "2024-11-15T14:30:00Z"^^xsd:dateTime ;
+        ex:location [
+            ex:room "Lab A" ;
+            ex:building "Science Building" ;
+            ex:floor "3"^^xsd:integer
+        ] ;
+        ex:instrument [
+            ex:type "Digital Thermometer" ;
+            ex:model "TempPro 5000" ;
+            ex:calibrationDate "2024-10-01"^^xsd:date ;
+            ex:accuracy "0.1"^^xsd:decimal
+        ]
+    ] .
+
+data:sensor-42 rdf:type ex:Sensor ; ex:serialNumber "SN-42-XYZ" .
+
+# ==================
+# BLANK NODES VS NAMED NODES
+# ==================
+
+# Example 16: When to use blank nodes vs named nodes
+
+# BAD: Using named URI for something that doesn't need global identity
+data:temp-calculation-12345 rdf:type ex:Calculation ;
+    ex:formula "a + b" ;
+    ex:result "10"^^xsd:integer .
+
+# GOOD: Using blank node for intermediate calculation
+data:final-result ex:derivedFrom [
+    rdf:type ex:Calculation ;
+    ex:formula "a + b" ;
+    ex:result "10"^^xsd:integer
+] .
+
+# GOOD: Using named URI for something that needs to be referenced globally
+data:alice-address-home rdf:type ex:Address ;
+    ex:street "123 Main St" ;
+    ex:city "San Francisco" .
+
+data:alice ex:homeAddress data:alice-address-home .
+data:package-delivery-001 ex:deliveryAddress data:alice-address-home .
+
+# ==================
+# BLANK NODE SKOLEMIZATION
+# ==================
+
+# Example 17: Converting blank nodes to named nodes (Skolemization)
+# This is useful for publishing linked data
+
+# Original with blank node
+data:person-with-blank ex:name "Example Person" ;
+    ex:address [
+        ex:street "456 Example St" ;
+        ex:city "Example City"
+    ] .
+
+# Skolemized version (blank node given a URI)
+data:person-skolemized ex:name "Example Person" ;
+    ex:address data:address-generated-uuid-12345 .
+
+data:address-generated-uuid-12345 rdf:type ex:Address ;
+    ex:street "456 Example St" ;
+    ex:city "Example City" .
+
+# ==================
+# COMPLEX BLANK NODE PATTERNS
+# ==================
+
+# Example 18: Graph of interconnected blank nodes
+_:graph1 rdf:type ex:Graph ;
+    ex:nodes (
+        [
+            ex:id "A" ;
+            ex:label "Start" ;
+            ex:connections ( _:nodeB _:nodeC )
+        ]
+        _:nodeB
+        _:nodeC
+    ) .
+
+_:nodeB ex:id "B" ;
+        ex:label "Middle" ;
+        ex:connections ( _:nodeD ) .
+
+_:nodeC ex:id "C" ;
+        ex:label "Alternative" ;
+        ex:connections ( _:nodeD ) .
+
+_:nodeD ex:id "D" ;
+        ex:label "End" ;
+        ex:connections ( ) .
+
+# Example 19: Blank nodes in SPARQL query patterns
+# (Note: This is N3 data, not SPARQL, but shows the pattern)
+data:query-template ex:hasPattern [
+    ex:subject "?person" ;
+    ex:predicate "ex:worksAt" ;
+    ex:object "?company" ;
+    ex:filter [
+        ex:property "?person" ;
+        ex:hasValue "ex:age" ;
+        ex:greaterThan "30"^^xsd:integer
+    ]
+] .
+
+# Example 20: Blank nodes representing choices/alternatives
+data:menu-item-special rdf:type ex:MenuItem ;
+    ex:name "Chef's Special" ;
+    ex:price "24.99"^^xsd:decimal ;
+    ex:options [
+        ex:protein (
+            [ ex:name "Chicken" ; ex:additionalCost "0.00"^^xsd:decimal ]
+            [ ex:name "Salmon" ; ex:additionalCost "3.00"^^xsd:decimal ]
+            [ ex:name "Tofu" ; ex:additionalCost "1.00"^^xsd:decimal ]
+        ) ;
+        ex:side (
+            [ ex:name "Rice" ]
+            [ ex:name "Salad" ]
+            [ ex:name "Fries" ; ex:additionalCost "2.00"^^xsd:decimal ]
+        )
+    ] .
+
+# ==================
+# SUMMARY AND BEST PRACTICES
+# ==================
+
+# Use named blank nodes (_:label) when:
+# - You need to reference the same node multiple times in the file
+# - The node represents a shared resource
+
+# Use anonymous blank nodes ([ ]) when:
+# - The node is only needed once
+# - The structure is simple and readable inline
+# - The node represents a value that doesn't need external identity
+
+# Use named URIs when:
+# - The resource needs a global identifier
+# - External systems need to reference it
+# - The resource is independently meaningful
+
+# Triple count: Approximately 350+ triples
+# This demonstrates comprehensive blank node usage patterns in N3

@@ -1,0 +1,193 @@
+# 02-persons.n3 - People Data with Relationships
+# ================================================
+#
+# This file demonstrates:
+# - Modeling people with various properties
+# - Relationships between people
+# - Using blank nodes
+# - More complex data patterns
+#
+# Use case: A social network or organizational directory
+
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix ex: <http://example.org/> .
+@prefix person: <http://example.org/person/> .
+@prefix rel: <http://purl.org/vocab/relationship/> .
+
+# Define the Person class
+ex:Person rdf:type rdfs:Class ;
+          rdfs:label "Person" ;
+          rdfs:comment "A human being" .
+
+# Person 1: Alice - Team Leader
+person:alice rdf:type ex:Person ;
+             foaf:name "Alice Johnson" ;
+             foaf:givenName "Alice" ;
+             foaf:familyName "Johnson" ;
+             foaf:mbox <mailto:alice@example.org> ;
+             foaf:age 32 ;
+             ex:jobTitle "Senior Software Engineer" ;
+             ex:department "Engineering" ;
+             ex:employeeId "E001" ;
+             ex:hireDate "2018-03-15"^^xsd:date ;
+             ex:salary "95000"^^xsd:decimal ;
+             foaf:knows person:bob, person:charlie, person:diana .
+
+# Person 2: Bob - Alice's colleague
+person:bob rdf:type ex:Person ;
+           foaf:name "Robert Smith" ;
+           foaf:givenName "Robert" ;
+           foaf:familyName "Smith" ;
+           foaf:nick "Bob" ;
+           foaf:mbox <mailto:bob@example.org> ;
+           foaf:age 28 ;
+           ex:jobTitle "Software Engineer" ;
+           ex:department "Engineering" ;
+           ex:employeeId "E002" ;
+           ex:hireDate "2020-06-01"^^xsd:date ;
+           ex:salary "75000"^^xsd:decimal ;
+           foaf:knows person:alice, person:charlie ;
+           ex:reportsTo person:alice .
+
+# Person 3: Charlie - Designer
+person:charlie rdf:type ex:Person ;
+               foaf:name "Charlie Brown" ;
+               foaf:givenName "Charlie" ;
+               foaf:familyName "Brown" ;
+               foaf:mbox <mailto:charlie@example.org> ;
+               foaf:age 30 ;
+               ex:jobTitle "UX Designer" ;
+               ex:department "Design" ;
+               ex:employeeId "E003" ;
+               ex:hireDate "2019-09-10"^^xsd:date ;
+               ex:salary "70000"^^xsd:decimal ;
+               foaf:knows person:alice, person:bob, person:diana .
+
+# Person 4: Diana - Product Manager
+person:diana rdf:type ex:Person ;
+             foaf:name "Diana Prince" ;
+             foaf:givenName "Diana" ;
+             foaf:familyName "Prince" ;
+             foaf:mbox <mailto:diana@example.org> ;
+             foaf:age 35 ;
+             ex:jobTitle "Product Manager" ;
+             ex:department "Product" ;
+             ex:employeeId "E004" ;
+             ex:hireDate "2017-01-20"^^xsd:date ;
+             ex:salary "105000"^^xsd:decimal ;
+             foaf:knows person:alice, person:charlie, person:edward .
+
+# Person 5: Edward - Intern
+person:edward rdf:type ex:Person ;
+              foaf:name "Edward Lee" ;
+              foaf:givenName "Edward" ;
+              foaf:familyName "Lee" ;
+              foaf:mbox <mailto:edward@example.org> ;
+              foaf:age 22 ;
+              ex:jobTitle "Software Engineering Intern" ;
+              ex:department "Engineering" ;
+              ex:employeeId "E005" ;
+              ex:hireDate "2024-06-01"^^xsd:date ;
+              ex:salary "35000"^^xsd:decimal ;
+              ex:reportsTo person:alice ;
+              foaf:knows person:bob .
+
+# Person 6: Fiona - HR Manager
+person:fiona rdf:type ex:Person ;
+             foaf:name "Fiona Green" ;
+             foaf:givenName "Fiona" ;
+             foaf:familyName "Green" ;
+             foaf:mbox <mailto:fiona@example.org> ;
+             foaf:age 40 ;
+             ex:jobTitle "HR Manager" ;
+             ex:department "Human Resources" ;
+             ex:employeeId "E006" ;
+             ex:hireDate "2015-05-01"^^xsd:date ;
+             ex:salary "85000"^^xsd:decimal .
+
+# Relationships using relationship vocabulary
+person:alice rel:colleagueOf person:bob, person:charlie .
+person:bob rel:colleagueOf person:alice, person:edward .
+person:charlie rel:colleagueOf person:alice, person:diana .
+
+# Manager-employee relationships
+person:alice ex:manages person:bob, person:edward .
+
+# Additional properties with blank nodes
+# Blank nodes represent unnamed resources
+
+# Alice's address using a blank node
+person:alice foaf:based_near [
+    rdf:type ex:Address ;
+    ex:street "123 Main Street" ;
+    ex:city "San Francisco" ;
+    ex:state "CA" ;
+    ex:zipCode "94102" ;
+    ex:country "USA"
+] .
+
+# Bob's address
+person:bob foaf:based_near [
+    rdf:type ex:Address ;
+    ex:street "456 Oak Avenue" ;
+    ex:city "San Francisco" ;
+    ex:state "CA" ;
+    ex:zipCode "94103" ;
+    ex:country "USA"
+] .
+
+# Charlie's skills
+person:charlie ex:hasSkill [
+    rdf:type ex:Skill ;
+    ex:skillName "UI Design" ;
+    ex:proficiencyLevel "Expert"
+] , [
+    rdf:type ex:Skill ;
+    ex:skillName "Figma" ;
+    ex:proficiencyLevel "Advanced"
+] , [
+    rdf:type ex:Skill ;
+    ex:skillName "User Research" ;
+    ex:proficiencyLevel "Intermediate"
+] .
+
+# Diana's education
+person:diana foaf:schoolHomepage <http://mit.edu> ;
+             ex:degree [
+                 rdf:type ex:Degree ;
+                 ex:degreeType "MBA" ;
+                 ex:field "Business Administration" ;
+                 ex:institution "MIT Sloan" ;
+                 ex:graduationYear 2015
+             ] .
+
+# Edward's education
+person:edward foaf:schoolHomepage <http://stanford.edu> ;
+              ex:degree [
+                  rdf:type ex:Degree ;
+                  ex:degreeType "BS" ;
+                  ex:field "Computer Science" ;
+                  ex:institution "Stanford University" ;
+                  ex:expectedGraduation 2025
+              ] .
+
+# Team definitions
+ex:EngineeringTeam rdf:type ex:Team ;
+                   rdfs:label "Engineering Team" ;
+                   ex:teamLead person:alice ;
+                   ex:teamMember person:alice, person:bob, person:edward .
+
+ex:DesignTeam rdf:type ex:Team ;
+              rdfs:label "Design Team" ;
+              ex:teamMember person:charlie .
+
+ex:ProductTeam rdf:type ex:Team ;
+               rdfs:label "Product Team" ;
+               ex:teamLead person:diana ;
+               ex:teamMember person:diana .
+
+# Triple count: Approximately 110-120 triples
+# This example shows realistic person data with relationships

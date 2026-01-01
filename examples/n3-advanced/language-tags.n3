@@ -1,0 +1,437 @@
+# language-tags.n3 - Multilingual Data with Language Tags
+# =========================================================
+#
+# This file demonstrates:
+# - Language-tagged literals
+# - Multiple language versions of same property
+# - Language tag formats (ISO 639-1, regional variants)
+# - Best practices for multilingual data
+# - Use cases for internationalization
+#
+# Language tags follow BCP 47 standard (RFC 5646)
+# Format: language-region (e.g., en-US, zh-CN, pt-BR)
+
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex: <http://example.org/> .
+@prefix data: <http://example.org/data/> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# ==================
+# BASIC LANGUAGE TAGS
+# ==================
+
+# Example 1: Simple greetings in multiple languages
+data:greeting-universal rdf:type ex:Greeting ;
+    ex:message "Hello"@en ;  # English
+    ex:message "Hola"@es ;  # Spanish
+    ex:message "Bonjour"@fr ;  # French
+    ex:message "Hallo"@de ;  # German
+    ex:message "Ciao"@it ;  # Italian
+    ex:message "Olá"@pt ;  # Portuguese
+    ex:message "Привет"@ru ;  # Russian (Cyrillic script)
+    ex:message "你好"@zh ;  # Chinese (Simplified)
+    ex:message "こんにちは"@ja ;  # Japanese
+    ex:message "안녕하세요"@ko ;  # Korean
+    ex:message "مرحبا"@ar ;  # Arabic (RTL script)
+    ex:message "नमस्ते"@hi ;  # Hindi (Devanagari script)
+    ex:message "Γεια σας"@el ;  # Greek
+    ex:message "שלום"@he ;  # Hebrew (RTL script)
+    ex:message "Merhaba"@tr .  # Turkish
+
+# ==================
+# REGIONAL LANGUAGE VARIANTS
+# ==================
+
+# Example 2: Regional variants of English
+data:color-concept rdf:type ex:Concept ;
+    rdfs:label "Color"@en-US ;  # American English
+    rdfs:label "Colour"@en-GB ;  # British English
+    rdfs:label "Colour"@en-CA ;  # Canadian English
+    rdfs:label "Colour"@en-AU .  # Australian English
+
+# Example 3: Regional variants of Spanish
+data:computer-term rdf:type ex:Term ;
+    rdfs:label "Computadora"@es-MX ;  # Mexican Spanish
+    rdfs:label "Ordenador"@es-ES ;  # European Spanish
+    rdfs:label "Computador"@es-AR ;  # Argentinian Spanish
+    rdfs:label "Computador"@es-CL .  # Chilean Spanish
+
+# Example 4: Regional variants of Portuguese
+data:train-term rdf:type ex:Term ;
+    rdfs:label "Trem"@pt-BR ;  # Brazilian Portuguese
+    rdfs:label "Comboio"@pt-PT .  # European Portuguese
+
+# Example 5: Regional variants of Chinese
+data:software-term rdf:type ex:Term ;
+    rdfs:label "软件"@zh-CN ;  # Simplified Chinese (China)
+    rdfs:label "軟體"@zh-TW ;  # Traditional Chinese (Taiwan)
+    rdfs:label "軟件"@zh-HK .  # Traditional Chinese (Hong Kong)
+
+# ==================
+# MULTILINGUAL CONTENT
+# ==================
+
+# Example 6: Product description in multiple languages
+data:product-laptop rdf:type ex:Product ;
+    ex:productId "PROD-001" ;
+
+    # Product name in different languages
+    ex:name "Professional Laptop"@en ;
+    ex:name "Ordinateur portable professionnel"@fr ;
+    ex:name "Portátil profesional"@es ;
+    ex:name "Professioneller Laptop"@de ;
+    ex:name "Laptop professionale"@it ;
+    ex:name "Notebook profissional"@pt ;
+    ex:name "プロフェッショナルノートパソコン"@ja ;
+    ex:name "专业笔记本电脑"@zh ;
+
+    # Product description in different languages
+    ex:description "High-performance laptop for business professionals"@en ;
+    ex:description "Ordinateur portable haute performance pour professionnels"@fr ;
+    ex:description "Portátil de alto rendimiento para profesionales de negocios"@es ;
+    ex:description "Hochleistungs-Laptop für Geschäftsleute"@de ;
+    ex:description "Laptop ad alte prestazioni per professionisti"@it ;
+    ex:description "Notebook de alto desempenho para profissionais"@pt ;
+    ex:description "ビジネスプロフェッショナル向けの高性能ノートパソコン"@ja ;
+    ex:description "适合商务专业人士的高性能笔记本电脑"@zh ;
+
+    # Features in multiple languages
+    ex:features "16GB RAM, 512GB SSD, 15-inch display"@en ;
+    ex:features "16 Go RAM, SSD 512 Go, écran 15 pouces"@fr ;
+    ex:features "16GB RAM, 512GB SSD, pantalla de 15 pulgadas"@es ;
+    ex:features "16GB RAM, 512GB SSD, 15-Zoll-Display"@de .
+
+# ==================
+# DOCUMENTS AND ARTICLES
+# ==================
+
+# Example 7: Blog post in multiple languages
+data:blog-post-001 rdf:type ex:BlogPost ;
+    dcterms:identifier "blog-001" ;
+
+    # Title in multiple languages
+    dcterms:title "Introduction to Semantic Web Technologies"@en ;
+    dcterms:title "Introduction aux technologies du Web sémantique"@fr ;
+    dcterms:title "Introducción a las tecnologías de la Web Semántica"@es ;
+    dcterms:title "Einführung in Semantic Web-Technologien"@de ;
+
+    # Abstract in multiple languages
+    dcterms:abstract "This article provides an introduction to the Semantic Web, including RDF, SPARQL, and Linked Data."@en ;
+    dcterms:abstract "Cet article fournit une introduction au Web sémantique, incluant RDF, SPARQL et les données liées."@fr ;
+    dcterms:abstract "Este artículo proporciona una introducción a la Web Semántica, incluyendo RDF, SPARQL y Datos Enlazados."@es ;
+    dcterms:abstract "Dieser Artikel bietet eine Einführung in das Semantic Web, einschließlich RDF, SPARQL und Linked Data."@de ;
+
+    # Keywords in multiple languages
+    ex:keywords "semantic web, RDF, SPARQL, linked data"@en ;
+    ex:keywords "web sémantique, RDF, SPARQL, données liées"@fr ;
+    ex:keywords "web semántica, RDF, SPARQL, datos enlazados"@es ;
+    ex:keywords "Semantisches Web, RDF, SPARQL, verknüpfte Daten"@de ;
+
+    dcterms:created "2024-11-15"^^xsd:date .
+
+# ==================
+# USER INTERFACES
+# ==================
+
+# Example 8: User interface labels
+data:ui-labels rdf:type ex:UIStrings ;
+    ex:loginButton "Log In"@en ;
+    ex:loginButton "Se connecter"@fr ;
+    ex:loginButton "Iniciar sesión"@es ;
+    ex:loginButton "Anmelden"@de ;
+    ex:loginButton "Accedi"@it ;
+    ex:loginButton "ログイン"@ja ;
+    ex:loginButton "登录"@zh ;
+
+    ex:welcomeMessage "Welcome to our application!"@en ;
+    ex:welcomeMessage "Bienvenue dans notre application !"@fr ;
+    ex:welcomeMessage "¡Bienvenido a nuestra aplicación!"@es ;
+    ex:welcomeMessage "Willkommen in unserer Anwendung!"@de ;
+    ex:welcomeMessage "Benvenuto nella nostra applicazione!"@it ;
+    ex:welcomeMessage "私たちのアプリケーションへようこそ!"@ja ;
+    ex:welcomeMessage "欢迎使用我们的应用程序!"@zh ;
+
+    ex:errorMessage "An error occurred. Please try again."@en ;
+    ex:errorMessage "Une erreur s'est produite. Veuillez réessayer."@fr ;
+    ex:errorMessage "Se produjo un error. Por favor, inténtelo de nuevo."@es ;
+    ex:errorMessage "Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut."@de ;
+    ex:errorMessage "Si è verificato un errore. Riprova."@it .
+
+# ==================
+# EDUCATION AND COURSES
+# ==================
+
+# Example 9: Course information
+data:course-rdf rdf:type ex:Course ;
+    ex:courseCode "CS-501" ;
+
+    # Course name in multiple languages
+    ex:courseName "RDF and Semantic Web Technologies"@en ;
+    ex:courseName "RDF et technologies du Web sémantique"@fr ;
+    ex:courseName "RDF y tecnologías de la Web Semántica"@es ;
+    ex:courseName "RDF und Semantic Web-Technologien"@de ;
+
+    # Course description
+    ex:courseDescription "Learn the fundamentals of RDF, SPARQL, and semantic web applications."@en ;
+    ex:courseDescription "Apprenez les fondamentaux de RDF, SPARQL et des applications web sémantiques."@fr ;
+    ex:courseDescription "Aprenda los fundamentos de RDF, SPARQL y aplicaciones de la web semántica."@es ;
+    ex:courseDescription "Lernen Sie die Grundlagen von RDF, SPARQL und semantischen Webanwendungen."@de ;
+
+    # Prerequisites
+    ex:prerequisites "Basic knowledge of web technologies and programming"@en ;
+    ex:prerequisites "Connaissances de base des technologies web et de la programmation"@fr ;
+    ex:prerequisites "Conocimientos básicos de tecnologías web y programación"@es ;
+    ex:prerequisites "Grundkenntnisse in Webtechnologien und Programmierung"@de .
+
+# ==================
+# BOOKS AND PUBLICATIONS
+# ==================
+
+# Example 10: Book with multilingual metadata
+data:book-001 rdf:type ex:Book ;
+    ex:isbn "978-1-234567-89-0" ;
+
+    # Title in original language and translations
+    dcterms:title "The Semantic Web: A Comprehensive Guide"@en ;
+    dcterms:title "Le Web sémantique : Un guide complet"@fr ;
+    dcterms:title "La Web Semántica: Una guía completa"@es ;
+    dcterms:title "Das Semantische Web: Ein umfassender Leitfaden"@de ;
+    dcterms:title "Il Web Semantico: Una guida completa"@it ;
+    dcterms:title "セマンティックWeb：包括的ガイド"@ja ;
+    dcterms:title "语义网：综合指南"@zh ;
+
+    # Summary in multiple languages
+    dcterms:description "This book provides a comprehensive introduction to Semantic Web technologies."@en ;
+    dcterms:description "Ce livre fournit une introduction complète aux technologies du Web sémantique."@fr ;
+    dcterms:description "Este libro proporciona una introducción completa a las tecnologías de la Web Semántica."@es ;
+    dcterms:description "Dieses Buch bietet eine umfassende Einführung in Semantic Web-Technologien."@de .
+
+# ==================
+# PLACES AND LOCATIONS
+# ==================
+
+# Example 11: City names in multiple languages
+data:paris rdf:type ex:City ;
+    rdfs:label "Paris"@en ;
+    rdfs:label "Paris"@fr ;
+    rdfs:label "París"@es ;
+    rdfs:label "Parigi"@it ;
+    rdfs:label "巴黎"@zh ;
+    rdfs:label "パリ"@ja ;
+    rdfs:label "파리"@ko ;
+
+    ex:description "Capital and largest city of France"@en ;
+    ex:description "Capitale et plus grande ville de France"@fr ;
+    ex:description "Capital y ciudad más grande de Francia"@es ;
+    ex:description "Hauptstadt und größte Stadt Frankreichs"@de .
+
+data:tokyo rdf:type ex:City ;
+    rdfs:label "Tokyo"@en ;
+    rdfs:label "Tōkyō"@en-Latn ;  # Romanized Japanese
+    rdfs:label "東京"@ja ;  # Japanese
+    rdfs:label "东京"@zh-CN ;  # Simplified Chinese
+    rdfs:label "東京"@zh-TW ;  # Traditional Chinese
+    rdfs:label "도쿄"@ko ;  # Korean
+    rdfs:label "Токио"@ru .  # Russian
+
+# ==================
+# ORGANIZATIONS
+# ==================
+
+# Example 12: Company information
+data:company-global rdf:type ex:Company ;
+    ex:companyId "COMP-001" ;
+
+    # Company name in different languages
+    ex:companyName "Global Technology Solutions"@en ;
+    ex:companyName "Solutions technologiques mondiales"@fr ;
+    ex:companyName "Soluciones Tecnológicas Globales"@es ;
+    ex:companyName "Globale Technologielösungen"@de ;
+    ex:companyName "Soluzioni Tecnologiche Globali"@it ;
+
+    # Mission statement
+    ex:mission "Empowering businesses through innovative technology"@en ;
+    ex:mission "Donner aux entreprises les moyens d'agir grâce à une technologie innovante"@fr ;
+    ex:mission "Empoderando empresas a través de tecnología innovadora"@es ;
+    ex:mission "Unternehmen durch innovative Technologie stärken"@de .
+
+# ==================
+# MENUS AND RECIPES
+# ==================
+
+# Example 13: Restaurant menu item
+data:menu-item-001 rdf:type ex:MenuItem ;
+    ex:itemId "MENU-001" ;
+
+    # Dish name in multiple languages
+    ex:dishName "Grilled Chicken with Vegetables"@en ;
+    ex:dishName "Poulet grillé aux légumes"@fr ;
+    ex:dishName "Pollo a la parrilla con verduras"@es ;
+    ex:dishName "Gegrilltes Hähnchen mit Gemüse"@de ;
+    ex:dishName "Pollo alla griglia con verdure"@it ;
+
+    # Description
+    ex:description "Tender grilled chicken breast served with seasonal vegetables"@en ;
+    ex:description "Poitrine de poulet grillée servie avec des légumes de saison"@fr ;
+    ex:description "Pechuga de pollo a la parrilla servida con verduras de temporada"@es ;
+    ex:description "Zarte gegrillte Hähnchenbrust mit Saisongemüse serviert"@de ;
+
+    ex:price "18.99"^^xsd:decimal .
+
+# ==================
+# LEGAL AND POLICY DOCUMENTS
+# ==================
+
+# Example 14: Terms of service
+data:terms-of-service rdf:type ex:LegalDocument ;
+    dcterms:title "Terms of Service"@en ;
+    dcterms:title "Conditions d'utilisation"@fr ;
+    dcterms:title "Términos de servicio"@es ;
+    dcterms:title "Nutzungsbedingungen"@de ;
+
+    ex:section1 "By using this service, you agree to these terms."@en ;
+    ex:section1 "En utilisant ce service, vous acceptez ces conditions."@fr ;
+    ex:section1 "Al usar este servicio, acepta estos términos."@es ;
+    ex:section1 "Durch die Nutzung dieses Dienstes stimmen Sie diesen Bedingungen zu."@de .
+
+# ==================
+# QUOTES AND PROVERBS
+# ==================
+
+# Example 15: Famous quotes in original and translated
+data:quote-einstein rdf:type ex:Quote ;
+    ex:author "Albert Einstein" ;
+
+    ex:text "Imagination is more important than knowledge."@en ;
+    ex:text "L'imagination est plus importante que le savoir."@fr ;
+    ex:text "La imaginación es más importante que el conocimiento."@es ;
+    ex:text "Fantasie ist wichtiger als Wissen."@de ;
+    ex:text "L'immaginazione è più importante della conoscenza."@it .
+
+data:proverb-chinese rdf:type ex:Proverb ;
+    ex:origin "Chinese" ;
+
+    # Original
+    ex:text "千里之行，始于足下"@zh ;
+
+    # Romanization
+    ex:text "Qiānlǐ zhī xíng, shǐyú zúxià"@zh-Latn ;
+
+    # Translations
+    ex:text "A journey of a thousand miles begins with a single step"@en ;
+    ex:text "Un voyage de mille lieues commence par un seul pas"@fr ;
+    ex:text "Un viaje de mil millas comienza con un solo paso"@es ;
+    ex:text "Eine Reise von tausend Meilen beginnt mit einem einzigen Schritt"@de .
+
+# ==================
+# MULTILINGUAL TAGS AND CATEGORIES
+# ==================
+
+# Example 16: Blog post tags in multiple languages
+data:blog-post-tech rdf:type ex:BlogPost ;
+    ex:postId "POST-123" ;
+    dcterms:title "Latest Trends in Technology"@en ;
+
+    # Tags in different languages
+    ex:tag "technology"@en ;
+    ex:tag "technologie"@fr ;
+    ex:tag "tecnología"@es ;
+
+    ex:tag "innovation"@en ;
+    ex:tag "innovation"@fr ;
+    ex:tag "innovación"@es ;
+
+    ex:tag "artificial intelligence"@en ;
+    ex:tag "intelligence artificielle"@fr ;
+    ex:tag "inteligencia artificial"@es .
+
+# ==================
+# MIXED SCRIPTS
+# ==================
+
+# Example 17: Names with multiple scripts
+data:person-multilingual rdf:type ex:Person ;
+    ex:personId "PERSON-001" ;
+
+    # Name in different scripts
+    ex:name "Vladimir Putin"@en ;
+    ex:name "Владимир Путин"@ru ;  # Cyrillic
+
+    ex:birthPlace "Saint Petersburg"@en ;
+    ex:birthPlace "Saint-Pétersbourg"@fr ;
+    ex:birthPlace "Санкт-Петербург"@ru .
+
+data:person-chinese rdf:type ex:Person ;
+    ex:personId "PERSON-002" ;
+
+    # Chinese name
+    ex:name "李明"@zh ;
+    ex:name "Lǐ Míng"@zh-Latn ;  # Romanized (Pinyin)
+    ex:name "Ming Li"@en ;  # Western order
+
+    ex:name "이명"@ko .  # Korean
+
+# ==================
+# ACCESSIBILITY AND SCREEN READERS
+# ==================
+
+# Example 18: Alt text for images in multiple languages
+data:image-001 rdf:type ex:Image ;
+    ex:imageUrl "http://example.org/images/sunset.jpg" ;
+
+    # Alt text in multiple languages for accessibility
+    ex:altText "Beautiful sunset over the ocean"@en ;
+    ex:altText "Magnifique coucher de soleil sur l'océan"@fr ;
+    ex:altText "Hermosa puesta de sol sobre el océano"@es ;
+    ex:altText "Schöner Sonnenuntergang über dem Meer"@de ;
+    ex:altText "Bellissimo tramonto sull'oceano"@it .
+
+# ==================
+# LANGUAGE TAG BEST PRACTICES
+# ==================
+
+# Example 19: Demonstrating best practices
+
+# GOOD: Use specific language tags
+data:good-example ex:label "Color"@en-US .
+
+# AVOID: Using just "en" when region matters
+# data:avoid-example ex:label "Color"@en .  # Ambiguous
+
+# GOOD: Provide fallback to base language
+data:fallback-example
+    ex:label "Colour"@en-GB ;  # British English
+    ex:label "Color"@en .  # Generic English fallback
+
+# GOOD: Use language tags for truly linguistic content
+data:linguistic-content ex:description "This is text content"@en .
+
+# BAD: Using language tags for non-linguistic data
+# data:bad-example ex:productCode "PROD-001"@en .  # Product code is not language-specific
+
+# GOOD: Consistent language tag usage
+data:consistent-example
+    ex:title "Example"@en ;
+    ex:description "This is an example"@en ;
+    ex:keywords "example, demonstration"@en .
+
+# ==================
+# SPECIAL CASES
+# ==================
+
+# Example 20: Language variants for sign languages
+data:sign-language-content rdf:type ex:SignLanguageContent ;
+    ex:title "Welcome Video" ;
+
+    # Different sign languages
+    ex:signLanguageVersion "American Sign Language"@en ;
+    ex:signLanguageCode "ase" ;  # ISO 639-3 code for ASL
+
+    ex:alternativeVersion "British Sign Language"@en ;
+    ex:signLanguageCode "bfi" .  # ISO 639-3 code for BSL
+
+# Triple count: Approximately 300+ triples
+# This demonstrates comprehensive multilingual data representation in N3

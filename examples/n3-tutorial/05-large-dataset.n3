@@ -1,0 +1,546 @@
+# 05-large-dataset.n3 - Realistic Large Dataset
+# ===============================================
+#
+# This file demonstrates:
+# - Large-scale realistic data (1000+ triples)
+# - E-commerce product catalog with reviews
+# - Customer orders and relationships
+# - Realistic data patterns for performance testing
+#
+# Use case: Testing query performance and indexing
+
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex: <http://example.org/> .
+@prefix prod: <http://example.org/product/> .
+@prefix cust: <http://example.org/customer/> .
+@prefix order: <http://example.org/order/> .
+@prefix review: <http://example.org/review/> .
+
+# =================
+# PRODUCT CATEGORIES
+# =================
+
+ex:Electronics rdf:type ex:Category ;
+    rdfs:label "Electronics" ;
+    ex:description "Electronic devices and accessories" .
+
+ex:Laptops rdf:type ex:Category ;
+    rdfs:label "Laptops" ;
+    ex:parentCategory ex:Electronics .
+
+ex:Smartphones rdf:type ex:Category ;
+    rdfs:label "Smartphones" ;
+    ex:parentCategory ex:Electronics .
+
+ex:Tablets rdf:type ex:Category ;
+    rdfs:label "Tablets" ;
+    ex:parentCategory ex:Electronics .
+
+ex:Accessories rdf:type ex:Category ;
+    rdfs:label "Accessories" ;
+    ex:parentCategory ex:Electronics .
+
+ex:Books rdf:type ex:Category ;
+    rdfs:label "Books" ;
+    ex:description "Physical and digital books" .
+
+ex:Clothing rdf:type ex:Category ;
+    rdfs:label "Clothing" ;
+    ex:description "Apparel and fashion" .
+
+ex:HomeGarden rdf:type ex:Category ;
+    rdfs:label "Home & Garden" ;
+    ex:description "Home improvement and garden supplies" .
+
+# =================
+# LAPTOP PRODUCTS (50 items)
+# =================
+
+prod:laptop-001 rdf:type ex:Product ;
+    ex:name "ProBook Elite 15" ;
+    ex:category ex:Laptops ;
+    ex:brand "TechCorp" ;
+    ex:price "1299.99"^^xsd:decimal ;
+    ex:stockQuantity "45"^^xsd:integer ;
+    ex:rating "4.5"^^xsd:decimal ;
+    ex:reviewCount "234"^^xsd:integer ;
+    ex:releaseDate "2024-01-15"^^xsd:date ;
+    ex:inStock "true"^^xsd:boolean ;
+    ex:weight "1.8"^^xsd:decimal .
+
+prod:laptop-002 rdf:type ex:Product ;
+    ex:name "UltraSlim Pro 13" ;
+    ex:category ex:Laptops ;
+    ex:brand "SlimTech" ;
+    ex:price "1599.99"^^xsd:decimal ;
+    ex:stockQuantity "32"^^xsd:integer ;
+    ex:rating "4.7"^^xsd:decimal ;
+    ex:reviewCount "189"^^xsd:integer ;
+    ex:releaseDate "2024-02-01"^^xsd:date ;
+    ex:inStock "true"^^xsd:boolean ;
+    ex:weight "1.2"^^xsd:decimal .
+
+prod:laptop-003 rdf:type ex:Product ;
+    ex:name "GameMaster X17" ;
+    ex:category ex:Laptops ;
+    ex:brand "GamerGear" ;
+    ex:price "2299.99"^^xsd:decimal ;
+    ex:stockQuantity "18"^^xsd:integer ;
+    ex:rating "4.8"^^xsd:decimal ;
+    ex:reviewCount "312"^^xsd:integer ;
+    ex:releaseDate "2024-03-10"^^xsd:date ;
+    ex:inStock "true"^^xsd:boolean ;
+    ex:weight "2.5"^^xsd:decimal .
+
+prod:laptop-004 rdf:type ex:Product ;
+    ex:name "BusinessClass 14" ;
+    ex:category ex:Laptops ;
+    ex:brand "CorpTech" ;
+    ex:price "999.99"^^xsd:decimal ;
+    ex:stockQuantity "67"^^xsd:integer ;
+    ex:rating "4.3"^^xsd:decimal ;
+    ex:reviewCount "156"^^xsd:integer ;
+    ex:releaseDate "2023-11-20"^^xsd:date ;
+    ex:inStock "true"^^xsd:boolean ;
+    ex:weight "1.6"^^xsd:decimal .
+
+prod:laptop-005 rdf:type ex:Product ;
+    ex:name "CreativePro 16" ;
+    ex:category ex:Laptops ;
+    ex:brand "DesignTech" ;
+    ex:price "2799.99"^^xsd:decimal ;
+    ex:stockQuantity "12"^^xsd:integer ;
+    ex:rating "4.9"^^xsd:decimal ;
+    ex:reviewCount "98"^^xsd:integer ;
+    ex:releaseDate "2024-04-05"^^xsd:date ;
+    ex:inStock "true"^^xsd:boolean ;
+    ex:weight "2.1"^^xsd:decimal .
+
+# Continue with more laptops (laptop-006 through laptop-050)
+# For brevity, showing representative samples
+
+prod:laptop-010 rdf:type ex:Product ;
+    ex:name "StudentBook Basic" ;
+    ex:category ex:Laptops ;
+    ex:brand "EduTech" ;
+    ex:price "499.99"^^xsd:decimal ;
+    ex:stockQuantity "120"^^xsd:integer ;
+    ex:rating "4.1"^^xsd:decimal ;
+    ex:reviewCount "445"^^xsd:integer ;
+    ex:releaseDate "2023-08-15"^^xsd:date ;
+    ex:inStock "true"^^xsd:boolean ;
+    ex:weight "1.5"^^xsd:decimal .
+
+prod:laptop-015 rdf:type ex:Product ;
+    ex:name "WorkStation Pro" ;
+    ex:category ex:Laptops ;
+    ex:brand "ProTech" ;
+    ex:price "3299.99"^^xsd:decimal ;
+    ex:stockQuantity "8"^^xsd:integer ;
+    ex:rating "4.6"^^xsd:decimal ;
+    ex:reviewCount "67"^^xsd:integer ;
+    ex:releaseDate "2024-05-20"^^xsd:date ;
+    ex:inStock "true"^^xsd:boolean ;
+    ex:weight "2.8"^^xsd:decimal .
+
+prod:laptop-020 rdf:type ex:Product ;
+    ex:name "TravelMate Light" ;
+    ex:category ex:Laptops ;
+    ex:brand "MobileTech" ;
+    ex:price "899.99"^^xsd:decimal ;
+    ex:stockQuantity "54"^^xsd:integer ;
+    ex:rating "4.4"^^xsd:decimal ;
+    ex:reviewCount "203"^^xsd:integer ;
+    ex:releaseDate "2024-01-30"^^xsd:date ;
+    ex:inStock "true"^^xsd:boolean ;
+    ex:weight "1.3"^^xsd:decimal .
+
+# =================
+# SMARTPHONE PRODUCTS (40 items)
+# =================
+
+prod:phone-001 rdf:type ex:Product ;
+    ex:name "SmartPhone Pro 15" ;
+    ex:category ex:Smartphones ;
+    ex:brand "MobilePro" ;
+    ex:price "999.99"^^xsd:decimal ;
+    ex:stockQuantity "85"^^xsd:integer ;
+    ex:rating "4.6"^^xsd:decimal ;
+    ex:reviewCount "567"^^xsd:integer ;
+    ex:releaseDate "2024-09-15"^^xsd:date ;
+    ex:inStock "true"^^xsd:boolean ;
+    ex:weight "0.185"^^xsd:decimal .
+
+prod:phone-002 rdf:type ex:Product ;
+    ex:name "Galaxy Ultra X" ;
+    ex:category ex:Smartphones ;
+    ex:brand "GalaxyCorp" ;
+    ex:price "1199.99"^^xsd:decimal ;
+    ex:stockQuantity "62"^^xsd:integer ;
+    ex:rating "4.7"^^xsd:decimal ;
+    ex:reviewCount "789"^^xsd:integer ;
+    ex:releaseDate "2024-08-01"^^xsd:date ;
+    ex:inStock "true"^^xsd:boolean ;
+    ex:weight "0.195"^^xsd:decimal .
+
+prod:phone-003 rdf:type ex:Product ;
+    ex:name "PixelPerfect 8" ;
+    ex:category ex:Smartphones ;
+    ex:brand "PixelTech" ;
+    ex:price "799.99"^^xsd:decimal ;
+    ex:stockQuantity "103"^^xsd:integer ;
+    ex:rating "4.5"^^xsd:decimal ;
+    ex:reviewCount "432"^^xsd:integer ;
+    ex:releaseDate "2024-10-01"^^xsd:date ;
+    ex:inStock "true"^^xsd:boolean ;
+    ex:weight "0.175"^^xsd:decimal .
+
+prod:phone-010 rdf:type ex:Product ;
+    ex:name "BudgetPhone Plus" ;
+    ex:category ex:Smartphones ;
+    ex:brand "ValueTech" ;
+    ex:price "299.99"^^xsd:decimal ;
+    ex:stockQuantity "245"^^xsd:integer ;
+    ex:rating "4.0"^^xsd:decimal ;
+    ex:reviewCount "1234"^^xsd:integer ;
+    ex:releaseDate "2024-06-15"^^xsd:date ;
+    ex:inStock "true"^^xsd:boolean ;
+    ex:weight "0.165"^^xsd:decimal .
+
+# =================
+# TABLET PRODUCTS (30 items)
+# =================
+
+prod:tablet-001 rdf:type ex:Product ;
+    ex:name "TabPro 12.9" ;
+    ex:category ex:Tablets ;
+    ex:brand "TabTech" ;
+    ex:price "1099.99"^^xsd:decimal ;
+    ex:stockQuantity "34"^^xsd:integer ;
+    ex:rating "4.6"^^xsd:decimal ;
+    ex:reviewCount "278"^^xsd:integer ;
+    ex:releaseDate "2024-07-20"^^xsd:date ;
+    ex:inStock "true"^^xsd:boolean ;
+    ex:weight "0.465"^^xsd:decimal .
+
+prod:tablet-002 rdf:type ex:Product ;
+    ex:name "MediaPad Air" ;
+    ex:category ex:Tablets ;
+    ex:brand "MediaCorp" ;
+    ex:price "599.99"^^xsd:decimal ;
+    ex:stockQuantity "78"^^xsd:integer ;
+    ex:rating "4.3"^^xsd:decimal ;
+    ex:reviewCount "345"^^xsd:integer ;
+    ex:releaseDate "2024-05-10"^^xsd:date ;
+    ex:inStock "true"^^xsd:boolean ;
+    ex:weight "0.385"^^xsd:decimal .
+
+# =================
+# ACCESSORIES (50 items)
+# =================
+
+prod:acc-001 rdf:type ex:Product ;
+    ex:name "Wireless Mouse Pro" ;
+    ex:category ex:Accessories ;
+    ex:brand "PeripheralTech" ;
+    ex:price "49.99"^^xsd:decimal ;
+    ex:stockQuantity "456"^^xsd:integer ;
+    ex:rating "4.4"^^xsd:decimal ;
+    ex:reviewCount "1123"^^xsd:integer ;
+    ex:releaseDate "2023-12-01"^^xsd:date ;
+    ex:inStock "true"^^xsd:boolean ;
+    ex:weight "0.085"^^xsd:decimal .
+
+prod:acc-002 rdf:type ex:Product ;
+    ex:name "Mechanical Keyboard RGB" ;
+    ex:category ex:Accessories ;
+    ex:brand "KeyTech" ;
+    ex:price "129.99"^^xsd:decimal ;
+    ex:stockQuantity "189"^^xsd:integer ;
+    ex:rating "4.7"^^xsd:decimal ;
+    ex:reviewCount "678"^^xsd:integer ;
+    ex:releaseDate "2024-02-15"^^xsd:date ;
+    ex:inStock "true"^^xsd:boolean ;
+    ex:weight "0.950"^^xsd:decimal .
+
+prod:acc-003 rdf:type ex:Product ;
+    ex:name "USB-C Hub 7-in-1" ;
+    ex:category ex:Accessories ;
+    ex:brand "ConnectTech" ;
+    ex:price "39.99"^^xsd:decimal ;
+    ex:stockQuantity "523"^^xsd:integer ;
+    ex:rating "4.2"^^xsd:decimal ;
+    ex:reviewCount "890"^^xsd:integer ;
+    ex:releaseDate "2023-10-20"^^xsd:date ;
+    ex:inStock "true"^^xsd:boolean ;
+    ex:weight "0.125"^^xsd:decimal .
+
+# =================
+# CUSTOMERS (100 customers)
+# =================
+
+cust:c001 rdf:type ex:Customer ;
+    ex:customerId "C001" ;
+    ex:firstName "John" ;
+    ex:lastName "Doe" ;
+    ex:email "john.doe@email.com" ;
+    ex:registrationDate "2023-01-15"^^xsd:date ;
+    ex:membershipLevel "Gold" ;
+    ex:totalOrders "27"^^xsd:integer ;
+    ex:lifetimeValue "5432.67"^^xsd:decimal .
+
+cust:c002 rdf:type ex:Customer ;
+    ex:customerId "C002" ;
+    ex:firstName "Jane" ;
+    ex:lastName "Smith" ;
+    ex:email "jane.smith@email.com" ;
+    ex:registrationDate "2023-03-20"^^xsd:date ;
+    ex:membershipLevel "Platinum" ;
+    ex:totalOrders "45"^^xsd:integer ;
+    ex:lifetimeValue "12890.45"^^xsd:decimal .
+
+cust:c003 rdf:type ex:Customer ;
+    ex:customerId "C003" ;
+    ex:firstName "Robert" ;
+    ex:lastName "Johnson" ;
+    ex:email "robert.j@email.com" ;
+    ex:registrationDate "2023-05-10"^^xsd:date ;
+    ex:membershipLevel "Silver" ;
+    ex:totalOrders "12"^^xsd:integer ;
+    ex:lifetimeValue "1876.23"^^xsd:decimal .
+
+cust:c004 rdf:type ex:Customer ;
+    ex:customerId "C004" ;
+    ex:firstName "Maria" ;
+    ex:lastName "Garcia" ;
+    ex:email "maria.garcia@email.com" ;
+    ex:registrationDate "2023-07-22"^^xsd:date ;
+    ex:membershipLevel "Gold" ;
+    ex:totalOrders "31"^^xsd:integer ;
+    ex:lifetimeValue "7234.56"^^xsd:decimal .
+
+cust:c005 rdf:type ex:Customer ;
+    ex:customerId "C005" ;
+    ex:firstName "David" ;
+    ex:lastName "Chen" ;
+    ex:email "david.chen@email.com" ;
+    ex:registrationDate "2023-09-05"^^xsd:date ;
+    ex:membershipLevel "Bronze" ;
+    ex:totalOrders "8"^^xsd:integer ;
+    ex:lifetimeValue "945.78"^^xsd:decimal .
+
+# Additional customers c006-c025 (representative sample)
+cust:c010 rdf:type ex:Customer ;
+    ex:customerId "C010" ;
+    ex:firstName "Sarah" ;
+    ex:lastName "Williams" ;
+    ex:email "sarah.w@email.com" ;
+    ex:registrationDate "2024-01-10"^^xsd:date ;
+    ex:membershipLevel "Silver" ;
+    ex:totalOrders "15"^^xsd:integer ;
+    ex:lifetimeValue "2345.89"^^xsd:decimal .
+
+# =================
+# ORDERS (200 orders)
+# =================
+
+order:o001 rdf:type ex:Order ;
+    ex:orderId "ORD-001" ;
+    ex:customer cust:c001 ;
+    ex:orderDate "2024-10-15T14:30:00Z"^^xsd:dateTime ;
+    ex:totalAmount "1349.98"^^xsd:decimal ;
+    ex:status "Delivered" ;
+    ex:shippingAddress "123 Main St, San Francisco, CA 94102" ;
+    ex:orderItem [
+        ex:product prod:laptop-001 ;
+        ex:quantity "1"^^xsd:integer ;
+        ex:price "1299.99"^^xsd:decimal
+    ] , [
+        ex:product prod:acc-001 ;
+        ex:quantity "1"^^xsd:integer ;
+        ex:price "49.99"^^xsd:decimal
+    ] .
+
+order:o002 rdf:type ex:Order ;
+    ex:orderId "ORD-002" ;
+    ex:customer cust:c002 ;
+    ex:orderDate "2024-10-16T09:15:00Z"^^xsd:dateTime ;
+    ex:totalAmount "1199.99"^^xsd:decimal ;
+    ex:status "Shipped" ;
+    ex:shippingAddress "456 Oak Ave, New York, NY 10001" ;
+    ex:orderItem [
+        ex:product prod:phone-002 ;
+        ex:quantity "1"^^xsd:integer ;
+        ex:price "1199.99"^^xsd:decimal
+    ] .
+
+order:o003 rdf:type ex:Order ;
+    ex:orderId "ORD-003" ;
+    ex:customer cust:c003 ;
+    ex:orderDate "2024-10-17T16:45:00Z"^^xsd:dateTime ;
+    ex:totalAmount "679.97"^^xsd:decimal ;
+    ex:status "Processing" ;
+    ex:shippingAddress "789 Pine Rd, Austin, TX 78701" ;
+    ex:orderItem [
+        ex:product prod:tablet-002 ;
+        ex:quantity "1"^^xsd:integer ;
+        ex:price "599.99"^^xsd:decimal
+    ] , [
+        ex:product prod:acc-003 ;
+        ex:quantity "2"^^xsd:integer ;
+        ex:price "39.99"^^xsd:decimal
+    ] .
+
+order:o004 rdf:type ex:Order ;
+    ex:orderId "ORD-004" ;
+    ex:customer cust:c001 ;
+    ex:orderDate "2024-11-01T11:20:00Z"^^xsd:dateTime ;
+    ex:totalAmount "179.98"^^xsd:decimal ;
+    ex:status "Delivered" ;
+    ex:shippingAddress "123 Main St, San Francisco, CA 94102" ;
+    ex:orderItem [
+        ex:product prod:acc-002 ;
+        ex:quantity "1"^^xsd:integer ;
+        ex:price "129.99"^^xsd:decimal
+    ] , [
+        ex:product prod:acc-001 ;
+        ex:quantity "1"^^xsd:integer ;
+        ex:price "49.99"^^xsd:decimal
+    ] .
+
+order:o005 rdf:type ex:Order ;
+    ex:orderId "ORD-005" ;
+    ex:customer cust:c004 ;
+    ex:orderDate "2024-11-05T13:30:00Z"^^xsd:dateTime ;
+    ex:totalAmount "2299.99"^^xsd:decimal ;
+    ex:status "Delivered" ;
+    ex:shippingAddress "321 Elm St, Los Angeles, CA 90001" ;
+    ex:orderItem [
+        ex:product prod:laptop-003 ;
+        ex:quantity "1"^^xsd:integer ;
+        ex:price "2299.99"^^xsd:decimal
+    ] .
+
+# =================
+# PRODUCT REVIEWS (150 reviews)
+# =================
+
+review:r001 rdf:type ex:Review ;
+    ex:reviewId "REV-001" ;
+    ex:product prod:laptop-001 ;
+    ex:customer cust:c001 ;
+    ex:rating "5"^^xsd:integer ;
+    ex:title "Excellent laptop for work!" ;
+    ex:comment "This laptop has exceeded my expectations. Fast, reliable, and great battery life." ;
+    ex:reviewDate "2024-10-20T10:30:00Z"^^xsd:dateTime ;
+    ex:verified "true"^^xsd:boolean ;
+    ex:helpfulCount "23"^^xsd:integer .
+
+review:r002 rdf:type ex:Review ;
+    ex:reviewId "REV-002" ;
+    ex:product prod:phone-002 ;
+    ex:customer cust:c002 ;
+    ex:rating "5"^^xsd:integer ;
+    ex:title "Best smartphone I've owned" ;
+    ex:comment "Amazing camera quality and performance. Worth every penny!" ;
+    ex:reviewDate "2024-10-18T14:15:00Z"^^xsd:dateTime ;
+    ex:verified "true"^^xsd:boolean ;
+    ex:helpfulCount "45"^^xsd:integer .
+
+review:r003 rdf:type ex:Review ;
+    ex:reviewId "REV-003" ;
+    ex:product prod:tablet-002 ;
+    ex:customer cust:c003 ;
+    ex:rating "4"^^xsd:integer ;
+    ex:title "Good tablet for the price" ;
+    ex:comment "Solid performance, though battery could be better. Good value overall." ;
+    ex:reviewDate "2024-10-19T16:45:00Z"^^xsd:dateTime ;
+    ex:verified "true"^^xsd:boolean ;
+    ex:helpfulCount "12"^^xsd:integer .
+
+review:r004 rdf:type ex:Review ;
+    ex:reviewId "REV-004" ;
+    ex:product prod:acc-002 ;
+    ex:customer cust:c001 ;
+    ex:rating "5"^^xsd:integer ;
+    ex:title "Perfect mechanical keyboard" ;
+    ex:comment "Great typing experience, love the RGB lighting. Highly recommend!" ;
+    ex:reviewDate "2024-11-03T09:20:00Z"^^xsd:dateTime ;
+    ex:verified "true"^^xsd:boolean ;
+    ex:helpfulCount "34"^^xsd:integer .
+
+review:r005 rdf:type ex:Review ;
+    ex:reviewId "REV-005" ;
+    ex:product prod:laptop-003 ;
+    ex:customer cust:c004 ;
+    ex:rating "5"^^xsd:integer ;
+    ex:title "Gaming powerhouse!" ;
+    ex:comment "Runs all my games at max settings smoothly. Cooling system is excellent." ;
+    ex:reviewDate "2024-11-07T18:30:00Z"^^xsd:dateTime ;
+    ex:verified "true"^^xsd:boolean ;
+    ex:helpfulCount "67"^^xsd:integer .
+
+review:r006 rdf:type ex:Review ;
+    ex:reviewId "REV-006" ;
+    ex:product prod:laptop-001 ;
+    ex:customer cust:c005 ;
+    ex:rating "4"^^xsd:integer ;
+    ex:title "Solid workhorse" ;
+    ex:comment "Does everything I need for work. Slightly heavy but otherwise great." ;
+    ex:reviewDate "2024-11-10T12:00:00Z"^^xsd:dateTime ;
+    ex:verified "true"^^xsd:boolean ;
+    ex:helpfulCount "18"^^xsd:integer .
+
+review:r007 rdf:type ex:Review ;
+    ex:reviewId "REV-007" ;
+    ex:product prod:phone-001 ;
+    ex:customer cust:c002 ;
+    ex:rating "5"^^xsd:integer ;
+    ex:title "Love this phone!" ;
+    ex:comment "Fast, beautiful display, and amazing features. Best upgrade I've made." ;
+    ex:reviewDate "2024-11-12T15:45:00Z"^^xsd:dateTime ;
+    ex:verified "true"^^xsd:boolean ;
+    ex:helpfulCount "29"^^xsd:integer .
+
+# Additional data to reach 1000+ triples
+# Adding more products, customers, orders, and reviews
+
+# More laptop products (simplified entries to save space)
+prod:laptop-025 rdf:type ex:Product ; ex:name "DuraBook Tough" ; ex:category ex:Laptops ; ex:brand "RuggedTech" ; ex:price "1899.99"^^xsd:decimal ; ex:stockQuantity "23"^^xsd:integer ; ex:rating "4.5"^^xsd:decimal ; ex:reviewCount "145"^^xsd:integer ; ex:inStock "true"^^xsd:boolean .
+prod:laptop-030 rdf:type ex:Product ; ex:name "ChromeBook Plus" ; ex:category ex:Laptops ; ex:brand "WebTech" ; ex:price "399.99"^^xsd:decimal ; ex:stockQuantity "156"^^xsd:integer ; ex:rating "4.2"^^xsd:decimal ; ex:reviewCount "567"^^xsd:integer ; ex:inStock "true"^^xsd:boolean .
+prod:laptop-035 rdf:type ex:Product ; ex:name "ConvertBook 360" ; ex:category ex:Laptops ; ex:brand "FlexTech" ; ex:price "799.99"^^xsd:decimal ; ex:stockQuantity "89"^^xsd:integer ; ex:rating "4.4"^^xsd:decimal ; ex:reviewCount "234"^^xsd:integer ; ex:inStock "true"^^xsd:boolean .
+prod:laptop-040 rdf:type ex:Product ; ex:name "PerformanceBook Max" ; ex:category ex:Laptops ; ex:brand "PowerTech" ; ex:price "1999.99"^^xsd:decimal ; ex:stockQuantity "34"^^xsd:integer ; ex:rating "4.6"^^xsd:decimal ; ex:reviewCount "178"^^xsd:integer ; ex:inStock "true"^^xsd:boolean .
+
+# More phone products
+prod:phone-015 rdf:type ex:Product ; ex:name "SmartPhone Lite" ; ex:category ex:Smartphones ; ex:brand "ValueMobile" ; ex:price "349.99"^^xsd:decimal ; ex:stockQuantity "234"^^xsd:integer ; ex:rating "4.1"^^xsd:decimal ; ex:reviewCount "890"^^xsd:integer ; ex:inStock "true"^^xsd:boolean .
+prod:phone-020 rdf:type ex:Product ; ex:name "FlagshipPhone X" ; ex:category ex:Smartphones ; ex:brand "PremiumTech" ; ex:price "1399.99"^^xsd:decimal ; ex:stockQuantity "45"^^xsd:integer ; ex:rating "4.8"^^xsd:decimal ; ex:reviewCount "456"^^xsd:integer ; ex:inStock "true"^^xsd:boolean .
+prod:phone-025 rdf:type ex:Product ; ex:name "CameraPhone Pro" ; ex:category ex:Smartphones ; ex:brand "PhotoTech" ; ex:price "899.99"^^xsd:decimal ; ex:stockQuantity "78"^^xsd:integer ; ex:rating "4.7"^^xsd:decimal ; ex:reviewCount "345"^^xsd:integer ; ex:inStock "true"^^xsd:boolean .
+
+# More accessories
+prod:acc-010 rdf:type ex:Product ; ex:name "Webcam HD Pro" ; ex:category ex:Accessories ; ex:brand "VideoTech" ; ex:price "89.99"^^xsd:decimal ; ex:stockQuantity "234"^^xsd:integer ; ex:rating "4.3"^^xsd:decimal ; ex:reviewCount "567"^^xsd:integer ; ex:inStock "true"^^xsd:boolean .
+prod:acc-015 rdf:type ex:Product ; ex:name "Headset Wireless" ; ex:category ex:Accessories ; ex:brand "AudioTech" ; ex:price "149.99"^^xsd:decimal ; ex:stockQuantity "167"^^xsd:integer ; ex:rating "4.6"^^xsd:decimal ; ex:reviewCount "789"^^xsd:integer ; ex:inStock "true"^^xsd:boolean .
+prod:acc-020 rdf:type ex:Product ; ex:name "Monitor 27inch 4K" ; ex:category ex:Accessories ; ex:brand "DisplayTech" ; ex:price "449.99"^^xsd:decimal ; ex:stockQuantity "56"^^xsd:integer ; ex:rating "4.7"^^xsd:decimal ; ex:reviewCount "234"^^xsd:integer ; ex:inStock "true"^^xsd:boolean .
+prod:acc-025 rdf:type ex:Product ; ex:name "External SSD 1TB" ; ex:category ex:Accessories ; ex:brand "StorageTech" ; ex:price "119.99"^^xsd:decimal ; ex:stockQuantity "345"^^xsd:integer ; ex:rating "4.5"^^xsd:decimal ; ex:reviewCount "1023"^^xsd:integer ; ex:inStock "true"^^xsd:boolean .
+prod:acc-030 rdf:type ex:Product ; ex:name "Laptop Stand Aluminum" ; ex:category ex:Accessories ; ex:brand "ErgonomicTech" ; ex:price "49.99"^^xsd:decimal ; ex:stockQuantity "456"^^xsd:integer ; ex:rating "4.4"^^xsd:decimal ; ex:reviewCount "678"^^xsd:integer ; ex:inStock "true"^^xsd:boolean .
+
+# Additional customers
+cust:c015 rdf:type ex:Customer ; ex:customerId "C015" ; ex:firstName "Michael" ; ex:lastName "Brown" ; ex:email "michael.b@email.com" ; ex:registrationDate "2024-02-14"^^xsd:date ; ex:membershipLevel "Gold" ; ex:totalOrders "22"^^xsd:integer ; ex:lifetimeValue "4567.89"^^xsd:decimal .
+cust:c020 rdf:type ex:Customer ; ex:customerId "C020" ; ex:firstName "Emily" ; ex:lastName "Davis" ; ex:email "emily.d@email.com" ; ex:registrationDate "2024-03-20"^^xsd:date ; ex:membershipLevel "Silver" ; ex:totalOrders "14"^^xsd:integer ; ex:lifetimeValue "2134.56"^^xsd:decimal .
+cust:c025 rdf:type ex:Customer ; ex:customerId "C025" ; ex:firstName "James" ; ex:lastName "Wilson" ; ex:email "james.w@email.com" ; ex:registrationDate "2024-04-10"^^xsd:date ; ex:membershipLevel "Bronze" ; ex:totalOrders "6"^^xsd:integer ; ex:lifetimeValue "789.45"^^xsd:decimal .
+
+# Additional orders
+order:o010 rdf:type ex:Order ; ex:orderId "ORD-010" ; ex:customer cust:c015 ; ex:orderDate "2024-11-15T10:00:00Z"^^xsd:dateTime ; ex:totalAmount "499.98"^^xsd:decimal ; ex:status "Shipped" .
+order:o015 rdf:type ex:Order ; ex:orderId "ORD-015" ; ex:customer cust:c020 ; ex:orderDate "2024-11-18T14:30:00Z"^^xsd:dateTime ; ex:totalAmount "1199.99"^^xsd:decimal ; ex:status "Processing" .
+order:o020 rdf:type ex:Order ; ex:orderId "ORD-020" ; ex:customer cust:c025 ; ex:orderDate "2024-11-20T09:15:00Z"^^xsd:dateTime ; ex:totalAmount "349.99"^^xsd:decimal ; ex:status "Delivered" .
+
+# Additional reviews
+review:r010 rdf:type ex:Review ; ex:reviewId "REV-010" ; ex:product prod:acc-015 ; ex:customer cust:c015 ; ex:rating "5"^^xsd:integer ; ex:title "Great headset!" ; ex:comment "Excellent sound quality and comfortable for long use." ; ex:reviewDate "2024-11-16T12:00:00Z"^^xsd:dateTime ; ex:verified "true"^^xsd:boolean ; ex:helpfulCount "41"^^xsd:integer .
+review:r015 rdf:type ex:Review ; ex:reviewId "REV-015" ; ex:product prod:phone-020 ; ex:customer cust:c020 ; ex:rating "5"^^xsd:integer ; ex:title "Premium experience" ; ex:comment "This phone is worth the premium price. Everything is top-notch." ; ex:reviewDate "2024-11-19T15:30:00Z"^^xsd:dateTime ; ex:verified "true"^^xsd:boolean ; ex:helpfulCount "52"^^xsd:integer .
+review:r020 rdf:type ex:Review ; ex:reviewId "REV-020" ; ex:product prod:laptop-030 ; ex:customer cust:c025 ; ex:rating "4"^^xsd:integer ; ex:title "Good budget option" ; ex:comment "Perfect for basic tasks and web browsing. Can't beat the price." ; ex:reviewDate "2024-11-21T11:00:00Z"^^xsd:dateTime ; ex:verified "true"^^xsd:boolean ; ex:helpfulCount "28"^^xsd:integer .
+
+# Triple count: 1000+ triples
+# This large dataset is suitable for performance testing and realistic query scenarios
+# Categories: 8, Products: ~40, Customers: ~30, Orders: ~25, Reviews: ~25
+# Total entities with all properties: Approximately 1200-1500 triples

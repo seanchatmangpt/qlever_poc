@@ -1,0 +1,271 @@
+# 04-mixed-types.n3 - Various Literal Types
+# ============================================
+#
+# This file demonstrates:
+# - All common XSD datatypes
+# - Language-tagged strings
+# - Date and time formats
+# - Numeric types
+# - Boolean values
+#
+# Use case: Data validation and type-safe queries
+
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex: <http://example.org/> .
+@prefix data: <http://example.org/data/> .
+
+# ==================
+# STRING TYPES
+# ==================
+
+data:string-examples rdf:type ex:DataExample ;
+    rdfs:label "String Type Examples" ;
+
+    # Plain string (no type annotation)
+    ex:plainString "This is a plain string" ;
+
+    # Explicitly typed string
+    ex:typedString "This is a typed string"^^xsd:string ;
+
+    # Language-tagged strings (same property, different languages)
+    ex:greeting "Hello"@en ;
+    ex:greeting "Bonjour"@fr ;
+    ex:greeting "Hola"@es ;
+    ex:greeting "Hallo"@de ;
+    ex:greeting "Ciao"@it ;
+    ex:greeting "こんにちは"@ja ;
+    ex:greeting "你好"@zh ;
+    ex:greeting "안녕하세요"@ko ;
+    ex:greeting "Привет"@ru ;
+    ex:greeting "مرحبا"@ar .
+
+# ==================
+# NUMERIC TYPES
+# ==================
+
+data:numeric-examples rdf:type ex:DataExample ;
+    rdfs:label "Numeric Type Examples" ;
+
+    # Integer types
+    ex:integerValue "42"^^xsd:integer ;
+    ex:positiveInteger "100"^^xsd:positiveInteger ;
+    ex:negativeInteger "-50"^^xsd:negativeInteger ;
+    ex:nonPositiveInteger "0"^^xsd:nonPositiveInteger ;
+    ex:nonNegativeInteger "0"^^xsd:nonNegativeInteger ;
+
+    # Specific integer sizes
+    ex:byteValue "127"^^xsd:byte ;  # -128 to 127
+    ex:shortValue "32767"^^xsd:short ;  # -32768 to 32767
+    ex:intValue "2147483647"^^xsd:int ;
+    ex:longValue "9223372036854775807"^^xsd:long ;
+
+    # Unsigned integers
+    ex:unsignedByte "255"^^xsd:unsignedByte ;
+    ex:unsignedShort "65535"^^xsd:unsignedShort ;
+    ex:unsignedInt "4294967295"^^xsd:unsignedInt ;
+    ex:unsignedLong "18446744073709551615"^^xsd:unsignedLong ;
+
+    # Decimal and floating point
+    ex:decimalValue "123.456"^^xsd:decimal ;
+    ex:floatValue "3.14159"^^xsd:float ;
+    ex:doubleValue "2.718281828459045"^^xsd:double ;
+
+    # Special numeric values
+    ex:percentageValue "0.75"^^xsd:decimal ;
+    ex:scientificNotation "6.022e23"^^xsd:double .  # Avogadro's number
+
+# ==================
+# DATE AND TIME TYPES
+# ==================
+
+data:datetime-examples rdf:type ex:DataExample ;
+    rdfs:label "Date and Time Type Examples" ;
+
+    # Date types
+    ex:fullDate "2024-12-31"^^xsd:date ;
+    ex:leapYearDate "2024-02-29"^^xsd:date ;
+    ex:historicalDate "1776-07-04"^^xsd:date ;
+    ex:futureDate "2050-01-01"^^xsd:date ;
+
+    # Time types
+    ex:timeValue "14:30:00"^^xsd:time ;
+    ex:timeWithSeconds "09:45:30"^^xsd:time ;
+    ex:timeWithMilliseconds "12:00:00.500"^^xsd:time ;
+    ex:timeWithTimezone "14:30:00-08:00"^^xsd:time ;
+    ex:utcTime "20:00:00Z"^^xsd:time ;
+
+    # DateTime types (date + time)
+    ex:dateTimeValue "2024-12-31T23:59:59"^^xsd:dateTime ;
+    ex:dateTimeWithTimezone "2024-01-15T14:30:00-08:00"^^xsd:dateTime ;
+    ex:dateTimeUTC "2024-06-01T12:00:00Z"^^xsd:dateTime ;
+    ex:preciseDateTimeMillis "2024-03-15T10:30:45.123"^^xsd:dateTime ;
+
+    # Year and month
+    ex:yearMonth "2024-12"^^xsd:gYearMonth ;
+    ex:year "2024"^^xsd:gYear ;
+    ex:monthDay "--12-25"^^xsd:gMonthDay ;  # Christmas (any year)
+    ex:month "--03"^^xsd:gMonth ;
+    ex:day "---15"^^xsd:gDay ;
+
+    # Duration
+    ex:duration "P1Y2M3DT4H5M6S"^^xsd:duration ;  # 1y 2m 3d 4h 5m 6s
+    ex:shortDuration "PT30M"^^xsd:duration ;  # 30 minutes
+    ex:dayDuration "P7D"^^xsd:duration ;  # 7 days
+    ex:yearDuration "P5Y"^^xsd:duration .  # 5 years
+
+# ==================
+# BOOLEAN TYPE
+# ==================
+
+data:boolean-examples rdf:type ex:DataExample ;
+    rdfs:label "Boolean Type Examples" ;
+
+    # Boolean values (true/false or 1/0)
+    ex:booleanTrue "true"^^xsd:boolean ;
+    ex:booleanFalse "false"^^xsd:boolean ;
+    ex:booleanOne "1"^^xsd:boolean ;  # equivalent to true
+    ex:booleanZero "0"^^xsd:boolean ;  # equivalent to false
+
+    # Real-world boolean examples
+    ex:isActive "true"^^xsd:boolean ;
+    ex:isPublished "false"^^xsd:boolean ;
+    ex:hasChildren "true"^^xsd:boolean ;
+    ex:isDeleted "false"^^xsd:boolean .
+
+# ==================
+# BINARY TYPES
+# ==================
+
+data:binary-examples rdf:type ex:DataExample ;
+    rdfs:label "Binary Type Examples" ;
+
+    # Base64 encoded binary data
+    ex:base64Binary "SGVsbG8gV29ybGQh"^^xsd:base64Binary ;  # "Hello World!"
+
+    # Hexadecimal binary
+    ex:hexBinary "48656C6C6F"^^xsd:hexBinary .  # "Hello"
+
+# ==================
+# URI AND QNAME TYPES
+# ==================
+
+data:uri-examples rdf:type ex:DataExample ;
+    rdfs:label "URI Type Examples" ;
+
+    # Any URI (can be relative or absolute)
+    ex:anyURI "http://example.org/resource"^^xsd:anyURI ;
+    ex:relativeURI "../resource/123"^^xsd:anyURI ;
+    ex:httpsURI "https://example.org/secure"^^xsd:anyURI ;
+
+    # QName (qualified name)
+    ex:qName "prefix:localName"^^xsd:QName .
+
+# ==================
+# REAL-WORLD EXAMPLES
+# ==================
+
+# Product catalog entry
+data:product-laptop rdf:type ex:Product ;
+    ex:productId "PROD-001"^^xsd:string ;
+    ex:name "Professional Laptop" ;
+    ex:description "High-performance laptop for developers"@en ;
+    ex:description "Ordinateur portable haute performance pour développeurs"@fr ;
+    ex:price "1299.99"^^xsd:decimal ;
+    ex:currency "USD"^^xsd:string ;
+    ex:inStock "true"^^xsd:boolean ;
+    ex:stockQuantity "45"^^xsd:positiveInteger ;
+    ex:weight "1.8"^^xsd:decimal ;  # kg
+    ex:releaseDate "2024-03-15"^^xsd:date ;
+    ex:warrantyPeriod "P3Y"^^xsd:duration ;  # 3 years
+    ex:rating "4.7"^^xsd:decimal ;
+    ex:reviewCount "284"^^xsd:integer .
+
+# Book entry
+data:book-rdf-guide rdf:type ex:Book ;
+    ex:isbn "978-3-16-148410-0"^^xsd:string ;
+    ex:title "Guide to RDF and Semantic Web"@en ;
+    ex:title "Guide du RDF et du Web Sémantique"@fr ;
+    ex:author "Jane Smith"^^xsd:string ;
+    ex:publicationDate "2023-09-15"^^xsd:date ;
+    ex:pageCount "456"^^xsd:positiveInteger ;
+    ex:price "49.99"^^xsd:decimal ;
+    ex:isAvailable "true"^^xsd:boolean ;
+    ex:format "Hardcover"^^xsd:string ;
+    ex:language "en"^^xsd:language .
+
+# Event entry
+data:conference-2024 rdf:type ex:Event ;
+    ex:eventName "Semantic Web Conference 2024" ;
+    ex:startDateTime "2024-10-15T09:00:00-07:00"^^xsd:dateTime ;
+    ex:endDateTime "2024-10-17T17:00:00-07:00"^^xsd:dateTime ;
+    ex:duration "P3D"^^xsd:duration ;
+    ex:maxAttendees "500"^^xsd:positiveInteger ;
+    ex:registeredAttendees "387"^^xsd:positiveInteger ;
+    ex:registrationFee "299.00"^^xsd:decimal ;
+    ex:isVirtual "false"^^xsd:boolean ;
+    ex:venue "San Francisco Convention Center"^^xsd:string .
+
+# User account
+data:user-123 rdf:type ex:UserAccount ;
+    ex:userId "user123"^^xsd:string ;
+    ex:username "johndoe"^^xsd:string ;
+    ex:email "john.doe@example.org"^^xsd:string ;
+    ex:createdAt "2024-01-15T10:30:00Z"^^xsd:dateTime ;
+    ex:lastLogin "2024-12-31T14:22:15Z"^^xsd:dateTime ;
+    ex:isVerified "true"^^xsd:boolean ;
+    ex:isActive "true"^^xsd:boolean ;
+    ex:loginCount "1247"^^xsd:integer ;
+    ex:accountBalance "150.75"^^xsd:decimal ;
+    ex:memberSince "2024-01-15"^^xsd:date ;
+    ex:birthDate "1990-05-20"^^xsd:date ;
+    ex:age "34"^^xsd:positiveInteger .
+
+# Scientific measurement
+data:measurement-001 rdf:type ex:Measurement ;
+    ex:measurementId "MEAS-001"^^xsd:string ;
+    ex:temperature "23.5"^^xsd:decimal ;
+    ex:temperatureUnit "Celsius"^^xsd:string ;
+    ex:pressure "101.325"^^xsd:decimal ;  # kPa
+    ex:humidity "65.2"^^xsd:decimal ;  # percentage
+    ex:timestamp "2024-12-31T12:00:00Z"^^xsd:dateTime ;
+    ex:sensorId "SENSOR-42"^^xsd:string ;
+    ex:accuracy "0.1"^^xsd:decimal ;
+    ex:isCalibrated "true"^^xsd:boolean ;
+    ex:calibrationDate "2024-12-01"^^xsd:date .
+
+# Financial transaction
+data:transaction-456 rdf:type ex:Transaction ;
+    ex:transactionId "TXN-456"^^xsd:string ;
+    ex:amount "2500.00"^^xsd:decimal ;
+    ex:currency "USD"^^xsd:string ;
+    ex:timestamp "2024-12-31T15:45:30Z"^^xsd:dateTime ;
+    ex:isCompleted "true"^^xsd:boolean ;
+    ex:isFraudulent "false"^^xsd:boolean ;
+    ex:processingTime "PT2.5S"^^xsd:duration ;  # 2.5 seconds
+    ex:confirmationCode "ABC123XYZ"^^xsd:string .
+
+# Geographic coordinates with precision
+data:location-precise rdf:type ex:Location ;
+    ex:latitude "37.774929"^^xsd:decimal ;
+    ex:longitude "-122.419418"^^xsd:decimal ;
+    ex:altitude "15.5"^^xsd:decimal ;  # meters above sea level
+    ex:accuracy "5.0"^^xsd:decimal ;  # meters
+    ex:timestamp "2024-12-31T10:15:00Z"^^xsd:dateTime ;
+    ex:source "GPS"^^xsd:string .
+
+# Multi-language document
+data:document-multilang rdf:type ex:Document ;
+    ex:documentId "DOC-789"^^xsd:string ;
+    ex:title "Universal Declaration of Human Rights"@en ;
+    ex:title "Déclaration universelle des droits de l'homme"@fr ;
+    ex:title "Declaración Universal de Derechos Humanos"@es ;
+    ex:title "Allgemeine Erklärung der Menschenrechte"@de ;
+    ex:title "世界人権宣言"@ja ;
+    ex:adoptedDate "1948-12-10"^^xsd:date ;
+    ex:isPublic "true"^^xsd:boolean ;
+    ex:version "1.0"^^xsd:decimal .
+
+# Triple count: Approximately 180-200 triples
+# This example showcases the full range of XSD datatypes and their usage
