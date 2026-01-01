@@ -20,7 +20,7 @@ IndexBuilderMain [OPTIONS]
 |--------|-------|----------|---------|
 | `--index-basename` | `-i` | STRING | Output index file basename (e.g., "wikidata") |
 | `--kg-input-file` | `-f` | FILE | Input RDF file (use `-` for stdin) |
-| `--file-format` | `-F` | FORMAT | Input format: `ttl`, `nt`, `nq`, `rdf`, `jsonld` |
+| `--file-format` | `-F` | FORMAT | Input format: `ttl`, `nt`, `nq`, `n3`, `rdf`, `jsonld` |
 
 ### Optional Options
 
