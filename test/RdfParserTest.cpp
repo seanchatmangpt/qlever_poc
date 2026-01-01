@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <string>
+#include <unistd.h>
 
 #include "./util/GTestHelpers.h"
 #include "./util/TripleComponentTestHelpers.h"
@@ -935,7 +936,10 @@ auto forAllParsers(const auto& function, const auto&... args) {
 }
 
 TEST(RdfParserTest, TurtleStreamAndParallelParser) {
-  std::string filename{"turtleStreamAndParallelParserTest.dat"};
+  // Use unique filename to allow parallel test execution
+  std::string filename{"turtleStreamAndParallelParserTest." + 
+      std::to_string(getpid()) + "." + 
+      std::to_string(::testing::UnitTest::GetInstance()->random_seed()) + ".dat"};
   std::vector<TurtleTriple> expectedTriples;
   {
     auto of = ad_utility::makeOfstream(filename);
@@ -961,7 +965,10 @@ TEST(RdfParserTest, TurtleStreamAndParallelParser) {
 
 // _______________________________________________________________________
 TEST(RdfParserTest, emptyInput) {
-  std::string filename{"turtleParserEmptyInput.dat"};
+  // Use unique filename to allow parallel test execution
+  std::string filename{"turtleParserEmptyInput." + 
+      std::to_string(getpid()) + "." + 
+      std::to_string(::testing::UnitTest::GetInstance()->random_seed()) + ".dat"};
   auto testWithParser = [&](auto t, bool useBatchInterface,
                             std::string_view input = "") {
     using Parser = typename decltype(t)::type;
@@ -982,7 +989,10 @@ TEST(RdfParserTest, emptyInput) {
 
 // ________________________________________________________________________
 TEST(RdfParserTest, multilineComments) {
-  std::string filename{"turtleParserMultilineComments.dat"};
+  // Use unique filename to allow parallel test execution
+  std::string filename{"turtleParserMultilineComments." + 
+      std::to_string(getpid()) + "." + 
+      std::to_string(::testing::UnitTest::GetInstance()->random_seed()) + ".dat"};
   auto testWithParser = [&](auto t, bool useBatchInterface,
                             std::string_view input,
                             const auto& expectedTriples) {

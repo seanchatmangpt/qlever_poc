@@ -6,6 +6,7 @@
 // error handling.
 
 #include <gtest/gtest.h>
+#include <unistd.h>
 
 #include <filesystem>
 #include <fstream>
@@ -36,13 +37,21 @@ class N3IntegrationTest : public ::testing::Test {
   // Base directory for test data
   const std::string testDataDir_ = "/home/user/qlever/examples/n3-test-data/";
 
-  // Test index base paths
-  const std::string basicIndexBase_ = "N3IntegrationTest_basic";
-  const std::string peopleIndexBase_ = "N3IntegrationTest_people";
-  const std::string mixedIndexBase_ = "N3IntegrationTest_mixed";
-  const std::string errorIndexBase_ = "N3IntegrationTest_error";
+  // Test index base paths - use unique names per test instance for parallel execution
+  std::string basicIndexBase_;
+  std::string peopleIndexBase_;
+  std::string mixedIndexBase_;
+  std::string errorIndexBase_;
 
   void SetUp() override {
+    // Generate unique basenames per test instance for parallel execution
+    std::string uniqueId = std::to_string(getpid()) + "_" + 
+        std::to_string(::testing::UnitTest::GetInstance()->random_seed());
+    basicIndexBase_ = "N3IntegrationTest_basic_" + uniqueId;
+    peopleIndexBase_ = "N3IntegrationTest_people_" + uniqueId;
+    mixedIndexBase_ = "N3IntegrationTest_mixed_" + uniqueId;
+    errorIndexBase_ = "N3IntegrationTest_error_" + uniqueId;
+    
     // Clean up any existing test indices from previous runs
     cleanupIndexFiles(basicIndexBase_);
     cleanupIndexFiles(peopleIndexBase_);

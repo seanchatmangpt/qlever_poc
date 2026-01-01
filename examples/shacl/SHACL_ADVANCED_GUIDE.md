@@ -1095,7 +1095,7 @@ ex:PersonShape a sh:NodeShape ;
 ## Additional Resources
 
 - [SHACL W3C Specification](https://www.w3.org/TR/shacl/)
-- [QLever SHACL Compliance Guide](./SHACL_COMPLIANCE.md)
+- [QLever SHACL Compliance Guide](../../docs/reference/shacl-compliance.md)
 - [Integration Guide](./integration-guide.md)
 - [Troubleshooting Guide](./SHACL_TROUBLESHOOTING.md)
 - [Example Shapes](./advanced-examples.ttl)

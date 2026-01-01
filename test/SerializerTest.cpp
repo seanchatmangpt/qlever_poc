@@ -7,6 +7,8 @@
 #include <absl/cleanup/cleanup.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+#include <atomic>
+#include <unistd.h>
 
 #include "backports/span.h"
 #include "util/GTestHelpers.h"
@@ -198,7 +200,8 @@ TEST(Serializer, Serializability) {
 TEST(Serializer, SimpleExample) {
   using testNamespaceA::A;
   using testNamespaceA::EFixed;
-  std::string filename = "Serializer.SimpleExample.dat";
+  // Use unique filename to allow parallel test execution
+  std::string filename = "Serializer.SimpleExample." + std::to_string(::testing::UnitTest::GetInstance()->random_seed()) + ".dat";
   {
     A a{42, -5};
     // Also test the `EFixed` struct which uses the `triviallySerialize`
@@ -328,7 +331,9 @@ auto testWithCallableSerializer = [](auto testFunction) {
 };
 
 auto testWithFileSerialization = [](auto testFunction) {
-  const std::string filename = "serializationTest.tmp";
+  // Use unique filename to allow parallel test execution
+  static std::atomic<int> counter{0};
+  const std::string filename = "serializationTest." + std::to_string(counter.fetch_add(1)) + "." + std::to_string(getpid()) + ".tmp";
   FileWriteSerializer writer{filename};
   auto makeReaderFromWriter = [filename, &writer] {
     writer.close();

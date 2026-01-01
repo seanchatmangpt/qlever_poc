@@ -22,18 +22,6 @@ If iteration necessary, specification incomplete.
 
 **FIRST ACTION: Spawn 10 agents in parallel. Do not read files. Do not plan. Agents gather context.**
 
-Each agent independent:
-- Agent 1: bb80-parallel-task-coordinator (orchestrator)
-- Agent 2: Codebase structure exploration
-- Agent 3: Specification analysis
-- Agent 4: Similar implementation scanning
-- Agent 5: Performance profiling
-- Agent 6: Test coverage mapping
-- Agent 7: Domain knowledge extraction
-- Agent 8: Build system analysis
-- Agent 9: Recent commits analysis
-- Agent 10: Guardrails identification
-
 Agents report findings in parallel while you invoke skills and implement.
 Do not wait for reports before starting work.
 Do not read files yourself. Let agents gather context.

@@ -139,7 +139,7 @@ Link to troubleshooting for common errors:
 ```markdown
 ⚠️ **If you see:** `Connection refused`
 This means ServerMain isn't running.
-See [Troubleshooting: Connection refused](../TROUBLESHOOTING.md#connection-refused)
+See [Troubleshooting: Connection refused](../how-to/troubleshooting.md#connection-refused-when-querying)
 ```
 
 ### Configuration Examples
@@ -165,7 +165,7 @@ When writing documentation examples:
 - [ ] Command syntax matches canonical form above
 - [ ] All required flags are specified
 - [ ] Examples include expected output
-- [ ] Errors link to TROUBLESHOOTING.md
+- [ ] Errors link to how-to/troubleshooting.md
 - [ ] Last validation date is included
 - [ ] Comments explain non-obvious flags
 - [ ] Minimal example shown before full example

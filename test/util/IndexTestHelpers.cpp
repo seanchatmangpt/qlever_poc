@@ -14,6 +14,7 @@
 #include "index/TextIndexBuilder.h"
 #include "index/vocabulary/VocabularyType.h"
 #include "util/ProgressBar.h"
+#include "util/Synchronized.h"
 
 using qlever::TextScoringMetric;
 namespace ad_utility::testing {
@@ -336,27 +337,34 @@ QueryExecutionContext* getQec(TestIndexConfig c) {
             materializedViewsManager_.get());
   };
 
-  static ad_utility::HashMap<TestIndexConfig, Context> contextMap;
+  // Thread-safe contextMap to allow parallel test execution
+  static ad_utility::Synchronized<ad_utility::HashMap<TestIndexConfig, Context>> contextMap;
 
-  if (!contextMap.contains(c)) {
-    std::string testIndexBasename =
-        "_staticGlobalTestIndex" + std::to_string(contextMap.size());
-    contextMap.emplace(
-        c, Context{TypeErasedCleanup{[testIndexBasename]() {
-                     for (const std::string& indexFilename :
-                          getAllIndexFilenames(testIndexBasename)) {
-                       // Don't log when a file can't be deleted,
-                       // because the logging might already be
-                       // destroyed.
-                       ad_utility::deleteFile(indexFilename, false);
-                     }
-                   }},
-                   std::make_unique<Index>(makeTestIndex(testIndexBasename, c)),
-                   std::make_unique<QueryResultCache>(),
-                   std::make_unique<NamedResultCache>(),
-                   std::make_unique<MaterializedViewsManager>()});
-  }
-  auto* qec = contextMap.at(c).qec_.get();
+  // Check if context exists, create if not (thread-safe)
+  Context* context = nullptr;
+  contextMap.withWriteLock([&](auto& map) {
+    if (!map.contains(c)) {
+      std::string testIndexBasename =
+          "_staticGlobalTestIndex" + std::to_string(map.size());
+      map.emplace(
+          c, Context{TypeErasedCleanup{[testIndexBasename]() {
+                       for (const std::string& indexFilename :
+                            getAllIndexFilenames(testIndexBasename)) {
+                         // Don't log when a file can't be deleted,
+                         // because the logging might already be
+                         // destroyed.
+                         ad_utility::deleteFile(indexFilename, false);
+                       }
+                     }},
+                     std::make_unique<Index>(makeTestIndex(testIndexBasename, c)),
+                     std::make_unique<QueryResultCache>(),
+                     std::make_unique<NamedResultCache>(),
+                     std::make_unique<MaterializedViewsManager>()});
+    }
+    context = &map.at(c);
+  });
+  
+  auto* qec = context->qec_.get();
   qec->getIndex().getImpl().setGlobalIndexAndComparatorOnlyForTesting();
   return qec;
 }

@@ -3,12 +3,14 @@
 // Author: Björn Buchhold <buchholb>
 
 #include <gtest/gtest.h>
+#include <unistd.h>
 
 #include "util/File.h"
 
 namespace ad_utility {
 TEST(File, move) {
-  std::string filename = "testFileMove.tmp";
+  // Use unique filename to allow parallel test execution
+  std::string filename = "testFileMove." + std::to_string(getpid()) + "." + std::to_string(::testing::UnitTest::GetInstance()->random_seed()) + ".tmp";
   File file1(filename, "w");
   ASSERT_TRUE(file1.isOpen());
   file1.write("aaa", 3);
@@ -54,7 +56,8 @@ TEST(File, move) {
 }  // namespace ad_utility
 
 TEST(File, makeFilestream) {
-  std::string filename = "makeFilstreamTest.dat";
+  // Use unique filename to allow parallel test execution
+  std::string filename = "makeFilstreamTest." + std::to_string(getpid()) + "." + std::to_string(::testing::UnitTest::GetInstance()->random_seed()) + ".dat";
   ad_utility::makeOfstream(filename) << "helloAgain\n";
   std::string s;
   auto reader = ad_utility::makeIfstream(filename);

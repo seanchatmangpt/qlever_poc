@@ -82,8 +82,8 @@ SELECT ?ancestor ?descendant WHERE {
 ## 📚 Documentation
 
 **Comprehensive documentation is available in the [docs/](docs/) folder:**
-- **[Quick Start Commands](docs/QUICK_START.md)** — Copy-paste examples for all use cases
-- **[Troubleshooting Guide](docs/TROUBLESHOOTING.md)** — Solutions for common problems
+- **[Quick Start Commands](docs/how-to/quick-start.md)** — Copy-paste examples for all use cases
+- **[Troubleshooting Guide](docs/how-to/troubleshooting.md)** — Solutions for common problems
 - **[Full Documentation Index](docs/INDEX.md)** — Tutorials, how-to guides, reference, and explanations
 
 Or continue below for the quickstart.

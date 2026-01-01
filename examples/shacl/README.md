@@ -32,7 +32,7 @@ Welcome to the QLever SHACL documentation and examples directory. This directory
 
 ### Integration and Deployment
 
-📕 **[SHACL_INTEGRATION_GUIDE.md](../../docs/SHACL_INTEGRATION_GUIDE.md)** ⭐ NEW
+📕 **[SHACL Integration Guide](../../docs/how-to/shacl-integration.md)** ⭐ NEW
 - Loading shapes into QLever
 - SPARQL query integration
 - C++ API integration patterns
@@ -43,7 +43,7 @@ Welcome to the QLever SHACL documentation and examples directory. This directory
 
 ### Compliance and Standards
 
-📔 **[SHACL_COMPLIANCE.md](../../docs/SHACL_COMPLIANCE.md)** ⭐ NEW
+📔 **[SHACL Compliance](../../docs/reference/shacl-compliance.md)** ⭐ NEW
 - W3C SHACL specification coverage
 - Compliance matrix by feature
 - W3C test suite results (94.8% pass rate)
@@ -137,7 +137,7 @@ cat advanced-examples.ttl
 ### 3. Integration
 ```bash
 # Read integration guide
-cat ../../docs/SHACL_INTEGRATION_GUIDE.md
+cat ../../docs/how-to/shacl-integration.md
 
 # Load shapes in your application
 # See integration guide for C++ API examples
@@ -187,7 +187,7 @@ cat SHACL_TROUBLESHOOTING.md
 - Logical Operators: 100% (36/36)
 - SPARQL Constraints: 90.5% (38/42)
 
-See [SHACL_COMPLIANCE.md](../../docs/SHACL_COMPLIANCE.md) for detailed breakdown.
+See [SHACL Compliance](../../docs/reference/shacl-compliance.md) for detailed breakdown.
 
 ## Performance
 
@@ -226,8 +226,8 @@ examples/shacl/
 └── simple-sparql-shapes.ttl           # Simple SPARQL examples
 
 docs/
-├── SHACL_COMPLIANCE.md                # W3C compliance ⭐ NEW
-└── SHACL_INTEGRATION_GUIDE.md         # Integration guide ⭐ NEW
+├── SHACL Compliance (docs/reference/shacl-compliance.md)  # W3C compliance ⭐ NEW
+└── SHACL Integration Guide (docs/how-to/shacl-integration.md)  # Integration guide ⭐ NEW
 ```
 
 ## Testing
@@ -289,7 +289,7 @@ Validate data before returning from API:
 - Verify formats
 - Check constraints
 
-**Example:** See [SHACL_INTEGRATION_GUIDE.md](../../docs/SHACL_INTEGRATION_GUIDE.md)
+**Example:** See [SHACL Integration Guide](../../docs/how-to/shacl-integration.md)
 
 ### 5. Data Import Validation
 Validate data before indexing:

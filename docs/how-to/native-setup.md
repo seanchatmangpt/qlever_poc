@@ -22,7 +22,7 @@ fatal error: C++20 is not supported by your compiler
 ### What to Do Instead
 
 **For current build instructions:** [See CLAUDE.md](../CLAUDE.md)
-**For quick setup:** [See QUICK_START.md](../QUICK_START.md)
+**For quick setup:** [See Quick Start Guide](./quick-start.md)
 
 ---
 

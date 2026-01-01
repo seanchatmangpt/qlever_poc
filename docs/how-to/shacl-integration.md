@@ -947,7 +947,7 @@ See [SHACL Troubleshooting Guide](../examples/shacl/SHACL_TROUBLESHOOTING.md) fo
 ## Additional Resources
 
 - [SHACL Advanced Guide](../examples/shacl/SHACL_ADVANCED_GUIDE.md)
-- [SHACL Compliance](./SHACL_COMPLIANCE.md)
+- [SHACL Compliance](../reference/shacl-compliance.md)
 - [Example Shapes](../examples/shacl/)
 - [QLever Documentation](../README.md)
 

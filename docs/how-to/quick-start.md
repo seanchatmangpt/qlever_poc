@@ -270,11 +270,11 @@ LIMIT 10
 
 ## Next Steps
 
-- **[Full Tutorials](./tutorials/)** — Learn by doing
-- **[How-to Guides](./how-to/)** — Solve specific problems
-- **[Reference](./reference/)** — Look things up
-- **[Concepts](./explanation/)** — Understand the system
+- **[Full Tutorials](../tutorials/)** — Learn by doing
+- **[How-to Guides](./)** — Solve specific problems
+- **[Reference](../reference/)** — Look things up
+- **[Concepts](../explanation/)** — Understand the system
 
 ---
 
-**Questions?** See [QLever documentation index](./INDEX.md)
+**Questions?** See [QLever documentation index](../INDEX.md)

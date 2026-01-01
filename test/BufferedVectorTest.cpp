@@ -3,6 +3,9 @@
 // Author: Johannes Kalmbach (joka921) <johannes.kalmbach@gmail.com>
 
 #include <vector>
+#include <unistd.h>
+#include <string>
+#include <atomic>
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
@@ -10,9 +13,15 @@
 
 using ad_utility::BufferedVector;
 
+// Helper to generate unique filenames for parallel test execution
+static std::string makeUniqueFilename(const std::string& base) {
+  static std::atomic<int> counter{0};
+  return base + "." + std::to_string(getpid()) + "." + std::to_string(counter.fetch_add(1)) + ".dat";
+}
+
 // ___________________________________________________________________________
 TEST(BufferedVector, constructor) {
-  BufferedVector<int> b(15, "_testBufConstructor.dat");
+  BufferedVector<int> b(15, makeUniqueFilename("_testBufConstructor"));
   ASSERT_EQ(b.threshold(), 15u);
   ASSERT_TRUE(b.isInternal());
   ASSERT_EQ(b.size(), 0u);
@@ -20,7 +29,7 @@ TEST(BufferedVector, constructor) {
 
 // ___________________________________________________________________________
 TEST(BufferedVector, pushBackSmall) {
-  BufferedVector<int> b(15, "_testBufPushBackSmall.dat");
+  BufferedVector<int> b(15, makeUniqueFilename("_testBufPushBackSmall"));
   for (int i = 0; i < 13; ++i) {
     b.push_back(i);
   }
@@ -47,7 +56,7 @@ TEST(BufferedVector, pushBackSmall) {
 
 // ___________________________________________________________________________
 TEST(BufferedVector, pushBackBig) {
-  BufferedVector<int> b(15, "_testBufPushBackBig.dat");
+  BufferedVector<int> b(15, makeUniqueFilename("_testBufPushBackBig"));
   for (int i = 0; i < 25; ++i) {
     b.push_back(i);
   }
@@ -77,7 +86,7 @@ TEST(BufferedVector, emplace_back) {
   // The main logic is already tested in `push_back`, so we only test the
   // difference
   {
-    BufferedVector<int> b(15, "_testBufEmplaceBack.dat");
+    BufferedVector<int> b(15, makeUniqueFilename("_testBufEmplaceBack"));
     b.emplace_back(3);
     b.emplace_back(-14);
     ASSERT_EQ(b.size(), 2);
@@ -92,7 +101,7 @@ TEST(BufferedVector, emplace_back) {
       S(size_t a, size_t b) : value_{a + b} {}
       explicit S(std::string_view s) : value_{s.size()} {}
     };
-    BufferedVector<S> b(15, "_testBufEmplaceBackStruct.dat");
+    BufferedVector<S> b(15, makeUniqueFilename("_testBufEmplaceBackStruct"));
     b.emplace_back(14u, 7u);
     b.emplace_back("hello");
     b.emplace_back();
@@ -105,7 +114,7 @@ TEST(BufferedVector, emplace_back) {
 
 // ___________________________________________________________________________
 TEST(BufferedVector, clear) {
-  BufferedVector<int> b(15, "_testBufClear.dat");
+  BufferedVector<int> b(15, makeUniqueFilename("_testBufClear"));
   for (int i = 0; i < 25; ++i) {
     b.push_back(i);
   }
@@ -146,7 +155,7 @@ TEST(BufferedVector, clear) {
 
 // ___________________________________________________________________________
 TEST(BufferedVector, resize) {
-  BufferedVector<int> b{5, "_testBufResize.dat"};
+  BufferedVector<int> b{5, makeUniqueFilename("_testBufResize")};
   b.push_back(0);
   b.push_back(1);
   b.resize(4);
@@ -188,7 +197,7 @@ TEST(BufferedVector, resize) {
 // ___________________________________________________________________________
 TEST(BufferedVector, insert) {
   std::vector<int> i{12, 10, 8};
-  BufferedVector<int> b{5, "_testBufInsert.dat"};
+  BufferedVector<int> b{5, makeUniqueFilename("_testBufInsert")};
   b.insert(b.begin(), i.begin(), i.end());
   ASSERT_THAT(b, ::testing::ElementsAreArray(i));
 
@@ -224,7 +233,7 @@ TEST(BufferedVector, insert) {
 // ___________________________________________________________________________
 TEST(BufferedVector, erase) {
   std::vector<int> i{12, 10, 8, 6, 4, 2};
-  BufferedVector<int> b{5, "_testBufErase.dat"};
+  BufferedVector<int> b{5, makeUniqueFilename("_testBufErase")};
   b.insert(b.begin(), i.begin(), i.end());
   {
     // Erase at the beginning.
@@ -257,7 +266,7 @@ TEST(BufferedVector, reserveAndShrink) {
   // `reserve` and `shrink_to_fit` currently do nothing, and even if they did,
   // they shouldn't change the contained elements.
   std::vector<int> i{12, 10, 8, 6, 4, 2};
-  BufferedVector<int> b{5, "_testBufReserve.dat"};
+  BufferedVector<int> b{5, makeUniqueFilename("_testBufReserve")};
   b.insert(b.end(), i.begin(), i.end());
   b.reserve(27000);
   ASSERT_THAT(b, ::testing::ElementsAreArray(i));
@@ -274,7 +283,7 @@ TEST(BufferedVector, reserveAndShrink) {
 TEST(BufferedVector, moveConstructorAndAssignment) {
   // `reserve` and `shrink_to_fit` currently do nothing, and even if they did,
   // they shouldn't change the contained elements.
-  BufferedVector<int> b{4, "_testBufMove.dat"};
+  BufferedVector<int> b{4, makeUniqueFilename("_testBufMove")};
   std::vector<int> i{12, 10, 8};
   b.insert(b.begin(), i.begin(), i.end());
 

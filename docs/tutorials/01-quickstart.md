@@ -125,7 +125,7 @@ pip install --upgrade qlever
 qlever --version
 ```
 
-See [Troubleshooting: Installation](../TROUBLESHOOTING.md#installation--setup)
+See [Troubleshooting: Installation](../how-to/troubleshooting.md#installation--setup)
 
 ### "Connection refused" when querying
 
@@ -143,7 +143,7 @@ qlever start
 curl http://localhost:7023
 ```
 
-See [Troubleshooting: Connection refused](../TROUBLESHOOTING.md#connection-refused-when-querying)
+See [Troubleshooting: Connection refused](../how-to/troubleshooting.md#connection-refused-when-querying)
 
 ### "Out of memory" during indexing
 
@@ -160,11 +160,11 @@ qlever index --memory 32GB  # Or larger
 qlever index --force
 ```
 
-See [Troubleshooting: Out of memory](../TROUBLESHOOTING.md#out-of-memory-during-qlever-index)
+See [Troubleshooting: Out of memory](../how-to/troubleshooting.md#out-of-memory-during-qlever-index)
 
 ### More issues?
 
-See the [complete Troubleshooting Guide](../TROUBLESHOOTING.md) for solutions to 20+ common problems.
+See the [complete Troubleshooting Guide](../how-to/troubleshooting.md) for solutions to 20+ common problems.
 
 ## Troubleshooting
 

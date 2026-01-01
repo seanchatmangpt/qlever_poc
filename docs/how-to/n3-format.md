@@ -1337,8 +1337,8 @@ cat /home/user/qlever/examples/n3-test-data/people-dataset.n3
 
 - **Main Documentation:** `/home/user/qlever/README.md`
 - **CLAUDE.md:** `/home/user/qlever/CLAUDE.md` (AI assistant guide)
-- **Quick Start:** `/home/user/qlever/docs/QUICK_START.md`
-- **Troubleshooting:** `/home/user/qlever/docs/TROUBLESHOOTING.md`
+- **Quick Start:** `/home/user/qlever/docs/how-to/quick-start.md`
+- **Troubleshooting:** `/home/user/qlever/docs/how-to/troubleshooting.md`
 
 ### Testing
 

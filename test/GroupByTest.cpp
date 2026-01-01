@@ -5,6 +5,8 @@
 
 #include <absl/strings/str_join.h>
 #include <gmock/gmock.h>
+#include <gtest/gtest.h>
+#include <unistd.h>
 
 #include <cstdio>
 
@@ -188,7 +190,10 @@ TEST_F(GroupByTest, doGroupBy) {
   s.insert("<entity1>");
   s.insert("<entity2>");
   s.insert("<entity3>");
-  auto filename = "groupByTestVocab.dat";
+  // Use unique filename to allow parallel test execution
+  auto filename = "groupByTestVocab." + 
+      std::to_string(getpid()) + "." + 
+      std::to_string(::testing::UnitTest::GetInstance()->random_seed()) + ".dat";
   vocab.createFromSet(s, filename);
   ad_utility::deleteFile(filename);
 

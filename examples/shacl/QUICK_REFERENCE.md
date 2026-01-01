@@ -246,8 +246,8 @@ sh:Info               # Information
 ## Documentation Links
 
 - **Advanced Guide:** [SHACL_ADVANCED_GUIDE.md](./SHACL_ADVANCED_GUIDE.md)
-- **Compliance:** [SHACL_COMPLIANCE.md](../../docs/SHACL_COMPLIANCE.md)
-- **Integration:** [SHACL_INTEGRATION_GUIDE.md](../../docs/SHACL_INTEGRATION_GUIDE.md)
+- **Compliance:** [SHACL Compliance](../../docs/reference/shacl-compliance.md)
+- **Integration:** [SHACL Integration Guide](../../docs/how-to/shacl-integration.md)
 - **Troubleshooting:** [SHACL_TROUBLESHOOTING.md](./SHACL_TROUBLESHOOTING.md)
 - **Examples:** [advanced-examples.ttl](./advanced-examples.ttl)
 - **W3C Spec:** https://www.w3.org/TR/shacl/

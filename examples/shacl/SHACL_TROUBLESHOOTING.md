@@ -702,7 +702,7 @@ registry.registerShape(shape);
 - **Cause:** Unsupported or malformed constraint
 - **Fix:** Check constraint syntax and supported types
 ```turtle
-# Check SHACL_COMPLIANCE.md for supported constraints
+# Check [SHACL Compliance](../../docs/reference/shacl-compliance.md) for supported constraints
 ```
 
 #### "Property path resolution failed"
@@ -864,8 +864,8 @@ If you continue to experience issues:
 
 1. **Check Documentation:**
    - [SHACL Advanced Guide](./SHACL_ADVANCED_GUIDE.md)
-   - [SHACL Compliance](../../docs/SHACL_COMPLIANCE.md)
-   - [Integration Guide](../../docs/SHACL_INTEGRATION_GUIDE.md)
+   - [SHACL Compliance](../../docs/reference/shacl-compliance.md)
+   - [Integration Guide](../../docs/how-to/shacl-integration.md)
 
 2. **Search Issues:**
    - GitHub Issues: https://github.com/seanchatmangpt/qlever/issues

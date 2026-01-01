@@ -155,8 +155,8 @@ addLinkAndDiscoverTestNoLibs(ConcurrentCacheTest)
 
 addLinkAndDiscoverTestNoLibs(SingleFlightTest)
 
-# This test also seems to use the same filenames and should be fixed.
-addLinkAndDiscoverTestSerial(FileTest)
+# FileTest now uses unique filenames per test case, can run in parallel
+addLinkAndDiscoverTest(FileTest)
 
 addLinkAndDiscoverTest(Simple8bTest)
 
@@ -164,16 +164,14 @@ addLinkAndDiscoverTest(WordsAndDocsFileParserTest parser)
 
 addLinkAndDiscoverTest(IndexMetaDataTest index)
 
-# We currently always use static file names for all indices, which
-# makes it impossible to run the test cases for the Index class in parallel.
-# TODO<qup42, joka921> fix this
-addLinkAndDiscoverTestSerial(IndexTest index)
+# IndexTest now uses thread-safe contextMap, can run in parallel
+addLinkAndDiscoverTest(IndexTest index)
 
 addLinkAndDiscoverTest(LocatedTriplesTest index)
 
-addLinkAndDiscoverTestSerial(IdTripleTest index)
+addLinkAndDiscoverTest(IdTripleTest index)
 
-addLinkAndDiscoverTestSerial(DeltaTriplesTest index)
+addLinkAndDiscoverTest(DeltaTriplesTest index)
 
 addLinkAndDiscoverTest(DeltaTriplesCountTest index)
 
@@ -183,15 +181,16 @@ addLinkAndDiscoverTest(JoinTest engine)
 
 addLinkAndDiscoverTest(TextLimitOperationTest engine)
 
-addLinkAndDiscoverTestSerial(QueryPlannerTest engine)
+addLinkAndDiscoverTest(QueryPlannerTest engine)
 
-addLinkAndDiscoverTestSerial(QueryPlannerSpatialJoinTest engine)
+addLinkAndDiscoverTest(QueryPlannerSpatialJoinTest engine)
 
 addLinkAndDiscoverTestNoLibs(HashMapTest)
 
 addLinkAndDiscoverTest(HashSetTest)
 
-addLinkAndDiscoverTestSerial(GroupByTest engine)
+# GroupByTest now uses unique filenames, can run in parallel
+addLinkAndDiscoverTest(GroupByTest engine)
 
 addLinkAndDiscoverTest(VocabularyGeneratorTest index)
 
@@ -199,8 +198,8 @@ addLinkAndDiscoverTest(HasPredicateScanTest engine)
 
 addLinkAndDiscoverTest(MmapVectorTest)
 
-# BufferedVectorTest also uses conflicting filenames.
-addLinkAndDiscoverTestSerial(BufferedVectorTest)
+# BufferedVectorTest now uses unique filenames per test case, can run in parallel
+addLinkAndDiscoverTest(BufferedVectorTest)
 
 addLinkAndDiscoverTest(UnionTest engine)
 
@@ -212,11 +211,14 @@ else ()
     linkAndDiscoverTest(TokenTest parser re2 util)
 endif ()
 
-addLinkAndDiscoverTestSerial(RdfParserTest parser re2)
+# RdfParserTest now uses unique filenames, can run in parallel
+addLinkAndDiscoverTest(RdfParserTest parser re2)
 
-addLinkAndDiscoverTestSerial(N3IntegrationTest parser index engine)
+# N3IntegrationTest now uses unique basenames per test instance, can run in parallel
+addLinkAndDiscoverTest(N3IntegrationTest parser index engine)
 
-addLinkAndDiscoverTestSerial(N3ValidationTest parser re2)
+# N3ValidationTest has no file conflicts, can run in parallel
+addLinkAndDiscoverTest(N3ValidationTest parser re2)
 
 addLinkAndDiscoverTest(MultiColumnJoinTest engine)
 
@@ -246,10 +248,7 @@ addLinkAndDiscoverTest(MinusTest engine)
 addAndLinkTest(SortPerformanceEstimatorTest SortPerformanceEstimator)
 #addLinkAndDiscoverTest(SortPerformanceEstimatorTest SortPerformanceEstimator)
 
-# The SerializerTest uses temporary files. The tests fail when multiple test
-# cases are run in parallel. This should be fixed by using distinct filenames
-# for each test case.
-# TODO<qup42, joka921> fix this
+# SerializerTest now uses unique filenames per test case, can run in parallel
 addLinkAndDiscoverTestNoLibs(SerializerTest)
 
 addLinkAndDiscoverTestNoLibs(ParametersTest)
@@ -262,7 +261,7 @@ addLinkAndDiscoverTest(SetOfIntervalsTest sparqlExpressions)
 
 addLinkAndDiscoverTestNoLibs(TypeTraitsTest)
 
-addLinkAndDiscoverTestSerial(SparqlExpressionTest sparqlExpressions index engine)
+addLinkAndDiscoverTest(SparqlExpressionTest sparqlExpressions index engine)
 
 addLinkAndDiscoverTest(StreamableBodyTest http)
 
@@ -305,7 +304,7 @@ addLinkAndDiscoverTest(GeoSparqlHelpersTest util)
 
 addLinkAndDiscoverTest(HttpUtilsTest util http)
 
-addLinkAndDiscoverTestSerial(DateYearDurationTest util parser)
+addLinkAndDiscoverTest(DateYearDurationTest util parser)
 
 addLinkAndDiscoverTest(DurationTest util)
 
@@ -321,21 +320,21 @@ addLinkAndDiscoverTest(TransparentFunctorsTest)
 
 addLinkAndDiscoverTest(SelectClauseTest parser engine)
 
-addLinkAndDiscoverTestSerial(RelationalExpressionTest parser sparqlExpressions index engine)
+addLinkAndDiscoverTest(RelationalExpressionTest parser sparqlExpressions index engine)
 
 addLinkAndDiscoverTest(CheckUsePatternTrickTest parser engine)
 
-addLinkAndDiscoverTestSerial(RegexExpressionTest parser sparqlExpressions index engine parser)
+addLinkAndDiscoverTest(RegexExpressionTest parser sparqlExpressions index engine parser)
 
-addLinkAndDiscoverTestSerial(LocalVocabTest engine)
+addLinkAndDiscoverTest(LocalVocabTest engine)
 
-addLinkAndDiscoverTestSerial(ValuesTest engine)
+addLinkAndDiscoverTest(ValuesTest engine)
 
-addLinkAndDiscoverTestSerial(ServiceTest engine)
+addLinkAndDiscoverTest(ServiceTest engine)
 
-addLinkAndDiscoverTestSerial(LoadTest engine)
+addLinkAndDiscoverTest(LoadTest engine)
 
-addLinkAndDiscoverTestSerial(HttpTest Boost::iostreams http)
+addLinkAndDiscoverTest(HttpTest Boost::iostreams http)
 
 addLinkAndDiscoverTestNoLibs(CallFixedSizeTest)
 
@@ -347,31 +346,31 @@ addLinkAndDiscoverTest(TimerTest)
 
 addLinkAndDiscoverTest(AlgorithmTest)
 
-addLinkAndDiscoverTestSerial(CompressedRelationsTest index)
+addLinkAndDiscoverTest(CompressedRelationsTest index)
 
-addLinkAndDiscoverTestSerial(PrefilterExpressionIndexTest engine)
+addLinkAndDiscoverTest(PrefilterExpressionIndexTest engine)
 
-addLinkAndDiscoverTestSerial(GetPrefilterExpressionFromSparqlExpressionTest sparqlExpressions index)
+addLinkAndDiscoverTest(GetPrefilterExpressionFromSparqlExpressionTest sparqlExpressions index)
 
 addLinkAndDiscoverTest(ExceptionTest)
 
-addLinkAndDiscoverTestSerial(RandomExpressionTest index)
+addLinkAndDiscoverTest(RandomExpressionTest index)
 
-addLinkAndDiscoverTestSerial(NowDatetimeExpressionTest index)
+addLinkAndDiscoverTest(NowDatetimeExpressionTest index)
 
-addLinkAndDiscoverTestSerial(LanguageExpressionsTest index)
+addLinkAndDiscoverTest(LanguageExpressionsTest index)
 
-addLinkAndDiscoverTestSerial(SortTest engine)
+addLinkAndDiscoverTest(SortTest engine)
 
-addLinkAndDiscoverTestSerial(OrderByTest engine)
+addLinkAndDiscoverTest(OrderByTest engine)
 
-addLinkAndDiscoverTestSerial(ValuesForTestingTest index)
+addLinkAndDiscoverTest(ValuesForTestingTest index)
 
-addLinkAndDiscoverTestSerial(ExportQueryExecutionTreesTest index engine parser)
+addLinkAndDiscoverTest(ExportQueryExecutionTreesTest index engine parser)
 
-addLinkAndDiscoverTestSerial(ConstructStressTest index engine parser)
+addLinkAndDiscoverTest(ConstructStressTest index engine parser)
 
-addLinkAndDiscoverTestSerial(AggregateExpressionTest parser sparqlExpressions index engine)
+addLinkAndDiscoverTest(AggregateExpressionTest parser sparqlExpressions index engine)
 
 addLinkAndDiscoverTest(OnDestructionDontThrowDuringStackUnwindingTest)
 
@@ -497,9 +496,9 @@ addLinkAndDiscoverTest(TripleSerializerTest)
 
 addLinkAndDiscoverTest(GeometryInfoTest util)
 
-addLinkAndDiscoverTestSerial(QueryRewriteUtilTest engine)
+addLinkAndDiscoverTest(QueryRewriteUtilTest engine)
 
-addLinkAndDiscoverTestSerial(HttpErrorTest engine)
+addLinkAndDiscoverTest(HttpErrorTest engine)
 
 # SHACL tests are registered in test/engine/shacl/CMakeLists.txt
 
