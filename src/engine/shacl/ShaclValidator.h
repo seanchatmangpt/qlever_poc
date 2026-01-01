@@ -6,6 +6,9 @@
 #include "ShaclShape.h"
 #include "ShaclShapeRegistry.h"
 #include "ShaclConstraintEvaluator.h"
+#include "ShaclValidationCache.h"
+#include "ShaclViolation.h"
+#include "ViolationFormatter.h"
 #include <memory>
 #include <vector>
 
@@ -14,6 +17,12 @@ namespace shacl {
 // SHACL Validator operation - validates RDF resources against SHACL shapes
 // This operation takes a subtree producing resources to validate and checks
 // them against registered SHACL shapes.
+//
+// Performance features:
+// - LRU caching for validation results
+// - Parallel validation using thread pools
+// - Bloom filters for quick negative lookups
+// - Compiled shapes for optimized constraint checking
 class ShaclValidator : public Operation {
  private:
   // The operation producing the resources to validate
@@ -31,20 +40,35 @@ class ShaclValidator : public Operation {
   // Property column mapping (property IRI -> column index)
   std::unordered_map<std::string, ColumnIndex> _propertyColumns;
 
+  // Validation cache for performance optimization
+  std::shared_ptr<ShaclValidationCache> _cache;
+
+  // Enable parallel validation
+  bool _enableParallelValidation;
+
+  // Number of threads for parallel validation (0 = auto-detect)
+  size_t _parallelThreads;
+
  public:
   // Constructor: validate resources in subtree against shapes
   ShaclValidator(QueryExecutionContext* qec,
                  std::shared_ptr<QueryExecutionTree> subtree,
                  const ShaclShapeRegistry* shapeRegistry,
                  ColumnIndex resourceColumnIndex = 0,
-                 std::optional<std::string> targetShapeId = std::nullopt);
+                 std::optional<std::string> targetShapeId = std::nullopt,
+                 std::shared_ptr<ShaclValidationCache> cache = nullptr,
+                 bool enableParallelValidation = true,
+                 size_t parallelThreads = 0);
 
   // Constructor with property column mapping for property shape validation
   ShaclValidator(
       QueryExecutionContext* qec,
       std::shared_ptr<QueryExecutionTree> subtree,
       const ShaclShapeRegistry* shapeRegistry, ColumnIndex resourceColumnIndex,
-      std::unordered_map<std::string, ColumnIndex> propertyColumns);
+      std::unordered_map<std::string, ColumnIndex> propertyColumns,
+      std::shared_ptr<ShaclValidationCache> cache = nullptr,
+      bool enableParallelValidation = true,
+      size_t parallelThreads = 0);
 
  private:
   std::string getCacheKeyImpl() const override;
@@ -83,10 +107,22 @@ class ShaclValidator : public Operation {
 
   Result computeResult(bool requestLaziness) override;
 
-  // Validate a resource against applicable shapes
+  // Validate a resource against applicable shapes (with caching)
   ValidationResult validateResource(const std::string& resourceId,
                                     const IdTable& inputTable,
                                     size_t rowIndex);
+
+  // Validate a resource against a specific shape (cacheable)
+  ValidationResult validateResourceWithShape(const std::string& resourceId,
+                                             const NodeShape* shape,
+                                             const IdTable& inputTable,
+                                             size_t rowIndex);
+
+  // Compute validation for a shape (without caching lookup)
+  ValidationResult computeValidationForShape(const std::string& resourceId,
+                                             const NodeShape* shape,
+                                             const IdTable& inputTable,
+                                             size_t rowIndex);
 
   // Validate a single property value against property shape constraints
   bool validatePropertyValue(const PropertyShape& propShape,
@@ -95,6 +131,35 @@ class ShaclValidator : public Operation {
   // Get applicable shapes for a resource
   std::vector<const NodeShape*> getApplicableShapes(
       const std::string& resourceId);
+
+  // Validate multiple resources in parallel
+  std::vector<ValidationResult> validateResourcesParallel(
+      const std::vector<std::string>& resourceIds,
+      const IdTable& inputTable,
+      const std::vector<size_t>& rowIndices);
+
+  // Get cache statistics
+  std::string getCacheStatistics() const;
+
+  // Clear validation cache
+  void clearCache();
+
+  // Get or create default cache
+  std::shared_ptr<ShaclValidationCache> getCache();
+
+  // Detailed violation reporting methods
+  // Validate a resource and collect detailed violations
+  DetailedValidationReport validateResourceDetailed(
+      const std::string& resourceId, const IdTable& inputTable,
+      size_t rowIndex);
+
+  // Validate all resources and generate a detailed report
+  DetailedValidationReport validateAllResourcesDetailed(
+      const IdTable& inputTable);
+
+  // Get formatted validation report
+  std::string getValidationReport(const DetailedValidationReport& report,
+                                  ViolationFormat format = ViolationFormat::Text);
 };
 
 }  // namespace shacl

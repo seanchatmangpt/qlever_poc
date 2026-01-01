@@ -479,6 +479,21 @@ addLinkAndDiscoverTestSerial(QueryRewriteUtilTest engine)
 
 addLinkAndDiscoverTestSerial(HttpErrorTest engine)
 
+# SHACL tests
+addLinkAndDiscoverTest(engine/shacl/ShaclConstraintEvaluatorTest engine)
+
+addLinkAndDiscoverTest(engine/shacl/ShaclShapeParserTest engine)
+
+addLinkAndDiscoverTest(engine/shacl/ShaclShapeRegistryTest engine)
+
+addLinkAndDiscoverTest(engine/shacl/LogicalShapesTest engine)
+
+addLinkAndDiscoverTest(engine/shacl/AdvancedConstraintsTest engine)
+
+addLinkAndDiscoverTest(engine/shacl/ComplexPropertyPathsTest engine)
+
+addLinkAndDiscoverTest(engine/shacl/PathResolverTest engine)
+
 addLinkAndDiscoverTest(TimeTracerTest)
 
 addLinkAndDiscoverTestNoLibs(SourceLocationTest)

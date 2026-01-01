@@ -8,7 +8,24 @@
 #include <unordered_map>
 #include <variant>
 
+#include "engine/shacl/ComplexPropertyPaths.h"
+
 namespace shacl {
+
+// Forward declarations for advanced constraints
+struct UniqueConstraintValue;
+struct DisjointWithConstraintValue;
+struct ClosedConstraintValue;
+struct HasValueConstraintValue;
+struct MinExclusiveConstraintValue;
+struct MaxExclusiveConstraintValue;
+
+// Forward declarations for logical shapes
+class LogicalShapeConstraint;
+class AndConstraint;
+class OrConstraint;
+class NotConstraint;
+class XoneConstraint;
 
 // Core SHACL constraint types (80/20: most common constraints)
 enum class ConstraintType {
@@ -31,7 +48,17 @@ enum class ConstraintType {
   // Advanced (not in 80/20)
   Unique,
   DisjointWith,
-  ClosedShape
+  ClosedShape,
+  HasValue,
+  MinExclusive,
+  MaxExclusive,
+
+  // Recursive shape constraints
+  Node,       // sh:node - validates a node with another shape
+  Shape,      // sh:shape - recursive reference to another shape
+
+  // SPARQL-based constraint
+  Sparql      // sh:sparql - custom SPARQL constraint query
 };
 
 // Constraint severity levels
@@ -59,10 +86,17 @@ struct ShaclConstraint {
 
   // Constraint values (variant for different constraint types)
   std::variant<
-      int,                    // MinCount, MaxCount, MinLength, MaxLength
-      std::string,            // Datatype, Pattern
-      NodeKind,               // NodeKind
-      std::vector<std::string> // In (allowed values)
+      int,                           // MinCount, MaxCount, MinLength, MaxLength
+      double,                        // MinExclusive, MaxExclusive (numeric)
+      std::string,                   // Datatype, Pattern, HasValue
+      NodeKind,                      // NodeKind
+      std::vector<std::string>,      // In (allowed values)
+      UniqueConstraintValue,         // sh:unique
+      DisjointWithConstraintValue,   // sh:disjointWith
+      ClosedConstraintValue,         // sh:closed
+      HasValueConstraintValue,       // sh:hasValue
+      MinExclusiveConstraintValue,   // sh:minExclusive
+      MaxExclusiveConstraintValue    // sh:maxExclusive
   > value;
 
   ShaclConstraint() = default;
@@ -71,12 +105,34 @@ struct ShaclConstraint {
 
 // Represents a property shape (constraints on a property)
 struct PropertyShape {
-  std::string path;  // Property IRI (sh:path)
+  // Property path - can be simple IRI or complex path expression
+  // For backward compatibility, we store both representations
+  std::string path;  // Simple property IRI (deprecated, use propertyPath)
+  PropertyPath propertyPath;  // Complex property path (sh:path)
+
   std::vector<ShaclConstraint> constraints;
   bool required = false;  // sh:minCount >= 1
 
   PropertyShape() = default;
-  explicit PropertyShape(const std::string& p) : path(p) {}
+
+  // Constructor for simple path (backward compatibility)
+  explicit PropertyShape(const std::string& p)
+      : path(p), propertyPath(PropertyPath::simple(p)) {}
+
+  // Constructor for complex path
+  explicit PropertyShape(PropertyPath p)
+      : propertyPath(std::move(p)) {
+    // Set legacy path field if it's a simple path
+    if (propertyPath.isSimple()) {
+      path = propertyPath.getSimpleIri();
+    }
+  }
+
+  // Check if this property shape uses a complex path
+  bool hasComplexPath() const { return !propertyPath.isSimple(); }
+
+  // Get the property path (prefer this over direct path access)
+  const PropertyPath& getPropertyPath() const { return propertyPath; }
 };
 
 // Represents a node shape (constraints on a node/resource)
@@ -88,6 +144,12 @@ class NodeShape {
   std::vector<PropertyShape> propertyShapes;        // sh:property
   std::vector<ShaclConstraint> nodeConstraints;     // Node-level constraints
   bool closed = false;                              // sh:closed
+
+  // Logical shape constraints (sh:and, sh:or, sh:not, sh:xone)
+  std::shared_ptr<AndConstraint> andConstraint;
+  std::shared_ptr<OrConstraint> orConstraint;
+  std::shared_ptr<NotConstraint> notConstraint;
+  std::shared_ptr<XoneConstraint> xoneConstraint;
 
   // Getters
   bool hasTargets() const {
@@ -118,6 +180,32 @@ class NodeShape {
   NodeShape& addConstraint(const ShaclConstraint& constraint) {
     nodeConstraints.push_back(constraint);
     return *this;
+  }
+
+  // Logical constraint setters
+  NodeShape& setAndConstraint(std::shared_ptr<AndConstraint> constraint) {
+    andConstraint = std::move(constraint);
+    return *this;
+  }
+
+  NodeShape& setOrConstraint(std::shared_ptr<OrConstraint> constraint) {
+    orConstraint = std::move(constraint);
+    return *this;
+  }
+
+  NodeShape& setNotConstraint(std::shared_ptr<NotConstraint> constraint) {
+    notConstraint = std::move(constraint);
+    return *this;
+  }
+
+  NodeShape& setXoneConstraint(std::shared_ptr<XoneConstraint> constraint) {
+    xoneConstraint = std::move(constraint);
+    return *this;
+  }
+
+  // Check if shape has any logical constraints
+  bool hasLogicalConstraints() const {
+    return andConstraint || orConstraint || notConstraint || xoneConstraint;
   }
 };
 
