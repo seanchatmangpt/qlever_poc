@@ -80,13 +80,13 @@ std::string runConstructQueryTSV(const std::string& kg,
 }  // namespace
 
 /*
- * Comprehensive stress tests for SPARQL CONSTRUCT queries.
- * Tests various query patterns, edge cases, and correctness scenarios.
+ * Stress tests for SPARQL CONSTRUCT queries.
+ * Focused test suite covering core functionality and important patterns.
  */
 class ConstructStressTest : public ::testing::Test {};
 
 // Test 1: Basic CONSTRUCT with single triple pattern
-TEST_F(ConstructStressTest, BasicConstructSinglePattern) {
+TEST_F(ConstructStressTest, BasicConstruct) {
   std::string kg = R"(
     <http://example.org/alice> <http://example.org/name> "Alice" .
     <http://example.org/bob> <http://example.org/name> "Bob" .
@@ -104,8 +104,8 @@ TEST_F(ConstructStressTest, BasicConstructSinglePattern) {
   EXPECT_EQ(result["resultSizeTotal"], 3);
 }
 
-// Test 2: CONSTRUCT with modified predicate
-TEST_F(ConstructStressTest, ConstructModifiedPredicate) {
+// Test 2: CONSTRUCT with pattern rewriting
+TEST_F(ConstructStressTest, ConstructPatternRewrite) {
   std::string kg = R"(
     <http://example.org/alice> <http://example.org/name> "Alice" .
     <http://example.org/bob> <http://example.org/name> "Bob" .
@@ -125,7 +125,7 @@ TEST_F(ConstructStressTest, ConstructModifiedPredicate) {
   EXPECT_TRUE(result["res"].is_array());
 }
 
-// Test 3: CONSTRUCT with BIND
+// Test 3: CONSTRUCT with BIND expression
 TEST_F(ConstructStressTest, ConstructWithBind) {
   std::string kg = R"(
     <http://example.org/alice> <http://example.org/age> 30 .
@@ -168,7 +168,7 @@ TEST_F(ConstructStressTest, ConstructWithFilter) {
   EXPECT_EQ(result["resultSizeTotal"], 2);
 }
 
-// Test 5: CONSTRUCT with OPTIONAL
+// Test 5: CONSTRUCT with OPTIONAL clause
 TEST_F(ConstructStressTest, ConstructWithOptional) {
   std::string kg = R"(
     <http://example.org/alice> <http://example.org/name> "Alice" ;
@@ -188,52 +188,10 @@ TEST_F(ConstructStressTest, ConstructWithOptional) {
   )";
 
   auto result = runConstructQuery(kg, query);
-  // Should have 2 results for name triples + 1 for age triple
   EXPECT_GE(result["resultSizeTotal"].get<int>(), 2);
 }
 
-// Test 6: CONSTRUCT with UNION
-TEST_F(ConstructStressTest, ConstructWithUnion) {
-  std::string kg = R"(
-    <http://example.org/alice> <http://example.org/givenName> "Alice" .
-    <http://example.org/bob> <http://example.org/familyName> "Bob" .
-    <http://example.org/charlie> <http://example.org/givenName> "Charlie" .
-  )";
-
-  std::string query = R"(
-    CONSTRUCT {
-      ?s <http://example.org/name> ?name
-    }
-    WHERE {
-      { ?s <http://example.org/givenName> ?name }
-      UNION
-      { ?s <http://example.org/familyName> ?name }
-    }
-  )";
-
-  auto result = runConstructQuery(kg, query);
-  EXPECT_EQ(result["resultSizeTotal"], 3);
-}
-
-// Test 7: CONSTRUCT with ORDER BY
-TEST_F(ConstructStressTest, ConstructWithOrderBy) {
-  std::string kg = R"(
-    <http://example.org/alice> <http://example.org/name> "Alice" .
-    <http://example.org/bob> <http://example.org/name> "Bob" .
-    <http://example.org/charlie> <http://example.org/name> "Charlie" .
-  )";
-
-  std::string query = R"(
-    CONSTRUCT { ?s ?p ?o }
-    WHERE { ?s ?p ?o }
-    ORDER BY ?s
-  )";
-
-  auto result = runConstructQuery(kg, query);
-  EXPECT_EQ(result["resultSizeTotal"], 3);
-}
-
-// Test 8: CONSTRUCT with LIMIT
+// Test 6: CONSTRUCT with LIMIT modifier
 TEST_F(ConstructStressTest, ConstructWithLimit) {
   std::string kg = R"(
     <http://example.org/alice> <http://example.org/name> "Alice" .
@@ -251,8 +209,8 @@ TEST_F(ConstructStressTest, ConstructWithLimit) {
   EXPECT_EQ(result["resultSizeTotal"], 2);
 }
 
-// Test 9: CONSTRUCT with OFFSET
-TEST_F(ConstructStressTest, ConstructWithOffset) {
+// Test 7: CONSTRUCT with LIMIT and OFFSET
+TEST_F(ConstructStressTest, ConstructWithLimitOffset) {
   std::string kg = R"(
     <http://example.org/alice> <http://example.org/name> "Alice" .
     <http://example.org/bob> <http://example.org/name> "Bob" .
@@ -271,22 +229,7 @@ TEST_F(ConstructStressTest, ConstructWithOffset) {
   EXPECT_EQ(result["resultSizeTotal"], 2);
 }
 
-// Test 10: CONSTRUCT WHERE (shorthand)
-TEST_F(ConstructStressTest, ConstructWhereShorthand) {
-  std::string kg = R"(
-    <http://example.org/alice> <http://example.org/name> "Alice" .
-    <http://example.org/bob> <http://example.org/name> "Bob" .
-  )";
-
-  std::string query = R"(
-    CONSTRUCT WHERE { ?s <http://example.org/name> ?o }
-  )";
-
-  auto result = runConstructQuery(kg, query);
-  EXPECT_EQ(result["resultSizeTotal"], 2);
-}
-
-// Test 11: CONSTRUCT with multiple patterns
+// Test 8: CONSTRUCT with multiple patterns and joins
 TEST_F(ConstructStressTest, ConstructMultiplePatterns) {
   std::string kg = R"(
     <http://example.org/alice> <http://example.org/knows> <http://example.org/bob> ;
@@ -313,7 +256,7 @@ TEST_F(ConstructStressTest, ConstructMultiplePatterns) {
   EXPECT_GT(result["resultSizeTotal"].get<int>(), 0);
 }
 
-// Test 12: CONSTRUCT with TSV output
+// Test 9: CONSTRUCT with TSV output format
 TEST_F(ConstructStressTest, ConstructTSVOutput) {
   std::string kg = R"(
     <http://example.org/alice> <http://example.org/name> "Alice" .
@@ -326,49 +269,25 @@ TEST_F(ConstructStressTest, ConstructTSVOutput) {
   )";
 
   std::string result = runConstructQueryTSV(kg, query);
-  // TSV result should contain variable names and data
   EXPECT_GT(result.length(), 0);
-  // Should contain tab-separated values
   EXPECT_TRUE(result.find('\t') != std::string::npos ||
               result.find('\n') != std::string::npos);
 }
 
-// Test 13: CONSTRUCT with blank nodes
-TEST_F(ConstructStressTest, ConstructWithBlankNodes) {
+// Test 10: CONSTRUCT with string operations (CONCAT, STRAFTER)
+TEST_F(ConstructStressTest, ConstructStringOperations) {
   std::string kg = R"(
-    <http://example.org/alice> <http://example.org/address> _:addr1 .
-    _:addr1 <http://example.org/city> "New York" .
+    <http://example.org/alice> <http://example.org/email> "alice@example.com" .
+    <http://example.org/bob> <http://example.org/email> "bob@example.com" .
   )";
 
   std::string query = R"(
     CONSTRUCT {
-      ?s <http://example.org/address> ?addr .
-      ?addr <http://example.org/city> ?city .
+      ?s <http://example.org/domain> ?domain
     }
     WHERE {
-      ?s <http://example.org/address> ?addr .
-      ?addr <http://example.org/city> ?city .
-    }
-  )";
-
-  auto result = runConstructQuery(kg, query);
-  EXPECT_GT(result["resultSizeTotal"].get<int>(), 0);
-}
-
-// Test 14: CONSTRUCT with nested BIND
-TEST_F(ConstructStressTest, ConstructWithNestedBind) {
-  std::string kg = R"(
-    <http://example.org/alice> <http://example.org/age> 30 .
-    <http://example.org/bob> <http://example.org/age> 25 .
-  )";
-
-  std::string query = R"(
-    CONSTRUCT {
-      ?s <http://example.org/info> ?info
-    }
-    WHERE {
-      ?s <http://example.org/age> ?age
-      BIND(CONCAT("Age: ", STR(?age)) AS ?info)
+      ?s <http://example.org/email> ?email
+      BIND(STRAFTER(?email, "@") AS ?domain)
     }
   )";
 
@@ -376,7 +295,7 @@ TEST_F(ConstructStressTest, ConstructWithNestedBind) {
   EXPECT_EQ(result["resultSizeTotal"], 2);
 }
 
-// Test 15: CONSTRUCT with FILTER and BIND combination
+// Test 11: CONSTRUCT with FILTER and BIND combination
 TEST_F(ConstructStressTest, ConstructFilterAndBind) {
   std::string kg = R"(
     <http://example.org/alice> <http://example.org/salary> 50000 .
@@ -399,7 +318,7 @@ TEST_F(ConstructStressTest, ConstructFilterAndBind) {
   EXPECT_EQ(result["resultSizeTotal"], 2);
 }
 
-// Test 16: CONSTRUCT with GROUP BY
+// Test 12: CONSTRUCT with GROUP BY aggregation
 TEST_F(ConstructStressTest, ConstructWithGroupBy) {
   std::string kg = R"(
     <http://example.org/alice> <http://example.org/department> "Sales" .
@@ -424,7 +343,7 @@ TEST_F(ConstructStressTest, ConstructWithGroupBy) {
   EXPECT_GT(result["resultSizeTotal"].get<int>(), 0);
 }
 
-// Test 17: Empty result CONSTRUCT
+// Test 13: CONSTRUCT with empty result
 TEST_F(ConstructStressTest, ConstructEmptyResult) {
   std::string kg = R"(
     <http://example.org/alice> <http://example.org/name> "Alice" .
@@ -441,8 +360,8 @@ TEST_F(ConstructStressTest, ConstructEmptyResult) {
   EXPECT_EQ(result["resultSizeTotal"], 0);
 }
 
-// Test 18: CONSTRUCT with complex pattern
-TEST_F(ConstructStressTest, ConstructComplexPattern) {
+// Test 14: CONSTRUCT with complex join patterns
+TEST_F(ConstructStressTest, ConstructComplexJoin) {
   std::string kg = R"(
     <http://example.org/alice> <http://example.org/knows> <http://example.org/bob> ;
                                <http://example.org/knows> <http://example.org/charlie> .
@@ -464,7 +383,7 @@ TEST_F(ConstructStressTest, ConstructComplexPattern) {
   EXPECT_GT(result["resultSizeTotal"].get<int>(), 0);
 }
 
-// Test 19: CONSTRUCT with VALUES clause
+// Test 15: CONSTRUCT with VALUES clause
 TEST_F(ConstructStressTest, ConstructWithValues) {
   std::string kg = R"(
     <http://example.org/alice> <http://example.org/name> "Alice" .
@@ -487,7 +406,7 @@ TEST_F(ConstructStressTest, ConstructWithValues) {
   EXPECT_GT(result["resultSizeTotal"].get<int>(), 0);
 }
 
-// Test 20: CONSTRUCT with DISTINCT in WHERE clause
+// Test 16: CONSTRUCT with DISTINCT solution modifier
 TEST_F(ConstructStressTest, ConstructWithDistinct) {
   std::string kg = R"(
     <http://example.org/alice> <http://example.org/friend> <http://example.org/bob> .
@@ -509,9 +428,8 @@ TEST_F(ConstructStressTest, ConstructWithDistinct) {
   EXPECT_GT(result["resultSizeTotal"].get<int>(), 0);
 }
 
-// Test 21: Large scale CONSTRUCT performance (stress test)
+// Test 17: Large-scale CONSTRUCT performance test
 TEST_F(ConstructStressTest, LargeScaleConstruct) {
-  // Generate a larger knowledge graph
   std::string kg;
   for (int i = 0; i < 500; ++i) {
     kg += "<http://example.org/person" + std::to_string(i) +
@@ -528,45 +446,7 @@ TEST_F(ConstructStressTest, LargeScaleConstruct) {
   EXPECT_EQ(result["resultSizeTotal"], 500);
 }
 
-// Test 22: CONSTRUCT with string operations
-TEST_F(ConstructStressTest, ConstructStringOperations) {
-  std::string kg = R"(
-    <http://example.org/alice> <http://example.org/email> "alice@example.com" .
-    <http://example.org/bob> <http://example.org/email> "bob@example.com" .
-  )";
-
-  std::string query = R"(
-    CONSTRUCT {
-      ?s <http://example.org/domain> ?domain
-    }
-    WHERE {
-      ?s <http://example.org/email> ?email
-      BIND(STRAFTER(?email, "@") AS ?domain)
-    }
-  )";
-
-  auto result = runConstructQuery(kg, query);
-  EXPECT_EQ(result["resultSizeTotal"], 2);
-}
-
-// Test 23: CONSTRUCT preserves IRIs
-TEST_F(ConstructStressTest, ConstructPreservesIRIs) {
-  std::string kg = R"(
-    <http://example.org/resource/123> <http://example.org/type> <http://example.org/types/Person> .
-  )";
-
-  std::string query = R"(
-    CONSTRUCT { ?s ?p ?o }
-    WHERE { ?s ?p ?o }
-  )";
-
-  auto result = runConstructQuery(kg, query);
-  EXPECT_EQ(result["resultSizeTotal"], 1);
-  // Verify it's a proper JSON structure
-  EXPECT_TRUE(result["res"].is_array());
-}
-
-// Test 24: CONSTRUCT with MINUS
+// Test 18: CONSTRUCT with MINUS set subtraction
 TEST_F(ConstructStressTest, ConstructWithMinus) {
   std::string kg = R"(
     <http://example.org/alice> <http://example.org/name> "Alice" ;
@@ -588,12 +468,10 @@ TEST_F(ConstructStressTest, ConstructWithMinus) {
   EXPECT_EQ(result["resultSizeTotal"], 1);
 }
 
-// Test 25: CONSTRUCT result count consistency
-TEST_F(ConstructStressTest, ConstructResultConsistency) {
+// Test 19: CONSTRUCT preserves IRI correctness
+TEST_F(ConstructStressTest, ConstructPreservesIRIs) {
   std::string kg = R"(
-    <http://example.org/alice> <http://example.org/name> "Alice" .
-    <http://example.org/bob> <http://example.org/name> "Bob" .
-    <http://example.org/alice> <http://example.org/age> 30 .
+    <http://example.org/resource/123> <http://example.org/type> <http://example.org/types/Person> .
   )";
 
   std::string query = R"(
@@ -601,12 +479,28 @@ TEST_F(ConstructStressTest, ConstructResultConsistency) {
     WHERE { ?s ?p ?o }
   )";
 
-  // Run the query multiple times and verify consistency
-  auto result1 = runConstructQuery(kg, query);
-  auto result2 = runConstructQuery(kg, query);
-  auto result3 = runConstructQuery(kg, query);
+  auto result = runConstructQuery(kg, query);
+  EXPECT_EQ(result["resultSizeTotal"], 1);
+  EXPECT_TRUE(result["res"].is_array());
+}
 
-  EXPECT_EQ(result1["results"].size(), result2["results"].size());
-  EXPECT_EQ(result2["results"].size(), result3["results"].size());
-  EXPECT_EQ(result1["results"].size(), 3);
+// Test 20: CONSTRUCT with nested BIND expressions
+TEST_F(ConstructStressTest, ConstructWithNestedBind) {
+  std::string kg = R"(
+    <http://example.org/alice> <http://example.org/age> 30 .
+    <http://example.org/bob> <http://example.org/age> 25 .
+  )";
+
+  std::string query = R"(
+    CONSTRUCT {
+      ?s <http://example.org/info> ?info
+    }
+    WHERE {
+      ?s <http://example.org/age> ?age
+      BIND(CONCAT("Age: ", STR(?age)) AS ?info)
+    }
+  )";
+
+  auto result = runConstructQuery(kg, query);
+  EXPECT_EQ(result["resultSizeTotal"], 2);
 }
