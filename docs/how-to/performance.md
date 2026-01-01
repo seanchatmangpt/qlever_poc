@@ -238,7 +238,8 @@ SELECT ?person ?company WHERE {
 
 ## Next Steps
 
-- **Still slow?** Check [Troubleshooting Guide](../explanation/performance.md)
+- **Still slow?** Check [Troubleshooting Guide](../TROUBLESHOOTING.md)
+- **Understand performance limits** → [Performance Characteristics](../explanation/performance.md)
 - **Text search?** [How-to: Text Search](./text-search.md)
 - **Geographic data?** [How-to: Spatial Queries](./spatial-queries.md)
 
