@@ -1,0 +1,44 @@
+{
+  "bytes": {
+    "hits": 3,
+    "misses": 2,
+    "inserts": 1,
+    "evicts": 0,
+    "served_bytes": 7168
+  },
+  "plan": {
+    "hits": 2,
+    "misses": 1,
+    "inserts": 1,
+    "evicts": 0
+  },
+  "negative": {
+    "hits": 1,
+    "inserts": 1
+  },
+  "inflight_waiters": 0,
+  "epoch": {
+    "promote_count": 1,
+    "prewarm_duration_ms": 12345
+  },
+  "shape_latency": {
+    "abc123def456": {
+      "count": 3,
+      "avg_us": 2500,
+      "p50_us": 2500,
+      "p95_us": 3500,
+      "p99_us": 3500,
+      "min_us": 1500,
+      "max_us": 3500
+    },
+    "xyz789uvw012": {
+      "count": 1,
+      "avg_us": 5000,
+      "p50_us": 5000,
+      "p95_us": 5000,
+      "p99_us": 5000,
+      "min_us": 5000,
+      "max_us": 5000
+    }
+  }
+}

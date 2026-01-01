@@ -1,6 +1,7 @@
 add_subdirectory(idTable)
 add_subdirectory(shacl)
 add_subdirectory(queryCanonical)
+add_subdirectory(readCache)
 addLinkAndDiscoverTest(IndexScanTest engine)
 addLinkAndRunAsSingleTest(CartesianProductJoinTest engine)
 addLinkAndDiscoverTest(TextIndexScanForWordTest engine)

@@ -76,3 +76,8 @@ void QueryExecutionContext::signalQueryUpdate(
     updateCallback_(nlohmann::ordered_json(runtimeInformation).dump());
   }
 }
+
+// _____________________________________________________________________________
+readCache::EpochKey QueryExecutionContext::getCurrentEpochKey() const {
+  return readCache::EpochKey(getEpochDeterministicKey());
+}

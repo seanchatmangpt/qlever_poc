@@ -12,12 +12,12 @@
 #include <string>
 
 #include "backports/three_way_comparison.h"
-#include "util/MemoryAllocationOptimizer.h"
 #include "engine/QueryPlanningCostFactors.h"
 #include "engine/Result.h"
 #include "engine/RuntimeInformation.h"
 #include "engine/SortPerformanceEstimator.h"
 #include "engine/queryCanonical/QueryFingerprint.h"
+#include "engine/readCache/ReadCacheKeys.h"
 #include "global/Epoch.h"
 #include "global/EpochManifest.h"
 #include "global/Id.h"
@@ -25,6 +25,7 @@
 #include "index/Index.h"
 #include "util/Cache.h"
 #include "util/ConcurrentCache.h"
+#include "util/MemoryAllocationOptimizer.h"
 
 // The value of the `QueryResultCache` below. It consists of a `Result` together
 // with its `RuntimeInfo`.
@@ -136,6 +137,11 @@ class QueryExecutionContext {
     }
     return "";
   }
+
+  // Get EpochKey for read cache (EPIC 3)
+  // Returns cache key bound to current epoch manifest, preventing stale cache
+  // hits across different data versions
+  [[nodiscard]] readCache::EpochKey getCurrentEpochKey() const;
 
   const LocatedTriplesSnapshot& locatedTriplesSnapshot() const {
     AD_CORRECTNESS_CHECK(sharedLocatedTriplesSnapshot_ != nullptr);

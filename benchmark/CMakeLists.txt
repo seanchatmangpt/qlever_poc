@@ -51,3 +51,7 @@ addAndLinkBenchmark(EpochManifestBenchmark engine testUtil queryPlanner parser)
 # Query Shape Canonicalization benchmark - EPIC 2 performance verification
 add_executable(CanonicalBenchmark queryCanonical/CanonicalBenchmark.cpp)
 linkBenchmark(CanonicalBenchmark)
+
+# Read Cache benchmark - EPIC 3 performance verification (Task 10)
+add_executable(ReadCacheBench readCache/ReadCacheBench.cpp)
+linkBenchmark(ReadCacheBench)
