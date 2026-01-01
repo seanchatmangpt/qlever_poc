@@ -1,0 +1,14 @@
+{
+  "@context": {
+    "@vocab": "https://schema.org/",
+    "name": {"@type": "xsd:string"}
+  },
+  "@id": "https://example.com/person/1",
+  "@type": "Person",
+  "name": "John Doe",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "123 Main St",
+    "addressLocality": "Anytown"
+  }
+}

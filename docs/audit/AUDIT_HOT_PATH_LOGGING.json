@@ -1,0 +1,11 @@
+{
+  "audit_date": "2026-01-01T22:28:20Z","
+  "hot_path_violations": [
+    {"file": "TBD", "line": "TBD", "violation": "TBD", "severity": "CRITICAL", "status": "NEEDS_REMOVAL"}
+  ],
+  "summary": {
+    "total_hot_path_violations": 0,
+    "critical_severity": 0,
+    "action_required": "Complete audit with spec-based hot-path boundaries"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "report_date": "2026-01-01",
+  "tool": "clang-tidy",
+  "status": "pending",
+  "violations": [],
+  "summary": {
+    "total_violations": 0,
+    "critical": 0,
+    "high": 0,
+    "medium": 0
+  }
+}

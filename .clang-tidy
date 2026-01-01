@@ -1,0 +1,7 @@
+---
+Checks: '-*, -clang-diagnostic-*, readability-function-size, modernize-deprecated-headers'
+CheckOptions:
+  - key: readability-function-size.StatementThreshold
+    value: '300'
+WarningAsError: true
+HeaderFilterRegex: '.*'
