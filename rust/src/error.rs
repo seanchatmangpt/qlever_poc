@@ -25,4 +25,7 @@ pub enum Error {
 
     #[error("JSON error: {0}")]
     Json(#[from] serde_json::Error),
+
+    #[error("Invalid configuration: {0}")]
+    InvalidConfiguration(String),
 }

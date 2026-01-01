@@ -52,6 +52,10 @@ pub mod streaming;
 #[cfg(target_arch = "wasm32")]
 pub mod wasm;
 
+// Phase 1: FFI-based libqlever API (feature-gated)
+#[cfg(feature = "libqlever")]
+pub mod libqlever;
+
 pub use error::{Error, Result};
 pub use model::{BlankNode, Literal, NamedNode, Quad, Term, Triple};
 pub use query::QuerySolution;
@@ -62,3 +66,6 @@ pub use streaming::{ResultIterator, LazyQueryResult, ChunkedResultIterator};
 
 #[cfg(target_arch = "wasm32")]
 pub use wasm::WasmStore;
+
+#[cfg(feature = "libqlever")]
+pub use libqlever::{Qlever, EngineConfig, MediaType};

@@ -243,6 +243,328 @@ impl WasmStore {
     }
 }
 
+/// Advanced SPARQL 1.1 Query Builder for WASM
+///
+/// This builder provides a type-safe way to construct complex SPARQL queries
+/// with support for UNION, MINUS, property paths, aggregations, and more.
+#[wasm_bindgen]
+#[derive(Clone)]
+pub struct QueryBuilder {
+    query_type: String,  // SELECT, CONSTRUCT, etc.
+    distinct: bool,
+    select_vars: Vec<String>,
+    where_patterns: Vec<String>,
+    filter_conditions: Vec<String>,
+    order_by_clauses: Vec<String>,
+    limit: Option<usize>,
+    offset: Option<usize>,
+    union_queries: Vec<String>,
+    minus_queries: Vec<String>,
+    group_by_vars: Vec<String>,
+    having_clauses: Vec<String>,
+    aggregations: Vec<(String, String)>,  // (var, function)
+}
+
+#[wasm_bindgen]
+impl QueryBuilder {
+    /// Create a new SELECT query builder
+    #[wasm_bindgen(constructor)]
+    pub fn new() -> QueryBuilder {
+        QueryBuilder {
+            query_type: "SELECT".to_string(),
+            distinct: false,
+            select_vars: vec![],
+            where_patterns: vec![],
+            filter_conditions: vec![],
+            order_by_clauses: vec![],
+            limit: None,
+            offset: None,
+            union_queries: vec![],
+            minus_queries: vec![],
+            group_by_vars: vec![],
+            having_clauses: vec![],
+            aggregations: vec![],
+        }
+    }
+
+    /// Select specific variables
+    #[wasm_bindgen]
+    pub fn select(mut self, vars: &str) -> QueryBuilder {
+        self.select_vars = vars
+            .split_whitespace()
+            .map(|s| s.to_string())
+            .filter(|s| !s.is_empty())
+            .collect();
+        self
+    }
+
+    /// Enable DISTINCT in SELECT
+    #[wasm_bindgen]
+    pub fn distinct(mut self) -> QueryBuilder {
+        self.distinct = true;
+        self
+    }
+
+    /// Add WHERE clause pattern
+    #[wasm_bindgen]
+    pub fn where_clause(mut self, pattern: &str) -> QueryBuilder {
+        self.where_patterns.push(pattern.to_string());
+        self
+    }
+
+    /// Add FILTER condition
+    #[wasm_bindgen]
+    pub fn filter(mut self, condition: &str) -> QueryBuilder {
+        self.filter_conditions
+            .push(format!("FILTER ({})", condition));
+        self
+    }
+
+    /// Add FILTER EXISTS clause
+    #[wasm_bindgen]
+    pub fn filter_exists(mut self, pattern: &str) -> QueryBuilder {
+        self.filter_conditions
+            .push(format!("FILTER EXISTS {{ {} }}", pattern));
+        self
+    }
+
+    /// Add FILTER NOT EXISTS clause
+    #[wasm_bindgen]
+    pub fn filter_not_exists(mut self, pattern: &str) -> QueryBuilder {
+        self.filter_conditions
+            .push(format!("FILTER NOT EXISTS {{ {} }}", pattern));
+        self
+    }
+
+    /// Add ORDER BY clause
+    #[wasm_bindgen]
+    pub fn order_by(mut self, var: &str, ascending: bool) -> QueryBuilder {
+        let direction = if ascending { "ASC" } else { "DESC" };
+        self.order_by_clauses
+            .push(format!("{}({})", direction, var));
+        self
+    }
+
+    /// Set LIMIT
+    #[wasm_bindgen]
+    pub fn limit(mut self, count: usize) -> QueryBuilder {
+        self.limit = Some(count);
+        self
+    }
+
+    /// Set OFFSET
+    #[wasm_bindgen]
+    pub fn offset(mut self, count: usize) -> QueryBuilder {
+        self.offset = Some(count);
+        self
+    }
+
+    /// Add UNION query
+    #[wasm_bindgen]
+    pub fn union(mut self, other: &QueryBuilder) -> QueryBuilder {
+        self.union_queries.push(other.build());
+        self
+    }
+
+    /// Add MINUS query
+    #[wasm_bindgen]
+    pub fn minus(mut self, other: &QueryBuilder) -> QueryBuilder {
+        self.minus_queries.push(other.build());
+        self
+    }
+
+    /// Add GROUP BY variables
+    #[wasm_bindgen]
+    pub fn group_by(mut self, vars: &str) -> QueryBuilder {
+        self.group_by_vars = vars
+            .split_whitespace()
+            .map(|s| s.to_string())
+            .filter(|s| !s.is_empty())
+            .collect();
+        self
+    }
+
+    /// Add HAVING clause
+    #[wasm_bindgen]
+    pub fn having(mut self, condition: &str) -> QueryBuilder {
+        self.having_clauses.push(condition.to_string());
+        self
+    }
+
+    /// Add aggregation function (COUNT, SUM, AVG, MIN, MAX, etc.)
+    #[wasm_bindgen]
+    pub fn aggregate(mut self, var: &str, function: &str) -> QueryBuilder {
+        self.aggregations
+            .push((var.to_string(), function.to_string()));
+        self
+    }
+
+    /// Add COUNT aggregation
+    #[wasm_bindgen]
+    pub fn count(mut self, var: &str, as_var: &str) -> QueryBuilder {
+        // Add to select and aggregations
+        self.select_vars.push(as_var.to_string());
+        self.aggregations
+            .push((as_var.to_string(), format!("COUNT({})", var)));
+        self
+    }
+
+    /// Add SUM aggregation
+    #[wasm_bindgen]
+    pub fn sum(mut self, var: &str, as_var: &str) -> QueryBuilder {
+        self.select_vars.push(as_var.to_string());
+        self.aggregations
+            .push((as_var.to_string(), format!("SUM({})", var)));
+        self
+    }
+
+    /// Add AVG aggregation
+    #[wasm_bindgen]
+    pub fn avg(mut self, var: &str, as_var: &str) -> QueryBuilder {
+        self.select_vars.push(as_var.to_string());
+        self.aggregations
+            .push((as_var.to_string(), format!("AVG({})", var)));
+        self
+    }
+
+    /// Add MIN aggregation
+    #[wasm_bindgen]
+    pub fn min(mut self, var: &str, as_var: &str) -> QueryBuilder {
+        self.select_vars.push(as_var.to_string());
+        self.aggregations
+            .push((as_var.to_string(), format!("MIN({})", var)));
+        self
+    }
+
+    /// Add MAX aggregation
+    #[wasm_bindgen]
+    pub fn max(mut self, var: &str, as_var: &str) -> QueryBuilder {
+        self.select_vars.push(as_var.to_string());
+        self.aggregations
+            .push((as_var.to_string(), format!("MAX({})", var)));
+        self
+    }
+
+    /// Add GROUP_CONCAT aggregation
+    #[wasm_bindgen]
+    pub fn group_concat(mut self, var: &str, as_var: &str, separator: &str) -> QueryBuilder {
+        self.select_vars.push(as_var.to_string());
+        self.aggregations.push((
+            as_var.to_string(),
+            format!("GROUP_CONCAT({}; separator=\"{}\")", var, separator),
+        ));
+        self
+    }
+
+    /// Add SAMPLE aggregation
+    #[wasm_bindgen]
+    pub fn sample(mut self, var: &str, as_var: &str) -> QueryBuilder {
+        self.select_vars.push(as_var.to_string());
+        self.aggregations
+            .push((as_var.to_string(), format!("SAMPLE({})", var)));
+        self
+    }
+
+    /// Add property path pattern (e.g., "?x ^rdf:type/rdfs:subClassOf* ?o")
+    #[wasm_bindgen]
+    pub fn property_path(mut self, subject: &str, path: &str, object: &str) -> QueryBuilder {
+        self.where_patterns
+            .push(format!("{} {} {} .", subject, path, object));
+        self
+    }
+
+    /// Build the SPARQL query string
+    pub fn build(&self) -> String {
+        let mut query = String::new();
+
+        // SELECT clause
+        query.push_str("SELECT ");
+        if self.distinct {
+            query.push_str("DISTINCT ");
+        }
+
+        if self.select_vars.is_empty() {
+            query.push('*');
+        } else {
+            query.push_str(&self.select_vars.join(" "));
+        }
+        query.push_str(" WHERE { ");
+
+        // WHERE patterns
+        for pattern in &self.where_patterns {
+            query.push_str(pattern);
+            if !pattern.ends_with('.') {
+                query.push(' ');
+            }
+        }
+
+        // FILTER conditions
+        for condition in &self.filter_conditions {
+            query.push_str(condition);
+            query.push(' ');
+        }
+
+        query.push('}');
+
+        // GROUP BY clause
+        if !self.group_by_vars.is_empty() {
+            query.push_str(" GROUP BY ");
+            query.push_str(&self.group_by_vars.join(" "));
+        }
+
+        // HAVING clause
+        for having in &self.having_clauses {
+            query.push_str(" HAVING (");
+            query.push_str(having);
+            query.push(')');
+        }
+
+        // ORDER BY clause
+        if !self.order_by_clauses.is_empty() {
+            query.push_str(" ORDER BY ");
+            query.push_str(&self.order_by_clauses.join(" "));
+        }
+
+        // LIMIT/OFFSET
+        if let Some(l) = self.limit {
+            query.push_str(&format!(" LIMIT {}", l));
+        }
+        if let Some(o) = self.offset {
+            query.push_str(&format!(" OFFSET {}", o));
+        }
+
+        // UNION queries
+        for union_query in &self.union_queries {
+            query.push_str(" UNION ");
+            query.push('{');
+            query.push_str(union_query);
+            query.push('}');
+        }
+
+        // MINUS queries
+        for minus_query in &self.minus_queries {
+            query.push_str(" MINUS ");
+            query.push('{');
+            query.push_str(minus_query);
+            query.push('}');
+        }
+
+        query
+    }
+
+    /// Build and return the SPARQL query string
+    #[wasm_bindgen]
+    pub fn to_sparql(&self) -> String {
+        self.build()
+    }
+}
+
+impl Default for QueryBuilder {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 #[wasm_bindgen(start)]
 pub fn main() {
     console_error_panic_hook::set_once();
