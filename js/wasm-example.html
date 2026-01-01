@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QLever WASM Processing Example</title>
+  <style>
+    body { font-family: sans-serif; max-width: 1200px; margin: 0 auto; padding: 20px; }
+    .section { margin: 20px 0; padding: 15px; background: #f5f5f5; border-radius: 4px; }
+    .results { background: white; padding: 10px; margin: 10px 0; max-height: 400px; overflow-y: auto; border: 1px solid #ddd; }
+    button { padding: 8px 16px; margin: 5px; cursor: pointer; background: #007bff; color: white; border: none; border-radius: 4px; }
+    button:hover { background: #0056b3; }
+    textarea { width: 100%; padding: 8px; margin: 5px 0; font-family: monospace; }
+    .status { padding: 10px; margin: 10px 0; border-radius: 4px; }
+    .success { background: #d4edda; color: #155724; }
+    .error { background: #f8d7da; color: #721c24; }
+    pre { background: #f4f4f4; padding: 10px; overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <h1>QLever WASM Result Processor</h1>
+  <p>Process SPARQL query results client-side using WebAssembly</p>
+
+  <div class="section">
+    <h2>Step 1: Initialize WASM Processor</h2>
+    <input type="text" id="indexPath" placeholder="Index Path" value="./test_index">
+    <button onclick="initWasm()">Initialize WASM</button>
+    <div id="initStatus" class="status" style="display:none;"></div>
+  </div>
+
+  <div class="section">
+    <h2>Step 2: Load Query Results</h2>
+    <p>Paste raw SPARQL results JSON:</p>
+    <textarea id="resultsInput" rows="6" placeholder="Paste JSON results here...">{"head":{"vars":["s","p","o"]},"results":{"bindings":[{"s":{"value":"http://example.org/1"},"p":{"value":"http://example.org/name"},"o":{"value":"Alice"}},{"s":{"value":"http://example.org/2"},"p":{"value":"http://example.org/name"},"o":{"value":"Bob"}},{"s":{"value":"http://example.org/3"},"p":{"value":"http://example.org/name"},"o":{"value":"Alice"}}]}}</textarea>
+    <button onclick="loadResults()">Load Results</button>
+    <div id="loadStatus" class="status" style="display:none;"></div>
+  </div>
+
+  <div class="section">
+    <h2>Step 3: Filter Results</h2>
+    <input type="text" id="filterVar" placeholder="Variable to filter" value="o">
+    <input type="text" id="filterValue" placeholder="Filter value" value="Alice">
+    <button onclick="applyFilter()">Apply Filter</button>
+    <div class="results" id="filterResults"></div>
+  </div>
+
+  <div class="section">
+    <h2>Step 4: Limit Results</h2>
+    <input type="number" id="limitValue" placeholder="Limit" value="2">
+    <button onclick="applyLimit()">Apply Limit</button>
+    <div class="results" id="limitResults"></div>
+  </div>
+
+  <div class="section">
+    <h2>Step 5: Aggregate Results</h2>
+    <select id="aggFunction">
+      <option value="count">Count</option>
+      <option value="sum">Sum</option>
+      <option value="avg">Average</option>
+      <option value="min">Min</option>
+      <option value="max">Max</option>
+    </select>
+    <input type="text" id="groupByVar" placeholder="Group by variable" value="p">
+    <input type="text" id="aggVar" placeholder="Aggregate variable" value="o">
+    <button onclick="applyAggregate()">Aggregate</button>
+    <div class="results" id="aggResults"></div>
+  </div>
+
+  <div class="section">
+    <h2>Step 6: Deduplicate Results</h2>
+    <button onclick="applyDeduplicate()">Remove Duplicates</button>
+    <div class="results" id="dedupResults"></div>
+  </div>
+
+  <div class="section">
+    <h2>Combined Pipeline</h2>
+    <p>Execute all operations at once:</p>
+    <button onclick="executePipeline()">Execute Full Pipeline</button>
+    <div class="results" id="pipelineResults"></div>
+  </div>
+
+  <script>
+    let wasmModule = null;
+    let currentResults = null;
+
+    function showStatus(elementId, message, isSuccess = true) {
+      const elem = document.getElementById(elementId);
+      elem.textContent = message;
+      elem.className = 'status ' + (isSuccess ? 'success' : 'error');
+      elem.style.display = 'block';
+    }
+
+    async function initWasm() {
+      try {
+        showStatus('initStatus', 'WASM support requires compilation - see build instructions', true);
+      } catch (error) {
+        showStatus('initStatus', `Error: ${error.message}`, false);
+      }
+    }
+
+    function loadResults() {
+      try {
+        const json = document.getElementById('resultsInput').value;
+        currentResults = JSON.parse(json);
+        showStatus('loadStatus', `✓ Loaded ${currentResults.results.bindings.length} results`, true);
+      } catch (error) {
+        showStatus('loadStatus', `✗ Invalid JSON: ${error.message}`, false);
+      }
+    }
+
+    function applyFilter() {
+      if (!currentResults) {
+        showStatus('filterStatus', '✗ Load results first', false);
+        return;
+      }
+
+      const filterVar = document.getElementById('filterVar').value;
+      const filterValue = document.getElementById('filterValue').value;
+
+      const filtered = currentResults.results.bindings.filter(binding => {
+        return binding[filterVar] &&
+               binding[filterVar].value.includes(filterValue);
+      });
+
+      const result = {
+        head: currentResults.head,
+        results: { bindings: filtered }
+      };
+
+      document.getElementById('filterResults').innerHTML = `<pre>${JSON.stringify(result, null, 2)}</pre>`;
+      showStatus('filterStatus', `✓ Filtered to ${filtered.length} results`, true);
+    }
+
+    function applyLimit() {
+      if (!currentResults) {
+        showStatus('limitStatus', '✗ Load results first', false);
+        return;
+      }
+
+      const limit = parseInt(document.getElementById('limitValue').value);
+      const limited = currentResults.results.bindings.slice(0, limit);
+
+      const result = {
+        head: currentResults.head,
+        results: { bindings: limited }
+      };
+
+      document.getElementById('limitResults').innerHTML = `<pre>${JSON.stringify(result, null, 2)}</pre>`;
+      showStatus('limitStatus', `✓ Limited to ${limited.length} results`, true);
+    }
+
+    function applyAggregate() {
+      if (!currentResults) {
+        showStatus('aggStatus', '✗ Load results first', false);
+        return;
+      }
+
+      const aggFunction = document.getElementById('aggFunction').value;
+      const groupByVar = document.getElementById('groupByVar').value;
+      const aggVar = document.getElementById('aggVar').value;
+
+      const groups = {};
+      for (const binding of currentResults.results.bindings) {
+        const key = binding[groupByVar].value;
+        if (!groups[key]) {
+          groups[key] = [];
+        }
+        groups[key].push(binding);
+      }
+
+      const aggregated = [];
+      for (const [key, group] of Object.entries(groups)) {
+        let value;
+        switch (aggFunction) {
+          case 'count':
+            value = group.length;
+            break;
+          case 'sum':
+            value = group.reduce((sum, b) => sum + parseFloat(b[aggVar].value || 0), 0);
+            break;
+          case 'avg':
+            value = group.reduce((sum, b) => sum + parseFloat(b[aggVar].value || 0), 0) / group.length;
+            break;
+          case 'min':
+            value = Math.min(...group.map(b => parseFloat(b[aggVar].value || 0)));
+            break;
+          case 'max':
+            value = Math.max(...group.map(b => parseFloat(b[aggVar].value || 0)));
+            break;
+        }
+
+        aggregated.push({
+          [groupByVar]: { value: key },
+          [aggFunction]: { value: value.toString() }
+        });
+      }
+
+      const result = {
+        head: { vars: [groupByVar, aggFunction] },
+        results: { bindings: aggregated }
+      };
+
+      document.getElementById('aggResults').innerHTML = `<pre>${JSON.stringify(result, null, 2)}</pre>`;
+      showStatus('aggStatus', `✓ Aggregated ${aggregated.length} groups`, true);
+    }
+
+    function applyDeduplicate() {
+      if (!currentResults) {
+        showStatus('dedupStatus', '✗ Load results first', false);
+        return;
+      }
+
+      const seen = new Set();
+      const deduplicated = [];
+
+      for (const binding of currentResults.results.bindings) {
+        const key = JSON.stringify(binding);
+        if (!seen.has(key)) {
+          seen.add(key);
+          deduplicated.push(binding);
+        }
+      }
+
+      const result = {
+        head: currentResults.head,
+        results: { bindings: deduplicated }
+      };
+
+      document.getElementById('dedupResults').innerHTML = `<pre>${JSON.stringify(result, null, 2)}</pre>`;
+      showStatus('dedupStatus', `✓ Removed ${currentResults.results.bindings.length - deduplicated.length} duplicates`, true);
+    }
+
+    function executePipeline() {
+      if (!currentResults) {
+        showStatus('pipelineStatus', '✗ Load results first', false);
+        return;
+      }
+
+      let results = JSON.parse(JSON.stringify(currentResults));
+
+      const filterVar = document.getElementById('filterVar').value;
+      const filterValue = document.getElementById('filterValue').value;
+      results.results.bindings = results.results.bindings.filter(b =>
+        b[filterVar] && b[filterVar].value.includes(filterValue)
+      );
+
+      const limit = parseInt(document.getElementById('limitValue').value);
+      results.results.bindings = results.results.bindings.slice(0, limit);
+
+      const seen = new Set();
+      results.results.bindings = results.results.bindings.filter(b => {
+        const key = JSON.stringify(b);
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+
+      document.getElementById('pipelineResults').innerHTML = `<pre>${JSON.stringify(results, null, 2)}</pre>`;
+      showStatus('pipelineStatus', `✓ Pipeline completed: ${results.results.bindings.length} final results`, true);
+    }
+  </script>
+</body>
+</html>

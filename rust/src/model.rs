@@ -1,7 +1,8 @@
 //! RDF data model types
 //!
-//! This module provides types for representing RDF terms and statements,
-//! similar to oxigraph's model module.
+//! Simple, zero-overhead types for representing RDF terms and statements.
+//! These are pure data structures with minimal logic - no serialization, no overhead.
+//! Designed to be used directly with libqlever C++ bindings.
 
 use crate::error::{Error, Result};
 use std::fmt;

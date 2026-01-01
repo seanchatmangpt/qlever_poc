@@ -1,0 +1,22 @@
+{
+  "name": "js",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.13.2",
+    "express": "^5.2.1",
+    "socket.io": "^4.7.2",
+    "graphql": "^16.8.1",
+    "apollo-server-express": "^4.11.0",
+    "redis": "^4.6.12",
+    "@grpc/grpc-js": "^1.10.1",
+    "@grpc/proto-loader": "^0.7.10"
+  }
+}

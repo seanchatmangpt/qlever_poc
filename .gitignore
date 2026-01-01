@@ -49,3 +49,9 @@ sourcelist
 
 /cmake-build*
 /localIndices
+
+# Rust build artifacts
+rust/target/
+wasm/target/
+Cargo.lock
+**/*.lock

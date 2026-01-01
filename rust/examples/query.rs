@@ -1,45 +1,73 @@
-//! Example showing how to use the QLever Rust bindings
+//! Example showing how to use the QLever in-memory SPARQL database
 
-use qlever::Store;
+use qlever::{NamedNode, Store, Term, Triple};
 
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // Create a store connected to a QLever server
-    let store = Store::new("http://localhost:7777")?;
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // Create an in-memory store
+    let store = Store::new();
 
-    // Execute a simple SPARQL SELECT query
-    println!("Executing SPARQL SELECT query...");
-    let solutions = store
-        .query("SELECT ?s ?p ?o WHERE { ?s ?p ?o } LIMIT 10")
-        .await?;
+    // Create some test data
+    println!("Adding triples to the store...");
 
-    println!("Found {} results:", solutions.len());
-    for (i, solution) in solutions.iter().enumerate() {
-        println!("  Result {}:", i + 1);
-        for (var, value) in solution.iter() {
-            println!("    {} = {}", var, value);
-        }
+    // Triple: Alice knows Bob
+    let alice = NamedNode::new("http://example.org/alice".to_string())?;
+    let bob = NamedNode::new("http://example.org/bob".to_string())?;
+    let knows = NamedNode::new("http://example.org/knows".to_string())?;
+    store.insert(Triple::new(
+        alice.clone(),
+        knows.clone(),
+        Term::NamedNode(bob.clone()),
+    ))?;
+
+    // Triple: Bob knows Carol
+    let carol = NamedNode::new("http://example.org/carol".to_string())?;
+    store.insert(Triple::new(
+        bob.clone(),
+        knows.clone(),
+        Term::NamedNode(carol.clone()),
+    ))?;
+
+    // Triple: Alice's name is "Alice"
+    let name_predicate = NamedNode::new("http://example.org/name".to_string())?;
+    store.insert(Triple::new(
+        alice,
+        name_predicate,
+        Term::Literal(qlever::Literal::new_simple("Alice")),
+    ))?;
+
+    println!("Added 3 triples to the store\n");
+
+    // Query all triples
+    println!("All triples in the store:");
+    let all_triples = store.query_triples(None, None, None)?;
+    for triple in &all_triples {
+        println!("  {}", triple);
     }
 
-    // Execute an ASK query
-    println!("\nExecuting SPARQL ASK query...");
-    let has_results = store.ask("ASK { ?s ?p ?o }").await?;
-
-    println!("Graph contains data: {}", has_results);
-
-    // Get server statistics
-    println!("\nFetching server statistics...");
-    let stats = store.stats().await?;
-    println!("Statistics: {:#?}", stats);
-
-    // Get autocompletion suggestions
-    println!("\nFetching autocompletion suggestions...");
-    let suggestions = store.autocomplete("SELECT ?s WHERE { ?s", Some(22)).await?;
-
-    println!("Autocompletion suggestions:");
-    for (i, suggestion) in suggestions.iter().take(5).enumerate() {
-        println!("  {}. {}", i + 1, suggestion);
+    // Query triples with specific predicate
+    println!("\nTriples with 'knows' predicate:");
+    let knows_triples = store.query_triples(None, Some(knows.as_str()), None)?;
+    for triple in &knows_triples {
+        println!("  {}", triple);
     }
+
+    // Get vocabulary
+    println!("\nSubjects in the store:");
+    for subject in store.subjects()? {
+        println!("  {}", subject);
+    }
+
+    println!("\nPredicates in the store:");
+    for predicate in store.predicates()? {
+        println!("  {}", predicate);
+    }
+
+    println!("\nObjects in the store:");
+    for object in store.objects()? {
+        println!("  {}", object);
+    }
+
+    println!("\nTotal triples: {}", store.triple_count());
 
     Ok(())
 }

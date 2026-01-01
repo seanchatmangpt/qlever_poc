@@ -1,0 +1,153 @@
+syntax = "proto3";
+
+package qlever;
+
+service QleverService {
+  rpc OpenIndex(OpenRequest) returns (OpenResponse);
+  rpc Query(QueryRequest) returns (QueryResponse);
+  rpc ParseAndPlan(PlanRequest) returns (PlanResponse);
+  rpc ExecutePlan(ExecutePlanRequest) returns (QueryResponse);
+  rpc TextSearch(SearchRequest) returns (SearchResponse);
+  rpc CacheResult(CacheRequest) returns (CacheResponse);
+  rpc EraseResult(EraseRequest) returns (EraseResponse);
+  rpc ClearCache(ClearCacheRequest) returns (ClearCacheResponse);
+  rpc WriteMaterializedView(ViewRequest) returns (ViewResponse);
+  rpc LoadMaterializedView(LoadViewRequest) returns (ViewResponse);
+  rpc CloseIndex(CloseRequest) returns (CloseResponse);
+  rpc StreamQuery(QueryRequest) returns (stream StreamChunk);
+}
+
+message OpenRequest {
+  string indexPath = 1;
+  string config = 2;
+}
+
+message OpenResponse {
+  uint32 handle = 1;
+  string indexPath = 2;
+  bool success = 3;
+  string error = 4;
+}
+
+message QueryRequest {
+  uint32 handle = 1;
+  string sparql = 2;
+  bool timings = 3;
+}
+
+message QueryResponse {
+  repeated string variables = 1;
+  repeated Binding bindings = 2;
+  Timings timings = 3;
+  bool success = 4;
+  string error = 5;
+}
+
+message Binding {
+  map<string, string> values = 1;
+}
+
+message Timings {
+  int32 query_ms = 1;
+  int32 planning_ms = 2;
+  int32 execution_ms = 3;
+}
+
+message PlanRequest {
+  uint32 handle = 1;
+  string sparql = 2;
+}
+
+message PlanResponse {
+  string planId = 1;
+  bool success = 2;
+  string error = 3;
+}
+
+message ExecutePlanRequest {
+  uint32 handle = 1;
+  string planId = 2;
+  bool timings = 3;
+}
+
+message SearchRequest {
+  uint32 handle = 1;
+  string query = 2;
+  int32 limit = 3;
+}
+
+message SearchResponse {
+  repeated string variables = 1;
+  repeated string results = 2;
+  int32 count = 3;
+  string error = 4;
+}
+
+message CacheRequest {
+  uint32 handle = 1;
+  string name = 2;
+  string sparql = 3;
+}
+
+message CacheResponse {
+  uint32 handle = 1;
+  string name = 2;
+  bool cached = 3;
+  string error = 4;
+}
+
+message EraseRequest {
+  uint32 handle = 1;
+  string name = 2;
+}
+
+message EraseResponse {
+  uint32 handle = 1;
+  string name = 2;
+  bool erased = 3;
+  string error = 4;
+}
+
+message ClearCacheRequest {
+  uint32 handle = 1;
+}
+
+message ClearCacheResponse {
+  uint32 handle = 1;
+  bool cleared = 2;
+  string error = 3;
+}
+
+message ViewRequest {
+  uint32 handle = 1;
+  string name = 2;
+  string sparql = 3;
+}
+
+message LoadViewRequest {
+  uint32 handle = 1;
+  string name = 2;
+}
+
+message ViewResponse {
+  uint32 handle = 1;
+  string name = 2;
+  bool success = 3;
+  string error = 4;
+}
+
+message CloseRequest {
+  uint32 handle = 1;
+}
+
+message CloseResponse {
+  uint32 handle = 1;
+  bool closed = 2;
+  string error = 3;
+}
+
+message StreamChunk {
+  repeated Binding bindings = 1;
+  bool isLast = 2;
+  int32 chunkIndex = 3;
+}

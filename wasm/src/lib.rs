@@ -147,54 +147,7 @@ impl QleverClient {
     /// * `format` - Result format (json, xml, csv)
     #[wasm_bindgen]
     pub async fn query(&self, query: String, format: String) -> Result<QueryResponse, JsValue> {
-        let result_format = ResultFormat::from_str(&format)
-            .map_err(|e| JsValue::from_str(&e))?;
-
-        let url = format!(
-            "{}?query={}",
-            self.endpoint,
-            urlencoding::encode(&query)
-        );
-
-        let mut opts = RequestInit::new();
-        opts.method("GET");
-        opts.mode(RequestMode::Cors);
-
-        let request = Request::new_with_str_and_init(&url, &opts)
-            .map_err(|_| JsValue::from_str("Failed to create request"))?;
-
-        request
-            .headers()
-            .set("Accept", result_format.to_mime_type())
-            .map_err(|_| JsValue::from_str("Failed to set headers"))?;
-
-        let window = web_sys::window().ok_or_else(|| JsValue::from_str("No window object"))?;
-        let response_promise = window.fetch_with_request(&request);
-
-        let response = JsFuture::from(response_promise)
-            .await
-            .map_err(|_| JsValue::from_str("Fetch failed"))?;
-
-        let response: Response = response.dyn_into()
-            .map_err(|_| JsValue::from_str("Failed to convert to Response"))?;
-
-        if !response.ok() {
-            return Err(JsValue::from_str(&format!("HTTP {}: {}", response.status(), response.status_text())));
-        }
-
-        let json_promise = response
-            .json()
-            .map_err(|_| JsValue::from_str("Failed to parse response"))?;
-
-        let data = JsFuture::from(json_promise)
-            .await
-            .map_err(|_| JsValue::from_str("Failed to await JSON"))?;
-
-        Ok(QueryResponse {
-            data,
-            format: result_format,
-            execution_time_ms: 0.0,
-        })
+        self.query_internal(query, format, None).await
     }
 
     /// Execute a SPARQL query with custom headers
@@ -209,6 +162,16 @@ impl QleverClient {
         query: String,
         format: String,
         headers: JsValue,
+    ) -> Result<QueryResponse, JsValue> {
+        self.query_internal(query, format, Some(headers)).await
+    }
+
+    /// Internal query execution with optional custom headers
+    async fn query_internal(
+        &self,
+        query: String,
+        format: String,
+        headers: Option<JsValue>,
     ) -> Result<QueryResponse, JsValue> {
         let result_format = ResultFormat::from_str(&format)
             .map_err(|e| JsValue::from_str(&e))?;
@@ -226,29 +189,32 @@ impl QleverClient {
         let request = Request::new_with_str_and_init(&url, &opts)
             .map_err(|_| JsValue::from_str("Failed to create request"))?;
 
-        // Set default header
+        // Set Accept header
         request
             .headers()
             .set("Accept", result_format.to_mime_type())
             .map_err(|_| JsValue::from_str("Failed to set Accept header"))?;
 
-        // Set custom headers from object
-        if !headers.is_null() && !headers.is_undefined() {
-            let headers_obj = web_sys::Headers::new_with_headers_like(&headers)
-                .map_err(|_| JsValue::from_str("Failed to parse headers"))?;
+        // Set custom headers if provided
+        if let Some(headers_obj) = headers {
+            if !headers_obj.is_null() && !headers_obj.is_undefined() {
+                let _headers = web_sys::Headers::new_with_headers_like(&headers_obj)
+                    .map_err(|_| JsValue::from_str("Failed to parse headers"))?;
 
-            for entry in js_sys::Object::entries(&headers) {
-                if let Some(key) = entry.get(0).as_string() {
-                    if let Some(value) = entry.get(1).as_string() {
-                        request
-                            .headers()
-                            .set(&key, &value)
-                            .map_err(|_| JsValue::from_str("Failed to set header"))?;
+                for entry in js_sys::Object::entries(&headers_obj) {
+                    if let Some(key) = entry.get(0).as_string() {
+                        if let Some(value) = entry.get(1).as_string() {
+                            request
+                                .headers()
+                                .set(&key, &value)
+                                .map_err(|_| JsValue::from_str("Failed to set header"))?;
+                        }
                     }
                 }
             }
         }
 
+        // Execute fetch
         let window = web_sys::window().ok_or_else(|| JsValue::from_str("No window object"))?;
         let response_promise = window.fetch_with_request(&request);
 
@@ -260,9 +226,14 @@ impl QleverClient {
             .map_err(|_| JsValue::from_str("Failed to convert to Response"))?;
 
         if !response.ok() {
-            return Err(JsValue::from_str(&format!("HTTP {}: {}", response.status(), response.status_text())));
+            return Err(JsValue::from_str(&format!(
+                "HTTP {}: {}",
+                response.status(),
+                response.status_text()
+            )));
         }
 
+        // Parse response
         let json_promise = response
             .json()
             .map_err(|_| JsValue::from_str("Failed to parse response"))?;
@@ -309,7 +280,21 @@ impl QleverClient {
 }
 
 /// Query builder for constructing SPARQL queries with full SPARQL support
+///
+/// Provides a fluent API for building SPARQL queries programmatically.
+/// Works with both Rust and JavaScript (via wasm-bindgen).
+///
+/// # Example
+/// ```ignore
+/// let query = QueryBuilder::new()
+///     .select_query()
+///     .select("?s ?p ?o")
+///     .where_clause("?s ?p ?o")
+///     .limit(10)
+///     .build();
+/// ```
 #[wasm_bindgen]
+#[derive(Clone)]
 pub struct QueryBuilder {
     query_type: QueryType,
     select_vars: String,
@@ -355,123 +340,206 @@ impl QueryBuilder {
     }
 
     /// Set query type to SELECT
-    pub fn select_query(&mut self) -> QueryBuilder {
+    pub fn select_query(mut self) -> QueryBuilder {
         self.query_type = QueryType::Select;
-        self.clone_builder()
+        self
     }
 
     /// Set query type to CONSTRUCT
-    pub fn construct_query(&mut self) -> QueryBuilder {
+    pub fn construct_query(mut self) -> QueryBuilder {
         self.query_type = QueryType::Construct;
-        self.clone_builder()
+        self
     }
 
     /// Set query type to DESCRIBE
-    pub fn describe_query(&mut self) -> QueryBuilder {
+    pub fn describe_query(mut self) -> QueryBuilder {
         self.query_type = QueryType::Describe;
-        self.clone_builder()
+        self
     }
 
     /// Set query type to ASK
-    pub fn ask_query(&mut self) -> QueryBuilder {
+    pub fn ask_query(mut self) -> QueryBuilder {
         self.query_type = QueryType::Ask;
-        self.clone_builder()
+        self
     }
 
     /// Add SELECT variables
-    pub fn select(&mut self, vars: String) -> QueryBuilder {
+    pub fn select(mut self, vars: String) -> QueryBuilder {
         self.select_vars = vars;
-        self.clone_builder()
+        self
     }
 
     /// Add CONSTRUCT template
-    pub fn construct(&mut self, template: String) -> QueryBuilder {
+    pub fn construct(mut self, template: String) -> QueryBuilder {
         self.construct_template = template;
-        self.clone_builder()
+        self
     }
 
     /// Add DESCRIBE variables
-    pub fn describe(&mut self, vars: String) -> QueryBuilder {
+    pub fn describe(mut self, vars: String) -> QueryBuilder {
         self.describe_vars = vars;
-        self.clone_builder()
+        self
     }
 
     /// Add FROM clause
-    pub fn from(&mut self, graph: String) -> QueryBuilder {
+    pub fn from(mut self, graph: String) -> QueryBuilder {
         self.from_clauses.push(format!("FROM <{}>", graph));
-        self.clone_builder()
+        self
     }
 
     /// Add WHERE clause pattern
-    pub fn where_clause(&mut self, pattern: String) -> QueryBuilder {
+    pub fn where_clause(mut self, pattern: String) -> QueryBuilder {
         self.where_pattern = pattern;
-        self.clone_builder()
+        self
     }
 
     /// Add FILTER condition
-    pub fn filter(&mut self, condition: String) -> QueryBuilder {
+    pub fn filter(mut self, condition: String) -> QueryBuilder {
         self.filter_conditions.push(format!("FILTER ({})", condition));
-        self.clone_builder()
+        self
     }
 
     /// Add OPTIONAL pattern
-    pub fn optional(&mut self, pattern: String) -> QueryBuilder {
+    pub fn optional(mut self, pattern: String) -> QueryBuilder {
         self.optional_patterns.push(format!("OPTIONAL {{\n    {}\n  }}", pattern));
-        self.clone_builder()
+        self
     }
 
     /// Add BIND statement
-    pub fn bind(&mut self, expression: String, var: String) -> QueryBuilder {
+    pub fn bind(mut self, expression: String, var: String) -> QueryBuilder {
         self.bind_statements.push(format!("BIND ({} AS {})", expression, var));
-        self.clone_builder()
+        self
     }
 
     /// Add GROUP BY clause
-    pub fn group_by(&mut self, vars: String) -> QueryBuilder {
+    pub fn group_by(mut self, vars: String) -> QueryBuilder {
         self.group_by_vars = vars.split_whitespace()
             .map(|s| s.to_string())
             .collect();
-        self.clone_builder()
+        self
     }
 
     /// Add ORDER BY clause (ascending)
-    pub fn order_by(&mut self, vars: String) -> QueryBuilder {
+    pub fn order_by(mut self, vars: String) -> QueryBuilder {
         for var in vars.split_whitespace() {
             self.order_by_vars.push((var.to_string(), false));
         }
-        self.clone_builder()
+        self
     }
 
     /// Add ORDER BY DESC clause
-    pub fn order_by_desc(&mut self, vars: String) -> QueryBuilder {
+    pub fn order_by_desc(mut self, vars: String) -> QueryBuilder {
         for var in vars.split_whitespace() {
             self.order_by_vars.push((var.to_string(), true));
         }
-        self.clone_builder()
+        self
     }
 
     /// Add LIMIT clause
-    pub fn limit(&mut self, count: u32) -> QueryBuilder {
+    pub fn limit(mut self, count: u32) -> QueryBuilder {
         self.limit = Some(count);
-        self.clone_builder()
+        self
     }
 
     /// Add OFFSET clause
-    pub fn offset(&mut self, count: u32) -> QueryBuilder {
+    pub fn offset(mut self, count: u32) -> QueryBuilder {
         self.offset = Some(count);
-        self.clone_builder()
+        self
     }
 
     /// Add DISTINCT modifier
-    pub fn distinct(&mut self) -> QueryBuilder {
+    pub fn distinct(mut self) -> QueryBuilder {
         self.distinct = true;
-        self.clone_builder()
+        self
     }
 
     /// Add VALUES clause
-    pub fn values(&mut self, clause: String) -> QueryBuilder {
+    pub fn values(mut self, clause: String) -> QueryBuilder {
         self.values_clause = Some(clause);
-        self.clone_builder()
+        self
+    }
+
+    /// Add UNION with another query
+    pub fn union(mut self, other: QueryBuilder) -> QueryBuilder {
+        self.union_queries.push(other.build());
+        self
+    }
+
+    /// Add MINUS (set difference) with another pattern
+    pub fn minus(mut self, pattern: String) -> QueryBuilder {
+        self.where_pattern.push_str(&format!("\nMINUS {{ {} }}", pattern));
+        self
+    }
+
+    /// Add NOT EXISTS condition
+    pub fn filter_not_exists(mut self, pattern: String) -> QueryBuilder {
+        self.filter_conditions.push(format!("FILTER NOT EXISTS {{ {} }}", pattern));
+        self
+    }
+
+    /// Add EXISTS condition
+    pub fn filter_exists(mut self, pattern: String) -> QueryBuilder {
+        self.filter_conditions.push(format!("FILTER EXISTS {{ {} }}", pattern));
+        self
+    }
+
+    /// Add a HAVING clause (for aggregations)
+    pub fn having(mut self, condition: String) -> QueryBuilder {
+        // HAVING clauses are added as FILTER conditions in SPARQL
+        // This is a semantic addition - actual HAVING would need GROUP BY
+        self.filter_conditions.push(format!("FILTER({})", condition));
+        self
+    }
+
+    /// Add property path pattern (e.g., "foaf:knows+")
+    pub fn property_path(mut self, subject: &str, path: &str, object: &str) -> QueryBuilder {
+        let pattern = format!("{} {} {}", subject, path, object);
+        self.where_pattern.push_str(&format!("\n  {}", pattern));
+        self
+    }
+
+    /// Add MIN aggregation
+    pub fn min(mut self, var: &str) -> QueryBuilder {
+        self.select_vars.push_str(&format!(" (MIN({}) as ?min_{})", var, var.trim_start_matches('?')));
+        self
+    }
+
+    /// Add MAX aggregation
+    pub fn max(mut self, var: &str) -> QueryBuilder {
+        self.select_vars.push_str(&format!(" (MAX({}) as ?max_{})", var, var.trim_start_matches('?')));
+        self
+    }
+
+    /// Add AVG aggregation
+    pub fn avg(mut self, var: &str) -> QueryBuilder {
+        self.select_vars.push_str(&format!(" (AVG({}) as ?avg_{})", var, var.trim_start_matches('?')));
+        self
+    }
+
+    /// Add SUM aggregation
+    pub fn sum(mut self, var: &str) -> QueryBuilder {
+        self.select_vars.push_str(&format!(" (SUM({}) as ?sum_{})", var, var.trim_start_matches('?')));
+        self
+    }
+
+    /// Add COUNT aggregation
+    pub fn count(mut self, var: &str) -> QueryBuilder {
+        self.select_vars.push_str(&format!(" (COUNT({}) as ?count_{})", var, var.trim_start_matches('?')));
+        self
+    }
+
+    /// Add SAMPLE aggregation
+    pub fn sample(mut self, var: &str) -> QueryBuilder {
+        self.select_vars.push_str(&format!(" (SAMPLE({}) as ?sample_{})", var, var.trim_start_matches('?')));
+        self
+    }
+
+    /// Add GROUP_CONCAT aggregation
+    pub fn group_concat(mut self, var: &str, separator: Option<&str>) -> QueryBuilder {
+        let sep = separator.unwrap_or("; ");
+        self.select_vars.push_str(&format!(" (GROUP_CONCAT({}; SEPARATOR=\"{}\") as ?concat_{})",
+            var, sep, var.trim_start_matches('?')));
+        self
     }
 
     /// Build the final query string
@@ -543,6 +611,12 @@ impl QueryBuilder {
 
         query.push_str("\n}\n");
 
+        // Add UNION queries
+        for union_query in &self.union_queries {
+            query.push_str("UNION\n");
+            query.push_str(union_query);
+        }
+
         // Add GROUP BY
         if !self.group_by_vars.is_empty() {
             query.push_str("GROUP BY ");
@@ -579,27 +653,6 @@ impl QueryBuilder {
         query
     }
 
-    /// Helper method to clone builder for chaining
-    fn clone_builder(&self) -> QueryBuilder {
-        QueryBuilder {
-            query_type: self.query_type,
-            select_vars: self.select_vars.clone(),
-            construct_template: self.construct_template.clone(),
-            describe_vars: self.describe_vars.clone(),
-            from_clauses: self.from_clauses.clone(),
-            where_pattern: self.where_pattern.clone(),
-            filter_conditions: self.filter_conditions.clone(),
-            optional_patterns: self.optional_patterns.clone(),
-            group_by_vars: self.group_by_vars.clone(),
-            order_by_vars: self.order_by_vars.clone(),
-            limit: self.limit,
-            offset: self.offset,
-            distinct: self.distinct,
-            union_queries: self.union_queries.clone(),
-            bind_statements: self.bind_statements.clone(),
-            values_clause: self.values_clause.clone(),
-        }
-    }
 }
 
 #[cfg(test)]

@@ -11,12 +11,24 @@ path = "src/lib.rs"
 name = "query"
 path = "examples/query.rs"
 
+[[bin]]
+name = "ffi_benchmark"
+path = "benches/ffi_benchmark.rs"
+
 [dependencies]
-reqwest = { version = "0.11", features = ["json"] }
-tokio = { version = "1", features = ["full"] }
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-url = "2.0"
-urlencoding = "2.0"
+# Error handling
 thiserror = "1.0"
-async-trait = "0.1"
+
+# High-performance locking for concurrent triple store access
+parking_lot = "0.12"
+
+# JSON parsing for QLever query results (FFI)
+serde_json = "1.0"
+
+# WASM support
+wasm-bindgen = { version = "0.2", optional = true }
+serde = { version = "1.0", features = ["derive"], optional = true }
+console_error_panic_hook = { version = "0.1", optional = true }
+
+[features]
+wasm = ["wasm-bindgen", "serde", "console_error_panic_hook"]

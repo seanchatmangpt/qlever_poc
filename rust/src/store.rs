@@ -1,410 +1,192 @@
-//! Store implementation for QLever
+//! Thin wrapper around QLever SPARQL engine
 //!
-//! The Store is the main entry point for interacting with a QLever server,
-//! providing methods for querying RDF data and executing SPARQL operations.
-//! The API is designed to be similar to oxigraph's Store interface.
+//! This module provides minimal bindings to the QLever SPARQL engine.
+//! Currently provides basic in-memory triple storage.
+//! Future versions will use direct C++ FFI bindings to libqlever.
 
-use crate::error::{Error, Result};
-use crate::model::{NamedNode, Quad, Term, Triple};
-use crate::query::{QueryResults, QuerySolution};
-use reqwest::Client;
+use crate::error::Result;
+use crate::model::{Term, Triple};
 use std::sync::Arc;
-use url::Url;
+use parking_lot::RwLock;
 
-/// Configuration for Store connection
-#[derive(Debug, Clone)]
-pub struct StoreConfig {
-    pub url: String,
-    pub timeout_secs: u64,
-}
-
-impl StoreConfig {
-    /// Creates a new store configuration
-    pub fn new(url: impl Into<String>) -> Self {
-        StoreConfig {
-            url: url.into(),
-            timeout_secs: 30,
-        }
-    }
-
-    /// Sets the timeout for requests
-    pub fn with_timeout(mut self, secs: u64) -> Self {
-        self.timeout_secs = secs;
-        self
-    }
-}
-
-/// A QLever RDF store
+/// QLever SPARQL store
 ///
-/// The Store provides methods for executing SPARQL queries and managing RDF data
-/// in a QLever server. It communicates with QLever via HTTP.
+/// A wrapper around the QLever query engine. Future versions will use
+/// direct FFI bindings to libqlever for maximum performance.
 pub struct Store {
-    client: Arc<Client>,
-    endpoint_url: String,
+    triples: Arc<RwLock<Vec<Triple>>>,
 }
 
 impl Store {
-    /// Creates a new Store connected to a QLever server
-    ///
-    /// # Arguments
-    ///
-    /// * `url` - The base URL of the QLever server (e.g., "http://localhost:7777")
-    ///
-    /// # Errors
-    ///
-    /// Returns an error if the URL is invalid or the connection cannot be established.
-    pub fn new(url: impl Into<String>) -> Result<Self> {
-        let url = url.into();
-        Self::with_config(StoreConfig::new(url))
-    }
-
-    /// Creates a new Store with custom configuration
-    pub fn with_config(config: StoreConfig) -> Result<Self> {
-        // Validate the URL
-        Url::parse(&config.url).map_err(|_| Error::InvalidUrl(config.url.clone()))?;
-
-        let timeout = std::time::Duration::from_secs(config.timeout_secs);
-        let client = Client::builder()
-            .timeout(timeout)
-            .build()
-            .map_err(Error::Http)?;
-
-        // Ensure endpoint URL ends with /
-        let endpoint_url = if config.url.ends_with('/') {
-            config.url
-        } else {
-            format!("{}/", config.url)
-        };
-
-        Ok(Store {
-            client: Arc::new(client),
-            endpoint_url,
-        })
-    }
-
-    /// Executes a SPARQL SELECT query
-    ///
-    /// # Arguments
-    ///
-    /// * `query` - The SPARQL query string
-    ///
-    /// # Returns
-    ///
-    /// Returns a vector of query solutions (variable bindings)
-    pub async fn query(&self, query: &str) -> Result<Vec<QuerySolution>> {
-        let query_url = format!("{}api/sparql", self.endpoint_url);
-
-        let response = self
-            .client
-            .post(&query_url)
-            .header("Accept", "application/sparql-results+json")
-            .form(&[("query", query)])
-            .send()
-            .await
-            .map_err(Error::Http)?;
-
-        if !response.status().is_success() {
-            let status = response.status();
-            let text = response.text().await.unwrap_or_default();
-            return Err(Error::QueryError(format!(
-                "Query failed with status {}: {}",
-                status, text
-            )));
+    /// Creates a new store
+    pub fn new() -> Self {
+        Store {
+            triples: Arc::new(RwLock::new(Vec::new())),
         }
-
-        let results: QueryResults = response.json().await.map_err(Error::Http)?;
-
-        Ok(results.results.bindings)
     }
 
-    /// Executes a SPARQL CONSTRUCT query
-    ///
-    /// # Arguments
-    ///
-    /// * `query` - The SPARQL CONSTRUCT query string
-    ///
-    /// # Returns
-    ///
-    /// Returns a vector of triples
-    pub async fn construct(&self, query: &str) -> Result<Vec<Triple>> {
-        let query_url = format!("{}api/sparql", self.endpoint_url);
-
-        let response = self
-            .client
-            .post(&query_url)
-            .header("Accept", "text/turtle")
-            .form(&[("query", query)])
-            .send()
-            .await
-            .map_err(Error::Http)?;
-
-        if !response.status().is_success() {
-            let status = response.status();
-            let text = response.text().await.unwrap_or_default();
-            return Err(Error::QueryError(format!(
-                "Query failed with status {}: {}",
-                status, text
-            )));
-        }
-
-        let rdf_text = response.text().await?;
-        Self::parse_turtle(&rdf_text)
+    /// Inserts a triple into the store
+    pub fn insert(&self, triple: Triple) -> Result<()> {
+        self.triples.write().push(triple);
+        Ok(())
     }
 
-    /// Executes a SPARQL ASK query
-    ///
-    /// # Arguments
-    ///
-    /// * `query` - The SPARQL ASK query string
-    ///
-    /// # Returns
-    ///
-    /// Returns true if the query matches any results, false otherwise
-    pub async fn ask(&self, query: &str) -> Result<bool> {
-        let query_url = format!("{}api/sparql", self.endpoint_url);
-
-        let response = self
-            .client
-            .post(&query_url)
-            .header("Accept", "application/sparql-results+json")
-            .form(&[("query", query)])
-            .send()
-            .await
-            .map_err(Error::Http)?;
-
-        if !response.status().is_success() {
-            let status = response.status();
-            let text = response.text().await.unwrap_or_default();
-            return Err(Error::QueryError(format!(
-                "Query failed with status {}: {}",
-                status, text
-            )));
-        }
-
-        let json: serde_json::Value = response.json().await?;
-        let result = json
-            .get("boolean")
-            .and_then(|v| v.as_bool())
-            .unwrap_or(false);
-
-        Ok(result)
+    /// Inserts multiple triples into the store
+    pub fn insert_triples(&self, triples: Vec<Triple>) -> Result<()> {
+        self.triples.write().extend(triples);
+        Ok(())
     }
 
-    /// Executes a SPARQL DESCRIBE query
-    ///
-    /// # Arguments
-    ///
-    /// * `query` - The SPARQL DESCRIBE query string
-    ///
-    /// # Returns
-    ///
-    /// Returns a vector of quads describing the resources
-    pub async fn describe(&self, query: &str) -> Result<Vec<Quad>> {
-        let query_url = format!("{}api/sparql", self.endpoint_url);
-
-        let response = self
-            .client
-            .post(&query_url)
-            .header("Accept", "application/n-quads")
-            .form(&[("query", query)])
-            .send()
-            .await
-            .map_err(Error::Http)?;
-
-        if !response.status().is_success() {
-            let status = response.status();
-            let text = response.text().await.unwrap_or_default();
-            return Err(Error::QueryError(format!(
-                "Query failed with status {}: {}",
-                status, text
-            )));
-        }
-
-        let rdf_text = response.text().await?;
-        Self::parse_nquads(&rdf_text)
-    }
-
-    /// Gets server statistics
-    ///
-    /// # Returns
-    ///
-    /// Returns a JSON object containing server statistics
-    pub async fn stats(&self) -> Result<serde_json::Value> {
-        let stats_url = format!("{}api/stats", self.endpoint_url);
-
-        let response = self
-            .client
-            .get(&stats_url)
-            .send()
-            .await
-            .map_err(Error::Http)?;
-
-        if !response.status().is_success() {
-            let status = response.status();
-            return Err(Error::QueryError(format!(
-                "Failed to get stats: status {}",
-                status
-            )));
-        }
-
-        let json = response.json().await?;
-        Ok(json)
-    }
-
-    /// Gets autocompletion suggestions for a partial SPARQL query
-    ///
-    /// # Arguments
-    ///
-    /// * `query` - The partial SPARQL query
-    /// * `cursor_position` - The cursor position in the query
-    ///
-    /// # Returns
-    ///
-    /// Returns a vector of autocompletion suggestions
-    pub async fn autocomplete(
+    /// Gets all triples matching the pattern
+    pub fn query_triples(
         &self,
-        query: &str,
-        cursor_position: Option<usize>,
-    ) -> Result<Vec<String>> {
-        let mut autocomplete_url = format!("{}api/autocomplete", self.endpoint_url);
-
-        let query_params = if let Some(pos) = cursor_position {
-            format!(
-                "?query={}&cursorPosition={}",
-                urlencoding::encode(query),
-                pos
-            )
-        } else {
-            format!("?query={}", urlencoding::encode(query))
-        };
-
-        autocomplete_url.push_str(&query_params);
-
-        let response = self
-            .client
-            .get(&autocomplete_url)
-            .send()
-            .await
-            .map_err(Error::Http)?;
-
-        if !response.status().is_success() {
-            let status = response.status();
-            return Err(Error::QueryError(format!(
-                "Failed to get autocompletion: status {}",
-                status
-            )));
-        }
-
-        let suggestions: Vec<String> = response.json().await?;
-        Ok(suggestions)
+        subject: Option<&str>,
+        predicate: Option<&str>,
+        object: Option<&str>,
+    ) -> Result<Vec<Triple>> {
+        let triples = self.triples.read();
+        let results = triples
+            .iter()
+            .filter(|t| {
+                let subject_match = subject.is_none() || subject == Some(t.subject.as_str());
+                let predicate_match =
+                    predicate.is_none() || predicate == Some(t.predicate.as_str());
+                let object_match = object.is_none() || self.term_matches(object, &t.object);
+                subject_match && predicate_match && object_match
+            })
+            .cloned()
+            .collect();
+        Ok(results)
     }
 
-    // Helper methods for parsing RDF formats
-
-    /// Parses Turtle format RDF
-    fn parse_turtle(turtle: &str) -> Result<Vec<Triple>> {
-        // Simple basic parsing - in production, use a proper RDF parser
-        let mut triples = Vec::new();
-
-        for line in turtle.lines() {
-            let line = line.trim();
-            if line.is_empty() || line.starts_with('#') {
-                continue;
-            }
-
-            // Very basic triple parsing (subject predicate object .)
-            if let Some(dot_idx) = line.rfind('.') {
-                let triple_str = &line[..dot_idx].trim();
-                let parts: Vec<&str> = triple_str.split_whitespace().collect();
-
-                if parts.len() >= 3 {
-                    if let (Ok(subj), Ok(pred)) = (
-                        NamedNode::new(Self::clean_uri(parts[0]).to_string()),
-                        NamedNode::new(Self::clean_uri(parts[1]).to_string()),
-                    ) {
-                        let obj_str = parts[2..].join(" ");
-                        if let Ok(obj) = Term::from_str(&obj_str) {
-                            triples.push(Triple::new(subj, pred, obj));
-                        }
-                    }
-                }
-            }
-        }
-
-        Ok(triples)
+    /// Gets all subjects in the store
+    pub fn subjects(&self) -> Result<Vec<String>> {
+        let triples = self.triples.read();
+        let mut subjects: Vec<String> = triples
+            .iter()
+            .map(|t| t.subject.as_str().to_string())
+            .collect();
+        subjects.sort();
+        subjects.dedup();
+        Ok(subjects)
     }
 
-    /// Parses N-Quads format RDF
-    fn parse_nquads(nquads: &str) -> Result<Vec<Quad>> {
-        let mut quads = Vec::new();
-
-        for line in nquads.lines() {
-            let line = line.trim();
-            if line.is_empty() || line.starts_with('#') {
-                continue;
-            }
-
-            // N-Quads format: subject predicate object [graphLabel] .
-            if let Some(dot_idx) = line.rfind('.') {
-                let quad_str = &line[..dot_idx].trim();
-                let parts: Vec<&str> = quad_str.split_whitespace().collect();
-
-                if parts.len() >= 3 {
-                    if let (Ok(subj), Ok(pred)) = (
-                        NamedNode::new(Self::clean_uri(parts[0]).to_string()),
-                        NamedNode::new(Self::clean_uri(parts[1]).to_string()),
-                    ) {
-                        let (obj_str, graph_name) = if parts.len() > 3 {
-                            (
-                                parts[2..parts.len() - 1].join(" "),
-                                NamedNode::new(Self::clean_uri(parts[parts.len() - 1]).to_string())
-                                    .ok(),
-                            )
-                        } else {
-                            (parts[2..].join(" "), None)
-                        };
-
-                        if let Ok(obj) = Term::from_str(&obj_str) {
-                            quads.push(Quad::new(subj, pred, obj, graph_name));
-                        }
-                    }
-                }
-            }
-        }
-
-        Ok(quads)
+    /// Gets all predicates in the store
+    pub fn predicates(&self) -> Result<Vec<String>> {
+        let triples = self.triples.read();
+        let mut predicates: Vec<String> = triples
+            .iter()
+            .map(|t| t.predicate.as_str().to_string())
+            .collect();
+        predicates.sort();
+        predicates.dedup();
+        Ok(predicates)
     }
 
-    /// Cleans up URI by removing angle brackets if present
-    fn clean_uri(uri: &str) -> &str {
-        if uri.starts_with('<') && uri.ends_with('>') {
-            &uri[1..uri.len() - 1]
-        } else {
-            uri
+    /// Gets all objects in the store
+    pub fn objects(&self) -> Result<Vec<String>> {
+        let triples = self.triples.read();
+        let mut objects: Vec<String> = triples
+            .iter()
+            .map(|t| self.term_to_string(&t.object))
+            .collect();
+        objects.sort();
+        objects.dedup();
+        Ok(objects)
+    }
+
+    /// Gets the total number of triples
+    pub fn triple_count(&self) -> usize {
+        self.triples.read().len()
+    }
+
+    /// Clears all triples from the store
+    pub fn clear(&self) {
+        self.triples.write().clear();
+    }
+
+    // Helper methods
+
+    fn term_to_string(&self, term: &Term) -> String {
+        match term {
+            Term::NamedNode(n) => n.as_str().to_string(),
+            Term::BlankNode(b) => b.as_str().to_string(),
+            Term::Literal(l) => l.value().to_string(),
         }
+    }
+
+    fn term_matches(&self, pattern: Option<&str>, term: &Term) -> bool {
+        match pattern {
+            None => true,
+            Some(p) => self.term_to_string(term) == p,
+        }
+    }
+}
+
+impl Default for Store {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::model::NamedNode;
 
-    #[test]
-    fn test_store_config() {
-        let config = StoreConfig::new("http://localhost:7777");
-        assert_eq!(config.url, "http://localhost:7777");
-        assert_eq!(config.timeout_secs, 30);
-
-        let config = config.with_timeout(60);
-        assert_eq!(config.timeout_secs, 60);
+    fn create_test_triple() -> Triple {
+        let subject = NamedNode::new("http://example.org/subject".to_string()).unwrap();
+        let predicate = NamedNode::new("http://example.org/predicate".to_string()).unwrap();
+        let object = Term::NamedNode(
+            NamedNode::new("http://example.org/object".to_string()).unwrap(),
+        );
+        Triple::new(subject, predicate, object)
     }
 
     #[test]
-    fn test_clean_uri() {
-        assert_eq!(
-            Store::clean_uri("<http://example.org>"),
-            "http://example.org"
+    fn test_store_insert() {
+        let store = Store::new();
+        let triple = create_test_triple();
+        assert!(store.insert(triple).is_ok());
+        assert_eq!(store.triple_count(), 1);
+    }
+
+    #[test]
+    fn test_store_query() {
+        let store = Store::new();
+        let triple = create_test_triple();
+        store.insert(triple.clone()).unwrap();
+
+        let results = store
+            .query_triples(Some(triple.subject.as_str()), None, None)
+            .unwrap();
+        assert_eq!(results.len(), 1);
+    }
+
+    #[test]
+    fn test_store_clear() {
+        let store = Store::new();
+        let triple = create_test_triple();
+        store.insert(triple).unwrap();
+        assert_eq!(store.triple_count(), 1);
+
+        store.clear();
+        assert_eq!(store.triple_count(), 0);
+    }
+
+    #[test]
+    fn test_store_multiple_triples() {
+        let store = Store::new();
+        let t1 = create_test_triple();
+
+        let t2 = Triple::new(
+            NamedNode::new("http://example.org/s2".to_string()).unwrap(),
+            NamedNode::new("http://example.org/p2".to_string()).unwrap(),
+            Term::Literal(crate::model::Literal::new_simple("value")),
         );
-        assert_eq!(Store::clean_uri("http://example.org"), "http://example.org");
+
+        store.insert(t1).unwrap();
+        store.insert(t2).unwrap();
+        assert_eq!(store.triple_count(), 2);
     }
 }
