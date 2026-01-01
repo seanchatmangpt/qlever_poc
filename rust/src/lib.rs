@@ -51,6 +51,6 @@ pub mod qlever_store;
 pub use error::{Error, Result};
 pub use model::{BlankNode, Literal, NamedNode, Quad, Term, Triple};
 pub use query::QuerySolution;
-pub use qlever_store::Store;  // Primary Store is QLever-backed
+pub use qlever_store::{Store, QueryPlan};  // Primary Store is QLever-backed
 pub use store::Store as MemoryStore;  // In-memory store available as fallback
 pub use cache::{QueryCache, CacheStats};
