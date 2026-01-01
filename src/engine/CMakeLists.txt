@@ -25,6 +25,7 @@ add_library(engine
         shacl/AdvancedConstraints.cpp shacl/ShapeComposition.cpp
         shacl/ComplexPropertyPaths.cpp shacl/PathResolver.cpp
         shacl/ShaclValidationCache.cpp
+        shex/ShExParser.cpp shex/ShExValidator.cpp
         queryCanonical/IriNormalizer.cpp queryCanonical/ConstantExtractor.cpp
         queryCanonical/DeterminismClassifier.cpp queryCanonical/CanonicalSerializer.cpp
         queryCanonical/FingerprintRegistry.cpp queryCanonical/QueryFingerprint.cpp
@@ -33,7 +34,14 @@ add_library(engine
         readCache/ReadCacheKeys.cpp readCache/SerializerPaging.cpp
         readCache/BytesCache.cpp readCache/PlanCache.cpp readCache/NegativeCache.cpp
         readCache/ReadCacheManager.cpp readCache/AdmissionPolicy.cpp
-        readCache/CacheMetrics.cpp readCache/MetricsExport.cpp)
+        readCache/CacheMetrics.cpp readCache/MetricsExport.cpp
+        conformance/ConformanceDiffer.cpp conformance/ConformanceRunner.cpp
+        contracts/Violation.cpp
+        shacl/ShaclViolation.cpp shacl/ViolationFormatter.cpp
+        shacl/SparqlBasedConstraint.cpp
+        validation/ViolationFormatter.cpp validation/ValidationService.cpp
+        n3/N3Service.cpp n3/N3ComplianceRunner.cpp
+        rules/RulesService.cpp)
 
 qlever_target_link_libraries(engine util index parser global sparqlExpressions SortPerformanceEstimator Boost::iostreams s2 spatialjoin-dev pb_util pb_util_geo)
 
