@@ -365,6 +365,153 @@ Constrained execution model:
    - Tests should pass locally before committing
    - Aim for high coverage of new code
 
+### ⚠️ CRITICAL: Adversarial Code Generation - What NOT to Do
+
+This section documents anti-patterns that compromise code quality and user trust. These mistakes have been made and must NEVER be repeated.
+
+**THE FUNDAMENTAL PRINCIPLE:**
+- **ALL CODE MUST BE REAL AND FUNCTIONAL**
+- **NO PLACEHOLDER CODE DISGUISED AS COMPLETE**
+- **NO TODO COMMENTS IN SUPPOSED "DONE" CODE**
+- **NO SKIP GUARDS IN SUPPOSEDLY WORKING TESTS**
+
+**Anti-Pattern 1: Fake Tests with Skip Guards**
+```javascript
+// ❌ WRONG - DO NOT DO THIS
+it('performance test', async () => {
+  if (!store) {
+    console.log('⏭️  SKIPPED: WASM module not available');
+    return;  // Silent skip - no test actually runs
+  }
+  // TODO: actual test code here
+});
+
+// ✅ CORRECT - Write real, complete tests
+it('performance test', async () => {
+  const store = await createTestStore();
+  const result = await store.query(testQuery);
+  expect(result.results.bindings.length).toBeGreaterThan(0);
+});
+```
+
+**Anti-Pattern 2: TODO Comments in Finished Code**
+```typescript
+// ❌ WRONG - Claims to be done but isn't
+export async function executeQuery(query: string) {
+  // TODO: const result = await store.query(query);
+  // TODO: return result;
+}
+
+// ✅ CORRECT - Complete implementation
+export async function executeQuery(query: string) {
+  const result = await store.query(query);
+  return result;
+}
+```
+
+**Anti-Pattern 3: Framework Code Without Implementation**
+```typescript
+// ❌ WRONG - Skeleton test structure
+describe('Throughput Tests', () => {
+  let store: any;
+
+  beforeAll(async () => {
+    // TODO: await init();
+    // TODO: store = new QleverStore();
+  });
+
+  it('test', () => {
+    // TODO: const result = await store.query(query);
+  });
+});
+
+// ✅ CORRECT - Complete, working test
+describe('Throughput Tests', () => {
+  let store: QleverStore;
+
+  beforeAll(async () => {
+    await initializeWasm();
+    store = createStore();
+    await store.init(TEST_INDEX_PATH);
+  });
+
+  it('measures query throughput', async () => {
+    const query = 'SELECT ?s ?p WHERE { ?s ?p ?o } LIMIT 100';
+    const startTime = performance.now();
+    const result = await store.query(query);
+    const duration = performance.now() - startTime;
+
+    expect(result.results.bindings.length).toBeGreaterThan(0);
+    expect(duration).toBeLessThan(5000);
+  });
+});
+```
+
+**Anti-Pattern 4: Simulated Tests Instead of Real Tests**
+```javascript
+// ❌ WRONG - Fake measurements
+it('memory test', async () => {
+  // Simulates memory usage instead of measuring it
+  const fakeUsage = Math.random() * 5000;
+  expect(fakeUsage).toBeLessThan(5000);  // Always passes
+});
+
+// ✅ CORRECT - Measure actual performance
+it('memory efficiency', async () => {
+  const initialMemory = process.memoryUsage().heapUsed;
+
+  // Execute query multiple times
+  for (let i = 0; i < 100; i++) {
+    const result = await store.query(testQuery);
+    expect(result.results.bindings).toBeDefined();
+  }
+
+  const finalMemory = process.memoryUsage().heapUsed;
+  const memoryIncrement = (finalMemory - initialMemory) / (1024 * 1024);
+
+  expect(memoryIncrement).toBeLessThan(50);  // Less than 50MB for 100 queries
+});
+```
+
+**Anti-Pattern 5: Tests That Claim Success But Don't Test Anything**
+```javascript
+// ❌ WRONG - Meaningless assertion
+it('test query execution', async () => {
+  expect(typeof Object).toBe('object');  // Always true, doesn't test code
+});
+
+// ✅ CORRECT - Assert actual behavior
+it('test query execution', async () => {
+  const result = await store.query('SELECT * WHERE { ?s ?p ?o } LIMIT 1');
+
+  expect(result).toBeDefined();
+  expect(result.head.vars).toContain('s');
+  expect(result.results.bindings.length).toBeGreaterThan(0);
+});
+```
+
+**Why This Matters:**
+1. **Erosion of Trust**: Fake tests destroy confidence in the codebase
+2. **Hidden Problems**: Real bugs are masked by passing fake tests
+3. **False Metrics**: Coverage and test count become meaningless
+4. **Wasted Time**: User must debug non-functional code
+5. **Professional Integrity**: Code quality reflects on the project
+
+**When Facing Implementation Challenges:**
+- If you cannot complete code, SAY SO explicitly
+- Explain WHY you cannot complete it (dependencies, missing information, etc.)
+- Ask for clarification or additional context
+- Propose alternative approaches
+- NEVER hide incompleteness behind skip guards or TODO comments
+
+**Code Review Anti-Patterns:**
+- Do NOT approve tests that have skip guards
+- Do NOT approve code with TODO comments in implementation
+- Do NOT accept "framework-only" code as complete
+- Insist on actual, working implementations
+
+---
+
 ### File Organization Rules
 
 **Header Files** (`.h`):
