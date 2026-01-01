@@ -1,0 +1,839 @@
+{
+  "hooks": {
+    "query_execution_context": {
+      "description": "Add ShEx shape schema access to QueryExecutionContext",
+      "location": "/home/user/qlever/src/engine/QueryExecutionContext.h",
+      "integration_points": {
+        "shape_schema_manager": {
+          "type": "ShapeSchemaManager*",
+          "purpose": "Non-owning pointer to shape schema registry",
+          "initialization": "Constructor parameter, similar to MaterializedViewsManager",
+          "access_pattern": "const ShapeSchemaManager& shapeSchemaManager() const"
+        },
+        "shape_validation_context": {
+          "type": "std::optional<ShapeValidationContext>",
+          "purpose": "Per-query validation settings and target shapes",
+          "usage": "Set when VALIDATE clause is encountered in SPARQL"
+        }
+      },
+      "code_location_lines": "100-110, 174-176"
+    },
+
+    "operation_base_class": {
+      "description": "Add shape validation hooks to Operation base class",
+      "location": "/home/user/qlever/src/engine/Operation.h",
+      "integration_points": {
+        "pre_execution_validation": {
+          "hook_method": "virtual std::optional<ShapeViolations> validatePreExecution(const ShapeConstraints& constraints) const",
+          "purpose": "Validate operation constraints before execution (e.g., cardinality bounds)",
+          "default_implementation": "return std::nullopt; // No validation by default",
+          "override_in": ["IndexScan", "Join", "Filter"]
+        },
+        "post_execution_validation": {
+          "hook_method": "virtual void validatePostExecution(const Result& result, const ShapeConstraints& constraints) const",
+          "purpose": "Validate result against shape constraints after execution",
+          "implementation": "Called from getResult() after computeResult()",
+          "throws": "ShapeViolationException if validation fails"
+        },
+        "shape_hints": {
+          "hook_method": "virtual std::optional<ShapeHints> getShapeHints() const",
+          "purpose": "Provide shape-based hints to query planner for optimization",
+          "returns": {
+            "cardinality_bounds": "Expected min/max result size from shape",
+            "type_constraints": "Known RDF types from shape",
+            "required_predicates": "Must-have predicates from shape"
+          }
+        }
+      },
+      "execution_flow_modification": {
+        "in_getResult": {
+          "before_cache_check": "Check if shape validation is enabled for this query",
+          "after_computation": "Call validatePostExecution() if ShapeValidationContext is set",
+          "on_cache_hit": "Skip validation or re-validate based on configuration"
+        }
+      }
+    },
+
+    "query_execution_tree": {
+      "description": "Add shape-aware tree manipulation methods",
+      "location": "/home/user/qlever/src/engine/QueryExecutionTree.h",
+      "integration_points": {
+        "shape_annotated_tree": {
+          "method": "void annotateWithShape(const ShapeId& shapeId)",
+          "purpose": "Annotate tree with shape information for validation/optimization",
+          "propagation": "Recursively propagate to all descendants"
+        },
+        "shape_based_pruning": {
+          "method": "static std::shared_ptr<QueryExecutionTree> pruneWithShapeConstraints(std::shared_ptr<QueryExecutionTree> qet, const ShapeConstraints& constraints)",
+          "purpose": "Eliminate operations that violate shape constraints",
+          "example": "Prune branches that would return incompatible types"
+        },
+        "validation_wrapper": {
+          "method": "std::shared_ptr<QueryExecutionTree> wrapWithValidation(ShapeId shapeId)",
+          "purpose": "Wrap tree with validation operation",
+          "implementation": "Add ShapeValidation operation as new root"
+        }
+      }
+    },
+
+    "query_planner_hooks": {
+      "description": "Integrate shape information into query planning",
+      "location": "/home/user/qlever/src/engine/QueryPlanner.h",
+      "integration_points": {
+        "cost_estimation_enhancement": {
+          "location": "SubtreePlan::getCostEstimate()",
+          "modification": "Factor in shape-based cardinality hints",
+          "algorithm": "If shape specifies cardinality bounds, use them to refine size estimates"
+        },
+        "index_selection": {
+          "location": "seedFromOrdinaryTriple() and related methods",
+          "modification": "Prefer permutations that align with shape-specified access patterns",
+          "example": "If shape frequently queries ?x rdf:type ?type, favor PSO permutation"
+        },
+        "join_ordering": {
+          "location": "merge() and createJoinCandidates()",
+          "modification": "Use shape selectivity hints to inform join order",
+          "heuristic": "Join on variables with tighter shape constraints first"
+        },
+        "filter_pushdown": {
+          "location": "applyFiltersIfPossible()",
+          "modification": "Convert shape type constraints to filters and push down",
+          "example": "sh:datatype xsd:integer → FILTER(datatype(?x) = xsd:integer)"
+        }
+      },
+      "new_methods": {
+        "getShapeInformedCostEstimate": {
+          "signature": "size_t getShapeInformedCostEstimate(const SubtreePlan& plan, const ShapeConstraints& constraints) const",
+          "purpose": "Enhanced cost estimation using shape information"
+        },
+        "optimizeWithShapeConstraints": {
+          "signature": "std::vector<SubtreePlan> optimizeWithShapeConstraints(ParsedQuery& pq, const ShapeSchema& schema)",
+          "purpose": "Main entry point for shape-aware query optimization"
+        }
+      }
+    },
+
+    "index_scan_enhancement": {
+      "description": "Add shape-aware scanning to IndexScan",
+      "location": "/home/user/qlever/src/engine/IndexScan.h",
+      "integration_points": {
+        "shape_constrained_scan": {
+          "field": "std::optional<ShapeConstraints> shapeConstraints_",
+          "purpose": "Store shape constraints to filter results during scan",
+          "usage": "Applied in materializedIndexScan() and chunkedIndexScan()"
+        },
+        "type_filtered_scan": {
+          "method": "IdTable scanWithTypeFilter(const std::vector<Id>& allowedTypes)",
+          "purpose": "Optimize scans when shape specifies allowed RDF types",
+          "implementation": "Use type information to skip blocks with wrong types"
+        },
+        "cardinality_bounded_scan": {
+          "modification": "In getLimitOffset(), use shape min/max cardinality as hints",
+          "optimization": "Early termination when shape maxCount is reached"
+        }
+      }
+    }
+  },
+
+  "validation_middleware": {
+    "description": "Result validation pipeline for shape conformance checking",
+    "architecture": "Decorator pattern wrapping Result objects",
+
+    "components": {
+      "shape_validator": {
+        "class": "ShapeValidator",
+        "location": "/home/user/qlever/src/engine/shex/ShapeValidator.h (new file)",
+        "responsibility": "Core shape validation logic",
+        "methods": {
+          "validateResult": {
+            "signature": "ShapeValidationReport validateResult(const Result& result, const VariableToColumnMap& varMap, const ShapeConstraints& constraints)",
+            "algorithm": [
+              "1. For each row in result.idTable()",
+              "2. Extract entity IDs for focus nodes",
+              "3. For each focus node, validate against shape definition",
+              "4. Check cardinality, datatype, value constraints",
+              "5. Recursively validate nested shapes",
+              "6. Aggregate violations into report"
+            ]
+          },
+          "validateNode": {
+            "signature": "bool validateNode(Id nodeId, const Shape& shape, const LocatedTriplesSnapshot& snapshot)",
+            "purpose": "Validate single node against shape"
+          }
+        }
+      },
+
+      "validation_operation": {
+        "class": "ShapeValidationOperation",
+        "location": "/home/user/qlever/src/engine/shex/ShapeValidationOperation.h (new file)",
+        "parent": "Operation",
+        "responsibility": "Operation wrapper for shape validation",
+        "members": {
+          "child_": "std::shared_ptr<QueryExecutionTree>",
+          "shapeId_": "ShapeId",
+          "validationMode_": "enum { STRICT, LAX, REPORT_ONLY }"
+        },
+        "computeResult_implementation": [
+          "1. Get result from child operation",
+          "2. Run validation via ShapeValidator",
+          "3. Based on validationMode_:",
+          "   - STRICT: throw if any violations",
+          "   - LAX: filter out violating rows",
+          "   - REPORT_ONLY: attach violations as metadata",
+          "4. Return validated/filtered result"
+        ]
+      },
+
+      "validation_context": {
+        "class": "ShapeValidationContext",
+        "location": "/home/user/qlever/src/engine/shex/ShapeValidationContext.h (new file)",
+        "purpose": "Store per-query validation configuration",
+        "fields": {
+          "targetShapes": "std::unordered_map<Variable, ShapeId>",
+          "validationMode": "ValidationMode",
+          "reportFormat": "enum { INLINE, SEPARATE, SUPPRESS }",
+          "failFast": "bool - stop on first violation"
+        }
+      },
+
+      "validation_report": {
+        "class": "ShapeValidationReport",
+        "location": "/home/user/qlever/src/engine/shex/ShapeValidationReport.h (new file)",
+        "purpose": "Store validation results",
+        "fields": {
+          "conformant": "bool",
+          "violations": "std::vector<ShapeViolation>",
+          "statistics": "ValidationStatistics (counts, timing)"
+        },
+        "export_formats": ["JSON", "RDF (sh:ValidationReport)", "Plain text"]
+      }
+    },
+
+    "integration_flow": {
+      "parse_time": [
+        "1. Parser encounters VALIDATE clause",
+        "2. Create ShapeValidationContext with target shapes",
+        "3. Store in QueryExecutionContext"
+      ],
+      "planning_time": [
+        "1. QueryPlanner checks for ShapeValidationContext",
+        "2. If present, wrap execution tree with ShapeValidationOperation",
+        "3. Optimize based on shape constraints"
+      ],
+      "execution_time": [
+        "1. Execute child operation",
+        "2. ShapeValidationOperation validates result",
+        "3. Filter/throw/report based on mode",
+        "4. Return to caller"
+      ]
+    }
+  },
+
+  "optimization": {
+    "description": "Shape-driven query optimization strategies",
+
+    "techniques": {
+      "cardinality_estimation": {
+        "description": "Use shape cardinality constraints to improve estimates",
+        "implementation": {
+          "location": "Operation::getSizeEstimate()",
+          "logic": [
+            "1. Get base size estimate from statistics",
+            "2. If shape constraints available:",
+            "   a. Check sh:minCount, sh:maxCount",
+            "   b. Refine estimate to be within bounds",
+            "   c. Use tighter bound if available",
+            "3. Propagate refined estimates up tree"
+          ]
+        },
+        "example": {
+          "scenario": "?person foaf:knows ?friend with sh:minCount 1, sh:maxCount 100",
+          "impact": "Narrow size estimate from [0, ∞) to [1, 100] per person"
+        }
+      },
+
+      "type_based_filtering": {
+        "description": "Convert shape type constraints to early filters",
+        "implementation": {
+          "location": "QueryPlanner::applyFiltersIfPossible()",
+          "transformation": [
+            "Shape constraint: sh:class ex:Person",
+            "→ Generate filter: ?x rdf:type ex:Person",
+            "→ Push filter to IndexScan if possible"
+          ]
+        },
+        "optimization": {
+          "index_hint": "Use PSO permutation for type-based scans",
+          "early_pruning": "Filter at scan level, not post-join"
+        }
+      },
+
+      "predicate_path_optimization": {
+        "description": "Optimize property path queries using shape structure",
+        "implementation": {
+          "location": "QueryPlanner::seedFromPropertyPath()",
+          "logic": [
+            "1. Analyze shape for predicate sequences",
+            "2. If path matches shape structure, use known cardinalities",
+            "3. Avoid computing full transitive closure if shape bounds depth"
+          ]
+        },
+        "example": {
+          "shape": "ex:PersonShape with ex:knows/ex:name required",
+          "query": "?person ex:knows/ex:name ?name",
+          "optimization": "Know that path length is exactly 2, no need for full path computation"
+        }
+      },
+
+      "join_order_refinement": {
+        "description": "Reorder joins based on shape selectivity",
+        "implementation": {
+          "location": "QueryPlanner::merge()",
+          "heuristic": [
+            "1. Compute selectivity for each triple pattern from shape",
+            "2. Selectivity = (actual cardinality) / (possible cardinality)",
+            "3. Join patterns with lower selectivity first",
+            "4. Break ties using existing QLever heuristics"
+          ]
+        },
+        "selectivity_calculation": {
+          "high_selectivity": "sh:maxCount 1 → very selective",
+          "low_selectivity": "sh:minCount 0 + no maxCount → not selective"
+        }
+      },
+
+      "index_selection": {
+        "description": "Choose optimal permutation based on shape access patterns",
+        "implementation": {
+          "location": "QueryPlanner::seedFromOrdinaryTriple()",
+          "strategy": {
+            "analyze_shape": "Identify most frequently constrained position (S/P/O)",
+            "prefer_permutation": "Choose permutation with that position first",
+            "example": "If shape heavily constrains predicates, prefer PSO/POS"
+          }
+        }
+      }
+    },
+
+    "cost_model_enhancement": {
+      "description": "Extend QLever's cost model with shape information",
+      "new_cost_factors": {
+        "shape_cardinality_confidence": {
+          "formula": "cost_factor = 0.5 + 0.5 * (1 - uncertainty)",
+          "uncertainty": "Based on how specific shape constraints are"
+        },
+        "validation_overhead": {
+          "formula": "validation_cost = num_constraints * avg_constraint_check_time * result_size",
+          "included_in": "Total operation cost when validation is enabled"
+        },
+        "type_filter_benefit": {
+          "formula": "pruning_factor = (types_in_shape) / (total_types_in_graph)",
+          "applied_to": "Scan operations with type constraints"
+        }
+      }
+    }
+  },
+
+  "sparql_validate": {
+    "description": "SPARQL extension for ShEx validation",
+
+    "syntax": {
+      "validate_clause": {
+        "form": "VALIDATE { ?var @:ShapeLabel }",
+        "position": "After WHERE clause, before ORDER BY/LIMIT",
+        "example": "SELECT ?person ?name WHERE { ?person foaf:name ?name } VALIDATE { ?person @:PersonShape }"
+      },
+      "validate_function": {
+        "form": "shex:validate(?node, :ShapeIRI)",
+        "returns": "Boolean - true if node conforms to shape",
+        "usage_in_filter": "FILTER(shex:validate(?person, :PersonShape))",
+        "usage_in_bind": "BIND(shex:validate(?x, :Shape) AS ?valid)"
+      },
+      "validate_report": {
+        "form": "shex:validateWithReport(?node, :ShapeIRI)",
+        "returns": "IRI to validation report (sh:ValidationReport)",
+        "example": "BIND(shex:validateWithReport(?x, :Shape) AS ?report)"
+      }
+    },
+
+    "parser_integration": {
+      "location": "/home/user/qlever/src/parser/ParsedQuery.h",
+      "modifications": {
+        "add_validate_clause": {
+          "struct": "parsedQuery::ValidateClause",
+          "fields": {
+            "targetVariable": "Variable",
+            "shapeReference": "TripleComponent (IRI or prefixed name)",
+            "mode": "enum { STRICT, LAX }"
+          }
+        },
+        "extend_parsed_query": {
+          "field": "std::optional<ValidateClause> validateClause_",
+          "getter": "const auto& validateClause() const"
+        }
+      },
+      "grammar_extension": {
+        "location": "/home/user/qlever/src/parser/sparqlParser (ANTLR grammar)",
+        "rules": {
+          "validateClause": "VALIDATE '{' validatePattern+ '}'",
+          "validatePattern": "variable '@' iriRef"
+        }
+      }
+    },
+
+    "execution": {
+      "validate_clause_handling": {
+        "in_query_planner": [
+          "1. Check if ParsedQuery has validateClause_",
+          "2. Resolve shape IRIs to internal ShapeIds",
+          "3. Create ShapeValidationContext",
+          "4. Wrap final execution tree with ShapeValidationOperation",
+          "5. Set validation mode based on clause"
+        ]
+      },
+      "validate_function_handling": {
+        "sparql_expression": {
+          "class": "ValidateExpression",
+          "location": "/home/user/qlever/src/engine/sparqlExpressions/ShExExpressions.h (new)",
+          "parent": "SparqlExpression",
+          "evaluate": [
+            "1. Extract node ID from first argument",
+            "2. Resolve shape from second argument",
+            "3. Call ShapeValidator::validateNode()",
+            "4. Return boolean result as Id"
+          ]
+        },
+        "registration": {
+          "location": "SparqlExpression factory",
+          "function_iri": "http://www.w3.org/ns/shex#validate"
+        }
+      }
+    },
+
+    "result_format": {
+      "when_validation_passes": {
+        "return": "Normal query result unchanged"
+      },
+      "when_validation_fails": {
+        "strict_mode": {
+          "behavior": "Throw exception",
+          "exception_type": "ShapeViolationException",
+          "http_status": "400 Bad Request",
+          "message": "Includes violation details"
+        },
+        "lax_mode": {
+          "behavior": "Filter out violating rows",
+          "metadata": "Add warning to response"
+        },
+        "report_mode": {
+          "behavior": "Add validation report as additional result",
+          "format": "JSON object with conformant flag and violations array"
+        }
+      }
+    }
+  },
+
+  "metadata_storage": {
+    "description": "Persistence layer for ShEx shapes in QLever index",
+
+    "storage_strategy": {
+      "option_1_separate_file": {
+        "approach": "Store shapes in separate .shex or .ttl file",
+        "location": "${onDiskBase}.shapes.ttl",
+        "pros": ["Easy to update", "Standard format", "Human readable"],
+        "cons": ["Extra I/O", "Not integrated with index"],
+        "recommended": "For development and testing"
+      },
+      "option_2_index_metadata": {
+        "approach": "Embed shapes in index metadata",
+        "location": "Extend IndexImpl with shape storage",
+        "pros": ["Single artifact", "Fast access", "Versioned with index"],
+        "cons": ["Requires index rebuild to update"],
+        "recommended": "For production deployments"
+      },
+      "option_3_hybrid": {
+        "approach": "Store shape IRIs in index, full definitions externally",
+        "location": "Index has shape->IRI mapping, definitions loaded on-demand",
+        "pros": ["Flexible", "Updateable", "Space efficient"],
+        "cons": ["More complex"],
+        "recommended": "For large-scale deployments"
+      }
+    },
+
+    "implementation_option_2": {
+      "shape_metadata_class": {
+        "name": "ShapeMetadata",
+        "location": "/home/user/qlever/src/index/ShapeMetadata.h (new file)",
+        "fields": {
+          "shapes_": "std::unordered_map<ShapeId, ShapeDefinition>",
+          "shapeIriToId_": "std::unordered_map<std::string, ShapeId>",
+          "schemaVersion_": "std::string (e.g., ShEx 2.0)"
+        },
+        "serialization": "Use QLever's serialization library (util/Serializer/Serializer.h)"
+      },
+
+      "index_impl_integration": {
+        "location": "/home/user/qlever/src/index/IndexImpl.h",
+        "modifications": {
+          "add_field": "ShapeMetadata shapeMetadata_;",
+          "load_shapes": {
+            "method": "void loadShapesFromFile(const std::string& shapeFile)",
+            "called_from": "createFromOnDiskIndex()",
+            "timing": "After vocabulary is loaded"
+          },
+          "save_shapes": {
+            "method": "void saveShapesToIndex()",
+            "called_from": "Index building process",
+            "file": "${onDiskBase}.shapes.meta"
+          }
+        }
+      },
+
+      "shape_manager": {
+        "class": "ShapeSchemaManager",
+        "location": "/home/user/qlever/src/engine/shex/ShapeSchemaManager.h (new file)",
+        "responsibility": "Runtime access to shape definitions",
+        "fields": {
+          "index_": "const Index&",
+          "shapeCache_": "Cache of parsed shape definitions",
+          "statistics_": "Shape usage statistics for optimization"
+        },
+        "methods": {
+          "getShape": "std::optional<Shape> getShape(ShapeId id) const",
+          "resolveShapeIri": "std::optional<ShapeId> resolveShapeIri(const std::string& iri) const",
+          "findShapesForType": "std::vector<ShapeId> findShapesForType(Id typeId) const",
+          "updateStatistics": "void updateStatistics(ShapeId id, const QueryStatistics& stats)"
+        }
+      }
+    },
+
+    "shape_definition_format": {
+      "internal_representation": {
+        "class": "Shape",
+        "location": "/home/user/qlever/src/engine/shex/Shape.h (new file)",
+        "fields": {
+          "id": "ShapeId",
+          "iri": "std::string",
+          "constraints": {
+            "tripleConstraints": "std::vector<TripleConstraint>",
+            "closed": "bool",
+            "cardinality": "struct { min: size_t, max: std::optional<size_t> }"
+          }
+        },
+        "triple_constraint": {
+          "predicate": "TripleComponent",
+          "valueConstraint": "ValueConstraint (datatype, nodeKind, values)",
+          "cardinality": "struct { min: size_t, max: std::optional<size_t> }"
+        }
+      },
+
+      "import_from_shex": {
+        "parser": "Use existing ShEx parser or implement subset",
+        "supported_features": [
+          "sh:NodeShape, sh:PropertyShape",
+          "sh:property, sh:path",
+          "sh:minCount, sh:maxCount",
+          "sh:datatype, sh:class",
+          "sh:nodeKind (IRI, Literal, BlankNode)",
+          "sh:hasValue, sh:in"
+        ],
+        "unsupported_initially": [
+          "sh:not, sh:and, sh:or (complex boolean logic)",
+          "sh:qualifiedValueShape (complex nesting)",
+          "SHACL-SPARQL constraints"
+        ]
+      }
+    },
+
+    "access_patterns": {
+      "at_index_build_time": {
+        "load": "IndexBuilder reads shape file if provided (--shapes option)",
+        "parse": "Convert ShEx/SHACL to internal Shape representation",
+        "store": "Serialize to ${onDiskBase}.shapes.meta"
+      },
+      "at_server_startup": {
+        "load": "Index::createFromOnDiskIndex() loads shape metadata",
+        "initialize": "ShapeSchemaManager initialized with loaded shapes",
+        "register": "QueryExecutionContext gets reference to ShapeSchemaManager"
+      },
+      "at_query_time": {
+        "resolve": "VALIDATE clause triggers shape IRI → ShapeId lookup",
+        "access": "ShapeSchemaManager::getShape() provides shape definition",
+        "cache": "Parsed shapes cached for reuse across queries"
+      }
+    }
+  },
+
+  "integration_scenarios": {
+    "scenario_1_validation_only": {
+      "use_case": "Data quality checking - validate query results",
+      "components": ["ShapeValidator", "ShapeValidationOperation", "VALIDATE clause"],
+      "query_example": "SELECT ?person ?email WHERE { ?person foaf:mbox ?email } VALIDATE { ?person @:PersonShape }",
+      "execution_flow": [
+        "1. Parse query with VALIDATE clause",
+        "2. Create ShapeValidationContext with :PersonShape for ?person",
+        "3. Build normal execution tree for WHERE clause",
+        "4. Wrap tree with ShapeValidationOperation",
+        "5. Execute query to get results",
+        "6. Validate each ?person binding against :PersonShape",
+        "7. Return results + validation report"
+      ],
+      "output": {
+        "if_valid": "Normal SPARQL results",
+        "if_invalid": "HTTP 400 with violation details (STRICT mode) or filtered results (LAX mode)"
+      }
+    },
+
+    "scenario_2_optimization_only": {
+      "use_case": "Improve query performance using shape knowledge",
+      "components": ["ShapeHints", "ShapeSchemaManager", "QueryPlanner enhancements"],
+      "query_example": "SELECT ?person ?friend WHERE { ?person foaf:knows ?friend }",
+      "shape_info": ":PersonShape { foaf:knows @:PersonShape {1,100} }",
+      "execution_flow": [
+        "1. QueryPlanner checks ShapeSchemaManager for relevant shapes",
+        "2. Finds :PersonShape applies to ?person (from rdf:type triple or hint)",
+        "3. Extracts cardinality constraint: 1-100 friends per person",
+        "4. Refines size estimate: persons * 50 (avg of 1-100)",
+        "5. Uses this estimate in cost-based optimization",
+        "6. No validation performed, just optimization"
+      ],
+      "performance_impact": "Better join ordering, more accurate memory allocation"
+    },
+
+    "scenario_3_combined": {
+      "use_case": "Full integration - optimize and validate",
+      "components": ["All components"],
+      "query_example": "SELECT ?paper ?author ?affiliation WHERE { ?paper dcterms:creator ?author . ?author foaf:member ?affiliation } VALIDATE { ?paper @:PublicationShape ; ?author @:AuthorShape }",
+      "shape_info": {
+        "PublicationShape": "dcterms:creator {1,*} @:AuthorShape",
+        "AuthorShape": "foaf:member {0,1} @:OrganizationShape"
+      },
+      "execution_flow": [
+        "1. Parser creates ValidateClause for ?paper and ?author",
+        "2. QueryPlanner extracts shape hints:",
+        "   - Each paper has ≥1 author",
+        "   - Each author has 0-1 affiliation",
+        "3. Optimization decisions:",
+        "   - Join paper-author first (guaranteed results)",
+        "   - Use LEFT JOIN for author-affiliation (optional)",
+        "4. Execution with validation:",
+        "   - Compute results",
+        "   - Validate ?paper bindings against PublicationShape",
+        "   - Validate ?author bindings against AuthorShape",
+        "5. Return validated results or violations"
+      ],
+      "benefits": [
+        "Faster execution due to better join ordering",
+        "Guaranteed data quality in results",
+        "Early detection of schema violations"
+      ]
+    }
+  },
+
+  "api_design": {
+    "shape_lookup_api": {
+      "class": "ShapeSchemaManager",
+      "location": "/home/user/qlever/src/engine/shex/ShapeSchemaManager.h",
+
+      "public_interface": {
+        "getShapeById": {
+          "signature": "std::optional<const Shape*> getShapeById(ShapeId id) const",
+          "complexity": "O(1) - direct map lookup",
+          "thread_safety": "Thread-safe (read-only access)",
+          "returns": "Pointer to Shape or nullopt if not found"
+        },
+
+        "resolveShapeIri": {
+          "signature": "std::optional<ShapeId> resolveShapeIri(const std::string& iri) const",
+          "complexity": "O(1) - hash map lookup",
+          "usage": "Convert IRI from SPARQL query to internal ShapeId",
+          "example": "resolveShapeIri('http://example.org/PersonShape') → ShapeId(42)"
+        },
+
+        "getShapesForPredicate": {
+          "signature": "std::vector<ShapeId> getShapesForPredicate(Id predicateId) const",
+          "purpose": "Find shapes that constrain a given predicate",
+          "usage": "Query optimization - determine if predicate has shape constraints",
+          "complexity": "O(log N) - indexed lookup"
+        },
+
+        "getShapesForType": {
+          "signature": "std::vector<ShapeId> getShapesForType(Id typeId) const",
+          "purpose": "Find shapes for entities of given rdf:type",
+          "usage": "Auto-apply validation based on type information",
+          "example": "getShapesForType(foaf:Person) → [:PersonShape, :AgentShape]"
+        },
+
+        "getCardinalityConstraint": {
+          "signature": "std::optional<CardinalityConstraint> getCardinalityConstraint(ShapeId shapeId, Id predicateId) const",
+          "returns": "struct CardinalityConstraint { size_t min; std::optional<size_t> max; }",
+          "usage": "Extract specific constraint for optimization",
+          "example": "Get min/max count for foaf:knows in PersonShape"
+        },
+
+        "getAllShapes": {
+          "signature": "std::vector<ShapeId> getAllShapes() const",
+          "purpose": "Enumerate all available shapes",
+          "usage": "Admin/debugging, shape statistics"
+        }
+      },
+
+      "construction": {
+        "constructor": "explicit ShapeSchemaManager(const Index& index)",
+        "initialization": [
+          "1. Load ShapeMetadata from index",
+          "2. Build internal indexes (predicate→shapes, type→shapes)",
+          "3. Initialize caches"
+        ]
+      },
+
+      "internal_indexes": {
+        "predicateIndex_": {
+          "type": "std::unordered_map<Id, std::vector<ShapeId>>",
+          "purpose": "Fast lookup of shapes by predicate",
+          "built": "During initialization by scanning all shapes"
+        },
+        "typeIndex_": {
+          "type": "std::unordered_map<Id, std::vector<ShapeId>>",
+          "purpose": "Fast lookup of shapes by target class",
+          "source": "sh:targetClass or sh:class constraints"
+        },
+        "statisticsCache_": {
+          "type": "std::unordered_map<ShapeId, ShapeStatistics>",
+          "purpose": "Cache query statistics for cost estimation",
+          "updated": "After each query execution"
+        }
+      }
+    },
+
+    "shape_hints_api": {
+      "struct": "ShapeHints",
+      "location": "/home/user/qlever/src/engine/shex/ShapeHints.h",
+      "purpose": "Transfer shape information to query optimizer",
+
+      "fields": {
+        "cardinalityBounds": {
+          "type": "std::unordered_map<Variable, std::pair<size_t, std::optional<size_t>>>",
+          "meaning": "min/max result count per variable binding"
+        },
+        "typeConstraints": {
+          "type": "std::unordered_map<Variable, std::vector<Id>>",
+          "meaning": "Allowed rdf:types for each variable"
+        },
+        "requiredPredicates": {
+          "type": "std::unordered_map<Variable, std::vector<Id>>",
+          "meaning": "Predicates that must be present (minCount ≥ 1)"
+        },
+        "optionalPredicates": {
+          "type": "std::unordered_map<Variable, std::vector<Id>>",
+          "meaning": "Predicates that may be absent (minCount = 0)"
+        },
+        "estimatedSelectivity": {
+          "type": "double",
+          "meaning": "Overall selectivity factor (0.0 to 1.0)",
+          "usage": "Multiply base size estimate by this factor"
+        }
+      },
+
+      "extraction": {
+        "method": "static ShapeHints extractFromShape(const Shape& shape, const VariableToColumnMap& varMap)",
+        "algorithm": [
+          "1. For each variable in varMap",
+          "2. Find applicable shape constraint",
+          "3. Extract cardinality, type, predicate constraints",
+          "4. Compute selectivity based on constraint specificity",
+          "5. Return aggregated hints"
+        ]
+      }
+    },
+
+    "validation_api": {
+      "class": "ShapeValidator",
+      "location": "/home/user/qlever/src/engine/shex/ShapeValidator.h",
+
+      "public_methods": {
+        "validateNode": {
+          "signature": "ValidationResult validateNode(Id nodeId, const Shape& shape, const LocatedTriplesSnapshot& snapshot) const",
+          "algorithm": [
+            "1. Retrieve all triples with nodeId as subject",
+            "2. Group by predicate",
+            "3. For each TripleConstraint in shape:",
+            "   a. Check cardinality (count of matching triples)",
+            "   b. Validate value constraints (datatype, nodeKind, etc.)",
+            "   c. Recursively validate nested shapes",
+            "4. If shape is closed, check for unexpected predicates",
+            "5. Return ValidationResult with conformant flag + violations"
+          ]
+        },
+
+        "validateResult": {
+          "signature": "ShapeValidationReport validateResult(const Result& result, const VariableToColumnMap& varMap, const std::unordered_map<Variable, ShapeId>& targetShapes) const",
+          "algorithm": [
+            "1. For each row in result.idTable()",
+            "2. For each variable in targetShapes:",
+            "   a. Get variable's column index from varMap",
+            "   b. Extract Id from that column in current row",
+            "   c. Validate Id against corresponding shape",
+            "   d. Record violations",
+            "3. Aggregate results into report"
+          ]
+        },
+
+        "validateTripleConstraint": {
+          "signature": "bool validateTripleConstraint(const std::vector<Id>& values, const TripleConstraint& constraint) const",
+          "purpose": "Validate a set of values against a single triple constraint",
+          "checks": ["Cardinality", "Datatype", "Node kind", "Value set"]
+        }
+      },
+
+      "private_helpers": {
+        "checkCardinality": "bool checkCardinality(size_t count, size_t min, std::optional<size_t> max)",
+        "checkDatatype": "bool checkDatatype(Id value, Id datatypeId)",
+        "checkNodeKind": "bool checkNodeKind(Id value, NodeKind kind)",
+        "checkValueSet": "bool checkValueSet(Id value, const std::vector<Id>& allowedValues)"
+      },
+
+      "dependencies": {
+        "index": "const Index& - for triple lookup",
+        "vocab": "const RdfsVocabulary& - for IRI/literal resolution",
+        "shapeManager": "const ShapeSchemaManager& - for nested shape lookup"
+      }
+    }
+  },
+
+  "performance_considerations": {
+    "validation_cost": {
+      "per_node": "O(T) where T = number of triples with node as subject",
+      "per_constraint": "O(1) for most checks, O(V) for value set checks (V = set size)",
+      "total": "O(R * T * C) where R = result rows, T = avg triples/node, C = constraints/shape"
+    },
+
+    "optimization_benefit": {
+      "cardinality_hints": "Can improve join ordering by 10-50% for constrained predicates",
+      "type_filtering": "Can reduce scan size by 50-90% when types are specific",
+      "overall": "Expected 20-40% query speedup for shape-compliant queries"
+    },
+
+    "caching_strategies": {
+      "shape_definitions": "Cache parsed Shape objects (immutable, can share across queries)",
+      "validation_results": "Optional cache for node→shape→result (trade memory for speed)",
+      "statistics": "Cache shape selectivity statistics (updated periodically)"
+    },
+
+    "memory_overhead": {
+      "shape_metadata": "~10-100 KB per shape (depends on complexity)",
+      "validation_context": "~1-10 KB per query (target shapes + config)",
+      "total": "Negligible compared to index size (<0.1%)"
+    }
+  },
+
+  "extensibility": {
+    "future_enhancements": {
+      "shacl_support": "Extend to full SHACL (beyond ShEx subset)",
+      "custom_validators": "Plugin architecture for domain-specific validation",
+      "shape_evolution": "Track shape versions, handle schema migration",
+      "distributed_validation": "Validate across federated queries",
+      "incremental_validation": "Validate only changed data (for updates)"
+    }
+  }
+}

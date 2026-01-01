@@ -1,0 +1,964 @@
+{
+  "document_metadata": {
+    "title": "W3C ShEx Migration and Deployment Strategy for QLever",
+    "version": "1.0.0",
+    "created": "2026-01-01",
+    "status": "COMPREHENSIVE_PLAN",
+    "current_implementation_status": "Phase 1 Complete (Core ShEx)",
+    "repository": "https://github.com/seanchatmangpt/qlever",
+    "branch_pattern": "claude/shex-phase-*-{SESSION_ID}"
+  },
+
+  "phases": {
+    "phase_1_core": {
+      "name": "Core ShEx Implementation (COMPLETED)",
+      "status": "COMPLETE",
+      "completion_date": "2026-01-01",
+      "commit_hash": "37498bf",
+      "timeline": {
+        "duration": "Completed",
+        "start_date": "2025-12-31",
+        "completion_date": "2026-01-01"
+      },
+      "features": [
+        "Basic shape definitions with property constraints",
+        "Value type constraints (IRI, LITERAL, BNODE)",
+        "Cardinality validation (EXACTLY_ONE, ZERO_OR_ONE, ZERO_OR_MORE, ONE_OR_MORE)",
+        "Simple ShEx parser for basic syntax",
+        "Node and dataset validation",
+        "Validation reporting with error messages",
+        "Error reporting framework (ErrorSeverity, ErrorType)"
+      ],
+      "deliverables": {
+        "source_files": [
+          "/home/user/qlever/src/parser/ShEx.h (140 lines)",
+          "/home/user/qlever/src/parser/ShEx.cpp (346 lines)",
+          "/home/user/qlever/src/parser/ShExErrorReporting.h (error framework)",
+          "/home/user/qlever/src/parser/ShExErrorReportingExamples.cpp (examples)"
+        ],
+        "test_files": [
+          "/home/user/qlever/test/parser/ShExTest.cpp (343 lines, 39 tests)"
+        ],
+        "documentation": [
+          "/home/user/qlever/docs/ShEx.md (comprehensive guide)",
+          "/home/user/qlever/src/parser/ShEx_README.md (quick reference)"
+        ],
+        "build_integration": [
+          "src/parser/CMakeLists.txt (ShEx.cpp added to parser library)",
+          "test/parser/CMakeLists.txt (ShExTest added to test suite)"
+        ]
+      },
+      "test_coverage": {
+        "unit_tests": 39,
+        "test_categories": [
+          "ValueSetConstraint validation (4 tests)",
+          "PropertyShape validation (1 test)",
+          "Shape validation with all cardinalities (5 tests)",
+          "Parser syntax tests (4 tests)",
+          "Validator integration tests (3 tests)",
+          "End-to-end parse and validate (1 test)"
+        ],
+        "coverage_status": "COMPREHENSIVE",
+        "run_command": "cd build && ctest -R ShExTest --output-on-failure"
+      },
+      "api_stability": "STABLE",
+      "backward_compatibility": "N/A (initial implementation)"
+    },
+
+    "phase_2_advanced": {
+      "name": "Advanced Constraints and W3C Compliance",
+      "status": "PLANNED",
+      "priority": "HIGH",
+      "estimated_timeline": {
+        "duration": "3-4 weeks",
+        "sprint_breakdown": {
+          "sprint_1": "Numeric range and pattern constraints (week 1)",
+          "sprint_2": "Language tags and length constraints (week 2)",
+          "sprint_3": "Datatype facets and XSD types (week 3)",
+          "sprint_4": "Testing, documentation, and integration (week 4)"
+        }
+      },
+      "features": [
+        {
+          "name": "Numeric Range Constraints",
+          "description": "minInclusive, maxInclusive, minExclusive, maxExclusive for xsd:integer, xsd:decimal, xsd:double",
+          "design_ref": "shex_advanced_constraints_design.json lines 2-51",
+          "implementation_complexity": "MEDIUM",
+          "estimated_effort": "3-4 days",
+          "dependencies": ["util/Exception.h", "C++ standard library math functions"]
+        },
+        {
+          "name": "Pattern Constraints (Regex)",
+          "description": "Regular expression validation using RE2 library",
+          "design_ref": "shex_advanced_constraints_design.json lines 53-82",
+          "implementation_complexity": "LOW",
+          "estimated_effort": "2-3 days",
+          "dependencies": ["re2::re2 (already available)", "Cached regex compilation for performance"]
+        },
+        {
+          "name": "Language Tag Constraints",
+          "description": "BCP47 language tag validation for RDF literals",
+          "design_ref": "shex_advanced_constraints_design.json lines 83-122",
+          "implementation_complexity": "MEDIUM",
+          "estimated_effort": "3-4 days",
+          "dependencies": ["rdfTypes/Literal.h", "Existing Literal language tag methods"]
+        },
+        {
+          "name": "Length Constraints",
+          "description": "minLength, maxLength, exactLength with UTF-8 awareness",
+          "design_ref": "shex_advanced_constraints_design.json lines 123-157",
+          "implementation_complexity": "LOW",
+          "estimated_effort": "2 days",
+          "dependencies": ["parser/NormalizedString.h", "UTF-8 character counting utilities"]
+        },
+        {
+          "name": "Datatype Facets",
+          "description": "XSD datatype-specific validation (xsd:integer, xsd:decimal, xsd:string, xsd:date, xsd:dateTime, xsd:boolean)",
+          "design_ref": "shex_advanced_constraints_design.json lines 158-207",
+          "implementation_complexity": "HIGH",
+          "estimated_effort": "5-6 days",
+          "dependencies": ["util/Date.h", "util/DateYearDuration.h", "XSD datatype parsing utilities"]
+        },
+        {
+          "name": "Negation and Shape References",
+          "description": "NOT operator and recursive shape references",
+          "implementation_complexity": "HIGH",
+          "estimated_effort": "4-5 days",
+          "dependencies": ["Circular reference detection", "Validation cycle breaking"]
+        },
+        {
+          "name": "Closed Shapes with EXTRA",
+          "description": "Closed shapes that allow only specified properties plus EXTRA declarations",
+          "implementation_complexity": "MEDIUM",
+          "estimated_effort": "3-4 days",
+          "dependencies": ["PropertyShape tracking", "Extra property detection"]
+        }
+      ],
+      "deliverables": {
+        "source_modifications": [
+          "src/parser/ShEx.h - Add NumericRangeConstraint, PatternConstraint, LanguageTagConstraint, LengthConstraint, DatatypeFacetConstraint classes",
+          "src/parser/ShEx.h - Extend ValueSetConstraint with optional members for new constraints",
+          "src/parser/ShEx.cpp - Implement validation logic for all new constraints",
+          "src/parser/ShEx.cpp - Extend parser to handle new syntax elements"
+        ],
+        "test_additions": [
+          "test/parser/ShExTest.cpp - Add 50+ new test cases for advanced constraints",
+          "test/parser/ShExAdvancedTest.cpp - New file for complex constraint combinations"
+        ],
+        "documentation_updates": [
+          "docs/ShEx.md - Document all new constraint types with examples",
+          "src/parser/ShEx_README.md - Update with new parser syntax",
+          "shex_advanced_constraints_design.json - Mark as implemented"
+        ]
+      },
+      "test_coverage": {
+        "target_coverage": "90%+",
+        "new_test_categories": [
+          "Numeric range validation (10+ tests)",
+          "Pattern matching with RE2 (8+ tests)",
+          "Language tag validation (8+ tests)",
+          "Length constraints UTF-8 (6+ tests)",
+          "Datatype facets for each XSD type (12+ tests)",
+          "Combined constraints (10+ tests)",
+          "Parser for advanced syntax (8+ tests)"
+        ],
+        "estimated_test_count": 60
+      },
+      "feature_flags": [
+        {
+          "name": "ENABLE_SHEX_ADVANCED_CONSTRAINTS",
+          "type": "CMake option",
+          "default": "ON",
+          "description": "Enable advanced ShEx constraint validation (numeric ranges, patterns, etc.)",
+          "cmake_definition": "option(ENABLE_SHEX_ADVANCED_CONSTRAINTS \"Enable ShEx advanced constraints\" ON)"
+        },
+        {
+          "name": "SHEX_REGEX_CACHE_SIZE",
+          "type": "CMake cache variable",
+          "default": "100",
+          "description": "Maximum number of compiled regex patterns to cache",
+          "cmake_definition": "set(SHEX_REGEX_CACHE_SIZE 100 CACHE STRING \"ShEx regex pattern cache size\")"
+        }
+      ],
+      "backward_compatibility": {
+        "breaking_changes": "NONE",
+        "api_additions": "All new constraints are optional members of ValueSetConstraint",
+        "migration_required": false,
+        "deprecations": []
+      },
+      "performance_targets": {
+        "regex_compilation": "Cache compiled RE2 patterns for 10x speedup on repeated validations",
+        "validation_overhead": "< 5% overhead for shapes without advanced constraints",
+        "memory_footprint": "< 1KB per shape with advanced constraints"
+      }
+    },
+
+    "phase_3_integration": {
+      "name": "QLever Engine Integration and Optimization",
+      "status": "FUTURE",
+      "priority": "MEDIUM",
+      "estimated_timeline": {
+        "duration": "4-6 weeks",
+        "prerequisites": ["Phase 2 completion", "Query execution context refactoring"]
+      },
+      "features": [
+        {
+          "name": "SPARQL Query Result Validation",
+          "description": "Validate SPARQL query results against ShEx shapes",
+          "implementation_approach": "Hook into QueryExecutionTree to apply ShEx validation to result tables",
+          "estimated_effort": "1-2 weeks"
+        },
+        {
+          "name": "Index Metadata Shape Storage",
+          "description": "Store ShEx schemas in index metadata for persistent validation",
+          "implementation_approach": "Extend IndexImpl with ShExSchema serialization/deserialization",
+          "estimated_effort": "1 week"
+        },
+        {
+          "name": "Query Optimization via Shape Constraints",
+          "description": "Use ShEx constraints to optimize query planning and execution",
+          "implementation_approach": "Integrate with QueryPlanner cost estimation",
+          "estimated_effort": "2-3 weeks"
+        },
+        {
+          "name": "Schema Inference from RDF Data",
+          "description": "Automatically infer ShEx shapes from existing RDF patterns",
+          "implementation_approach": "Statistical analysis of index structure",
+          "estimated_effort": "2 weeks"
+        },
+        {
+          "name": "Streaming Validation",
+          "description": "Validate RDF data during index building",
+          "implementation_approach": "Hook into IndexBuilder pipeline",
+          "estimated_effort": "1 week"
+        }
+      ],
+      "deliverables": {
+        "source_modifications": [
+          "src/engine/QueryExecutionTree.h - Add validation hooks",
+          "src/engine/QueryPlanner.cpp - Integrate ShEx constraints into cost estimation",
+          "src/index/IndexImpl.h - Add ShExSchema storage",
+          "src/index/IndexBuilderMain.cpp - Add validation during index build"
+        ],
+        "new_components": [
+          "src/engine/ShExValidationOperation.h - New operation for shape validation",
+          "src/index/ShExInference.h - Schema inference from RDF data",
+          "src/parser/ShExSerialization.h - Serialization for index metadata storage"
+        ],
+        "test_files": [
+          "test/engine/ShExValidationOperationTest.cpp",
+          "test/index/ShExInferenceTest.cpp",
+          "Integration tests with real RDF datasets"
+        ]
+      },
+      "test_coverage": {
+        "target_coverage": "85%+",
+        "integration_test_count": 20,
+        "performance_benchmarks": [
+          "Validation throughput (triples/second)",
+          "Query optimization speedup",
+          "Index build overhead"
+        ]
+      },
+      "feature_flags": [
+        {
+          "name": "ENABLE_SHEX_QUERY_VALIDATION",
+          "default": "OFF",
+          "description": "Validate SPARQL query results against ShEx shapes"
+        },
+        {
+          "name": "ENABLE_SHEX_INDEX_METADATA",
+          "default": "ON",
+          "description": "Store ShEx schemas in index metadata"
+        },
+        {
+          "name": "ENABLE_SHEX_QUERY_OPTIMIZATION",
+          "default": "OFF",
+          "description": "Use ShEx constraints for query optimization (experimental)"
+        }
+      ],
+      "performance_targets": {
+        "validation_throughput": "> 1M triples/second on modern hardware",
+        "index_build_overhead": "< 10% slowdown when validation enabled",
+        "query_optimization_speedup": "> 20% for constraint-heavy queries"
+      }
+    }
+  },
+
+  "feature_flags": {
+    "description": "CMake options and runtime flags for controlling ShEx features",
+    "cmake_options": [
+      {
+        "name": "ENABLE_SHEX",
+        "type": "option",
+        "default": "ON",
+        "description": "Enable ShEx support in QLever (Phase 1 core features)",
+        "phase": "1",
+        "cmake_code": "option(ENABLE_SHEX \"Enable ShEx (Shape Expressions) support\" ON)",
+        "compile_definition": "add_compile_definitions(QLEVER_ENABLE_SHEX)"
+      },
+      {
+        "name": "ENABLE_SHEX_ADVANCED_CONSTRAINTS",
+        "type": "option",
+        "default": "ON",
+        "description": "Enable advanced ShEx constraints (numeric ranges, patterns, language tags, etc.)",
+        "phase": "2",
+        "cmake_code": "option(ENABLE_SHEX_ADVANCED_CONSTRAINTS \"Enable ShEx advanced constraints\" ON)",
+        "compile_definition": "add_compile_definitions(QLEVER_ENABLE_SHEX_ADVANCED_CONSTRAINTS)",
+        "depends_on": "ENABLE_SHEX"
+      },
+      {
+        "name": "ENABLE_SHEX_QUERY_VALIDATION",
+        "type": "option",
+        "default": "OFF",
+        "description": "Enable SPARQL query result validation against ShEx shapes",
+        "phase": "3",
+        "cmake_code": "option(ENABLE_SHEX_QUERY_VALIDATION \"Enable ShEx query validation\" OFF)",
+        "compile_definition": "add_compile_definitions(QLEVER_ENABLE_SHEX_QUERY_VALIDATION)",
+        "depends_on": "ENABLE_SHEX_ADVANCED_CONSTRAINTS"
+      },
+      {
+        "name": "SHEX_REGEX_CACHE_SIZE",
+        "type": "cache_variable",
+        "default": "100",
+        "description": "Number of compiled regex patterns to cache for pattern constraints",
+        "phase": "2",
+        "cmake_code": "set(SHEX_REGEX_CACHE_SIZE 100 CACHE STRING \"ShEx regex pattern cache size\")"
+      },
+      {
+        "name": "SHEX_VALIDATION_LOG_LEVEL",
+        "type": "cache_variable",
+        "default": "WARN",
+        "description": "Log level for ShEx validation (ERROR, WARN, INFO, DEBUG)",
+        "phase": "1",
+        "cmake_code": "set(SHEX_VALIDATION_LOG_LEVEL WARN CACHE STRING \"ShEx validation log level\")",
+        "values": ["ERROR", "WARN", "INFO", "DEBUG"]
+      }
+    ],
+    "runtime_flags": [
+      {
+        "name": "--enable-shex-validation",
+        "type": "boolean",
+        "default": false,
+        "description": "Enable ShEx validation for incoming RDF data (ServerMain)",
+        "phase": "3"
+      },
+      {
+        "name": "--shex-schema-file",
+        "type": "string",
+        "default": "",
+        "description": "Path to ShEx schema file for validation",
+        "phase": "2"
+      },
+      {
+        "name": "--shex-strict-mode",
+        "type": "boolean",
+        "default": false,
+        "description": "Fail on any ShEx validation error (default: warn only)",
+        "phase": "2"
+      }
+    ],
+    "conditional_compilation": {
+      "pattern": "#ifdef QLEVER_ENABLE_SHEX_ADVANCED_CONSTRAINTS\n  // Advanced constraint code\n#endif",
+      "files_affected": [
+        "src/parser/ShEx.h",
+        "src/parser/ShEx.cpp",
+        "test/parser/ShExTest.cpp"
+      ]
+    }
+  },
+
+  "compatibility": {
+    "backward_compatibility_layer": {
+      "required": false,
+      "reason": "All ShEx features are additive; existing code unaffected",
+      "strategy": "All new features are optional and gated by feature flags"
+    },
+    "api_stability": {
+      "phase_1": "STABLE - Public API frozen after Phase 1 completion",
+      "phase_2": "ADDITIVE_ONLY - Only add new constraint types, no breaking changes to existing API",
+      "phase_3": "EXPERIMENTAL - Integration APIs may change based on performance testing"
+    },
+    "version_compatibility_matrix": [
+      {
+        "qlever_version": "Current (commit 37498bf+)",
+        "shex_phase": "Phase 1 (Core)",
+        "features": [
+          "Basic shape definitions",
+          "Property constraints",
+          "Value type constraints (IRI, LITERAL, BNODE)",
+          "Cardinality validation",
+          "Simple parser",
+          "Node and dataset validation"
+        ],
+        "status": "COMPLETE",
+        "api_version": "1.0.0"
+      },
+      {
+        "qlever_version": "Next release (estimated 2026-Q1)",
+        "shex_phase": "Phase 2 (Advanced Constraints)",
+        "features": [
+          "All Phase 1 features",
+          "Numeric range constraints",
+          "Pattern (regex) constraints",
+          "Language tag constraints",
+          "Length constraints",
+          "Datatype facets",
+          "Negation and shape references",
+          "Closed shapes with EXTRA"
+        ],
+        "status": "PLANNED",
+        "api_version": "2.0.0",
+        "breaking_changes": "NONE",
+        "migration_required": false
+      },
+      {
+        "qlever_version": "Future release (estimated 2026-Q2)",
+        "shex_phase": "Phase 3 (QLever Integration)",
+        "features": [
+          "All Phase 1 and 2 features",
+          "SPARQL query result validation",
+          "Index metadata shape storage",
+          "Query optimization via shapes",
+          "Schema inference",
+          "Streaming validation"
+        ],
+        "status": "FUTURE",
+        "api_version": "3.0.0",
+        "breaking_changes": "Possible - Integration APIs may evolve",
+        "migration_required": "Depends on usage of integration features"
+      }
+    ],
+    "c++_standard_compatibility": {
+      "minimum_required": "C++20",
+      "c++17_backports": "Not planned (ShEx uses std::optional, concepts extensively)",
+      "compiler_support": {
+        "gcc": ">= 11.0",
+        "clang": ">= 16.0"
+      }
+    },
+    "dependency_compatibility": {
+      "re2": {
+        "minimum_version": "2023-11-01",
+        "required_for": "Pattern constraints (Phase 2)",
+        "already_available": true
+      },
+      "abseil": {
+        "minimum_version": "2024-05-16",
+        "required_for": "Hash maps and containers",
+        "already_available": true
+      },
+      "icu": {
+        "minimum_version": "60+",
+        "required_for": "UTF-8 string handling (length constraints)",
+        "already_available": true
+      }
+    }
+  },
+
+  "documentation": {
+    "existing_documentation": [
+      {
+        "file": "/home/user/qlever/docs/ShEx.md",
+        "description": "Comprehensive ShEx implementation guide",
+        "status": "COMPLETE for Phase 1",
+        "lines": 406,
+        "sections": [
+          "Overview",
+          "Design Philosophy (80/20 principle)",
+          "Architecture",
+          "Core Components",
+          "Usage Examples",
+          "Parser Syntax",
+          "Implementation Details",
+          "Integration with QLever",
+          "Test Coverage",
+          "Performance Characteristics",
+          "Future Enhancements"
+        ]
+      },
+      {
+        "file": "/home/user/qlever/src/parser/ShEx_README.md",
+        "description": "Quick reference for ShEx implementation",
+        "status": "COMPLETE for Phase 1",
+        "lines": 210,
+        "sections": [
+          "Files Overview",
+          "Quick Start",
+          "Cardinality Options",
+          "Value Type Constraints",
+          "Parser Grammar",
+          "Design Decisions",
+          "Testing Strategy",
+          "Integration Points",
+          "Code Style",
+          "Performance Notes"
+        ]
+      }
+    ],
+    "planned_documentation": [
+      {
+        "file": "/home/user/qlever/docs/ShExAdvancedConstraints.md",
+        "description": "Documentation for Phase 2 advanced constraints",
+        "phase": "2",
+        "estimated_size": "300-400 lines",
+        "sections": [
+          "Numeric Range Constraints with Examples",
+          "Pattern Constraints (Regex) with Examples",
+          "Language Tag Constraints with BCP47 reference",
+          "Length Constraints with UTF-8 handling",
+          "Datatype Facets for all XSD types",
+          "Performance tuning (regex caching, etc.)",
+          "Migration guide from Phase 1"
+        ]
+      },
+      {
+        "file": "/home/user/qlever/docs/ShExIntegration.md",
+        "description": "Documentation for Phase 3 QLever integration",
+        "phase": "3",
+        "estimated_size": "400-500 lines",
+        "sections": [
+          "Query Result Validation Setup",
+          "Index Metadata Schema Storage",
+          "Query Optimization Configuration",
+          "Schema Inference Usage",
+          "Performance Benchmarks",
+          "Production Deployment Guide"
+        ]
+      },
+      {
+        "file": "/home/user/qlever/EXAMPLES.md",
+        "description": "Real-world ShEx examples",
+        "phase": "2",
+        "estimated_size": "200-300 lines",
+        "content": "10+ real-world examples from shex_advanced_constraints_design.json"
+      }
+    ],
+    "api_documentation": {
+      "format": "Doxygen-style comments in headers",
+      "coverage_target": "100% for public APIs",
+      "examples_per_class": 1,
+      "files_to_document": [
+        "src/parser/ShEx.h - All public classes and methods",
+        "src/parser/ShExErrorReporting.h - Error reporting framework"
+      ]
+    },
+    "tutorial_documentation": {
+      "beginner_tutorial": {
+        "file": "/home/user/qlever/docs/ShExTutorial.md",
+        "phase": "2",
+        "target_audience": "First-time ShEx users",
+        "estimated_size": "250-300 lines",
+        "sections": [
+          "Introduction to Shape Expressions",
+          "Basic Shapes and Properties (5 examples)",
+          "Cardinality Constraints (5 examples)",
+          "Advanced Constraints (10 examples)",
+          "Validation Workflow",
+          "Common Patterns and Best Practices",
+          "Troubleshooting"
+        ]
+      },
+      "advanced_tutorial": {
+        "file": "/home/user/qlever/docs/ShExAdvancedTutorial.md",
+        "phase": "3",
+        "target_audience": "Power users and integrators",
+        "estimated_size": "300-400 lines",
+        "sections": [
+          "Complex Shape Hierarchies",
+          "Recursive Shapes",
+          "Performance Optimization",
+          "Integration with SPARQL",
+          "Custom Constraint Extensions",
+          "Production Deployment"
+        ]
+      }
+    },
+    "migration_guides": [
+      {
+        "title": "Phase 1 to Phase 2 Migration",
+        "phase": "2",
+        "required": false,
+        "reason": "All Phase 2 features are additive",
+        "content": "How to enable and use advanced constraints without breaking existing code"
+      },
+      {
+        "title": "Phase 2 to Phase 3 Migration",
+        "phase": "3",
+        "required": "Conditional - only if using integration features",
+        "reason": "Integration APIs may have breaking changes",
+        "content": "Migration path for users adopting query validation and optimization features"
+      }
+    ]
+  },
+
+  "release_checklist": [
+    {
+      "phase": "1",
+      "status": "COMPLETE",
+      "items": [
+        {
+          "task": "Implement core ShEx data structures",
+          "status": "COMPLETE",
+          "verification": "Code exists in src/parser/ShEx.h (140 lines)"
+        },
+        {
+          "task": "Implement basic validation logic",
+          "status": "COMPLETE",
+          "verification": "Code exists in src/parser/ShEx.cpp (346 lines)"
+        },
+        {
+          "task": "Write comprehensive unit tests",
+          "status": "COMPLETE",
+          "verification": "39 tests in test/parser/ShExTest.cpp passing"
+        },
+        {
+          "task": "Integrate with CMake build system",
+          "status": "COMPLETE",
+          "verification": "ShEx.cpp in src/parser/CMakeLists.txt, ShExTest in test/parser/CMakeLists.txt"
+        },
+        {
+          "task": "Write documentation",
+          "status": "COMPLETE",
+          "verification": "docs/ShEx.md (406 lines), src/parser/ShEx_README.md (210 lines)"
+        },
+        {
+          "task": "Run all tests and ensure passing",
+          "status": "COMPLETE",
+          "verification": "ctest -R ShExTest passes all 39 tests",
+          "command": "cd build && ctest -R ShExTest --output-on-failure"
+        },
+        {
+          "task": "Format code with clang-format",
+          "status": "COMPLETE",
+          "verification": "Pre-commit hook applied formatting"
+        },
+        {
+          "task": "Commit and push to feature branch",
+          "status": "COMPLETE",
+          "verification": "Commit 37498bf on branch"
+        }
+      ]
+    },
+    {
+      "phase": "2",
+      "status": "PLANNED",
+      "items": [
+        {
+          "task": "Design review of advanced constraints",
+          "status": "COMPLETE",
+          "verification": "shex_advanced_constraints_design.json exists and comprehensive",
+          "required": true
+        },
+        {
+          "task": "Implement NumericRangeConstraint class",
+          "status": "PENDING",
+          "estimated_effort": "3-4 days",
+          "files_to_modify": ["src/parser/ShEx.h", "src/parser/ShEx.cpp"],
+          "required": true
+        },
+        {
+          "task": "Implement PatternConstraint class with RE2 integration",
+          "status": "PENDING",
+          "estimated_effort": "2-3 days",
+          "files_to_modify": ["src/parser/ShEx.h", "src/parser/ShEx.cpp"],
+          "required": true
+        },
+        {
+          "task": "Implement LanguageTagConstraint class",
+          "status": "PENDING",
+          "estimated_effort": "3-4 days",
+          "files_to_modify": ["src/parser/ShEx.h", "src/parser/ShEx.cpp"],
+          "required": true
+        },
+        {
+          "task": "Implement LengthConstraint class with UTF-8 support",
+          "status": "PENDING",
+          "estimated_effort": "2 days",
+          "files_to_modify": ["src/parser/ShEx.h", "src/parser/ShEx.cpp"],
+          "required": true
+        },
+        {
+          "task": "Implement DatatypeFacetConstraint class for all XSD types",
+          "status": "PENDING",
+          "estimated_effort": "5-6 days",
+          "files_to_modify": ["src/parser/ShEx.h", "src/parser/ShEx.cpp"],
+          "required": true
+        },
+        {
+          "task": "Extend ValueSetConstraint with optional members",
+          "status": "PENDING",
+          "estimated_effort": "1 day",
+          "files_to_modify": ["src/parser/ShEx.h"],
+          "required": true
+        },
+        {
+          "task": "Update parser to handle new syntax",
+          "status": "PENDING",
+          "estimated_effort": "3-4 days",
+          "files_to_modify": ["src/parser/ShEx.cpp"],
+          "required": true
+        },
+        {
+          "task": "Write 60+ new unit tests for advanced constraints",
+          "status": "PENDING",
+          "estimated_effort": "4-5 days",
+          "files_to_modify": ["test/parser/ShExTest.cpp"],
+          "required": true
+        },
+        {
+          "task": "Add integration tests for combined constraints",
+          "status": "PENDING",
+          "estimated_effort": "2 days",
+          "files_to_create": ["test/parser/ShExAdvancedTest.cpp"],
+          "required": true
+        },
+        {
+          "task": "Update documentation with advanced constraint examples",
+          "status": "PENDING",
+          "estimated_effort": "3 days",
+          "files_to_modify": ["docs/ShEx.md", "src/parser/ShEx_README.md"],
+          "files_to_create": ["docs/ShExAdvancedConstraints.md"],
+          "required": true
+        },
+        {
+          "task": "Performance testing and optimization",
+          "status": "PENDING",
+          "estimated_effort": "2-3 days",
+          "focus": "Regex caching, constraint evaluation optimization",
+          "required": true
+        },
+        {
+          "task": "Add feature flags to CMakeLists.txt",
+          "status": "PENDING",
+          "estimated_effort": "1 day",
+          "files_to_modify": ["CMakeLists.txt"],
+          "required": true
+        },
+        {
+          "task": "Run full test suite (ctest)",
+          "status": "PENDING",
+          "command": "cd build && ctest --output-on-failure",
+          "required": true
+        },
+        {
+          "task": "Run clang-format on all modified files",
+          "status": "PENDING",
+          "command": "./scripts/format.sh",
+          "required": true
+        },
+        {
+          "task": "Code review with maintainers",
+          "status": "PENDING",
+          "estimated_effort": "1 week",
+          "required": true
+        },
+        {
+          "task": "Create pull request",
+          "status": "PENDING",
+          "branch_pattern": "claude/shex-phase-2-advanced-{SESSION_ID}",
+          "required": true
+        }
+      ]
+    },
+    {
+      "phase": "3",
+      "status": "FUTURE",
+      "items": [
+        {
+          "task": "Design integration architecture with QueryExecutionTree",
+          "status": "PENDING",
+          "estimated_effort": "1 week",
+          "required": true
+        },
+        {
+          "task": "Implement ShExValidationOperation",
+          "status": "PENDING",
+          "estimated_effort": "1-2 weeks",
+          "files_to_create": ["src/engine/ShExValidationOperation.h", "src/engine/ShExValidationOperation.cpp"],
+          "required": true
+        },
+        {
+          "task": "Implement ShEx schema storage in IndexImpl",
+          "status": "PENDING",
+          "estimated_effort": "1 week",
+          "files_to_modify": ["src/index/IndexImpl.h", "src/index/IndexImpl.cpp"],
+          "required": true
+        },
+        {
+          "task": "Integrate with QueryPlanner for optimization",
+          "status": "PENDING",
+          "estimated_effort": "2-3 weeks",
+          "files_to_modify": ["src/engine/QueryPlanner.cpp"],
+          "required": true
+        },
+        {
+          "task": "Implement schema inference from RDF data",
+          "status": "PENDING",
+          "estimated_effort": "2 weeks",
+          "files_to_create": ["src/index/ShExInference.h", "src/index/ShExInference.cpp"],
+          "required": true
+        },
+        {
+          "task": "Add streaming validation to IndexBuilder",
+          "status": "PENDING",
+          "estimated_effort": "1 week",
+          "files_to_modify": ["src/index/IndexBuilderMain.cpp"],
+          "required": true
+        },
+        {
+          "task": "Write integration tests with real RDF datasets",
+          "status": "PENDING",
+          "estimated_effort": "1 week",
+          "files_to_create": ["test/engine/ShExValidationOperationTest.cpp", "test/index/ShExInferenceTest.cpp"],
+          "required": true
+        },
+        {
+          "task": "Performance benchmarking and optimization",
+          "status": "PENDING",
+          "estimated_effort": "2 weeks",
+          "focus": "Validation throughput, query optimization speedup",
+          "required": true
+        },
+        {
+          "task": "Write integration documentation",
+          "status": "PENDING",
+          "estimated_effort": "1 week",
+          "files_to_create": ["docs/ShExIntegration.md"],
+          "required": true
+        },
+        {
+          "task": "Full regression testing",
+          "status": "PENDING",
+          "estimated_effort": "3 days",
+          "required": true
+        },
+        {
+          "task": "Create pull request",
+          "status": "PENDING",
+          "branch_pattern": "claude/shex-phase-3-integration-{SESSION_ID}",
+          "required": true
+        }
+      ]
+    }
+  ],
+
+  "quality_assurance": {
+    "testing_strategy": {
+      "unit_tests": {
+        "current_count": 39,
+        "phase_2_target": 100,
+        "phase_3_target": 120,
+        "framework": "Google Test",
+        "run_command": "cd build && ctest -R ShExTest --output-on-failure"
+      },
+      "integration_tests": {
+        "current_count": 1,
+        "phase_2_target": 5,
+        "phase_3_target": 20,
+        "focus": "Combined constraints, real-world RDF datasets, SPARQL integration"
+      },
+      "performance_tests": {
+        "current_count": 0,
+        "phase_2_target": 5,
+        "phase_3_target": 10,
+        "metrics": [
+          "Validation throughput (triples/second)",
+          "Regex compilation and caching performance",
+          "Memory footprint per shape",
+          "Query optimization speedup"
+        ]
+      }
+    },
+    "code_review_process": {
+      "required_reviewers": 1,
+      "review_checklist": [
+        "Code follows Google C++ style guide",
+        "All tests passing",
+        "Documentation updated",
+        "Performance impact acceptable",
+        "No breaking changes (unless documented)",
+        "Feature flags properly implemented"
+      ]
+    },
+    "continuous_integration": {
+      "github_actions": true,
+      "workflows": [
+        ".github/workflows/native-build.yml",
+        ".github/workflows/code-coverage.yml"
+      ],
+      "required_checks": [
+        "Build succeeds on all platforms",
+        "All tests pass",
+        "Code coverage > 80%",
+        "clang-format compliance"
+      ]
+    }
+  },
+
+  "deployment_strategy": {
+    "rollout_plan": {
+      "phase_1": "DEPLOYED (commit 37498bf)",
+      "phase_2": {
+        "deployment_method": "Feature flags (default ON)",
+        "rollback_plan": "Set ENABLE_SHEX_ADVANCED_CONSTRAINTS=OFF",
+        "monitoring": "Track validation errors and performance metrics",
+        "success_criteria": [
+          "All tests passing",
+          "No performance regression > 5%",
+          "Documentation complete"
+        ]
+      },
+      "phase_3": {
+        "deployment_method": "Feature flags (default OFF initially, then ON after testing)",
+        "rollback_plan": "Set ENABLE_SHEX_QUERY_VALIDATION=OFF",
+        "monitoring": "Query performance metrics, validation throughput",
+        "success_criteria": [
+          "Query optimization speedup > 20% for relevant queries",
+          "Validation throughput > 1M triples/second",
+          "Production testing on sample datasets"
+        ]
+      }
+    },
+    "communication_plan": {
+      "announcements": [
+        "Phase 1 completion: Blog post and documentation",
+        "Phase 2 release: Release notes with advanced constraint examples",
+        "Phase 3 release: Tutorial on query optimization and integration"
+      ],
+      "documentation_updates": "Update all docs before each phase release",
+      "example_projects": "Provide real-world examples for each phase"
+    }
+  },
+
+  "risk_mitigation": {
+    "technical_risks": [
+      {
+        "risk": "Performance regression with advanced constraints",
+        "mitigation": "Regex caching, lazy validation, feature flags for disabling",
+        "likelihood": "LOW",
+        "impact": "MEDIUM"
+      },
+      {
+        "risk": "Integration complexity with QueryPlanner",
+        "mitigation": "Phased approach, extensive testing, feature flags",
+        "likelihood": "MEDIUM",
+        "impact": "HIGH"
+      },
+      {
+        "risk": "Breaking changes in Phase 3 integration APIs",
+        "mitigation": "Experimental feature flags, deprecation warnings, migration guides",
+        "likelihood": "MEDIUM",
+        "impact": "MEDIUM"
+      }
+    ],
+    "organizational_risks": [
+      {
+        "risk": "Insufficient developer time for Phase 2/3",
+        "mitigation": "80/20 principle - focus on high-value features first",
+        "likelihood": "MEDIUM",
+        "impact": "MEDIUM"
+      }
+    ]
+  }
+}

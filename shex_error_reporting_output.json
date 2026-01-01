@@ -1,0 +1,421 @@
+{
+  "detailed_error": {
+    "severity": "ERROR",
+    "errorType": "CARDINALITY_VIOLATION",
+    "message": "Property occurs 3 times but shape requires exactly 1 occurrence",
+    "shapeId": "ex:PersonShape",
+    "nodeId": "ex:person1",
+    "propertyId": "ex:email",
+    "tripleContext": {
+      "subject": "ex:person1",
+      "predicate": "ex:email",
+      "object": "alice@example.org",
+      "objectType": "LITERAL"
+    },
+    "expectedCount": 1,
+    "actualCount": 3,
+    "suggestion": "Remove 2 occurrences of ex:email property, keeping only one"
+  },
+  "conformance_map": {
+    "ex:person1": [
+      {
+        "shapeId": "ex:PersonShape",
+        "status": "DOES_NOT_CONFORM",
+        "failedConstraints": [],
+        "errors": [
+          {
+            "severity": "ERROR",
+            "errorType": "CARDINALITY_VIOLATION",
+            "message": "Property occurs 3 times but shape requires exactly 1 occurrence",
+            "shapeId": "ex:PersonShape",
+            "nodeId": "ex:person1",
+            "propertyId": "ex:email",
+            "tripleContext": {
+              "subject": "ex:person1",
+              "predicate": "ex:email",
+              "object": "alice@example.org",
+              "objectType": "LITERAL"
+            },
+            "expectedCount": 1,
+            "actualCount": 3,
+            "suggestion": "Remove 2 occurrences of ex:email property, keeping only one"
+          }
+        ]
+      }
+    ],
+    "ex:person2": [
+      {
+        "shapeId": "ex:PersonShape",
+        "status": "DOES_NOT_CONFORM",
+        "failedConstraints": [],
+        "errors": [
+          {
+            "severity": "ERROR",
+            "errorType": "TYPE_MISMATCH",
+            "message": "Property value type is IRI but shape requires LITERAL",
+            "shapeId": "ex:PersonShape",
+            "nodeId": "ex:person2",
+            "propertyId": "ex:name",
+            "tripleContext": {
+              "subject": "ex:person2",
+              "predicate": "ex:name",
+              "object": "http://example.org/names/John",
+              "objectType": "IRI"
+            },
+            "expectedValue": "LITERAL",
+            "actualValue": "IRI",
+            "suggestion": "Change the value to a literal string (e.g., \"John\") instead of an IRI"
+          }
+        ]
+      }
+    ],
+    "ex:employee42": [
+      {
+        "shapeId": "ex:EmployeeShape",
+        "status": "DOES_NOT_CONFORM",
+        "failedConstraints": [
+          "department value constraint"
+        ],
+        "errors": [
+          {
+            "severity": "ERROR",
+            "errorType": "VALUE_NOT_ALLOWED",
+            "message": "Property value is not in the allowed set of IRIs",
+            "shapeId": "ex:EmployeeShape",
+            "nodeId": "ex:employee42",
+            "propertyId": "ex:department",
+            "tripleContext": {
+              "subject": "ex:employee42",
+              "predicate": "ex:department",
+              "object": "http://example.org/HumanResources",
+              "objectType": "IRI"
+            },
+            "expectedValue": "One of: [ex:Sales, ex:Engineering, ex:Marketing]",
+            "actualValue": "ex:HumanResources",
+            "suggestion": "Use one of the allowed department IRIs: ex:Sales, ex:Engineering, or ex:Marketing"
+          }
+        ]
+      }
+    ],
+    "ex:person3": [
+      {
+        "shapeId": "ex:PersonShape",
+        "status": "DOES_NOT_CONFORM",
+        "failedConstraints": [],
+        "errors": [
+          {
+            "severity": "ERROR",
+            "errorType": "MISSING_REQUIRED_PROPERTY",
+            "message": "Required property is missing (cardinality requires at least 1 occurrence)",
+            "shapeId": "ex:PersonShape",
+            "nodeId": "ex:person3",
+            "propertyId": "ex:name",
+            "expectedCount": 1,
+            "actualCount": 0,
+            "suggestion": "Add a triple with ex:name property: ex:person3 ex:name \"Name\"^^xsd:string"
+          }
+        ]
+      }
+    ],
+    "ex:person4": [
+      {
+        "shapeId": "ex:PersonShape",
+        "status": "CONFORMS",
+        "failedConstraints": [],
+        "errors": [
+          {
+            "severity": "WARNING",
+            "errorType": "DATATYPE_MISMATCH",
+            "message": "Literal value has datatype xsd:string but xsd:integer was expected",
+            "shapeId": "ex:PersonShape",
+            "nodeId": "ex:person4",
+            "propertyId": "ex:age",
+            "tripleContext": {
+              "subject": "ex:person4",
+              "predicate": "ex:age",
+              "object": "\"thirty\"^^xsd:string",
+              "objectType": "LITERAL"
+            },
+            "expectedValue": "xsd:integer",
+            "actualValue": "xsd:string",
+            "suggestion": "Change the value to a numeric literal: \"30\"^^xsd:integer"
+          }
+        ]
+      }
+    ]
+  },
+  "error_messages": [
+    {
+      "severity": "ERROR",
+      "type": "CARDINALITY_VIOLATION",
+      "message": "Property occurs 3 times but shape requires exactly 1 occurrence",
+      "suggestion": "Remove 2 occurrences of ex:email property, keeping only one",
+      "human_readable": "[ERROR] CARDINALITY_VIOLATION: Property occurs 3 times but shape requires exactly 1 occurrence\n  Node: ex:person1\n  Shape: ex:PersonShape\n  Property: ex:email\n  Triple: <ex:person1> <ex:email> \"alice@example.org\"\n  Expected count: 1\n  Actual count: 3\n  Suggestion: Remove 2 occurrences of ex:email property, keeping only one\n"
+    },
+    {
+      "severity": "ERROR",
+      "type": "TYPE_MISMATCH",
+      "message": "Property value type is IRI but shape requires LITERAL",
+      "suggestion": "Change the value to a literal string (e.g., \"John\") instead of an IRI",
+      "human_readable": "[ERROR] TYPE_MISMATCH: Property value type is IRI but shape requires LITERAL\n  Node: ex:person2\n  Shape: ex:PersonShape\n  Property: ex:name\n  Triple: <ex:person2> <ex:name> <http://example.org/names/John>\n  Expected: LITERAL\n  Actual: IRI\n  Suggestion: Change the value to a literal string (e.g., \"John\") instead of an IRI\n"
+    },
+    {
+      "severity": "ERROR",
+      "type": "VALUE_NOT_ALLOWED",
+      "message": "Property value is not in the allowed set of IRIs",
+      "suggestion": "Use one of the allowed department IRIs: ex:Sales, ex:Engineering, or ex:Marketing",
+      "human_readable": "[ERROR] VALUE_NOT_ALLOWED: Property value is not in the allowed set of IRIs\n  Node: ex:employee42\n  Shape: ex:EmployeeShape\n  Property: ex:department\n  Triple: <ex:employee42> <ex:department> <http://example.org/HumanResources>\n  Expected: One of: [ex:Sales, ex:Engineering, ex:Marketing]\n  Actual: ex:HumanResources\n  Suggestion: Use one of the allowed department IRIs: ex:Sales, ex:Engineering, or ex:Marketing\n"
+    },
+    {
+      "severity": "ERROR",
+      "type": "MISSING_REQUIRED_PROPERTY",
+      "message": "Required property is missing (cardinality requires at least 1 occurrence)",
+      "suggestion": "Add a triple with ex:name property: ex:person3 ex:name \"Name\"^^xsd:string",
+      "human_readable": "[ERROR] MISSING_REQUIRED_PROPERTY: Required property is missing (cardinality requires at least 1 occurrence)\n  Node: ex:person3\n  Shape: ex:PersonShape\n  Property: ex:name\n  Expected count: 1\n  Actual count: 0\n  Suggestion: Add a triple with ex:name property: ex:person3 ex:name \"Name\"^^xsd:string\n"
+    },
+    {
+      "severity": "ERROR",
+      "type": "PARSER_SYNTAX_ERROR",
+      "message": "Expected '}' to close shape definition but found ';'",
+      "suggestion": "Add a closing brace '}' at the end of the shape definition",
+      "human_readable": "[ERROR] PARSER_SYNTAX_ERROR: Expected '}' to close shape definition but found ';'\n  Shape: ex:PersonShape\n  Location: line 15, column 42 to line 15, column 43\n  Suggestion: Add a closing brace '}' at the end of the shape definition\n"
+    },
+    {
+      "severity": "WARNING",
+      "type": "DATATYPE_MISMATCH",
+      "message": "Literal value has datatype xsd:string but xsd:integer was expected",
+      "suggestion": "Change the value to a numeric literal: \"30\"^^xsd:integer",
+      "human_readable": "[WARNING] DATATYPE_MISMATCH: Literal value has datatype xsd:string but xsd:integer was expected\n  Node: ex:person4\n  Shape: ex:PersonShape\n  Property: ex:age\n  Triple: <ex:person4> <ex:age> \"thirty\"^^xsd:string\n  Expected: xsd:integer\n  Actual: xsd:string\n  Suggestion: Change the value to a numeric literal: \"30\"^^xsd:integer\n"
+    }
+  ],
+  "complete_report": {
+    "conforms": false,
+    "statistics": {
+      "totalErrors": 5,
+      "totalWarnings": 1,
+      "totalInfoMessages": 0
+    },
+    "errors": [
+      {
+        "severity": "ERROR",
+        "errorType": "CARDINALITY_VIOLATION",
+        "message": "Property occurs 3 times but shape requires exactly 1 occurrence",
+        "shapeId": "ex:PersonShape",
+        "nodeId": "ex:person1",
+        "propertyId": "ex:email",
+        "tripleContext": {
+          "subject": "ex:person1",
+          "predicate": "ex:email",
+          "object": "alice@example.org",
+          "objectType": "LITERAL"
+        },
+        "expectedCount": 1,
+        "actualCount": 3,
+        "suggestion": "Remove 2 occurrences of ex:email property, keeping only one"
+      },
+      {
+        "severity": "ERROR",
+        "errorType": "TYPE_MISMATCH",
+        "message": "Property value type is IRI but shape requires LITERAL",
+        "shapeId": "ex:PersonShape",
+        "nodeId": "ex:person2",
+        "propertyId": "ex:name",
+        "tripleContext": {
+          "subject": "ex:person2",
+          "predicate": "ex:name",
+          "object": "http://example.org/names/John",
+          "objectType": "IRI"
+        },
+        "expectedValue": "LITERAL",
+        "actualValue": "IRI",
+        "suggestion": "Change the value to a literal string (e.g., \"John\") instead of an IRI"
+      },
+      {
+        "severity": "ERROR",
+        "errorType": "VALUE_NOT_ALLOWED",
+        "message": "Property value is not in the allowed set of IRIs",
+        "shapeId": "ex:EmployeeShape",
+        "nodeId": "ex:employee42",
+        "propertyId": "ex:department",
+        "tripleContext": {
+          "subject": "ex:employee42",
+          "predicate": "ex:department",
+          "object": "http://example.org/HumanResources",
+          "objectType": "IRI"
+        },
+        "expectedValue": "One of: [ex:Sales, ex:Engineering, ex:Marketing]",
+        "actualValue": "ex:HumanResources",
+        "suggestion": "Use one of the allowed department IRIs: ex:Sales, ex:Engineering, or ex:Marketing"
+      },
+      {
+        "severity": "ERROR",
+        "errorType": "MISSING_REQUIRED_PROPERTY",
+        "message": "Required property is missing (cardinality requires at least 1 occurrence)",
+        "shapeId": "ex:PersonShape",
+        "nodeId": "ex:person3",
+        "propertyId": "ex:name",
+        "expectedCount": 1,
+        "actualCount": 0,
+        "suggestion": "Add a triple with ex:name property: ex:person3 ex:name \"Name\"^^xsd:string"
+      },
+      {
+        "severity": "ERROR",
+        "errorType": "PARSER_SYNTAX_ERROR",
+        "message": "Expected '}' to close shape definition but found ';'",
+        "shapeId": "ex:PersonShape",
+        "location": {
+          "line": 15,
+          "column": 42,
+          "endLine": 15,
+          "endColumn": 43
+        },
+        "suggestion": "Add a closing brace '}' at the end of the shape definition"
+      },
+      {
+        "severity": "WARNING",
+        "errorType": "DATATYPE_MISMATCH",
+        "message": "Literal value has datatype xsd:string but xsd:integer was expected",
+        "shapeId": "ex:PersonShape",
+        "nodeId": "ex:person4",
+        "propertyId": "ex:age",
+        "tripleContext": {
+          "subject": "ex:person4",
+          "predicate": "ex:age",
+          "object": "\"thirty\"^^xsd:string",
+          "objectType": "LITERAL"
+        },
+        "expectedValue": "xsd:integer",
+        "actualValue": "xsd:string",
+        "suggestion": "Change the value to a numeric literal: \"30\"^^xsd:integer"
+      }
+    ],
+    "conformanceMap": {
+      "ex:person1": [
+        {
+          "shapeId": "ex:PersonShape",
+          "status": "DOES_NOT_CONFORM",
+          "failedConstraints": [],
+          "errors": [
+            {
+              "severity": "ERROR",
+              "errorType": "CARDINALITY_VIOLATION",
+              "message": "Property occurs 3 times but shape requires exactly 1 occurrence",
+              "shapeId": "ex:PersonShape",
+              "nodeId": "ex:person1",
+              "propertyId": "ex:email",
+              "tripleContext": {
+                "subject": "ex:person1",
+                "predicate": "ex:email",
+                "object": "alice@example.org",
+                "objectType": "LITERAL"
+              },
+              "expectedCount": 1,
+              "actualCount": 3,
+              "suggestion": "Remove 2 occurrences of ex:email property, keeping only one"
+            }
+          ]
+        }
+      ],
+      "ex:person2": [
+        {
+          "shapeId": "ex:PersonShape",
+          "status": "DOES_NOT_CONFORM",
+          "failedConstraints": [],
+          "errors": [
+            {
+              "severity": "ERROR",
+              "errorType": "TYPE_MISMATCH",
+              "message": "Property value type is IRI but shape requires LITERAL",
+              "shapeId": "ex:PersonShape",
+              "nodeId": "ex:person2",
+              "propertyId": "ex:name",
+              "tripleContext": {
+                "subject": "ex:person2",
+                "predicate": "ex:name",
+                "object": "http://example.org/names/John",
+                "objectType": "IRI"
+              },
+              "expectedValue": "LITERAL",
+              "actualValue": "IRI",
+              "suggestion": "Change the value to a literal string (e.g., \"John\") instead of an IRI"
+            }
+          ]
+        }
+      ],
+      "ex:employee42": [
+        {
+          "shapeId": "ex:EmployeeShape",
+          "status": "DOES_NOT_CONFORM",
+          "failedConstraints": [
+            "department value constraint"
+          ],
+          "errors": [
+            {
+              "severity": "ERROR",
+              "errorType": "VALUE_NOT_ALLOWED",
+              "message": "Property value is not in the allowed set of IRIs",
+              "shapeId": "ex:EmployeeShape",
+              "nodeId": "ex:employee42",
+              "propertyId": "ex:department",
+              "tripleContext": {
+                "subject": "ex:employee42",
+                "predicate": "ex:department",
+                "object": "http://example.org/HumanResources",
+                "objectType": "IRI"
+              },
+              "expectedValue": "One of: [ex:Sales, ex:Engineering, ex:Marketing]",
+              "actualValue": "ex:HumanResources",
+              "suggestion": "Use one of the allowed department IRIs: ex:Sales, ex:Engineering, or ex:Marketing"
+            }
+          ]
+        }
+      ],
+      "ex:person3": [
+        {
+          "shapeId": "ex:PersonShape",
+          "status": "DOES_NOT_CONFORM",
+          "failedConstraints": [],
+          "errors": [
+            {
+              "severity": "ERROR",
+              "errorType": "MISSING_REQUIRED_PROPERTY",
+              "message": "Required property is missing (cardinality requires at least 1 occurrence)",
+              "shapeId": "ex:PersonShape",
+              "nodeId": "ex:person3",
+              "propertyId": "ex:name",
+              "expectedCount": 1,
+              "actualCount": 0,
+              "suggestion": "Add a triple with ex:name property: ex:person3 ex:name \"Name\"^^xsd:string"
+            }
+          ]
+        }
+      ],
+      "ex:person4": [
+        {
+          "shapeId": "ex:PersonShape",
+          "status": "CONFORMS",
+          "failedConstraints": [],
+          "errors": [
+            {
+              "severity": "WARNING",
+              "errorType": "DATATYPE_MISMATCH",
+              "message": "Literal value has datatype xsd:string but xsd:integer was expected",
+              "shapeId": "ex:PersonShape",
+              "nodeId": "ex:person4",
+              "propertyId": "ex:age",
+              "tripleContext": {
+                "subject": "ex:person4",
+                "predicate": "ex:age",
+                "object": "\"thirty\"^^xsd:string",
+                "objectType": "LITERAL"
+              },
+              "expectedValue": "xsd:integer",
+              "actualValue": "xsd:string",
+              "suggestion": "Change the value to a numeric literal: \"30\"^^xsd:integer"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

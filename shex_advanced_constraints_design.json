@@ -1,0 +1,383 @@
+{
+  "numeric_ranges": {
+    "description": "Support for numeric range constraints (xsd:integer, xsd:decimal, xsd:double)",
+    "constraints": {
+      "minInclusive": {
+        "type": "std::optional<double>",
+        "description": "Minimum value (inclusive)",
+        "validation": "value >= minInclusive"
+      },
+      "maxInclusive": {
+        "type": "std::optional<double>",
+        "description": "Maximum value (inclusive)",
+        "validation": "value <= maxInclusive"
+      },
+      "minExclusive": {
+        "type": "std::optional<double>",
+        "description": "Minimum value (exclusive)",
+        "validation": "value > minExclusive"
+      },
+      "maxExclusive": {
+        "type": "std::optional<double>",
+        "description": "Maximum value (exclusive)",
+        "validation": "value < maxExclusive"
+      },
+      "totalDigits": {
+        "type": "std::optional<uint32_t>",
+        "description": "Total number of digits (for decimals)",
+        "validation": "countDigits(value) <= totalDigits"
+      },
+      "fractionDigits": {
+        "type": "std::optional<uint32_t>",
+        "description": "Number of decimal digits",
+        "validation": "countFractionDigits(value) <= fractionDigits"
+      }
+    },
+    "implementation": {
+      "class": "NumericRangeConstraint",
+      "location": "src/parser/ShEx.h",
+      "methods": [
+        "bool validate(double value) const",
+        "bool validateString(const std::string& literalValue) const",
+        "static double parseNumericLiteral(const std::string& literal)"
+      ],
+      "dependencies": [
+        "#include <cmath>",
+        "#include <limits>",
+        "#include \"util/Exception.h\""
+      ]
+    },
+    "integration": "Add NumericRangeConstraint member to ValueSetConstraint, validate in PropertyShape::validate()",
+    "code_example": "NumericRangeConstraint ageConstraint;\nageConstraint.minInclusive = 0.0;\nageConstraint.maxInclusive = 150.0;\nproperty.valueConstraint.numericRange = ageConstraint;"
+  },
+  "patterns": {
+    "description": "Regex pattern validation using RE2 library (already available in QLever)",
+    "constraints": {
+      "pattern": {
+        "type": "std::optional<std::string>",
+        "description": "Regular expression pattern",
+        "validation": "RE2::FullMatch(value, pattern)"
+      },
+      "flags": {
+        "type": "std::optional<std::string>",
+        "description": "Regex flags (i=case-insensitive, m=multiline, s=dotall)",
+        "validation": "Applied to RE2::Options"
+      }
+    },
+    "implementation": {
+      "class": "PatternConstraint",
+      "location": "src/parser/ShEx.h",
+      "methods": [
+        "bool validate(const std::string& value) const",
+        "static std::unique_ptr<RE2> compilePattern(const std::string& pattern, const std::string& flags)"
+      ],
+      "dependencies": [
+        "#include <re2/re2.h>",
+        "// RE2 already available via src/engine/sparqlExpressions/RegexExpression.h"
+      ],
+      "cached_regex": "mutable std::unique_ptr<RE2> compiledRegex_; // Lazy compilation for performance"
+    },
+    "integration": "Add PatternConstraint member to ValueSetConstraint, compile pattern once and cache",
+    "code_example": "PatternConstraint emailPattern;\nemailPattern.pattern = \"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\\\.[a-zA-Z]{2,}$\";\nemailPattern.flags = \"i\"; // case-insensitive\nproperty.valueConstraint.patternConstraint = emailPattern;"
+  },
+  "language_tags": {
+    "description": "Language tag constraints for RDF literals (BCP47 validation)",
+    "constraints": {
+      "languageTags": {
+        "type": "absl::flat_hash_set<std::string>",
+        "description": "Allowed language tags (e.g., 'en', 'fr', 'de')",
+        "validation": "languageTags.contains(literal.getLanguageTag())"
+      },
+      "languagePattern": {
+        "type": "std::optional<std::string>",
+        "description": "Regex pattern for language tags (e.g., 'en.*' for all English variants)",
+        "validation": "RE2::FullMatch(literal.getLanguageTag(), languagePattern)"
+      },
+      "requireLanguageTag": {
+        "type": "bool",
+        "description": "Whether language tag is required",
+        "validation": "literal.hasLanguageTag()"
+      },
+      "allowAnyLanguage": {
+        "type": "bool",
+        "description": "Accept any language tag (@*)",
+        "validation": "literal.hasLanguageTag() || !requireLanguageTag"
+      }
+    },
+    "implementation": {
+      "class": "LanguageTagConstraint",
+      "location": "src/parser/ShEx.h",
+      "methods": [
+        "bool validate(const ad_utility::triple_component::Literal& literal) const",
+        "bool matchesPattern(const std::string& tag) const",
+        "static bool isValidBCP47Tag(const std::string& tag)"
+      ],
+      "dependencies": [
+        "#include \"rdfTypes/Literal.h\"",
+        "// Reuse existing Literal::getLanguageTag() and hasLanguageTag()"
+      ]
+    },
+    "integration": "Add LanguageTagConstraint to ValueSetConstraint, validate using existing Literal methods",
+    "code_example": "LanguageTagConstraint langConstraint;\nlangConstraint.languageTags = {\"en\", \"en-US\", \"en-GB\"};\nlangConstraint.requireLanguageTag = true;\nproperty.valueConstraint.languageConstraint = langConstraint;"
+  },
+  "length_constraints": {
+    "description": "String length constraints for literal values",
+    "constraints": {
+      "minLength": {
+        "type": "std::optional<size_t>",
+        "description": "Minimum string length",
+        "validation": "value.length() >= minLength"
+      },
+      "maxLength": {
+        "type": "std::optional<size_t>",
+        "description": "Maximum string length",
+        "validation": "value.length() <= maxLength"
+      },
+      "length": {
+        "type": "std::optional<size_t>",
+        "description": "Exact string length",
+        "validation": "value.length() == length"
+      }
+    },
+    "implementation": {
+      "class": "LengthConstraint",
+      "location": "src/parser/ShEx.h",
+      "methods": [
+        "bool validate(const std::string& value) const",
+        "bool validate(NormalizedStringView value) const"
+      ],
+      "dependencies": [
+        "#include \"parser/NormalizedString.h\"",
+        "// UTF-8 aware length counting for Unicode strings"
+      ],
+      "unicode_handling": "Use UTF-8 character counting, not byte counting"
+    },
+    "integration": "Add LengthConstraint to ValueSetConstraint, apply to literal content",
+    "code_example": "LengthConstraint usernameLength;\nusernameLength.minLength = 3;\nusernameLength.maxLength = 20;\nproperty.valueConstraint.lengthConstraint = usernameLength;"
+  },
+  "datatypes": {
+    "description": "XSD datatype facets with type-specific validation",
+    "supported_types": {
+      "xsd:integer": {
+        "facets": ["minInclusive", "maxInclusive", "minExclusive", "maxExclusive", "totalDigits"],
+        "validation": "Parse as integer, apply numeric constraints"
+      },
+      "xsd:decimal": {
+        "facets": ["minInclusive", "maxInclusive", "minExclusive", "maxExclusive", "totalDigits", "fractionDigits"],
+        "validation": "Parse as decimal, apply numeric and precision constraints"
+      },
+      "xsd:double": {
+        "facets": ["minInclusive", "maxInclusive", "minExclusive", "maxExclusive"],
+        "validation": "Parse as double, apply numeric constraints"
+      },
+      "xsd:string": {
+        "facets": ["minLength", "maxLength", "length", "pattern"],
+        "validation": "Apply string constraints"
+      },
+      "xsd:date": {
+        "facets": ["minInclusive", "maxInclusive", "minExclusive", "maxExclusive"],
+        "validation": "Parse using util/Date.h, compare dates"
+      },
+      "xsd:dateTime": {
+        "facets": ["minInclusive", "maxInclusive", "minExclusive", "maxExclusive"],
+        "validation": "Parse as ISO8601, compare timestamps"
+      },
+      "xsd:boolean": {
+        "facets": [],
+        "validation": "Value must be 'true' or 'false'"
+      }
+    },
+    "implementation": {
+      "class": "DatatypeFacetConstraint",
+      "location": "src/parser/ShEx.h",
+      "methods": [
+        "bool validate(const std::string& value, const std::string& datatypeIri) const",
+        "static double parseNumeric(const std::string& value, const std::string& datatype)",
+        "static Date parseDate(const std::string& value)",
+        "static bool isCompatibleFacet(const std::string& datatype, const std::string& facet)"
+      ],
+      "dependencies": [
+        "#include \"util/Date.h\"",
+        "#include \"util/DateYearDuration.h\"",
+        "// Reuse existing date/time parsing utilities"
+      ]
+    },
+    "integration": "Extend ValueSetConstraint with DatatypeFacetConstraint, route to type-specific validators",
+    "code_example": "DatatypeFacetConstraint dateConstraint;\ndateConstraint.datatype = \"http://www.w3.org/2001/XMLSchema#date\";\ndateConstraint.minInclusive = \"2000-01-01\";\ndateConstraint.maxInclusive = \"2030-12-31\";\nproperty.valueConstraint.datatypeFacets = dateConstraint;"
+  },
+  "examples": [
+    {
+      "name": "Age Constraint (Numeric Range)",
+      "description": "Person age must be between 0 and 150",
+      "shex_syntax": "shape :PersonShape {\n  :age xsd:integer MinInclusive 0 MaxInclusive 150\n}",
+      "cpp_code": "PropertyShape ageProperty(\"http://example.org/age\");\nageProperty.valueConstraint.datatypeRestriction = \"http://www.w3.org/2001/XMLSchema#integer\";\nNumericRangeConstraint range;\nrange.minInclusive = 0.0;\nrange.maxInclusive = 150.0;\nageProperty.valueConstraint.numericRange = range;",
+      "test_cases": [
+        {"value": "25", "valid": true},
+        {"value": "0", "valid": true},
+        {"value": "150", "valid": true},
+        {"value": "-1", "valid": false},
+        {"value": "151", "valid": false}
+      ]
+    },
+    {
+      "name": "Email Pattern (Regex)",
+      "description": "Email must match standard email format",
+      "shex_syntax": "shape :UserShape {\n  :email xsd:string Pattern \"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\\\.[a-zA-Z]{2,}$\"\n}",
+      "cpp_code": "PropertyShape emailProperty(\"http://example.org/email\");\nPatternConstraint pattern;\npattern.pattern = \"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\\\\\\\.[a-zA-Z]{2,}$\";\nemailProperty.valueConstraint.patternConstraint = pattern;",
+      "test_cases": [
+        {"value": "user@example.com", "valid": true},
+        {"value": "test.user+tag@domain.co.uk", "valid": true},
+        {"value": "invalid-email", "valid": false},
+        {"value": "@nodomain.com", "valid": false}
+      ]
+    },
+    {
+      "name": "Language Tag (English variants)",
+      "description": "Accept English language tags (en, en-US, en-GB)",
+      "shex_syntax": "shape :BookShape {\n  :title xsd:string LanguageTag \"en\" \"en-US\" \"en-GB\"\n}",
+      "cpp_code": "PropertyShape titleProperty(\"http://example.org/title\");\nLanguageTagConstraint langTag;\nlangTag.languageTags = {\"en\", \"en-US\", \"en-GB\"};\nlangTag.requireLanguageTag = true;\ntitleProperty.valueConstraint.languageConstraint = langTag;",
+      "test_cases": [
+        {"value": "\"Book Title\"@en", "valid": true},
+        {"value": "\"Book Title\"@en-US", "valid": true},
+        {"value": "\"Book Title\"@fr", "valid": false},
+        {"value": "\"Book Title\"", "valid": false}
+      ]
+    },
+    {
+      "name": "Username Length",
+      "description": "Username must be 3-20 characters",
+      "shex_syntax": "shape :AccountShape {\n  :username xsd:string MinLength 3 MaxLength 20\n}",
+      "cpp_code": "PropertyShape usernameProperty(\"http://example.org/username\");\nLengthConstraint length;\nlength.minLength = 3;\nlength.maxLength = 20;\nusernameProperty.valueConstraint.lengthConstraint = length;",
+      "test_cases": [
+        {"value": "alice", "valid": true},
+        {"value": "bob123456789012345", "valid": true},
+        {"value": "ab", "valid": false},
+        {"value": "verylongusernamethatexceedslimit", "valid": false}
+      ]
+    },
+    {
+      "name": "Price Range (Decimal)",
+      "description": "Product price between 0.01 and 9999.99 with 2 decimal places",
+      "shex_syntax": "shape :ProductShape {\n  :price xsd:decimal MinInclusive 0.01 MaxInclusive 9999.99 FractionDigits 2\n}",
+      "cpp_code": "PropertyShape priceProperty(\"http://example.org/price\");\nNumericRangeConstraint price;\nprice.minInclusive = 0.01;\nprice.maxInclusive = 9999.99;\nprice.fractionDigits = 2;\npriceProperty.valueConstraint.numericRange = price;",
+      "test_cases": [
+        {"value": "19.99", "valid": true},
+        {"value": "0.01", "valid": true},
+        {"value": "9999.99", "valid": true},
+        {"value": "0.00", "valid": false},
+        {"value": "10000.00", "valid": false},
+        {"value": "19.999", "valid": false}
+      ]
+    },
+    {
+      "name": "Birth Date Range",
+      "description": "Birth date between 1900-01-01 and today",
+      "shex_syntax": "shape :PersonShape {\n  :birthDate xsd:date MinInclusive \"1900-01-01\" MaxInclusive \"2026-01-01\"\n}",
+      "cpp_code": "PropertyShape birthDateProperty(\"http://example.org/birthDate\");\nDatatypeFacetConstraint dateConstraint;\ndateConstraint.datatype = \"http://www.w3.org/2001/XMLSchema#date\";\ndateConstraint.minInclusive = \"1900-01-01\";\ndateConstraint.maxInclusive = \"2026-01-01\";\nbirthDateProperty.valueConstraint.datatypeFacets = dateConstraint;",
+      "test_cases": [
+        {"value": "1990-05-15", "valid": true},
+        {"value": "1900-01-01", "valid": true},
+        {"value": "2026-01-01", "valid": true},
+        {"value": "1899-12-31", "valid": false},
+        {"value": "2026-01-02", "valid": false}
+      ]
+    },
+    {
+      "name": "Phone Number Pattern",
+      "description": "US phone number format validation",
+      "shex_syntax": "shape :ContactShape {\n  :phone xsd:string Pattern \"^\\\\+?1?[-.]?\\\\(?[0-9]{3}\\\\)?[-.]?[0-9]{3}[-.]?[0-9]{4}$\"\n}",
+      "cpp_code": "PropertyShape phoneProperty(\"http://example.org/phone\");\nPatternConstraint phonePattern;\nphonePattern.pattern = \"^\\\\\\\\+?1?[-.]?\\\\\\\\(?[0-9]{3}\\\\\\\\)?[-.]?[0-9]{3}[-.]?[0-9]{4}$\";\nphoneProperty.valueConstraint.patternConstraint = phonePattern;",
+      "test_cases": [
+        {"value": "(555) 123-4567", "valid": true},
+        {"value": "555-123-4567", "valid": true},
+        {"value": "5551234567", "valid": true},
+        {"value": "+1-555-123-4567", "valid": true},
+        {"value": "123-456", "valid": false}
+      ]
+    },
+    {
+      "name": "Percentage (0-100)",
+      "description": "Percentage value between 0 and 100 inclusive",
+      "shex_syntax": "shape :StatisticsShape {\n  :percentage xsd:double MinInclusive 0.0 MaxInclusive 100.0\n}",
+      "cpp_code": "PropertyShape percentageProperty(\"http://example.org/percentage\");\nNumericRangeConstraint percentage;\npercentage.minInclusive = 0.0;\npercentage.maxInclusive = 100.0;\npercentageProperty.valueConstraint.numericRange = percentage;",
+      "test_cases": [
+        {"value": "50.5", "valid": true},
+        {"value": "0.0", "valid": true},
+        {"value": "100.0", "valid": true},
+        {"value": "-0.1", "valid": false},
+        {"value": "100.1", "valid": false}
+      ]
+    },
+    {
+      "name": "Any Language Required",
+      "description": "Description must have any language tag",
+      "shex_syntax": "shape :ResourceShape {\n  :description xsd:string LanguageTag @*\n}",
+      "cpp_code": "PropertyShape descProperty(\"http://example.org/description\");\nLanguageTagConstraint anyLang;\nanyLang.allowAnyLanguage = true;\nanyLang.requireLanguageTag = true;\ndescProperty.valueConstraint.languageConstraint = anyLang;",
+      "test_cases": [
+        {"value": "\"Description\"@en", "valid": true},
+        {"value": "\"Description\"@fr", "valid": true},
+        {"value": "\"Description\"@zh-CN", "valid": true},
+        {"value": "\"Description\"", "valid": false}
+      ]
+    },
+    {
+      "name": "ZIP Code Pattern (US)",
+      "description": "US ZIP code (5 digits or 5+4 format)",
+      "shex_syntax": "shape :AddressShape {\n  :zipCode xsd:string Pattern \"^[0-9]{5}(-[0-9]{4})?$\" Length 5 or 10\n}",
+      "cpp_code": "PropertyShape zipProperty(\"http://example.org/zipCode\");\nPatternConstraint zipPattern;\nzipPattern.pattern = \"^[0-9]{5}(-[0-9]{4})?$\";\nLengthConstraint zipLength;\n// Note: For either 5 or 10, use two separate constraints or custom logic\nzipProperty.valueConstraint.patternConstraint = zipPattern;",
+      "test_cases": [
+        {"value": "12345", "valid": true},
+        {"value": "12345-6789", "valid": true},
+        {"value": "1234", "valid": false},
+        {"value": "12345-678", "valid": false},
+        {"value": "abcde", "valid": false}
+      ]
+    }
+  ],
+  "enhanced_valueset_constraint": {
+    "class_definition": "struct ValueSetConstraint {\n  // Existing fields\n  std::optional<ValueType> valueType;\n  absl::flat_hash_set<std::string> allowedIris;\n  std::optional<std::string> datatypeRestriction;\n\n  // New: Numeric range constraints\n  std::optional<NumericRangeConstraint> numericRange;\n\n  // New: Pattern matching\n  std::optional<PatternConstraint> patternConstraint;\n\n  // New: Language tag constraints\n  std::optional<LanguageTagConstraint> languageConstraint;\n\n  // New: Length constraints\n  std::optional<LengthConstraint> lengthConstraint;\n\n  // New: Datatype-specific facets\n  std::optional<DatatypeFacetConstraint> datatypeFacets;\n\n  ValueSetConstraint() = default;\n  bool validate(const std::string& value, ValueType type) const;\n  bool validateLiteral(const ad_utility::triple_component::Literal& literal) const;\n};",
+    "validation_workflow": [
+      "1. Check value type (IRI, LITERAL, BNODE) if specified",
+      "2. Check allowed IRIs set if non-empty",
+      "3. If LITERAL, extract content and language/datatype",
+      "4. Apply language tag constraints if present",
+      "5. Apply datatype restriction if specified",
+      "6. Apply numeric range if datatype is numeric",
+      "7. Apply pattern constraint if present",
+      "8. Apply length constraint if present",
+      "9. Apply datatype-specific facets if present",
+      "10. Return true only if all constraints pass"
+    ]
+  },
+  "integration_strategy": {
+    "step1": "Add new constraint classes to ShEx.h (NumericRangeConstraint, PatternConstraint, etc.)",
+    "step2": "Update ValueSetConstraint to include optional members for each constraint type",
+    "step3": "Implement validate() methods for each constraint class",
+    "step4": "Update ValueSetConstraint::validate() to call all applicable constraint validators",
+    "step5": "Extend ShExParser to parse new constraint syntax",
+    "step6": "Add comprehensive tests for each constraint type in ShExTest.cpp",
+    "step7": "Update docs/ShEx.md with new constraint documentation",
+    "backward_compatibility": "All new constraints are optional, existing code continues to work unchanged"
+  },
+  "testing_strategy": {
+    "unit_tests": [
+      "NumericRangeConstraintTest - test all numeric facets",
+      "PatternConstraintTest - test regex compilation and matching",
+      "LanguageTagConstraintTest - test language tag validation",
+      "LengthConstraintTest - test UTF-8 length counting",
+      "DatatypeFacetConstraintTest - test each datatype"
+    ],
+    "integration_tests": [
+      "Combined constraints (e.g., string with pattern + length)",
+      "Parser tests for new syntax",
+      "Validation tests with real RDF data"
+    ],
+    "test_file": "test/parser/ShExTest.cpp - add 50+ new test cases"
+  },
+  "performance_considerations": {
+    "regex_caching": "Compile RE2 patterns once and cache in PatternConstraint",
+    "lazy_validation": "Only validate constraints that are actually specified",
+    "early_exit": "Return false as soon as any constraint fails",
+    "memory_efficiency": "Use std::optional for all constraints to avoid overhead when not used"
+  }
+}

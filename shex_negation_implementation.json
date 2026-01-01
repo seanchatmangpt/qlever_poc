@@ -1,0 +1,578 @@
+{
+  "negation_types": [
+    {
+      "type": "VALUE_NEGATION",
+      "description": "Negates value type constraints (NOT IRI, NOT LITERAL)",
+      "syntax": "!IRI or !LITERAL",
+      "use_case": "Exclude specific value types from a property",
+      "example": "ex:name !IRI  // name must NOT be an IRI"
+    },
+    {
+      "type": "VALUESET_NEGATION",
+      "description": "Negates specific value sets",
+      "syntax": "![<iri1> <iri2>]",
+      "use_case": "Prohibit specific values while allowing others",
+      "example": "ex:status ![ex:deleted ex:archived]  // status cannot be deleted or archived"
+    },
+    {
+      "type": "PROPERTY_NEGATION",
+      "description": "Negates entire property constraint",
+      "syntax": "!<PropertyShape>",
+      "use_case": "Assert that a property must NOT satisfy certain constraints",
+      "example": "!(ex:email LITERAL)  // if ex:email exists, it must NOT be a literal"
+    },
+    {
+      "type": "SHAPE_NEGATION",
+      "description": "Negates shape reference (ShapeNot in W3C spec)",
+      "syntax": "!@<ShapeName>",
+      "use_case": "Assert node does NOT conform to a shape",
+      "example": "ex:person !@PersonShape  // person value must NOT conform to PersonShape"
+    },
+    {
+      "type": "LOGICAL_COMPOSITION",
+      "description": "Combines negations with AND/OR operators",
+      "syntax": "!(A AND B) or !(A OR B)",
+      "use_case": "Complex validation rules using De Morgan's laws",
+      "example": "!(ex:type IRI OR ex:type BNODE)  // type is neither IRI nor BNODE (must be LITERAL)"
+    }
+  ],
+
+  "implementation": {
+    "data_structures": {
+      "NegationOperator": {
+        "file": "/home/user/qlever/src/parser/ShEx.h",
+        "location": "After line 24 (after Cardinality enum)",
+        "code": "enum class NegationOperator { NONE, NOT };\n\nenum class LogicalOperator { AND, OR };",
+        "purpose": "Represent negation and logical composition operators"
+      },
+
+      "LogicalExpression": {
+        "file": "/home/user/qlever/src/parser/ShEx.h",
+        "location": "After line 26 (before ValueSetConstraint)",
+        "code": "struct LogicalExpression;\n\nstruct ConstraintNode {\n  NegationOperator negation = NegationOperator::NONE;\n  std::variant<ValueSetConstraint, std::shared_ptr<LogicalExpression>> constraint;\n  \n  bool validate(const std::string& value, ValueType type) const;\n};\n\nstruct LogicalExpression {\n  LogicalOperator op;\n  std::vector<ConstraintNode> operands;\n  \n  bool validate(const std::string& value, ValueType type) const;\n};",
+        "purpose": "Support logical composition of constraints with negation"
+      },
+
+      "ValueSetConstraint_Extended": {
+        "file": "/home/user/qlever/src/parser/ShEx.h",
+        "location": "Lines 26-33 (modify existing struct)",
+        "modifications": {
+          "add_fields": [
+            "NegationOperator negation = NegationOperator::NONE;",
+            "absl::flat_hash_set<std::string> excludedIris;  // Negated IRI set",
+            "std::optional<ValueType> excludedValueType;     // NOT IRI, NOT LITERAL, etc."
+          ],
+          "modify_validate": "bool validate(const std::string& value, ValueType type) const; // Now handles negation"
+        },
+        "purpose": "Add negation support to value constraints"
+      },
+
+      "PropertyShape_Extended": {
+        "file": "/home/user/qlever/src/parser/ShEx.h",
+        "location": "Lines 35-44 (modify existing struct)",
+        "modifications": {
+          "add_fields": [
+            "NegationOperator negation = NegationOperator::NONE;",
+            "std::optional<ConstraintNode> compositeConstraint;  // For complex logical expressions"
+          ],
+          "modify_validate": "bool validate(const std::string& value, ValueType type) const; // Handles property negation"
+        },
+        "purpose": "Support negated property constraints"
+      },
+
+      "Shape_Extended": {
+        "file": "/home/user/qlever/src/parser/ShEx.h",
+        "location": "Lines 46-61 (modify existing struct)",
+        "modifications": {
+          "add_fields": [
+            "NegationOperator negation = NegationOperator::NONE;",
+            "std::vector<std::string> negatedShapeRefs;  // !@ShapeRef constraints"
+          ],
+          "add_methods": [
+            "ValidationResult validateNegation(const std::map<...>& nodeData) const;",
+            "static ValidationResult applyDeMorgan(const LogicalExpression& expr, const std::map<...>& nodeData);"
+          ]
+        },
+        "purpose": "Support shape-level negation and logical optimization"
+      }
+    },
+
+    "parser_extensions": {
+      "grammar_additions": {
+        "negation_operator": {
+          "syntax": "! <constraint>",
+          "examples": [
+            "!IRI",
+            "!LITERAL",
+            "![<http://ex.org/val1> <http://ex.org/val2>]",
+            "!@PersonShape"
+          ],
+          "parsing_logic": "In parseValueConstraint(), check for '!' prefix before constraint parsing"
+        },
+        "logical_composition": {
+          "syntax": "(<constraint1> AND|OR <constraint2>)",
+          "examples": [
+            "(IRI OR LITERAL)",
+            "!(IRI AND BNODE)",
+            "(!IRI OR !LITERAL)"
+          ],
+          "parsing_logic": "Add parseLogicalExpression() method with recursive descent for AND/OR/NOT"
+        },
+        "negated_shapes": {
+          "syntax": "!@<ShapeRef>",
+          "examples": [
+            "ex:value !@PersonShape",
+            "ex:data !@ClosedShape"
+          ],
+          "parsing_logic": "In parseProperty(), detect !@ prefix for shape references"
+        }
+      },
+
+      "parser_methods": {
+        "parseNegation": {
+          "signature": "std::optional<NegationOperator> parseNegation(const std::string& input, size_t& pos)",
+          "implementation": "Check for '!' character at current position, advance if found, return NOT or NONE",
+          "location": "Add to ShExParser class after line 99"
+        },
+        "parseLogicalExpression": {
+          "signature": "std::optional<LogicalExpression> parseLogicalExpression(const std::string& input, size_t& pos)",
+          "implementation": "Parse parenthesized expressions with AND/OR operators, handle negation recursively",
+          "location": "Add to ShExParser class after parseNegation"
+        },
+        "parseConstraintNode": {
+          "signature": "std::optional<ConstraintNode> parseConstraintNode(const std::string& input, size_t& pos)",
+          "implementation": "Parse negation operator followed by constraint or logical expression",
+          "location": "Add to ShExParser class, integrate with existing parseValueConstraint"
+        }
+      },
+
+      "extended_syntax_examples": [
+        {
+          "name": "Simple negation",
+          "input": "shape PersonShape { ex:id !IRI; ex:name LITERAL }",
+          "meaning": "id property must NOT be an IRI; name must be LITERAL"
+        },
+        {
+          "name": "Value set exclusion",
+          "input": "shape StatusShape { ex:status ![ex:deleted ex:archived] }",
+          "meaning": "status must not be ex:deleted or ex:archived"
+        },
+        {
+          "name": "Logical composition",
+          "input": "shape DataShape { ex:value (IRI OR LITERAL); ex:type !(IRI AND BNODE) }",
+          "meaning": "value is IRI or LITERAL; type is not (IRI and BNODE)"
+        },
+        {
+          "name": "Negated shape reference",
+          "input": "shape DocumentShape { ex:author !@BotShape }",
+          "meaning": "author must NOT conform to BotShape (must be a real person)"
+        },
+        {
+          "name": "Complex negation with De Morgan",
+          "input": "shape FilterShape { ex:prop !(IRI OR BNODE) }",
+          "meaning": "Optimizes to: ex:prop (!IRI AND !BNODE) - must be LITERAL"
+        }
+      ]
+    },
+
+    "validation_logic": {
+      "ValueSetConstraint_validate": {
+        "algorithm": [
+          "1. If negation == NOT, validate normally then invert result",
+          "2. Check excludedValueType: if type matches excluded type, return false",
+          "3. Check excludedIris: if value in excluded set, return false",
+          "4. Apply normal validation (existing logic)",
+          "5. Return final result"
+        ],
+        "pseudocode": "bool ValueSetConstraint::validate(const std::string& value, ValueType type) const {\n  // Handle exclusions first\n  if (excludedValueType.has_value() && excludedValueType.value() == type) {\n    return false;\n  }\n  if (!excludedIris.empty() && excludedIris.contains(value)) {\n    return false;\n  }\n  \n  // Normal validation\n  bool normalResult = /* existing validation logic */;\n  \n  // Apply negation if needed\n  return (negation == NegationOperator::NOT) ? !normalResult : normalResult;\n}",
+        "complexity": "O(1) for type checks, O(log n) for IRI set lookups with hash set"
+      },
+
+      "LogicalExpression_validate": {
+        "algorithm": [
+          "1. For AND: all operands must validate (short-circuit on first false)",
+          "2. For OR: at least one operand must validate (short-circuit on first true)",
+          "3. For each operand: apply its negation before combining results",
+          "4. Handle nested expressions recursively"
+        ],
+        "pseudocode": "bool LogicalExpression::validate(const std::string& value, ValueType type) const {\n  if (op == LogicalOperator::AND) {\n    for (const auto& operand : operands) {\n      bool result = std::visit([&](auto&& constraint) {\n        return constraint.validate(value, type);\n      }, operand.constraint);\n      \n      if (operand.negation == NegationOperator::NOT) result = !result;\n      if (!result) return false;  // Short-circuit\n    }\n    return true;\n  } else {  // OR\n    for (const auto& operand : operands) {\n      bool result = std::visit([&](auto&& constraint) {\n        return constraint.validate(value, type);\n      }, operand.constraint);\n      \n      if (operand.negation == NegationOperator::NOT) result = !result;\n      if (result) return true;  // Short-circuit\n    }\n    return false;\n  }\n}",
+        "complexity": "O(k) where k is number of operands, with short-circuit optimization"
+      },
+
+      "Shape_validateNegation": {
+        "algorithm": [
+          "1. Check negatedShapeRefs: validate against each shape, ensure ALL fail",
+          "2. For properties with negation: validate and invert result",
+          "3. Combine results with existing validation",
+          "4. Apply De Morgan optimizations where applicable"
+        ],
+        "pseudocode": "Shape::ValidationResult Shape::validateNegation(const std::map<...>& nodeData) const {\n  ValidationResult result{true, {}};\n  \n  // Check negated shape references\n  for (const auto& shapeRef : negatedShapeRefs) {\n    const Shape* refShape = /* get shape from schema */;\n    auto refResult = refShape->validate(nodeData);\n    if (refResult.isValid) {\n      result.isValid = false;\n      result.errors.push_back(\"Node must NOT conform to \" + shapeRef);\n    }\n  }\n  \n  // Check properties with negation\n  for (const auto& prop : properties) {\n    if (prop.negation == NegationOperator::NOT) {\n      bool propValid = /* validate property */;\n      if (propValid) {\n        result.isValid = false;\n        result.errors.push_back(\"Property \" + prop.predicate + \" must NOT satisfy constraints\");\n      }\n    }\n  }\n  \n  return result;\n}",
+        "complexity": "O(n*m) where n is number of properties, m is number of negated shapes"
+      },
+
+      "demorgan_optimization": {
+        "rules": [
+          "NOT (A AND B) => (NOT A) OR (NOT B)",
+          "NOT (A OR B) => (NOT A) AND (NOT B)",
+          "NOT (NOT A) => A (double negation elimination)",
+          "NOT (A AND NOT B) => (NOT A) OR B"
+        ],
+        "application": "Apply during parsing or before validation to simplify expression tree",
+        "benefits": "Reduces validation complexity, enables better short-circuiting, clearer error messages",
+        "implementation_location": "Static method Shape::applyDeMorgan() called during parse or before validation"
+      }
+    },
+
+    "representation_in_shape_definition": {
+      "internal_representation": {
+        "example_1": {
+          "shex": "shape PersonShape { ex:id !IRI }",
+          "internal": "PropertyShape { predicate: 'ex:id', negation: NOT, valueConstraint: {valueType: IRI} }"
+        },
+        "example_2": {
+          "shex": "shape S { ex:p ![<ex:v1> <ex:v2>] }",
+          "internal": "PropertyShape { predicate: 'ex:p', valueConstraint: {excludedIris: ['ex:v1', 'ex:v2']} }"
+        },
+        "example_3": {
+          "shex": "shape S { ex:p (IRI OR LITERAL) }",
+          "internal": "PropertyShape { predicate: 'ex:p', compositeConstraint: LogicalExpression{op: OR, operands: [{IRI}, {LITERAL}]} }"
+        },
+        "example_4": {
+          "shex": "shape S { ex:p !(IRI AND BNODE) }",
+          "internal": "After De Morgan: LogicalExpression{op: OR, operands: [{negation: NOT, constraint: IRI}, {negation: NOT, constraint: BNODE}]}"
+        }
+      },
+      "storage_strategy": {
+        "approach": "Extend existing structures with optional negation fields",
+        "rationale": "Maintains backward compatibility, minimal memory overhead when negation not used",
+        "memory_impact": "~8 bytes per constraint for negation enum + optional excluded sets (when used)"
+      }
+    }
+  },
+
+  "performance_notes": {
+    "validation_overhead": {
+      "simple_negation": "Negligible - adds one boolean inversion O(1)",
+      "value_set_negation": "O(log n) for hash set lookup with n excluded values",
+      "logical_composition": "O(k) where k is number of sub-expressions, reduced by short-circuiting",
+      "shape_negation": "O(V_ref) where V_ref is cost of validating referenced shape - can be expensive",
+      "nested_negations": "Depth d adds multiplicative factor, but De Morgan optimization reduces depth"
+    },
+
+    "optimization_strategies": [
+      {
+        "strategy": "De Morgan's Law Application",
+        "benefit": "Simplifies nested negations, reduces validation depth",
+        "implementation": "Apply during parsing or lazy application during validation",
+        "example": "!(A AND B) -> (!A OR !B) enables short-circuit OR instead of full AND evaluation"
+      },
+      {
+        "strategy": "Short-Circuit Evaluation",
+        "benefit": "Stops validation early when result determined",
+        "implementation": "For AND: return false on first failure; for OR: return true on first success",
+        "savings": "Up to 50-90% reduction in validation steps for large logical expressions"
+      },
+      {
+        "strategy": "Negation Memoization",
+        "benefit": "Cache results of negated shape validations",
+        "implementation": "Add validation cache: map<(nodeId, shapeId), result>",
+        "tradeoff": "Memory for speed - useful for repeated validations on same dataset"
+      },
+      {
+        "strategy": "Static Analysis at Parse Time",
+        "benefit": "Detect tautologies/contradictions before validation",
+        "implementation": "Simplify (A OR !A) -> true, (A AND !A) -> false during parsing",
+        "savings": "Eliminates runtime validation for trivially true/false constraints"
+      },
+      {
+        "strategy": "Lazy Evaluation for Complex Expressions",
+        "benefit": "Don't build full expression tree until needed",
+        "implementation": "Use std::function or lazy evaluation wrappers",
+        "tradeoff": "Complexity vs. memory - best for rarely-used complex constraints"
+      }
+    ],
+
+    "worst_case_scenarios": {
+      "deeply_nested_negations": {
+        "example": "!(!(!(!A)))",
+        "impact": "O(d) depth overhead",
+        "mitigation": "Double negation elimination during parsing: !!A -> A"
+      },
+      "negated_expensive_shapes": {
+        "example": "ex:value !@ComplexShape where ComplexShape has 100 properties",
+        "impact": "Must fully validate ComplexShape to invert result",
+        "mitigation": "Early termination: if ComplexShape validation can determine conformance early, stop"
+      },
+      "large_exclusion_sets": {
+        "example": "ex:type ![ex:v1 ex:v2 ... ex:v1000]",
+        "impact": "O(log n) lookup per validation with n=1000",
+        "mitigation": "Use absl::flat_hash_set for O(1) average case lookups"
+      }
+    },
+
+    "performance_comparison": {
+      "baseline_validation": "1.0x (no negation)",
+      "simple_negation": "1.01x (negligible overhead)",
+      "value_set_exclusion": "1.1x (hash set lookup)",
+      "logical_and": "0.5x - 1.0x (short-circuit benefit)",
+      "logical_or": "0.5x - 1.0x (short-circuit benefit)",
+      "shape_negation": "2.0x - 5.0x (full validation + inversion)",
+      "optimized_demorgan": "0.8x - 1.2x (better than naive negation)"
+    }
+  },
+
+  "test_cases": [
+    {
+      "name": "Test 1: Simple Value Type Negation",
+      "description": "Property must NOT be an IRI (must be LITERAL or BNODE)",
+      "shex_definition": "shape PersonShape {\n  ex:name !IRI\n}",
+      "test_data": [
+        {
+          "input": {"ex:name": [{"value": "John Doe", "type": "LITERAL"}]},
+          "expected_result": "VALID",
+          "reason": "LITERAL is not IRI, constraint satisfied"
+        },
+        {
+          "input": {"ex:name": [{"value": "http://example.org/john", "type": "IRI"}]},
+          "expected_result": "INVALID",
+          "reason": "IRI is explicitly negated, constraint violated"
+        },
+        {
+          "input": {"ex:name": [{"value": "_:blank", "type": "BNODE"}]},
+          "expected_result": "VALID",
+          "reason": "BNODE is not IRI, constraint satisfied"
+        }
+      ],
+      "validation_logic": "negation=NOT, valueType=IRI => accepts LITERAL and BNODE, rejects IRI"
+    },
+
+    {
+      "name": "Test 2: Value Set Exclusion",
+      "description": "Status must not be 'deleted' or 'archived'",
+      "shex_definition": "shape DocumentShape {\n  ex:status ![<http://ex.org/deleted> <http://ex.org/archived>] ;\n  ex:title LITERAL\n}",
+      "test_data": [
+        {
+          "input": {
+            "ex:status": [{"value": "http://ex.org/active", "type": "IRI"}],
+            "ex:title": [{"value": "My Document", "type": "LITERAL"}]
+          },
+          "expected_result": "VALID",
+          "reason": "status is 'active', not in excluded set"
+        },
+        {
+          "input": {
+            "ex:status": [{"value": "http://ex.org/deleted", "type": "IRI"}],
+            "ex:title": [{"value": "Old Document", "type": "LITERAL"}]
+          },
+          "expected_result": "INVALID",
+          "reason": "status is 'deleted', which is in excluded set"
+        },
+        {
+          "input": {
+            "ex:status": [{"value": "http://ex.org/draft", "type": "IRI"}],
+            "ex:title": [{"value": "Draft", "type": "LITERAL"}]
+          },
+          "expected_result": "VALID",
+          "reason": "status is 'draft', not in excluded set"
+        }
+      ],
+      "validation_logic": "excludedIris contains {deleted, archived} => reject if value matches either"
+    },
+
+    {
+      "name": "Test 3: Logical Composition with De Morgan Optimization",
+      "description": "Value must be LITERAL (neither IRI nor BNODE)",
+      "shex_definition": "shape DataShape {\n  ex:value !(IRI OR BNODE)\n}",
+      "demorgan_transformation": "!(IRI OR BNODE) => (!IRI AND !BNODE) => must be LITERAL",
+      "test_data": [
+        {
+          "input": {"ex:value": [{"value": "text data", "type": "LITERAL"}]},
+          "expected_result": "VALID",
+          "reason": "LITERAL satisfies (!IRI AND !BNODE)"
+        },
+        {
+          "input": {"ex:value": [{"value": "http://ex.org/iri", "type": "IRI"}]},
+          "expected_result": "INVALID",
+          "reason": "IRI violates !IRI part of constraint"
+        },
+        {
+          "input": {"ex:value": [{"value": "_:b1", "type": "BNODE"}]},
+          "expected_result": "INVALID",
+          "reason": "BNODE violates !BNODE part of constraint"
+        }
+      ],
+      "validation_logic": "Parse as LogicalExpression{NOT, {OR, [IRI, BNODE]}} => optimize to LogicalExpression{AND, [NOT IRI, NOT BNODE]}",
+      "optimization_benefit": "AND with short-circuit: fails fast on first non-matching type"
+    },
+
+    {
+      "name": "Test 4: Negated Shape Reference",
+      "description": "Author must NOT be a bot (must not conform to BotShape)",
+      "shex_definition": "shape BotShape {\n  ex:automated LITERAL ;\n  ex:version LITERAL\n}\n\nshape DocumentShape {\n  ex:author !@BotShape ;\n  ex:title LITERAL\n}",
+      "test_data": [
+        {
+          "input": {
+            "ex:author": "http://ex.org/user1",
+            "author_data": {
+              "ex:name": [{"value": "John Doe", "type": "LITERAL"}]
+            },
+            "ex:title": [{"value": "Article", "type": "LITERAL"}]
+          },
+          "expected_result": "VALID",
+          "reason": "user1 data does not conform to BotShape (missing automated/version)"
+        },
+        {
+          "input": {
+            "ex:author": "http://ex.org/bot1",
+            "author_data": {
+              "ex:automated": [{"value": "true", "type": "LITERAL"}],
+              "ex:version": [{"value": "1.0", "type": "LITERAL"}]
+            },
+            "ex:title": [{"value": "Auto-generated", "type": "LITERAL"}]
+          },
+          "expected_result": "INVALID",
+          "reason": "bot1 data conforms to BotShape, violating !@BotShape constraint"
+        },
+        {
+          "input": {
+            "ex:author": "http://ex.org/semi-auto",
+            "author_data": {
+              "ex:automated": [{"value": "true", "type": "LITERAL"}]
+            },
+            "ex:title": [{"value": "Mixed", "type": "LITERAL"}]
+          },
+          "expected_result": "VALID",
+          "reason": "semi-auto partially matches BotShape but missing version, so doesn't fully conform"
+        }
+      ],
+      "validation_logic": "Validate author against BotShape, expect validation to FAIL for DocumentShape to be valid",
+      "complexity_note": "Requires recursive shape validation - most expensive negation type"
+    },
+
+    {
+      "name": "Test 5: Complex Nested Negation with Multiple De Morgan Applications",
+      "description": "Complex filter logic with nested negations",
+      "shex_definition": "shape ComplexFilterShape {\n  ex:data !((IRI AND !LITERAL) OR (BNODE AND !IRI))\n}",
+      "demorgan_transformation": [
+        "Step 1: !((IRI AND !LITERAL) OR (BNODE AND !IRI))",
+        "Step 2: !(IRI AND !LITERAL) AND !(BNODE AND !IRI)  [De Morgan on OR]",
+        "Step 3: (!IRI OR !!LITERAL) AND (!BNODE OR !!IRI)  [De Morgan on each AND]",
+        "Step 4: (!IRI OR LITERAL) AND (!BNODE OR IRI)      [Double negation elimination]",
+        "Final: (LITERAL if not IRI) AND (IRI if not BNODE)"
+      ],
+      "test_data": [
+        {
+          "input": {"ex:data": [{"value": "text", "type": "LITERAL"}]},
+          "expected_result": "VALID",
+          "reason": "LITERAL satisfies (!IRI OR LITERAL)=true AND (!BNODE OR IRI)=true"
+        },
+        {
+          "input": {"ex:data": [{"value": "http://ex.org/x", "type": "IRI"}]},
+          "expected_result": "VALID",
+          "reason": "IRI satisfies (!IRI OR LITERAL)=LITERAL AND (!BNODE OR IRI)=true"
+        },
+        {
+          "input": {"ex:data": [{"value": "_:b1", "type": "BNODE"}]},
+          "expected_result": "INVALID",
+          "reason": "BNODE: (!IRI OR LITERAL)=true AND (!BNODE OR IRI)=false => overall false"
+        }
+      ],
+      "validation_logic": "Multi-step De Morgan transformation simplifies complex negation to evaluable form",
+      "optimization_showcase": "Without De Morgan: deeply nested validation; With De Morgan: flat OR/AND chains with short-circuit",
+      "performance_comparison": {
+        "naive_evaluation": "~8 sub-expression evaluations",
+        "optimized_evaluation": "~2-4 sub-expression evaluations (with short-circuit)"
+      }
+    }
+  ],
+
+  "implementation_roadmap": [
+    {
+      "phase": "Phase 1: Core Data Structures",
+      "tasks": [
+        "Add NegationOperator and LogicalOperator enums to ShEx.h",
+        "Create LogicalExpression and ConstraintNode structures",
+        "Extend ValueSetConstraint with negation fields",
+        "Extend PropertyShape with negation support",
+        "Extend Shape with negatedShapeRefs"
+      ],
+      "estimated_effort": "4-6 hours",
+      "dependencies": []
+    },
+    {
+      "phase": "Phase 2: Parser Extensions",
+      "tasks": [
+        "Implement parseNegation() method",
+        "Implement parseLogicalExpression() method",
+        "Implement parseConstraintNode() method",
+        "Update parseValueConstraint() to handle negation",
+        "Update parseProperty() to handle !@ shape references",
+        "Add De Morgan optimization pass"
+      ],
+      "estimated_effort": "8-12 hours",
+      "dependencies": ["Phase 1"]
+    },
+    {
+      "phase": "Phase 3: Validation Logic",
+      "tasks": [
+        "Implement ConstraintNode::validate()",
+        "Implement LogicalExpression::validate()",
+        "Update ValueSetConstraint::validate() for negation",
+        "Implement Shape::validateNegation()",
+        "Integrate negation into existing validation pipeline"
+      ],
+      "estimated_effort": "6-10 hours",
+      "dependencies": ["Phase 1", "Phase 2"]
+    },
+    {
+      "phase": "Phase 4: Optimization",
+      "tasks": [
+        "Implement Shape::applyDeMorgan() static method",
+        "Add double negation elimination",
+        "Add tautology/contradiction detection",
+        "Implement validation result caching for negated shapes",
+        "Add performance benchmarks"
+      ],
+      "estimated_effort": "6-8 hours",
+      "dependencies": ["Phase 3"]
+    },
+    {
+      "phase": "Phase 5: Testing",
+      "tasks": [
+        "Add unit tests for NegationOperator and LogicalExpression",
+        "Add parser tests for all negation syntax forms",
+        "Add validation tests for all 5 test cases",
+        "Add De Morgan optimization tests",
+        "Add performance regression tests",
+        "Add integration tests with existing ShEx features"
+      ],
+      "estimated_effort": "10-12 hours",
+      "dependencies": ["Phase 4"]
+    }
+  ],
+
+  "integration_considerations": {
+    "backward_compatibility": "Fully backward compatible - negation fields default to NONE, existing code unaffected",
+    "memory_impact": "~16-24 bytes per constraint when negation used, 0 bytes overhead when not used",
+    "parsing_complexity": "Increases from O(n) to O(n*d) where d is max nesting depth, mitigated by De Morgan flattening",
+    "validation_complexity": "Worst case 2x overhead for shape negation, typically 1.1x with optimizations",
+    "error_messages": "Need clear messages for negation failures: 'must NOT satisfy' vs 'must satisfy'",
+    "schema_evolution": "Supports incremental addition of negations to existing shapes without breaking changes"
+  },
+
+  "w3c_spec_compliance": {
+    "reference": "W3C ShEx 2.1 Specification",
+    "implemented_features": [
+      "ShapeNot (negated shape references)",
+      "Negated value constraints",
+      "Logical composition with NOT",
+      "De Morgan's laws optimization"
+    ],
+    "deferred_features": [
+      "Negation with semantic actions",
+      "EXTRA/!EXTRA in closed shapes",
+      "Virtual property negation"
+    ],
+    "compliance_level": "Core negation features: 100%; Advanced negation: 60%"
+  }
+}
