@@ -21,29 +21,37 @@ interface ConcurrencyMetrics {
 }
 
 describe('Concurrency Performance Tests', () => {
-  let client: any;
-  const ENDPOINT = process.env.QLEVER_ENDPOINT || 'http://localhost:7023';
+  let store: any;
+  const INDEX_PATH = process.env.QLEVER_INDEX || '/tmp/test-qlever-index';
 
   beforeAll(async () => {
-    const qlever = await import('qlever-wasm/node');
-    await qlever.init();
-    client = qlever.createClient(ENDPOINT);
+    // Import embedded libqlever Store from WASM module
+    const { initializeWasm, createStore } = await import('qlever-wasm/node');
 
-    const isHealthy = await client.ping();
-    if (!isHealthy) {
+    // Initialize WASM module
+    await initializeWasm();
+
+    // Create in-process store (uses libqlever embedded library)
+    store = createStore();
+
+    // Initialize with QLever index
+    try {
+      await store.init(INDEX_PATH);
+      console.log(`Store initialized with index: ${INDEX_PATH}`);
+    } catch (error) {
       throw new Error(
-        `QLever server not available at ${ENDPOINT}. ` +
-        'Start with: ServerMain -p 7023'
+        `Failed to initialize store. Ensure QLever index exists at: ${INDEX_PATH}\n` +
+        `To build an index: qlever index --file data.ttl --output ${INDEX_PATH}\n` +
+        `Error: ${error}`
       );
     }
 
     // WARMUP: Execute queries to warm up WASM module and caches
-    console.log('Warming up WASM module for concurrency tests...');
+    console.log('Warming up embedded libqlever WASM module...');
     const warmupPromises = [];
     for (let i = 0; i < 20; i++) {
       warmupPromises.push(
-        client.query('SELECT ?s WHERE { ?s ?p ?o } LIMIT 100', 'json')
-          .then((r: any) => r.data())
+        store.query('SELECT ?s WHERE { ?s ?p ?o } LIMIT 100')
           .catch(() => {/* ignore */})
       );
     }
@@ -71,10 +79,10 @@ describe('Concurrency Performance Tests', () => {
         for (let i = 0; i < queriesPerClient; i++) {
           try {
             const queryStart = performance.now();
-            const response = await client.query(query, 'json');
+            const result = await store.query(query);
             const queryDuration = performance.now() - queryStart;
 
-            const data = response.data();
+            const data = JSON.parse(result);
             if (data.results && data.results.bindings) {
               latencies.push(queryDuration);
               successCount++;

@@ -1,17 +1,33 @@
 /**
- * Browser-specific exports and utilities for QLever WASM
+ * Browser-specific exports for QLever WASM embedded library
+ *
+ * IMPORTANT: This module exports ONLY the embedded libqlever library API.
+ * It does NOT expose HTTP server/client functionality.
+ *
+ * Usage:
+ *   import { initializeWasm, createStore } from 'qlever-wasm/browser';
+ *
+ *   await initializeWasm();
+ *   const store = createStore();
+ *   await store.init('/path/to/index');
+ *   const results = await store.query('SELECT ?s WHERE { ?s ?p ?o }');
  */
 
 import * as wasm from "./pkg/qlever_wasm";
 
-export { QleverClient, QueryResponse, QueryBuilder, ResultFormat } from "./pkg/qlever_wasm";
+// Export embedded libqlever Store API
+export { QleverStore, QueryBuilder } from "./pkg/qlever_wasm";
 export type { SparqlResult, SparqlBinding } from "./index.d";
 
 /**
  * Initialize the WASM module for browser usage
+ *
+ * Sets up panic hooks for better error reporting.
+ * Must be called before creating stores.
+ *
+ * @returns Promise that resolves when initialization is complete
  */
-export async function init(): Promise<void> {
-  // In browser, the wasm module is already loaded
+export async function initializeWasm(): Promise<void> {
   if (typeof wasm !== "undefined") {
     try {
       wasm.set_panic_hook();
@@ -22,50 +38,42 @@ export async function init(): Promise<void> {
 }
 
 /**
- * Create a QLever client instance
- * @param endpoint - QLever server endpoint
- * @returns QleverClient instance
+ * Alias for initializeWasm() for backward compatibility
+ *
+ * @deprecated Use initializeWasm() instead
  */
-export function createClient(endpoint: string) {
-  return new wasm.QleverClient(endpoint);
+export async function init(): Promise<void> {
+  return initializeWasm();
 }
 
 /**
- * Create a query builder instance
- * @returns QueryBuilder instance
+ * Create a new embedded QLever store instance
+ *
+ * The store must be initialized with init() before use.
+ *
+ * @returns QleverStore instance
+ *
+ * @example
+ *   const store = createStore();
+ *   await store.init('/path/to/index');
+ *   const results = await store.query('SELECT * WHERE { ?s ?p ?o }');
  */
-export function createQueryBuilder() {
+export function createStore(): wasm.QleverStore {
+  return new wasm.QleverStore();
+}
+
+/**
+ * Create a query builder instance for constructing SPARQL queries
+ *
+ * @returns QueryBuilder instance
+ *
+ * @example
+ *   const builder = new QueryBuilder()
+ *     .select('?s ?p ?o')
+ *     .where_clause('?s ?p ?o')
+ *     .limit(100);
+ *   const query = builder.build();
+ */
+export function createQueryBuilder(): wasm.QueryBuilder {
   return new wasm.QueryBuilder();
 }
-
-/**
- * Helper function to execute a simple SPARQL query
- * @param endpoint - QLever server endpoint
- * @param sparqlQuery - SPARQL query string
- * @param format - Result format (default: "json")
- * @returns Promise<any> - Query results
- */
-export async function executeQuery(
-  endpoint: string,
-  sparqlQuery: string,
-  format: string = "json"
-): Promise<any> {
-  const client = new wasm.QleverClient(endpoint);
-  const response = await client.query(sparqlQuery, format);
-  return response.data();
-}
-
-/**
- * Helper function to check server connectivity
- * @param endpoint - QLever server endpoint
- * @returns Promise<boolean> - true if server is reachable
- */
-export async function checkServerHealth(endpoint: string): Promise<boolean> {
-  const client = new wasm.QleverClient(endpoint);
-  return client.ping();
-}
-
-/**
- * Export wasm module for direct access if needed
- */
-export const wasmModule = wasm;

@@ -74,28 +74,37 @@ function analyzeMemoryGrowth(snapshots: MemorySnapshot[]): MemoryStats {
 }
 
 describe('Memory Efficiency Tests', () => {
-  let client: any;
-  const ENDPOINT = process.env.QLEVER_ENDPOINT || 'http://localhost:7023';
+  let store: any;
+  const INDEX_PATH = process.env.QLEVER_INDEX || '/tmp/test-qlever-index';
 
   beforeAll(async () => {
-    const qlever = await import('qlever-wasm/node');
-    await qlever.init();
-    client = qlever.createClient(ENDPOINT);
+    // Import embedded libqlever Store from WASM module
+    const { initializeWasm, createStore } = await import('qlever-wasm/node');
 
-    const isHealthy = await client.ping();
-    if (!isHealthy) {
+    // Initialize WASM module
+    await initializeWasm();
+
+    // Create in-process store (uses libqlever embedded library)
+    store = createStore();
+
+    // Initialize with QLever index
+    try {
+      await store.init(INDEX_PATH);
+      console.log(`Store initialized with index: ${INDEX_PATH}`);
+    } catch (error) {
       throw new Error(
-        `QLever server not available at ${ENDPOINT}. ` +
-        'Start with: ServerMain -p 7023'
+        `Failed to initialize store. Ensure QLever index exists at: ${INDEX_PATH}\n` +
+        `To build an index: qlever index --file data.ttl --output ${INDEX_PATH}\n` +
+        `Error: ${error}`
       );
     }
 
     // WARMUP: Execute queries to warm up WASM module
-    console.log('Warming up WASM module for memory tests...');
+    console.log('Warming up embedded libqlever WASM module...');
     for (let i = 0; i < 5; i++) {
       try {
-        const response = await client.query('SELECT ?s WHERE { ?s ?p ?o } LIMIT 100', 'json');
-        response.data();
+        const result = await store.query('SELECT ?s WHERE { ?s ?p ?o } LIMIT 100');
+        expect(result).toBeDefined();
       } catch (e) {
         // Ignore warmup errors
       }
@@ -135,8 +144,8 @@ describe('Memory Efficiency Tests', () => {
     const before = takeMemorySnapshot();
 
     const query = 'SELECT ?s ?p ?o WHERE { ?s ?p ?o } LIMIT 1000';
-    const response = await client.query(query, 'json');
-    const data = response.data();
+    const result = await store.query(query);
+    const data = JSON.parse(result);
 
     expect(data.results.bindings).toBeDefined();
 
@@ -170,8 +179,8 @@ describe('Memory Efficiency Tests', () => {
 
     // Execute 100 queries, snapshot every 10
     for (let i = 0; i < 100; i++) {
-      const response = await client.query(query, 'json');
-      const data = response.data();
+      const result = await store.query(query);
+      const data = JSON.parse(result);
 
       expect(data.results.bindings).toBeDefined();
 
@@ -210,8 +219,8 @@ describe('Memory Efficiency Tests', () => {
       const before = takeMemorySnapshot();
 
       const query = `SELECT ?s ?p ?o WHERE { ?s ?p ?o } LIMIT ${limit}`;
-      const response = await client.query(query, 'json');
-      const data = response.data();
+      const result = await store.query(query);
+      const data = JSON.parse(result);
 
       const after = takeMemorySnapshot();
 
@@ -253,8 +262,8 @@ describe('Memory Efficiency Tests', () => {
 
     for (let i = 0; i < 500; i++) {
       const query = queries[i % queries.length];
-      const response = await client.query(query, 'json');
-      const data = response.data();
+      const result = await store.query(query);
+      const data = JSON.parse(result);
 
       expect(data.results.bindings).toBeDefined();
 
@@ -296,8 +305,8 @@ describe('Memory Efficiency Tests', () => {
     // Execute large query, then discard result
     for (let i = 0; i < 20; i++) {
       const query = 'SELECT ?s ?p ?o WHERE { ?s ?p ?o } LIMIT 5000';
-      const response = await client.query(query, 'json');
-      const data = response.data();
+      const result = await store.query(query);
+      const data = JSON.parse(result);
 
       expect(data.results.bindings.length).toBeGreaterThan(0);
       // Let garbage collection happen
@@ -335,7 +344,7 @@ describe('Memory Efficiency Tests', () => {
     const promises = Array(concurrentCount)
       .fill(null)
       .map(() =>
-        client.query(query, 'json').then((response: any) => response.data())
+        store.query(query).then((result: string) => JSON.parse(result))
       );
 
     const results = await Promise.all(promises);
@@ -367,11 +376,7 @@ describe('Memory Efficiency Tests', () => {
    * Useful for deployment planning.
    */
   it('WASM module memory footprint', async () => {
-    const wasmModule = await import('qlever-wasm/node');
-
-    const before = takeMemorySnapshot();
-
-    // Module is already loaded, but measure current state
+    // Module is already loaded in beforeAll(), but measure current state
     const snapshot = takeMemorySnapshot();
 
     const moduleSizeMB = (snapshot.heapUsed / (1024 * 1024));
