@@ -1,0 +1,430 @@
+================================================================================
+INVARIANT VALIDATOR EXECUTIVE SUMMARY
+Repository: /home/user/qlever
+Branch: claude/rewrite-epic-8.1-ByTY4
+Analysis Date: 2026-01-01
+================================================================================
+
+OVERALL VERDICT: MIXED (~30% Invariant-Based, ~70% Execution-Based)
+
+================================================================================
+PURE EXISTENCE VALIDATORS (Can be reused as-is)
+================================================================================
+
+✓ validate-receipts.sh
+  - PURE validator: Takes manifest, validates digests
+  - No side effects, atomic failure semantics
+  - REUSABLE: Validates any manifest against expected digests
+
+✓ verify-seal.sh
+  - PURE validator: Verifies seal integrity (digests, perms, sizes)
+  - No mutations, reads only, collects all violations
+  - REUSABLE: Verifies any sealed state
+
+✓ C++ Unit Tests (static_assert cases)
+  - PURE invariant specifications at compile-time
+  - Deterministic, repeatable, formal proofs
+  - REUSABLE: Serves as invariant catalog
+
+✓ Makefile verify target
+  - Reads manifest, validates checksums, no mutations
+  - REUSABLE: Verifies any phase completion
+
+================================================================================
+VALIDATION SCRIPT STATUS
+================================================================================
+
+validate-invariants.sh
+  Status: PARTIAL PASS
+  Issue: Sequential checks report individually (should be atomic)
+  Fix: Collect all checks, report once (all pass or all fail)
+  Reframe: "Either ALL invariants hold or NONE - no partial state"
+
+seal-artifacts.sh
+  Status: FAIL
+  Issue: Executor (mutates state), not validator
+  Fix: Split into two:
+    1. "can-seal-artifacts?" (existence proof - pure)
+    2. "seal-artifacts!" (execution - mutation)
+
+================================================================================
+ORCHESTRATION AGENTS STATUS
+================================================================================
+
+bb80-invariant-validator
+  Status: FAIL
+  Issue: Describes rules for EXTERNAL validation, not self-referential
+  Fix: Reframe as "Universe is constructible iff invariant set is complete"
+
+bb80-parallel-task-coordinator
+  Status: FAIL
+  Issue: Choreography (spawn, synchronize) not invariant structure
+  Fix: Reframe as "Shared invariant holds iff all agents report same fact"
+
+Pattern: Both agents describe EXECUTION, not STRUCTURE
+
+================================================================================
+BUILD SYSTEM (Makefile) STATUS
+================================================================================
+
+Current: Choreography-driven execution pipeline
+Problem: Phases mutate state instead of proving properties
+
+Phase A (Toolchain Sealing):
+  Status: NOT DETERMINISTIC
+  Issue: Runtime compiler detection (if clang vs g++)
+  Fix: Pre-seal compiler identity, avoid runtime branches
+
+Phase B (Dependency Integrity):
+  Status: INCOMPLETE
+  Issue: Only checks existence (test -f/d), not hashes
+  Fix: Verify vendored sources with hashes
+
+Phase C (Core Compilation):
+  Status: ENVIRONMENT-DEPENDENT
+  Issue: Output varies by compiler version, OS
+  Fix: Normalize environment before compilation
+
+Phase D (Rule & Constraint Enforcement):
+  Status: SUPERFICIAL
+  Issue: Only checks configuration, doesn't run constraints
+  Fix: Actually execute constraint validation
+
+Phase E (Deterministic Benchmarks):
+  Status: UNVERIFIED
+  Issue: Claims "deterministic" but no bounds defined
+  Fix: Define variance bounds, add determinism test
+
+Phase F (Artifact Sealing):
+  Status: PARTIAL
+  Issue: Uses find + sort (good order) but completeness uncertain
+  Fix: Verify all expected artifacts present before sealing
+
+Recommendation:
+  Split each phase into three targets:
+    phase-X-can-execute (existence proof - pure)
+    phase-X-exec (execution - mutate)
+    phase-X-valid (validation - pure)
+
+================================================================================
+SOURCE CODE ARCHITECTURE STATUS
+================================================================================
+
+ServerMain.cpp & engine/ modules
+  Status: FAIL (Traditional imperative code)
+  Issue: 150+ lines of conditional setup, mutable state
+  Fix: Extract invariant layer (what MUST be true)
+
+Example refactoring:
+  Instead of: void processQuery(QueryString q) { ...mutations... }
+  Do:        struct QueryInvariant {
+               static bool canAccept(const QueryString&);
+               static bool maintainsSemantics(const Result&);
+             };
+
+================================================================================
+BENCHMARK INFRASTRUCTURE STATUS
+================================================================================
+
+80/20 Thesis Strategy
+  Status: FAIL (Aspirational strategy, not operationalized)
+  Issue: Claims 80/20 principle but no formal invariants
+  Fix: Define explicit invariants with hard bounds
+
+Missing definitions:
+  BENCHMARK_INVARIANT_1: SelectVsConstruct digests bit-identical across 5 runs
+  BENCHMARK_INVARIANT_2: RealWorldDBpediaScale throughput varies < 5%
+  BENCHMARK_INVARIANT_3: All "critical_80_percent" benchmarks must pass
+
+================================================================================
+CRITICAL FINDINGS
+================================================================================
+
+1. AGENTS ARE ORCHESTRATORS, NOT VALIDATORS
+   - Describe EXECUTION choreography, not STRUCTURAL invariants
+   - Gap: No self-referential validation (agents validating agents)
+
+2. MAKEFILE IS EXECUTION CHOREOGRAPHY, NOT INVARIANT COMPOSITION
+   - Phases mutate state instead of composing invariants
+   - Gap: Cannot replay/reconstruct universe from invariants
+
+3. SOURCE CODE IS IMPERATIVE, NOT INVARIANT-DRIVEN
+   - No explicit invariant proofs; relies on tests
+   - Gap: Invariants are implicit, not formal specifications
+
+4. DETERMINISM CLAIMS ARE UNVERIFIED
+   - "Deterministic" claimed but not proven
+   - Compiler detection uses runtime environment checks
+   - Gap: No proof of bit-identical reproducibility
+
+5. MONOIDAL COMPOSITION NOT IMPLEMENTED
+   - Skill claims "monoidal composition" but Makefile doesn't implement it
+   - Phases mutate; monoids require immutability
+   - Gap: Missing identity element, associativity proof
+
+6. BRANCHING LOGIC IN CRITICAL PATHS
+   - Compiler detection: if clang vs g++ (environment-dependent)
+   - Error handling branches acceptable; logic branches problematic
+
+================================================================================
+PURE VALIDATORS VS EXECUTORS ANALYSIS
+================================================================================
+
+PURE VALIDATORS (No side effects, deterministic):
+  ✓ validate-receipts.sh
+  ✓ verify-seal.sh
+  ✓ C++ unit tests (static_assert)
+  ✓ Makefile verify target
+
+EXECUTORS (Mutate state, orchestrate):
+  ✗ seal-artifacts.sh (should be split)
+  ✗ Makefile phases A-F (should separate proof/exec/validate)
+  ✗ ServerMain.cpp (should extract invariant layer)
+
+PARTIAL/MIXED:
+  ~ validate-invariants.sh (meta-validator, needs atomicity)
+  ~ C++ runtime tests (executable specs, need structure improvement)
+
+================================================================================
+RECOMMENDED IMMEDIATE ACTIONS
+================================================================================
+
+Action 1: CREATE INVARIANT SPECIFICATION DOCUMENT
+  File: /home/user/qlever/INVARIANT_SPECIFICATION.md
+  Define explicit invariants for:
+    - Makefile structure (single entry point, phases, fail-closed)
+    - Artifact immutability (reproducible, sealed, hashable)
+    - Deterministic receipts (bit-identical across runs)
+
+Action 2: SPLIT seal-artifacts.sh INTO TWO OPERATIONS
+  Before: seal-artifacts.sh (executor with validation mixed in)
+  After:
+    seal-artifacts-can-execute.sh (existence proof - pure)
+    seal-artifacts.sh (execution - mutation)
+
+Action 3: MAKE validate-invariants.sh ATOMIC
+  Before: Sequential checks reporting individually
+  After:  Collect all results; report once (all pass/fail)
+
+Action 4: ADD DETERMINISM VERIFICATION
+  Create: scripts/validate-determinism.sh
+  - Run make clean && make universe twice
+  - Compare manifest digests
+  - Fail if not bit-identical
+
+Action 5: SPLIT Makefile PHASES
+  For each phase X:
+    phase-X-can-execute (proof: requirements met)
+    phase-X-exec        (execution: perform work)
+    phase-X-valid       (validation: did it succeed)
+
+Action 6: DOCUMENT SEQUENCING ASSUMPTIONS
+  Current: Implicit phase dependencies
+  Needed:  Explicit declaration of:
+    - What each phase requires
+    - What each phase proves
+    - What dependencies are hard vs soft
+
+================================================================================
+SEQUENCING ASSUMPTION ANALYSIS
+================================================================================
+
+IDENTIFIED SEQUENTIAL DEPENDENCIES:
+
+1. validate-invariants.sh:
+   check_makefile_readable() → check_entry_point() → ... → check_no_parallel_phases()
+   Issue: Each check assumes previous checks passed
+   Fix: Make all checks independent
+
+2. Makefile:
+   universe → phase-a → phase-b → ... → phase-f
+   Issue: Later phases depend on all previous phases
+   Fix: Make phases self-contained; declare explicit prereqs
+
+3. Script pipeline:
+   validate-invariants → seal-artifacts → verify-seal
+   Issue: verify-seal assumes seal-artifacts was successful
+   Fix: Make seal and verify atomic operations
+
+PATTERN: Execution-order dependency everywhere
+ROOT CAUSE: Phases described as choreography, not composition
+CONSEQUENCE: If any phase fails, entire pipeline fails
+SOLUTION: Separate invariant proofs from execution ordering
+
+================================================================================
+BRANCHING LOGIC ANALYSIS
+================================================================================
+
+ACCEPTABLE BRANCHING (Error handling):
+  - seal-artifacts.sh: if mkdir fails, exit
+  - verify-seal.sh: if digest mismatch, log and fail
+  - Build scripts: conditional error handling
+
+PROBLEMATIC BRANCHING (Logic in main path):
+  - Makefile phase-a: if clang, use clang; else use g++ (environment-dependent)
+  - Build scripts: conditional compilation info updates
+  - Option parsing: multiple if statements for feature selection
+
+SOLUTION: Make invariants environment-independent
+  Instead of: if clang_available; then CXX=clang; else CXX=g++
+  Do:        require --with-cxx=/path/to/compiler (explicit specification)
+
+================================================================================
+COMPONENT QUALITY SCORECARD
+================================================================================
+
+Component                    Current Type          Validator?  Status  Grade
+──────────────────────────────────────────────────────────────────────────
+bb80-invariant-validator     Meta-spec             Partial     FAIL    D
+bb80-parallel-task-coord     Choreography          No          FAIL    D
+validate-invariants.sh       Condition checker     Partial     PARTIAL C
+validate-receipts.sh         Digest validator      YES         PASS    A
+seal-artifacts.sh            Executor              No          FAIL    D
+verify-seal.sh               Seal validator        YES         PASS    A
+Makefile phases              Choreography          No          FAIL    D
+C++ tests (static)           Invariant specs       YES         PASS    A
+C++ tests (runtime)          Executable specs      Partial     PARTIAL B
+C++ source code              Imperative            No          FAIL    D
+Benchmark infrastructure     Strategy docs        No          FAIL    D
+
+OVERALL: C+ (Mixed implementation, good foundation, needs coherence)
+
+================================================================================
+ROADMAP TO FULL INVARIANT VALIDATION
+================================================================================
+
+PHASE 1 (IMMEDIATE - This Week):
+  □ Create INVARIANT_SPECIFICATION.md
+  □ Make validate-invariants.sh atomic
+  □ Add determinism test script
+  □ Split seal-artifacts.sh proof/exec
+
+PHASE 2 (SHORT-TERM - Next 2 Weeks):
+  □ Split Makefile phases into proof/exec/validate
+  □ Define monoid explicitly for composition
+  □ Verify determinism with repeated builds
+  □ Extract invariant layer from ServerMain.cpp
+
+PHASE 3 (ONGOING - Continuous):
+  □ Refactor agents to describe invariants
+  □ Operationalize benchmark invariants
+  □ Make state reconstruction testable
+  □ Document all implicit invariants
+
+================================================================================
+TEMPLATE: How to Reframe as Pure Existence Validator
+================================================================================
+
+BEFORE (Execution-oriented):
+  validate_something() {
+    do_work_1()
+    check_result_1()
+    do_work_2()
+    check_result_2()
+    report_combined_result()
+  }
+
+AFTER (Invariant-oriented):
+  validate_something() {
+    # Pure existence check: Does state satisfy invariants?
+    test_invariant_1() || return 1
+    test_invariant_2() || return 1
+    # ... all invariants checked ...
+    return 0  # All invariants hold
+  }
+
+KEY PRINCIPLE:
+  - No mutations during validation
+  - No side effects (no file writes except exit code)
+  - Atomic result (all pass or fail, no partial states)
+  - Deterministic and repeatable
+  - Composable with other validators
+
+================================================================================
+PURE EXISTENCE VALIDATORS: DETAILED INVENTORY
+================================================================================
+
+1. validate-receipts.sh
+   Proof: "Does manifest exist where all digests match?"
+   Signature: validate-receipts <manifest_file>
+   Returns: 0 (valid) or 1 (invalid)
+   Side effects: NONE (read-only)
+   Can chain: YES - output is deterministic fact
+
+2. verify-seal.sh
+   Proof: "Does sealed state still satisfy integrity invariants?"
+   Signature: verify-seal <manifest_file>
+   Returns: 0 (seal intact) or 1 (seal compromised)
+   Side effects: NONE (read-only)
+   Can chain: YES - output is deterministic fact
+
+3. BitUtilsTest.cpp (and similar)
+   Proof: "Do functions maintain specified invariants?"
+   Signature: TEST(BitUtils, ...) assertions
+   Returns: pass (invariant holds) or fail (invariant violated)
+   Side effects: NONE (compile-time or test-time only)
+   Can chain: YES - test results are deterministic facts
+
+4. Makefile verify target
+   Proof: "Do artifacts match recorded hashes?"
+   Signature: make verify
+   Returns: 0 (verified) or 1 (verification failed)
+   Side effects: NONE (read-only)
+   Can chain: YES - make will fail if verification fails
+
+================================================================================
+KEY INSIGHT: THE 80/20 PRINCIPLE IN ACTION
+================================================================================
+
+The 20% that enables construction:
+  1. Atomic validators (validate-receipts.sh, verify-seal.sh)
+  2. Deterministic unit tests (compile-time proofs)
+  3. Clear phase structure (universe → phase-a through phase-f)
+  4. Single entry point (make universe)
+  5. Sealed artifacts (immutable manifests)
+
+The 80% that needs work:
+  1. Agents describe choreography, not invariants
+  2. Phases mutate rather than compose
+  3. Determinism claimed but not proven
+  4. Source code is imperative, not invariant-driven
+  5. Benchmarks are narratives, not formal invariants
+  6. Branching logic in critical paths
+  7. Sequencing assumptions hidden, not explicit
+  8. No monoidal structure implemented
+
+RECOMMENDATION: Focus on the 20% that works well (atomic validators) and
+use them as templates for refactoring the 80% that doesn't.
+
+================================================================================
+CONCLUSION
+================================================================================
+
+The codebase has a SOLID FOUNDATION for invariant-based construction:
+  - Two pure validators (validate-receipts.sh, verify-seal.sh)
+  - Clear phase structure with fail-closed semantics
+  - Deterministic unit tests with compile-time proofs
+  - Single entry point for universe construction
+
+But LACKS OPERATIONAL COHERENCE between:
+  - WHAT IS CLAIMED: Invariant-driven, monoidal, deterministic, reproducible
+  - WHAT IS IMPLEMENTED: Choreography-driven, procedural, partially verified
+
+TO ACHIEVE TRUE INVARIANT-BASED CONSTRUCTION, YOU NEED:
+  1. Explicit invariant specifications (not implicit in tests)
+  2. Separation of proof/execution/validation (not intermingled)
+  3. Atomic validators (already exist, need deployment)
+  4. Determinism verification (needs implementation)
+  5. Monoidal structure proof (needs formalization)
+
+TEMPLATES THAT WORK:
+  - validate-receipts.sh: Pure existence validator
+  - verify-seal.sh: Pure integrity validator
+  - static_assert in tests: Pure compile-time proofs
+
+USE THESE AS MODELS FOR REFACTORING OTHER COMPONENTS.
+
+OVERALL GRADE: C+ (Mixed, good foundation, needs coherence)
+EFFORT TO FULL VALIDATION: 2-3 weeks with disciplined refactoring
+
+================================================================================
