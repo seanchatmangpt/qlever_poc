@@ -74,7 +74,7 @@ If you skip any skill or agent: You are not operating in BB80/20. You are iterat
 
 **Claude Code on web**: [claude.ai/code](https://claude.ai/code) → connect GitHub → select seanchatmangpt/qlever → submit task
 
-**SessionStart hooks** (`.claude/settings.json`): Auto-install deps via `scripts/setup-dev-env.sh`
+**SessionStart hooks** (`.claude/settings.json`): Auto-install deps via `scripts/setup-dev-env.sh` (see [`docs/how-to/claude-code-setup.md`](../how-to/claude-code-setup.md) for configuration details)
 
 **Build**: `./scripts/build-release.sh` or `cmake -DCMAKE_BUILD_TYPE=Release -GNinja .. && cmake --build .`
 
