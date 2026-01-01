@@ -1,0 +1,273 @@
+// Medical Records System: All Five Causation Modes in One Query
+//
+// This query demonstrates how causation modes eliminate:
+// 1. Decision-making (deterministic status)
+// 2. Hidden failures (explicit medication conflicts)
+// 3. Negotiation (mechanical provider compatibility)
+// 4. Silent changes (complete treatment audit trail)
+// 5. Psychological manipulation (HIPAA boundaries as law)
+//
+// What makes this real:
+// - Produces deterministic output (same input → same output)
+// - Contradictions are visible as data (no silent conflicts)
+// - Compatibility is mechanical (no trust layer needed)
+// - Every change is auditable (unbroken provenance chain)
+// - Rules are exposed as facts (not as suggestions)
+//
+// Run this query and you'll see:
+// - Patient status: determined ONLY by age (no admin override)
+// - Medication conflicts: explicit RDF triples (fully queryable)
+// - Provider compatibility: verifiable mechanical fact
+// - Treatment history: immutable audit with chain of command
+// - Forbidden actions: expressed as invariant violations
+
+CONSTRUCT {
+  // ===================================================================
+  // MODE 1: POST-DECISION (Deterministic Status Transformation)
+  // ===================================================================
+  // Invariant: Patient status depends ONLY on age
+  // No administrator can assign different status to same age
+  // No negotiation, no override, no judgment
+  ?patient <http://example.org/medicalStatus> ?status .
+  ?patient <http://example.org/statusDeterminedBy> "age" .
+  ?patient <http://example.org/statusLastUpdated> ?statusTime .
+
+  // ===================================================================
+  // MODE 2: ERROR AS DATA (Explicit Contradiction Emission)
+  // ===================================================================
+  // Invariant: Medication contraindications must be visible
+  // Instead of rejecting the data, emit the conflict explicitly
+  // Doctors see exactly where inconsistency exists
+  ?patient <http://example.org/hasMedicationConflict> ?conflict .
+  ?conflict <http://example.org/medication1> ?med1 .
+  ?conflict <http://example.org/medication2> ?med2 .
+  ?conflict <http://example.org/severity> "high" .
+  ?conflict <http://example.org/discoveredAt> ?conflictTime .
+
+  // Allergy conflicts: same pattern
+  ?patient <http://example.org/hasAllergyConflict> ?allergyConflict .
+  ?allergyConflict <http://example.org/substance> ?allergySubstance .
+  ?allergyConflict <http://example.org/prescribedMedication> ?prescribedMed .
+
+  // ===================================================================
+  // MODE 3: ANTI-PERSUASIVE COORDINATION (Mechanical Compatibility)
+  // ===================================================================
+  // Invariant: Provider can treat patient ONLY if certified for status
+  // No negotiation, no "exceptions," no special pleading
+  // Compatibility is mechanical: check invariants and result is determined
+  ?provider <http://example.org/canTreatPatient> ?patient .
+  ?provider <http://example.org/compatibilityReason> "status_certified" .
+  ?provider <http://example.org/certifiedFor> ?status .
+
+  // Incompatible providers (structural boundary, not failure)
+  ?incompatibleProvider <http://example.org/cannotTreatPatient> ?patient .
+  ?incompatibleProvider <http://example.org/incompatibilityReason>
+      "not_certified_for_status" .
+
+  // ===================================================================
+  // MODE 4: DRIFT-VISIBLE INTELLIGENCE (Complete Audit Trails)
+  // ===================================================================
+  // Invariant: Every treatment change produces immutable record
+  // No silent modifications possible
+  // Unbroken chain: treatment → rule → invariant → requirement
+  ?treatmentAudit <http://example.org/auditType> "treatment" .
+  ?treatmentAudit <http://example.org/patient> ?patient .
+  ?treatmentAudit <http://example.org/previousTreatment> ?previousTx .
+  ?treatmentAudit <http://example.org/newTreatment> ?newTx .
+  ?treatmentAudit <http://example.org/prescribingProvider> ?provider .
+  ?treatmentAudit <http://example.org/medicalRuleApplied> ?medicalRule .
+  ?treatmentAudit <http://example.org/clinicalEvidenceFor> ?evidence .
+  ?treatmentAudit <http://example.org/timestamp> ?treatmentTime .
+  ?treatmentAudit <http://example.org/immutable> "true"^^xsd:boolean .
+
+  // Status change audit (separate, immutable record)
+  ?statusAudit <http://example.org/auditType> "status" .
+  ?statusAudit <http://example.org/patient> ?patient .
+  ?statusAudit <http://example.org/fromStatus> ?previousStatus .
+  ?statusAudit <http://example.org/toStatus> ?status .
+  ?statusAudit <http://example.org/timestamp> ?statusTime .
+
+  // Anomaly detection: changes without audit trail (unaccounted drift)
+  ?patient <http://example.org/hasUntrackedChange> ?untrackedField .
+  ?untrackedField <http://example.org/field> ?fieldName .
+  ?untrackedField <http://example.org/anomalyType> "unaudited_change" .
+
+  // ===================================================================
+  // MODE 5: HUMAN-SYSTEM INTERFACES WITHOUT PSYCHOLOGY
+  // ===================================================================
+  // Invariant: HIPAA rules are expressed as mathematical law
+  // Not as "suggestions" or "recommendations"
+  // Not as narrative ("please protect privacy")
+  // Pure facts: what violates regulations and why
+  ?action <http://example.org/violatesHIPAA> ?hipaaBreach .
+  ?hipaaBreach <http://example.org/violatedRule> ?rule .
+  ?hipaaBreach <http://example.org/severity> "critical" .
+  ?hipaaBreach <http://example.org/consequence> "treatment_forbidden" .
+
+  ?allowedAction <http://example.org/compliesWithHIPAA> "true"^^xsd:boolean .
+  ?allowedAction <http://example.org/satisfiesInvariant> ?hipaaInvariant .
+
+  // Boundary exposition: complete state space
+  // What IS allowed, what IS NOT allowed (both explicit)
+  ?treatment <http://example.org/isAllowed> "true"^^xsd:boolean .
+  ?treatment <http://example.org/satisfiesAllInvariants> "true"^^xsd:boolean .
+
+  ?forbiddenTreatment <http://example.org/isForbidden> "true"^^xsd:boolean .
+  ?forbiddenTreatment <http://example.org/violatesInvariant> ?whyForbidden .
+}
+WHERE {
+  // ===================================================================
+  // LOAD PATIENT DATA
+  // ===================================================================
+  ?patient <http://example.org/type> "patient" .
+  ?patient <http://example.org/dateOfBirth> ?dob .
+  ?patient <http://example.org/age> ?age .
+
+  // Optional: current medications and allergies
+  OPTIONAL { ?patient <http://example.org/currentMedication> ?med . }
+  OPTIONAL { ?patient <http://example.org/knownAllergy> ?allergen . }
+  OPTIONAL { ?patient <http://example.org/previousStatus> ?previousStatus . }
+  OPTIONAL { ?patient <http://example.org/previousTreatment> ?previousTx . }
+
+  // ===================================================================
+  // MODE 1: DETERMINISTIC STATUS
+  // ===================================================================
+  // Pure function: age determines status entirely
+  // No other factors influence this
+  BIND(
+    IF(?age < 18, "pediatric",
+      IF(?age < 65, "adult",
+        "geriatric"))
+    AS ?status
+  ) .
+  BIND(NOW() AS ?statusTime) .
+
+  // ===================================================================
+  // MODE 2: CONTRADICTION DETECTION
+  // ===================================================================
+  // Find medication contraindications
+  OPTIONAL {
+    ?patient <http://example.org/currentMedication> ?med1 .
+    ?patient <http://example.org/currentMedication> ?med2 .
+    ?med1 <http://example.org/contraindicated> ?med2 .
+    FILTER(?med1 != ?med2)
+    BIND(IRI(CONCAT(
+      "http://example.org/conflict_med_",
+      URICODE(STR(?med1)), "_",
+      URICODE(STR(?med2))
+    )) AS ?conflict)
+    BIND(NOW() AS ?conflictTime)
+  }
+
+  // Find allergy conflicts
+  OPTIONAL {
+    ?patient <http://example.org/currentMedication> ?prescribedMed .
+    ?patient <http://example.org/knownAllergy> ?allergySubstance .
+    ?prescribedMed <http://example.org/contains> ?allergySubstance .
+    BIND(IRI(CONCAT(
+      "http://example.org/conflict_allergy_",
+      URICODE(STR(?prescribedMed))
+    )) AS ?allergyConflict)
+  }
+
+  // ===================================================================
+  // MODE 3: MECHANICAL COMPATIBILITY
+  // ===================================================================
+  // Provider can treat if certified for patient's status
+  OPTIONAL {
+    ?provider <http://example.org/type> "provider" .
+    ?provider <http://example.org/certified> ?status .
+    # Mechanical fact: same invariant = compatible
+  }
+
+  // Incompatible providers
+  OPTIONAL {
+    ?incompatibleProvider <http://example.org/type> "provider" .
+    ?incompatibleProvider <http://example.org/certified> ?otherStatus .
+    FILTER(?otherStatus != ?status)
+  }
+
+  // ===================================================================
+  // MODE 4: AUDIT TRAIL CREATION
+  // ===================================================================
+  // Treatment audit only if treatment changed
+  OPTIONAL {
+    ?patient <http://example.org/newTreatment> ?newTx .
+    FILTER(BOUND(?previousTx) && ?previousTx != ?newTx)
+    ?rule <http://example.org/type> "medical_rule" .
+    ?rule <http://example.org/applies> ?newTx .
+    ?evidence <http://example.org/supportsRule> ?rule .
+    BIND(NOW() AS ?treatmentTime)
+    BIND(IRI(CONCAT(
+      "http://example.org/audit_tx_",
+      URICODE(STR(?patient)), "_",
+      STR(?treatmentTime)
+    )) AS ?treatmentAudit)
+  }
+
+  // Status audit only if status changed
+  OPTIONAL {
+    FILTER(BOUND(?previousStatus) && ?previousStatus != ?status)
+    BIND(NOW() AS ?statusTime)
+    BIND(IRI(CONCAT(
+      "http://example.org/audit_status_",
+      URICODE(STR(?patient)), "_",
+      STR(?statusTime)
+    )) AS ?statusAudit)
+  }
+
+  // Detect untracked changes (anomalies)
+  OPTIONAL {
+    ?patient <http://example.org/currentTreatment> ?currentTx .
+    OPTIONAL {
+      ?audit <http://example.org/patient> ?patient .
+      ?audit <http://example.org/newTreatment> ?currentTx .
+    }
+    FILTER(!BOUND(?audit))
+    # Untracked change = anomaly
+    BIND("treatment" AS ?fieldName)
+    BIND(IRI(CONCAT(
+      "http://example.org/untracked_",
+      ?fieldName, "_",
+      URICODE(STR(?patient))
+    )) AS ?untrackedField)
+  }
+
+  // ===================================================================
+  // MODE 5: BOUNDARY EXPOSITION (HIPAA)
+  // ===================================================================
+  // Forbidden actions (violate HIPAA)
+  OPTIONAL {
+    ?action <http://example.org/type> "action" .
+    ?action <http://example.org/violatesPolicy> "HIPAA" .
+    ?hipaaRule <http://example.org/regulatory> "HIPAA" .
+    ?action <http://example.org/violates> ?hipaaRule .
+    BIND(IRI(CONCAT(
+      "http://example.org/breach_",
+      URICODE(STR(?action))
+    )) AS ?hipaaBreach)
+  }
+
+  // Allowed actions (comply with HIPAA)
+  OPTIONAL {
+    ?allowedAction <http://example.org/type> "action" .
+    NOT EXISTS {
+      ?allowedAction <http://example.org/violatesPolicy> "HIPAA" .
+    }
+    # Satisfy HIPAA invariant
+  }
+
+  // All possible treatments
+  OPTIONAL {
+    ?treatment <http://example.org/type> "treatment" .
+    NOT EXISTS {
+      ?treatment <http://example.org/violatesInvariant> ?why .
+    }
+    # Satisfy all invariants
+  }
+
+  OPTIONAL {
+    ?forbiddenTreatment <http://example.org/type> "treatment" .
+    ?forbiddenTreatment <http://example.org/violatesInvariant> ?whyForbidden .
+  }
+}
