@@ -2,6 +2,30 @@
 
 The fastest way to get QLever running. Copy, paste, run.
 
+## Prerequisites
+
+Before starting, verify you have Python 3.8 or later:
+
+```bash
+python3 --version
+# Expected output: Python 3.8.x, Python 3.9.x, Python 3.10.x, etc.
+# If you see Python 2.x or error, install Python 3.8+
+```
+
+If you don't have Python 3.8+, install it:
+```bash
+# Ubuntu/Debian
+sudo apt-get update && sudo apt-get install python3.8 python3-pip
+
+# macOS
+brew install python3
+
+# Arch
+sudo pacman -S python
+```
+
+---
+
 ## For End Users (Using `pip install qlever`)
 
 ```bash
@@ -91,6 +115,36 @@ docker run -p 7023:7001 \
 curl -Gs http://localhost:7023 \
   --data-urlencode "query=SELECT ?x WHERE { ?x a ?type } LIMIT 10"
 ```
+
+---
+
+## Memory Sizing Guide
+
+Choose memory allocation based on your dataset size:
+
+| Data Size | No Compression | With Compression | System RAM Needed |
+|-----------|---|---|---|
+| < 1M triples | 100 MB | 50 MB | 2 GB |
+| 1M - 100M | 1 - 10 GB | 500 MB - 2 GB | 4 - 16 GB |
+| 100M - 1B | 10 - 100 GB | 2 - 10 GB | 16 - 64 GB |
+| > 1B | > 100 GB | 10 - 50 GB | 64+ GB |
+
+**Recommended allocation:**
+```bash
+# Rule of thumb: allocate 2-3x your estimated index size
+qlever start --memory 16GB      # For small/medium datasets
+qlever start --memory 32GB      # For large datasets
+qlever start --memory 64GB      # For Wikidata-scale (8B+ triples)
+```
+
+**⚠️ Avoid out-of-memory errors:**
+1. Start with conservative memory estimate
+2. Monitor during first indexing: `qlever index --monitor`
+3. Note peak memory usage
+4. Add 20% headroom for next time
+5. Adjust if needed: `qlever index --memory 24GB`
+
+**For detailed guidance:** See [How-to: Configuration](../how-to/configuration.md#memory-sizing)
 
 ---
 

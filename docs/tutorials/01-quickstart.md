@@ -107,6 +107,65 @@ qlever stop
 # Or in the server terminal: Ctrl+C
 ```
 
+## Common Issues & Solutions
+
+### "qlever: command not found"
+
+**Problem:** Command is not in your PATH
+
+**Fix:**
+```bash
+# Make sure Python 3.8+ is installed
+python3 --version
+
+# Reinstall qlever
+pip install --upgrade qlever
+
+# Verify installation
+qlever --version
+```
+
+See [Troubleshooting: Installation](../TROUBLESHOOTING.md#installation--setup)
+
+### "Connection refused" when querying
+
+**Problem:** Server isn't running or wrong port
+
+**Fix:**
+```bash
+# Check if server is running
+qlever status
+
+# If not running, start it
+qlever start
+
+# Verify port is correct (should be 7023)
+curl http://localhost:7023
+```
+
+See [Troubleshooting: Connection refused](../TROUBLESHOOTING.md#connection-refused-when-querying)
+
+### "Out of memory" during indexing
+
+**Problem:** Not enough memory allocated
+
+**Fix:**
+```bash
+# Increase memory allocation
+qlever stop
+qlever index --memory 32GB  # Or larger
+
+# Or reduce batch size in Qleverfile
+# Then retry
+qlever index --force
+```
+
+See [Troubleshooting: Out of memory](../TROUBLESHOOTING.md#out-of-memory-during-qlever-index)
+
+### More issues?
+
+See the [complete Troubleshooting Guide](../TROUBLESHOOTING.md) for solutions to 20+ common problems.
+
 ## Troubleshooting
 
 **Port 7023 already in use?**
