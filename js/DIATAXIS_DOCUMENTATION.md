@@ -425,6 +425,135 @@ runLoadTest().catch(console.error);
 
 ---
 
+## How to: Query via gRPC (Binary Protocol)
+
+For maximum performance with strongly-typed queries:
+
+```javascript
+const GrpcClient = require('./grpc-client');
+
+async function grpcQuery() {
+  const client = new GrpcClient('localhost:50051');
+
+  // Open index
+  const openRes = await client.openIndex({
+    indexPath: './test_index'
+  });
+  const handle = openRes.handle;
+
+  // Execute query
+  const result = await client.query({
+    handle,
+    sparql: 'SELECT ?s ?p ?o WHERE { ?s ?p ?o } LIMIT 100',
+    timings: 1
+  });
+
+  console.log(`Results: ${result.bindings.length}`);
+  console.log(`Execution: ${result.timings.execution_ms}ms`);
+
+  await client.closeIndex({ handle });
+}
+
+grpcQuery().catch(console.error);
+```
+
+**Advantages:**
+- Binary protocol (30-50% smaller than JSON)
+- Strongly typed messages
+- Stream support for large results
+- Lower latency than HTTP
+
+---
+
+## How to: Handle Common SPARQL Errors
+
+Proper error detection and recovery:
+
+```javascript
+const QleverClient = require('./client');
+
+async function queryWithErrorHandling() {
+  const client = new QleverClient('http://localhost:3000');
+
+  try {
+    await client.open('./test_index');
+
+    // Invalid SPARQL syntax
+    try {
+      await client.query('SELECT * FROM invalid');
+    } catch (error) {
+      console.error('SPARQL Error:', error.message);
+      // Error: "SPARQL parse error"
+    }
+
+    // Non-existent variable
+    try {
+      await client.query('SELECT ?x WHERE { ?s ?p ?o }');
+      // Returns empty results (valid but no matches)
+    } catch (error) {
+      console.error('Query Error:', error.message);
+    }
+
+    // Timeout on slow query
+    try {
+      const result = await client.query(
+        'SELECT ?s ?p ?o WHERE { ?s ?p ?o }',
+        false,
+        30000  // 30 second timeout
+      );
+    } catch (error) {
+      if (error.code === 'ECONNABORTED') {
+        console.error('Query timeout - try with LIMIT');
+      }
+    }
+
+  } finally {
+    await client.close();
+  }
+}
+```
+
+**Common errors:**
+- `Parse error` - Invalid SPARQL syntax
+- `Timeout` - Query too slow, add LIMIT or WHERE filters
+- `Handle not found` - Index was closed or session expired
+- `Connection refused` - Server not running on specified port
+
+---
+
+## How to: Use Text Search
+
+Full-text search over RDF text:
+
+```javascript
+const QleverClient = require('./client');
+
+async function textSearch() {
+  const client = new QleverClient('http://localhost:3000');
+  await client.open('./test_index');
+
+  // Simple text search
+  const results = await client.textSearch('berlin', 50);
+
+  console.log(`Found ${results.results.bindings.length} matches`);
+  results.results.bindings.forEach(binding => {
+    console.log(binding);
+  });
+
+  await client.close();
+}
+
+textSearch().catch(console.error);
+```
+
+**Text search tips:**
+- Returns full-text matches (BM25 scoring)
+- Useful for discovering data
+- Can combine with SPARQL FILTER
+- Limit results to avoid huge response sets
+
+---
+
 # Reference
 
 *Complete API documentation for all modules*
@@ -815,6 +944,195 @@ await initWasm();
 
 ---
 
+## Testing & Monitoring Modules
+
+### `load-tester.js` - Load Testing
+
+**Class: `LoadTester`**
+
+```javascript
+const LoadTester = require('./load-tester');
+
+const tester = new LoadTester({
+  duration: 60000,          // Run for 60 seconds
+  concurrency: 20,          // 20 concurrent clients
+  querySize: 100,           // Expected result size
+  thinkTime: 200            // Delay between requests
+});
+
+await tester.generateLoad();
+
+const { totalRequests, successfulRequests, failedRequests,
+        averageLatency, maxLatency, minLatency, throughput } = tester.metrics;
+
+console.log(`Throughput: ${throughput.toFixed(2)} req/sec`);
+console.log(`Avg latency: ${averageLatency.toFixed(2)}ms`);
+```
+
+**Configuration Options:**
+- `duration` - Test duration in milliseconds
+- `concurrency` - Number of concurrent client threads
+- `querySize` - Expected size of results
+- `thinkTime` - Delay between requests (ms)
+
+**Metrics Available:**
+- `totalRequests` - Total operations
+- `successfulRequests` - Passed operations
+- `failedRequests` - Failed operations
+- `contractViolations` - Response format violations
+- `averageLatency` - Mean response time
+- `maxLatency` - Longest response time
+- `minLatency` - Shortest response time
+- `throughput` - Requests per second
+
+---
+
+### `stress-tester.js` - Edge Case Testing
+
+```javascript
+const StressTester = require('./stress-tester');
+
+const tester = new StressTester();
+
+// Test edge cases
+await tester.testEdgeCases();
+
+// Test boundary violations
+await tester.testBoundaryViolations();
+
+// Stress test with high load
+await tester.stressTest();
+
+// Get results
+const report = tester.results;
+console.log('Edge cases:', report.edgeCases);
+console.log('Failures:', report.failures);
+```
+
+**Tests performed:**
+- Empty queries
+- Malformed SPARQL
+- Invalid handles
+- Concurrent operations
+- Memory limits
+- Timeout conditions
+
+---
+
+### `server-coordinator.js` - Multi-Server Management
+
+```javascript
+const ServerCoordinator = require('./server-coordinator');
+
+const coordinator = new ServerCoordinator({
+  httpPort: 3000,
+  wsPort: 3002,
+  graphqlPort: 3003,
+  grpcPort: 50051,
+  coordinatorPort: 3001,
+  healthCheckInterval: 5000
+});
+
+// Start health checking all servers
+await coordinator.startHealthChecking();
+
+// Get aggregated metrics
+const metrics = coordinator.aggregatedMetrics;
+console.log('Total requests:', metrics.totalRequests);
+console.log('Total errors:', metrics.totalErrors);
+```
+
+**Methods:**
+- `startHealthChecking()` - Start monitoring all servers
+- `performHealthCheck()` - Check server health
+- `getAggregatedMetrics()` - Get combined metrics
+
+---
+
+### `integration-test.js` - Protocol Integration Testing
+
+Complete integration test of all protocol servers:
+
+```bash
+node js/integration-test.js
+```
+
+Tests:
+- HTTP endpoint functionality
+- WebSocket streaming
+- GraphQL queries
+- gRPC unary and streaming calls
+- Cross-protocol consistency
+
+---
+
+### `coherence-test.js` - Data Coherence Testing
+
+```bash
+node js/coherence-test.js
+```
+
+Validates:
+- Result consistency across protocols
+- Binding format compliance
+- Timing accuracy
+- Error handling consistency
+
+---
+
+### `example-usage.js` - Complete Usage Examples
+
+Comprehensive example showing all major features:
+
+```bash
+node js/example-usage.js
+```
+
+Demonstrates:
+- Opening indices
+- Basic queries
+- Materialized views
+- Text search
+- Cache management
+- Closing sessions
+
+---
+
+### `multi-protocol-example.js` - Multi-Protocol Demo
+
+```bash
+node js/multi-protocol-example.js
+```
+
+Shows how to use all 4 protocols together:
+- Initializing all clients
+- Running equivalent queries on each
+- Comparing results and performance
+- Redis caching integration
+
+---
+
+### `start-production-stack.js` - Start All Servers
+
+Starts all 4 protocol servers in one process:
+
+```bash
+node js/start-production-stack.js
+```
+
+Starts:
+1. HTTP server (port 3000)
+2. WebSocket server (port 3002)
+3. GraphQL server (port 3003)
+4. gRPC server (port 50051)
+
+Provides:
+- Unified logging
+- Health monitoring
+- Graceful shutdown
+
+---
+
 # Explanation
 
 *Understanding the design and architecture*
@@ -1056,33 +1374,312 @@ The codebase includes:
 **Fix:**
 ```javascript
 const client = new QleverClient();
-await client.open('/path/to/index'); // Don't forget this!
+await client.open('./test_index'); // Don't forget this!
 await client.query('...');
 ```
 
+---
+
 ### "Connection refused" on Port 3000
 
-**Cause:** HTTP server not running
+**Cause:** HTTP server not running or not accessible
 
 **Fix:**
 ```bash
+# Start the server
 node js/server.js
+
+# Or start all servers
+node js/start-production-stack.js
+
+# Verify it's running
+curl http://localhost:3000/health
 ```
 
-### WebSocket Results Arriving Very Slowly
+---
 
-**Cause:** Batch size too small or network latency
+### WebSocket "Invalid handle" Error
 
-**Fix:** Check batch size in `websocket-server.js`, or increase client concurrency
-
-### Memory Usage Growing Over Time
-
-**Cause:** Results not being cleared, cache growing
+**Cause:** Using handle from different session or index closed
 
 **Fix:**
 ```javascript
-await client.eraseResult(name);  // Clear specific cache
-await client.clearCache();       // Clear all caches
+socket.on('opened', (data) => {
+  // Use the handle returned from 'opened' event
+  const handle = data.handle;
+  socket.emit('stream-query', { handle, sparql: '...' });
+});
+```
+
+---
+
+### SPARQL Parse Error
+
+**Cause:** Syntax error in SPARQL query
+
+**Fix:** Validate SPARQL syntax:
+```javascript
+// Use /api/parse-and-plan to get error details
+const response = await client.parseAndPlan('SELECT * FROM invalid');
+// Will throw with error message
+
+// Valid SPARQL
+const result = await client.query('SELECT ?s WHERE { ?s ?p ?o } LIMIT 10');
+```
+
+**Common SPARQL mistakes:**
+- Missing `WHERE` clause: `SELECT ?s` (should be `SELECT ?s WHERE { ... }`)
+- Unmatched curly braces: `{ ?s ?p ?o }`
+- Undefined variables: `SELECT ?x WHERE { ?s ?p ?o }`
+- Invalid prefixes: `SELECT ?s WHERE { ex:subject ex:prop ?o }` (undefined `ex` prefix)
+
+---
+
+### WebSocket Results Arriving Very Slowly
+
+**Cause:** Batch size too small, network latency, or query complexity
+
+**Fix:**
+```javascript
+// Increase concurrency on large queries
+const socket = io('http://localhost:3002');
+
+socket.emit('stream-query', {
+  handle,
+  sparql: 'SELECT ?s ?p ?o WHERE { ?s ?p ?o }', // Add LIMIT
+  batchSize: 10000  // If supported
+});
+```
+
+---
+
+### Memory Usage Growing Over Time
+
+**Cause:** Results not being cleared, cache growing unbounded
+
+**Fix:**
+```javascript
+// Clear specific cached results
+await client.eraseResult('cached_name');
+
+// Clear all caches
+await client.clearCache();
+
+// Or manually manage sessions
+const client = new QleverClient();
+await client.open('./test_index');
+// ... do work ...
+await client.close();  // Always close!
+```
+
+---
+
+### gRPC "Unimplemented" Error
+
+**Cause:** gRPC server not running or proto file mismatch
+
+**Fix:**
+```bash
+# Start gRPC server
+node js/grpc-server.js
+
+# Verify it's running
+grpcurl -plaintext localhost:50051 list
+
+# Check service definition
+cat js/qlever.proto
+```
+
+---
+
+### GraphQL Introspection Failing
+
+**Cause:** GraphQL server not running or schema issue
+
+**Fix:**
+```bash
+# Start GraphQL server
+node js/graphql-server-instrumented.js
+
+# Test introspection
+curl -X POST http://localhost:3003/graphql \
+  -H "Content-Type: application/json" \
+  -d '{"query": "{ __schema { types { name } } }"}'
+```
+
+---
+
+### Redis Cache Connection Failed
+
+**Cause:** Redis server not running
+
+**Fix:**
+```bash
+# Start Redis (if installed)
+redis-server
+
+# Or disable Redis caching in multi-protocol example
+# Comment out RedisCache initialization
+```
+
+---
+
+### Timeout on Large Queries
+
+**Cause:** Query too complex or result set too large
+
+**Fix:**
+```javascript
+// Option 1: Add LIMIT clause
+await client.query('SELECT ?s WHERE { ?s ?p ?o } LIMIT 10000');
+
+// Option 2: Use WebSocket streaming instead
+socket.emit('stream-query', { handle, sparql: '...' });
+
+// Option 3: Increase axios timeout
+const client = new QleverClient('http://localhost:3000');
+client.client.defaults.timeout = 60000; // 60 seconds
+```
+
+---
+
+### Contract Violation Error
+
+**Cause:** Response doesn't match expected format
+
+**Debug:**
+```javascript
+try {
+  enforcer.assertStrict('HTTP.Response.Structure', response);
+} catch (violation) {
+  console.error('Invalid field:', violation.field);
+  console.error('Expected:', violation.expected);
+  console.error('Got:', violation.actual);
+}
+```
+
+---
+
+## Production Deployment Guide
+
+### 1. Environment Setup
+
+```bash
+# Create production directory
+mkdir -p /opt/qlever-js
+cd /opt/qlever-js
+
+# Copy source
+cp -r /path/to/qlever/js/* .
+npm install --production
+
+# Set permissions
+chmod 755 *.js
+```
+
+### 2. Configure Services
+
+```bash
+# Create .env file
+cat > .env << EOF
+NODE_ENV=production
+HTTP_PORT=3000
+WS_PORT=3002
+GRAPHQL_PORT=3003
+GRPC_PORT=50051
+REDIS_HOST=localhost
+REDIS_PORT=6379
+LOG_LEVEL=info
+EOF
+```
+
+### 3. Start with Supervisor
+
+```bash
+# Create supervisor config
+cat > /etc/supervisor/conf.d/qlever.conf << EOF
+[program:qlever-stack]
+command=node /opt/qlever-js/start-production-stack.js
+directory=/opt/qlever-js
+autostart=true
+autorestart=true
+redirect_stderr=true
+stdout_logfile=/var/log/qlever.log
+EOF
+
+supervisorctl reread
+supervisorctl update
+supervisorctl start qlever-stack
+```
+
+### 4. Reverse Proxy Setup (nginx)
+
+```nginx
+upstream qlever_http {
+  server localhost:3000;
+}
+
+upstream qlever_ws {
+  server localhost:3002;
+}
+
+server {
+  listen 80;
+  server_name qlever.example.com;
+
+  # HTTP API
+  location /api {
+    proxy_pass http://qlever_http;
+    proxy_set_header X-Forwarded-For $remote_addr;
+  }
+
+  # WebSocket
+  location /socket.io {
+    proxy_pass http://qlever_ws;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+  }
+
+  # GraphQL
+  location /graphql {
+    proxy_pass http://localhost:3003;
+  }
+}
+```
+
+### 5. Monitoring & Logging
+
+```javascript
+// Log to file
+const fs = require('fs');
+const logStream = fs.createWriteStream('/var/log/qlever-metrics.log');
+
+// Periodically log metrics
+setInterval(async () => {
+  const health = await axios.get('http://localhost:3000/health');
+  logStream.write(JSON.stringify(health.data) + '\n');
+}, 60000);
+```
+
+### 6. Health Checks
+
+```bash
+# Add to monitoring system
+curl http://localhost:3000/health | jq .status
+curl http://localhost:3002/health | jq .status
+curl http://localhost:3003/health | jq .status
+```
+
+### 7. Backup Strategy
+
+```bash
+# Back up indices regularly
+cron: 0 2 * * * /opt/qlever-js/backup.sh
+
+# Script
+#!/bin/bash
+tar -czf /backup/qlever-$(date +%Y%m%d).tar.gz ./index/
 ```
 
 ---
