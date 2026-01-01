@@ -162,7 +162,7 @@ impl Qlever {
         // 80/20: Check plan cache for repeated queries
         if self.plan_cache_enabled {
             if let Some(cached) = self.get_cached_plan(query) {
-                return self.handle.execute_plan(&cached.plan, format);
+                return self.handle.execute_plan(&cached, format);
             }
         }
 
@@ -211,7 +211,7 @@ impl Qlever {
         // Check cache first
         if self.plan_cache_enabled {
             if let Some(cached) = self.get_cached_plan(query) {
-                return Ok(QueryPlan::new(cached.plan));
+                return Ok(QueryPlan::new(cached));
             }
         }
 
@@ -427,11 +427,11 @@ impl EngineConfigBuilder {
 
 /// Wrapper for query execution plans
 pub struct QueryPlan {
-    inner: crate::ffi::types::QueryPlan,
+    pub(crate) inner: crate::ffi::types::QueryPlan,
 }
 
 impl QueryPlan {
-    fn new(inner: crate::ffi::types::QueryPlan) -> Self {
+    pub(crate) fn new(inner: crate::ffi::types::QueryPlan) -> Self {
         QueryPlan { inner }
     }
 }
