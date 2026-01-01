@@ -11,6 +11,10 @@ path = "src/lib.rs"
 name = "query"
 path = "examples/query.rs"
 
+[[bin]]
+name = "ffi_benchmark"
+path = "benches/ffi_benchmark.rs"
+
 [dependencies]
 # Error handling
 thiserror = "1.0"

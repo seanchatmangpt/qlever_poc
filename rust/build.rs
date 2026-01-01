@@ -18,14 +18,32 @@ fn main() {
         // Use static linking
         println!("cargo:rustc-link-search=native={}", lib_search_path.display());
         println!("cargo:rustc-link-lib=static=qlever_c");
-        println!("cargo:rustc-link-lib=dylib=qlever");
+
+        // Link main qlever library only if it exists
+        let qlever_static = lib_search_path.join("libqlever.a");
+        let qlever_shared = lib_search_path.join("libqlever.so");
+        if qlever_static.exists() {
+            println!("cargo:rustc-link-lib=static=qlever");
+        } else if qlever_shared.exists() {
+            println!("cargo:rustc-link-lib=dylib=qlever");
+        }
+
         println!("cargo:rustc-link-lib=stdc++");  // C++ standard library
         println!("cargo:warning=Linked static libqlever_c");
     } else if qlever_c_shared.exists() {
         // Use dynamic linking
         println!("cargo:rustc-link-search=native={}", lib_search_path.display());
         println!("cargo:rustc-link-lib=dylib=qlever_c");
-        println!("cargo:rustc-link-lib=dylib=qlever");
+
+        // Link main qlever library only if it exists
+        let qlever_static = lib_search_path.join("libqlever.a");
+        let qlever_shared = lib_search_path.join("libqlever.so");
+        if qlever_static.exists() {
+            println!("cargo:rustc-link-lib=static=qlever");
+        } else if qlever_shared.exists() {
+            println!("cargo:rustc-link-lib=dylib=qlever");
+        }
+
         println!("cargo:rustc-link-lib=stdc++");  // C++ standard library
         println!("cargo:warning=Linked dynamic libqlever_c");
     } else {
