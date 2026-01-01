@@ -1,0 +1,29 @@
+{
+  "timestamp": "'"$(date -Iseconds)"'",
+  "epic": "EPIC7_SIMD_INGRESS",
+  "metrics": {
+    "build": {
+      "clean_time_seconds": 0,
+      "build_time_seconds": 0,
+      "targets_count": 0
+    },
+    "tests": {
+      "conformance_tests": 0,
+      "pass_rate": 0,
+      "execution_time_seconds": 0
+    },
+    "performance": {
+      "latency_p50_ms": 0,
+      "latency_p95_ms": 0,
+      "latency_p99_ms": 0,
+      "throughput_ops_sec": 0,
+      "memory_mb": 0
+    },
+    "variance": {
+      "coefficient_of_variation": 0,
+      "runs": 0,
+      "acceptable": true
+    }
+  },
+  "status": "BASELINE_RECORDED"
+}

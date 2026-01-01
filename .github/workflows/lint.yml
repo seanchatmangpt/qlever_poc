@@ -1,0 +1,47 @@
+name: Lint (Clang-Tidy Hot-Path Enforcement)
+on:
+  push:
+    branches: [ main, develop, 'claude/*' ]
+  pull_request:
+    branches: [ main, develop ]
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install clang-tidy
+        run: sudo apt-get install -y clang-tidy
+      - name: Run clang-tidy on hot-path (cache module)
+        if: always()
+        run: |
+          clang-tidy -checks="*" \
+            src/engine/cache/*.cpp \
+            -- -Iinclude -std=c++20 2>&1 | tee clang-tidy-cache.txt
+      - name: Run clang-tidy on hot-path (query module)
+        if: always()
+        run: |
+          clang-tidy -checks="*" \
+            src/engine/query/*.cpp \
+            -- -Iinclude -std=c++20 2>&1 | tee clang-tidy-query.txt
+      - name: Run clang-tidy on hot-path (index module)
+        if: always()
+        run: |
+          clang-tidy -checks="*" \
+            src/engine/index/*.cpp \
+            -- -Iinclude -std=c++20 2>&1 | tee clang-tidy-index.txt
+      - name: Run clang-tidy on ingress module
+        if: always()
+        run: |
+          clang-tidy -checks="*" \
+            src/engine/ingress/*.cpp \
+            -- -Iinclude -std=c++20 2>&1 | tee clang-tidy-ingress.txt
+      - name: Check for forbidden symbols
+        run: |
+          for file in clang-tidy-*.txt; do
+            if grep -q "forbidden in hot-path" "$file"; then
+              echo "ERROR: Hot-path silence violations found in $file"
+              cat "$file"
+              exit 1
+            fi
+          done
+          echo "PASS: No hot-path violations detected"
