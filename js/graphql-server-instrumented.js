@@ -1,5 +1,6 @@
 const express = require('express');
-const { ApolloServer, gql } = require('apollo-server-express');
+const { ApolloServer, gql } = require('@apollo/server');
+const { expressMiddleware } = require('@apollo/server/express4');
 const axios = require('axios');
 const ProtocolInstrumentation = require('./protocol-instrumentation');
 
@@ -285,7 +286,7 @@ app.get('/recommendations', (req, res) => {
 
 async function startServer() {
   await server.start();
-  server.applyMiddleware({ app });
+  app.use('/graphql', expressMiddleware(server));
 
   const PORT = process.env.GRAPHQL_PORT || 3003;
 
@@ -294,7 +295,7 @@ async function startServer() {
     console.log(`║   QLever GraphQL Server (Self-Observing via Framework) ║`);
     console.log(`╚════════════════════════════════════════════════════════╝\n`);
     console.log(`   Port: ${PORT}`);
-    console.log(`   GraphQL Endpoint: http://localhost:${PORT}${server.graphqlPath}`);
+    console.log(`   GraphQL Endpoint: http://localhost:${PORT}/graphql`);
     console.log(`   Health: http://localhost:${PORT}/health`);
     console.log(`   Metrics: http://localhost:${PORT}/metrics`);
     console.log(`   Recommendations: http://localhost:${PORT}/recommendations\n`);
