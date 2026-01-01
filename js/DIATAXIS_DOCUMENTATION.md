@@ -17,13 +17,15 @@
 
 *Learning-oriented guides to get you started with the essentials*
 
+**Before starting:** This module provides Node.js clients and servers for QLever. There are no npm scripts - all servers and clients are run directly with `node`. Make sure the C++ QLever engine is running on port 3000 (HTTP server) before starting any of these tutorials.
+
 ## Tutorial 1: First SPARQL Query (5 minutes)
 
 Learn to execute your first SPARQL query against QLever.
 
 ### Prerequisites
 - Node.js 16+
-- Running QLever HTTP server (`npm run server`)
+- Running QLever HTTP server (`node js/server.js`)
 
 ### Steps
 
@@ -36,14 +38,16 @@ async function main() {
   const client = new QleverClient('http://localhost:3000');
 
   // Open an index
-  await client.open('/path/to/index');
+  await client.open('./test_index');
 
   // Execute a SPARQL query
   const result = await client.query(
     `SELECT ?s ?o WHERE { ?s <http://example.org/name> ?o } LIMIT 10`
   );
 
-  console.log(result);
+  console.log(`Found ${result.results.bindings.length} results`);
+  console.log(`Columns: ${result.head.vars.join(', ')}`);
+
   await client.close();
 }
 
@@ -51,9 +55,9 @@ main().catch(console.error);
 ```
 
 2. **Understanding the response:**
-- `head` - Column names (variables)
-- `results` - Array of rows (arrays)
-- `resultSize` - Number of results
+- `head.vars` - Array of variable names (column headers)
+- `results.bindings` - Array of binding objects (result rows)
+- Each binding is an object: `{ ?var1: "value", ?var2: "value2", ... }`
 
 ### Key Concepts
 - **Handle**: Unique identifier for your index session (auto-managed)
@@ -67,7 +71,7 @@ main().catch(console.error);
 Stream large results without loading everything into memory.
 
 ### Prerequisites
-- Running WebSocket server (`npm run ws-server`)
+- Running WebSocket server (`node js/websocket-server.js`)
 - Basic knowledge of async/await
 
 ### Steps
@@ -79,33 +83,47 @@ const io = require('socket.io-client');
 
 const socket = io('http://localhost:3002');
 
-socket.on('connect', async () => {
-  console.log('Connected to QLever');
+socket.on('connect', () => {
+  console.log('Connected to QLever WebSocket server');
 
-  socket.emit('open', { indexPath: '/path/to/index' });
+  // Step 1: Open an index
+  socket.emit('open', { indexPath: './test_index' });
+});
 
-  socket.on('opened', (data) => {
-    socket.emit('query', {
-      sparql: 'SELECT ?s WHERE { ?s ?p ?o } LIMIT 1000000'
-    });
+socket.on('opened', (data) => {
+  console.log('Index opened with handle:', data.handle);
+
+  // Step 2: Start streaming query
+  socket.emit('stream-query', {
+    handle: data.handle,
+    sparql: 'SELECT ?s ?p ?o WHERE { ?s ?p ?o } LIMIT 1000000'
   });
+});
 
-  // Receive results as they stream
-  socket.on('result_batch', (batch) => {
-    console.log(`Received ${batch.rows.length} rows`);
+// Receive results in batches
+socket.on('stream-batch', (batch) => {
+  console.log(`Received batch with ${batch.bindings.length} rows`);
+  batch.bindings.forEach(binding => {
+    console.log(binding); // Each binding is { ?var1: val1, ?var2: val2, ... }
   });
+});
 
-  socket.on('query_complete', (summary) => {
-    console.log(`Total rows: ${summary.totalRows}`);
-  });
+// Streaming complete
+socket.on('stream-complete', (summary) => {
+  console.log(`Streaming finished. Total rows: ${summary.totalRows}`);
+});
+
+// Error handling
+socket.on('error', (err) => {
+  console.error('WebSocket error:', err.message);
 });
 ```
 
 2. **Key events:**
-- `opened` - Index ready
-- `result_batch` - Results arrive in batches
-- `query_complete` - Query finished
-- `error` - Error occurred
+- `opened` - Index ready, returns `{ handle }`
+- `stream-batch` - Results batch arrives with `{ bindings, batchSize }`
+- `stream-complete` - Query finished with `{ totalRows, totalTime }`
+- `error` - Error occurred with `{ message, errorType }`
 
 ---
 
@@ -157,25 +175,29 @@ curl -X POST http://localhost:3003/graphql \
 const QleverClient = require('./client');
 
 async function executeWithMetrics() {
-  const client = new QleverClient();
-  await client.open('/path/to/index');
+  const client = new QleverClient('http://localhost:3000');
+  await client.open('./test_index');
 
-  // Request timing information
+  // Request timing information (second parameter = true)
   const result = await client.query(
     `SELECT ?s WHERE { ?s ?p ?o }`,
     true  // timings = true
   );
 
-  console.log('Query time:', result.computationTimeMs);
-  console.log('Total time:', result.totalTimeMs);
-  console.log('Results:', result.resultSize);
+  console.log('Query parsing time:', result.timings.query_ms, 'ms');
+  console.log('Planning time:', result.timings.planning_ms, 'ms');
+  console.log('Execution time:', result.timings.execution_ms, 'ms');
+  console.log('Results found:', result.results.bindings.length);
+
+  await client.close();
 }
 ```
 
-**Key fields in response:**
-- `computationTimeMs` - Time to execute query
-- `totalTimeMs` - Total time (parsing + execution)
-- `resultSize` - Number of results returned
+**Key timing fields in response:**
+- `timings.query_ms` - Time to parse SPARQL
+- `timings.planning_ms` - Time to plan execution
+- `timings.execution_ms` - Time to execute query
+- `results.bindings.length` - Number of result rows
 
 ---
 
@@ -192,17 +214,26 @@ async function streamToFile(sparql, outputFile) {
   const output = fs.createWriteStream(outputFile);
 
   return new Promise((resolve, reject) => {
+    let handle;
+
     socket.on('connect', () => {
-      socket.emit('open', { indexPath: '/path/to/index' });
+      socket.emit('open', { indexPath: './test_index' });
     });
 
-    socket.on('result_batch', (batch) => {
-      batch.rows.forEach(row => {
-        output.write(JSON.stringify(row) + '\n');
+    socket.on('opened', (data) => {
+      handle = data.handle;
+      // Start streaming query
+      socket.emit('stream-query', { handle, sparql });
+    });
+
+    socket.on('stream-batch', (batch) => {
+      // Write each binding (row) as JSON
+      batch.bindings.forEach(binding => {
+        output.write(JSON.stringify(binding) + '\n');
       });
     });
 
-    socket.on('query_complete', () => {
+    socket.on('stream-complete', () => {
       output.end();
       socket.disconnect();
       resolve();
@@ -211,6 +242,12 @@ async function streamToFile(sparql, outputFile) {
     socket.on('error', reject);
   });
 }
+
+// Usage
+streamToFile(
+  'SELECT ?s ?p ?o WHERE { ?s ?p ?o }',
+  'results.jsonl'
+).catch(console.error);
 ```
 
 ---
@@ -351,31 +388,78 @@ async function graphqlQuery() {
 ## How to: Load Test Your Server
 
 ```javascript
-const { loadTest } = require('./load-tester');
+const LoadTester = require('./load-tester');
 
 async function runLoadTest() {
-  const results = await loadTest({
-    baseUrl: 'http://localhost:3000',
-    concurrency: 10,
-    requestsPerClient: 100,
-    sparqlQueries: [
-      'SELECT ?s WHERE { ?s ?p ?o }',
-      'SELECT ?s ?p ?o WHERE { ?s ?p ?o } LIMIT 100'
-    ]
+  const tester = new LoadTester({
+    duration: 30000,        // Run for 30 seconds
+    concurrency: 10,        // 10 concurrent clients
+    querySize: 10,          // Queries returning ~10 results
+    thinkTime: 100          // Wait 100ms between requests
   });
 
-  console.log('Throughput:', results.requestsPerSecond);
-  console.log('Avg latency:', results.avgLatency);
-  console.log('P99 latency:', results.p99Latency);
-  console.log('Error rate:', results.errorRate);
+  // Generate load
+  await tester.generateLoad();
+
+  // Get results
+  const metrics = tester.metrics;
+  console.log('Total requests:', metrics.totalRequests);
+  console.log('Successful:', metrics.successfulRequests);
+  console.log('Failed:', metrics.failedRequests);
+  console.log('Avg latency:', metrics.averageLatency, 'ms');
+  console.log('Max latency:', metrics.maxLatency, 'ms');
+  console.log('Min latency:', metrics.minLatency, 'ms');
+  console.log('Throughput:', metrics.throughput, 'req/sec');
 }
+
+runLoadTest().catch(console.error);
 ```
+
+**Metrics available:**
+- `totalRequests` - Total operations
+- `successfulRequests` - Operations that succeeded
+- `failedRequests` - Operations that failed
+- `contractViolations` - Response format violations
+- `averageLatency` - Mean latency in ms
+- `throughput` - Requests per second
 
 ---
 
 # Reference
 
 *Complete API documentation for all modules*
+
+## Response Format Reference
+
+All query responses follow the **SPARQL JSON Results Format**:
+
+```javascript
+{
+  head: {
+    vars: ["?variable1", "?variable2", ...]  // Column names
+  },
+  results: {
+    bindings: [
+      { "?variable1": "value1", "?variable2": "value2" },  // Row 1
+      { "?variable1": "value3", "?variable2": "value4" },  // Row 2
+      ...
+    ]
+  },
+  timings: {                          // Optional, if requested with timings=true
+    query_ms: 10,                     // Time to parse SPARQL
+    planning_ms: 50,                  // Time to plan execution
+    execution_ms: 100                 // Time to execute query
+  }
+}
+```
+
+**Key points:**
+- Each binding is an object where keys are variable names (include the `?`)
+- Values can be strings, numbers, or objects (for RDF terms with type info)
+- Order of results matches query, or sorted by `ORDER BY` clause
+- `timings` field only present if `timings=true` parameter was passed
+
+---
 
 ## Core Clients
 
@@ -428,19 +512,36 @@ const client = new QleverClient('http://localhost:3000');
 
 ### `websocket-client.js` - Socket.io Client
 
-**Functions:**
-```javascript
-const { createWebSocketClient } = require('./websocket-client');
+**Class: `WebSocketQleverClient`**
 
-const client = createWebSocketClient('http://localhost:3002');
-client.on('opened', () => console.log('Ready'));
-client.on('result_batch', (batch) => console.log(batch));
+```javascript
+const WebSocketQleverClient = require('./websocket-client');
+
+const client = new WebSocketQleverClient('http://localhost:3002');
+
+// Connect to server
+await client.connect();
+
+// Open index
+await client.open('./test_index');
+
+// Stream query results
+await client.streamQuery('SELECT ?s WHERE { ?s ?p ?o }', (batch) => {
+  console.log(`Batch: ${batch.bindings.length} rows`);
+});
 ```
 
-**Events:**
-- `opened` - Index loaded
-- `result_batch` - Data chunk received
-- `query_complete` - All results received
+**Methods:**
+- `connect()` - Connect to WebSocket server
+- `open(indexPath)` - Open RDF index
+- `streamQuery(sparql, onBatch)` - Stream results
+- `query(sparql, timings?)` - Execute single query
+- `disconnect()` - Close connection
+
+**Response Events:**
+- `opened` - Index ready, data: `{ handle }`
+- `stream-batch` - Batch received, data: `{ bindings, batchSize }`
+- `query-result` - Single query result
 - `error` - Error occurred
 
 ---
@@ -485,19 +586,30 @@ const result = await client.query({ sparql: '...' });
 
 ### `websocket-server.js` - WebSocket Server (Port 3002)
 
-**Socket Events:**
+**Incoming Events (Client → Server):**
 
-| Event | Data | Response Event | Purpose |
-|-------|------|---|---------|
-| `open` | `{indexPath}` | `opened` | Initialize index |
-| `query` | `{sparql}` | `result_batch`, `query_complete` | Stream results |
+| Event | Data | Response | Purpose |
+|-------|------|----------|---------|
+| `open` | `{indexPath, config?}` | `opened` | Open RDF index |
+| `query` | `{handle, sparql, timings?}` | `query-result` | Execute single query |
+| `stream-query` | `{handle, sparql, timings?}` | `stream-batch`, `stream-complete` | Stream large results |
+| `plan-and-execute` | `{handle, sparql}` | `plan-executed` | Plan + execute |
+| `cache-result` | `{handle, name, sparql}` | `result-cached` | Cache result |
 | `close` | none | `closed` | Disconnect |
 
 **Example:**
 ```javascript
-socket.emit('open', { indexPath: '/index' });
-socket.on('result_batch', (data) => {
-  console.log('Batch size:', data.rows.length);
+socket.emit('open', { indexPath: './test_index' });
+socket.on('opened', (data) => {
+  console.log('Handle:', data.handle);
+});
+
+socket.emit('stream-query', { handle, sparql: '...' });
+socket.on('stream-batch', (data) => {
+  console.log('Batch size:', data.bindings.length);
+});
+socket.on('stream-complete', (data) => {
+  console.log('Total rows:', data.totalRows);
 });
 ```
 
@@ -541,21 +653,34 @@ query {
 **Class: `ProtocolInstrumentation`**
 
 ```javascript
-const { ProtocolInstrumentation } = require('./protocol-instrumentation');
+const ProtocolInstrumentation = require('./protocol-instrumentation');
 
-const instrumentation = new ProtocolInstrumentation();
+const instrumentation = new ProtocolInstrumentation('http', {
+  maxRetries: 3,
+  retryDelay: 50,
+  healthUpdateInterval: 5000,
+  metricsWindow: 100
+});
 
-// Automatically tracks:
-// - Metrics (latency, count, errors)
-// - Resilience (retries, backoff)
-// - Contracts (data validation)
-// - Health (per-operation status)
+// Execute operation with automatic instrumentation
+const result = await instrumentation.executeWithInstrumentation(
+  'query',  // operation name
+  () => queryFunction(),  // handler function
+  ['HTTP.Response.Structure']  // contracts to validate
+);
 ```
 
-**Provides:**
-- `getMetrics()` - Operation statistics
-- `getHealth()` - System health status
-- `getContracts()` - Active contracts
+**Methods:**
+- `executeWithInstrumentation(operation, handler, contracts)` - Execute with all instrumentation
+- `recordMetric(operation, latency, success, error, metadata)` - Manually record metric
+- `getMetrics()` - Get operation statistics
+- `getHealth()` - Get system health status
+
+**Automatically provides:**
+- Metrics (latency percentiles, throughput, error rates)
+- Resilience (automatic retry with exponential backoff)
+- Contract enforcement (response validation)
+- Health tracking (per-operation health scores)
 
 ---
 
