@@ -17,7 +17,166 @@
 
 *Learning-oriented guides to get you started with the essentials*
 
-**Before starting:** This module provides Node.js clients and servers for QLever. There are no npm scripts - all servers and clients are run directly with `node`. Make sure the C++ QLever engine is running on port 3000 (HTTP server) before starting any of these tutorials.
+## Prerequisites & Environment Setup
+
+This module provides Node.js clients and servers for QLever. Before starting the tutorials, you need to:
+
+1. **C++ Engine**: QLever is written in C++ and requires a running backend engine
+2. **Test Data**: You need an RDF index to query against
+3. **Node.js**: Version 16+ for running JavaScript clients and servers
+
+### System Requirements
+
+**Hardware Minimum:**
+- 4 GB RAM (8+ GB recommended for large indexes)
+- 2 GB free disk space (for test index and build artifacts)
+
+**Software:**
+- **C++ Engine**: Built from QLever source (see "Verifying C++ Engine Setup" below)
+- **Node.js**: 16.0.0 or higher
+- **npm**: 7.0.0 or higher (included with Node.js)
+
+---
+
+## Verifying C++ Engine Setup
+
+The JavaScript clients and servers communicate with a C++ backend that actually stores and queries RDF data.
+
+### Step 1: Verify Engine is Running
+
+Check if the C++ QLever engine is accessible on port 3000:
+
+```bash
+# Test HTTP connectivity to the engine
+curl -I http://localhost:3000/api/query
+
+# Expected response: HTTP/1.1 200 OK (or similar)
+# If connection refused: Engine is not running
+```
+
+### Step 2: Start the C++ Engine (if needed)
+
+From the QLever source directory:
+
+```bash
+# Build the C++ engine (one-time setup)
+cd /path/to/qlever  # Root of QLever repository
+mkdir -p build && cd build
+cmake -DCMAKE_BUILD_TYPE=Release -GNinja ..
+ninja
+
+# Start the HTTP server (will listen on port 3000)
+./ServerMain --port 3000
+```
+
+**Expected Output:**
+```
+[INFO] Starting QLever HTTP Server...
+[INFO] Server running on http://localhost:3000
+[INFO] API endpoints ready
+```
+
+### Step 3: Verify Connectivity
+
+Once the C++ engine is running:
+
+```bash
+# Test that the server responds
+curl http://localhost:3000/health
+
+# Expected: { "status": "ok" } or similar healthy response
+```
+
+**If You Get "Connection Refused":**
+- Is the C++ engine running? (Check Step 2)
+- Is it listening on port 3000? (Check C++ engine logs)
+- Are you running from the correct directory?
+- Try: `lsof -i :3000` to see what's using port 3000
+
+---
+
+## Setting Up a Test Index
+
+All tutorials and examples use a test index. You have two options:
+
+### Option A: Create a Minimal Test Index (Recommended for Learning)
+
+1. **Prepare test data** (create `test_data.nt`):
+
+```
+<http://example.org/alice> <http://example.org/name> "Alice" .
+<http://example.org/alice> <http://example.org/age> "30"^^<http://www.w3.org/2001/XMLSchema#integer> .
+<http://example.org/bob> <http://example.org/name> "Bob" .
+<http://example.org/bob> <http://example.org/age> "25"^^<http://www.w3.org/2001/XMLSchema#integer> .
+<http://example.org/alice> <http://example.org/knows> <http://example.org/bob> .
+```
+
+2. **Build the index** using C++ index builder:
+
+```bash
+cd /path/to/qlever/build
+./IndexBuilderMain --input-file ../test_data.nt --output-directory ./test_index
+```
+
+3. **Verify the index was created:**
+
+```bash
+ls -la test_index/
+# Should show: vocabulary.txt, docsDB, index_[PSO|POS|...], etc.
+```
+
+### Option B: Use Existing Test Data
+
+If QLever repository includes sample data:
+
+```bash
+# Check for bundled examples
+find /path/to/qlever -name "*test*" -type d -name "data" -o -name "examples"
+
+# Build index from existing data if available
+./IndexBuilderMain --input-file /path/to/existing/data.nt --output-directory ./test_index
+```
+
+### Verifying Index Accessibility
+
+Test that your index is accessible from Node.js:
+
+```javascript
+const QleverClient = require('./client');
+
+async function verifyIndex() {
+  const client = new QleverClient('http://localhost:3000');
+  try {
+    await client.open('./test_index');
+    const result = await client.query('SELECT ?s ?p ?o WHERE { ?s ?p ?o } LIMIT 1');
+    console.log('✓ Index is accessible and working');
+    console.log(`✓ Found ${result.results.bindings.length} results`);
+    await client.close();
+  } catch (error) {
+    console.error('✗ Index verification failed:', error.message);
+    console.error('Troubleshooting:');
+    console.error('  1. Is C++ engine running? (curl http://localhost:3000/health)');
+    console.error('  2. Does test_index directory exist? (ls -la ./test_index)');
+    console.error('  3. Is the index path correct relative to where you run Node.js?');
+  }
+}
+
+verifyIndex();
+```
+
+**Save as `verify-index.js` and run:**
+
+```bash
+node verify-index.js
+
+# Success output:
+# ✓ Index is accessible and working
+# ✓ Found 1 results
+
+# Failure output shows troubleshooting steps
+```
+
+---
 
 ## Tutorial 1: First SPARQL Query (5 minutes)
 
@@ -741,6 +900,118 @@ socket.on('stream-complete', (data) => {
   console.log('Total rows:', data.totalRows);
 });
 ```
+
+---
+
+### `graphql-server.js` vs `graphql-server-instrumented.js` - Choosing the Right GraphQL Server
+
+QLever provides two GraphQL implementations. Choose based on your use case:
+
+#### Quick Comparison Table
+
+| Feature | `graphql-server.js` | `graphql-server-instrumented.js` |
+|---------|---------------------|----------------------------------|
+| **Instrumentation/Monitoring** | No metrics, basic health | Full metrics, health, latency, circuit breaker |
+| **Schema** | Basic queries & mutations | Rich schema with operation status queries |
+| **Health Endpoint** | `/health` (basic) | `/health`, `/metrics`, `/operation/:op`, `/recommendations` |
+| **Recommended For** | Development, learning, simple deployments | Production, monitoring, performance tuning |
+| **Circuit Breaker** | No | Yes (prevents cascading failures) |
+| **Latency Tracking** | No | Yes (p50, p95, p99 percentiles) |
+| **Error Analysis** | Basic exceptions | Detailed error metrics and recommendations |
+| **Startup Output** | Minimal | Detailed startup banner with all endpoints |
+| **Performance Overhead** | Minimal | Low (~2-5% per operation for instrumentation) |
+
+#### Feature Comparison in Detail
+
+**graphql-server.js (Basic)**
+- Simple Apollo Server configuration
+- Basic error handling with try/catch
+- Health endpoint returns status and timestamp
+- Best for: Learning, development, testing
+- Example query:
+```graphql
+query {
+  queryIndex(handle: 1, sparql: "SELECT ?s WHERE { ?s ?p ?o }") {
+    variables
+    bindings { values }
+    timings { queryMs planningMs executionMs }
+  }
+}
+```
+
+**graphql-server-instrumented.js (Production-Ready)**
+- Full `ProtocolInstrumentation` integration for automatic monitoring
+- Includes circuit breaker pattern for fault resilience
+- Rich metrics with latency percentiles (p50, p95, p99)
+- Per-operation health metrics and error tracking
+- Global recommendations engine for optimization
+- Health monitoring runs continuously
+- Best for: Production deployments, performance optimization, monitoring
+- Example query:
+```graphql
+query {
+  query(handle: 1, sparql: "SELECT ?s WHERE { ?s ?p ?o }", timings: true) {
+    head
+    results { s { value } p { value } o { value } }
+    timings { query_ms planning_ms execution_ms }
+  }
+
+  health {
+    protocol
+    uptime
+    totalOperations
+    totalErrors
+    overallSuccessRate
+    status
+  }
+
+  operationStatus(operation: "query") {
+    operation
+    metrics {
+      count
+      errors
+      successRate
+      latency { p95 p99 }
+    }
+    circuitBreaker { state failures }
+  }
+}
+```
+
+#### Endpoints Provided by Each
+
+**graphql-server.js:**
+```
+POST /graphql           - GraphQL queries/mutations
+GET  /health            - Server health status
+```
+
+**graphql-server-instrumented.js:**
+```
+POST /graphql           - GraphQL queries/mutations
+GET  /health            - Protocol-level health with metrics
+GET  /metrics           - All operation metrics
+GET  /operation/:op     - Single operation metrics & circuit breaker
+GET  /recommendations   - AI-generated optimization recommendations
+```
+
+#### When to Use Which
+
+**Use `graphql-server.js` if:**
+- You're learning GraphQL with QLever
+- You're in early development/prototyping
+- You don't need monitoring/metrics
+- You want minimal overhead
+- You're running locally for testing
+
+**Use `graphql-server-instrumented.js` if:**
+- You're deploying to production
+- You need operational visibility (metrics, health, latency)
+- You want automatic circuit breaker protection
+- You need error analysis and recommendations
+- You're optimizing performance
+- You want compliance with observability standards
+- Multiple teams depend on your GraphQL API
 
 ---
 
