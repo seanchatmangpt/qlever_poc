@@ -2,48 +2,13 @@
 
 ## Quick Start: Claude Code on the Web
 
-**QLever is optimized for [Claude Code on the web](https://code.claude.com/)** - work on this repository directly from the Claude app without needing a local checkout.
+**Work on seanchatmangpt/qlever at [claude.ai/code](https://claude.ai/code)** without local checkout. Connect GitHub → select repo → submit task → auto-setup with SessionStart hooks → PR ready.
 
-### How to use Claude Code on the web with QLever
+**Agent Skills** (`.claude/skills/`): build-test, code-quality, cpp-patterns, debug-profile, sparql-rdf. Auto-invoked by task context. See [.claude/skills/README.md](./.claude/skills/README.md).
 
-1. Visit [claude.ai/code](https://claude.ai/code)
-2. Connect your GitHub account
-3. Select the **seanchatmangpt/qlever** repository
-4. Submit your task (bug fix, feature, question about code)
-5. Claude will work with automatic dependency installation and pre-configured environment
-6. Review changes and create a PR when done
+**Feature branches** (`claude/<feature>-<SESSION_ID>`): Web auto-installs deps, runs tests, pushes. "Open in CLI" to continue locally.
 
-### Available Agent Skills
-
-QLever includes custom Agent Skills (in `.claude/skills/`) that guide Claude on domain-specific tasks:
-
-- **build-test** - CMake builds, ctest execution, build troubleshooting
-- **code-quality** - Formatting with clang-format, linting, spell checking
-- **cpp-patterns** - C++ design patterns, QLever architecture, modern C++
-- **debug-profile** - Memory debugging (ASAN), profiling, performance analysis
-- **sparql-rdf** - SPARQL query semantics, RDF models, semantic web standards
-
-These skills are **automatically invoked** based on your task. For example:
-- "Build the project and run tests" → Triggers **build-test**
-- "Fix this memory leak" → Triggers **debug-profile**
-- "Write a SPARQL query for..." → Triggers **sparql-rdf**
-
-See [.claude/skills/README.md](./.claude/skills/README.md) for full details on each skill.
-
-### Working with Feature Branches
-
-All changes develop on feature branches (e.g., `claude/my-feature-XYZ`):
-
-```bash
-# Claude Code on web automatically:
-# 1. Creates isolated workspace on branch
-# 2. Installs dependencies (via SessionStart hook)
-# 3. Runs tests and validates work
-# 4. Pushes to GitHub branch
-# 5. Ready for PR creation
-```
-
-**To move from web to terminal:** Click "Open in CLI" and paste the command in your local checkout.
+**Warm startup**: Pre-compiled headers enabled by default. SessionStart hook pre-caches build environment. C++ builds optimized with `-DUSE_PRECOMPILED_HEADERS=true`.
 
 ---
 
@@ -196,36 +161,7 @@ Fundamental RDF data types.
 
 ### Environment Setup (Claude Code on Web)
 
-**Automatic dependency installation** is configured in `.claude/settings.json` using SessionStart hooks:
-
-```json
-{
-  "hooks": {
-    "SessionStart": [
-      {
-        "matcher": "startup",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "\"$CLAUDE_PROJECT_DIR\"/scripts/setup-dev-env.sh"
-          }
-        ]
-      }
-    ]
-  }
-}
-```
-
-When you start a Claude Code session (web or local), this hook automatically:
-- Installs pre-commit hooks for code quality checks
-- Verifies compiler and build tool availability
-- Sets up development environment
-
-**For Claude Code on web specifically:**
-- Repository is cloned with default branch (main/master)
-- To use a specific branch, specify in your task prompt: "Work on branch `feature/xyz`"
-- Environment variables can be configured in your web session settings
-- Internet access is limited to allowlisted domains by default (see Security & Network section below)
+**.claude/settings.json** configures SessionStart hooks to auto-run `scripts/setup-dev-env.sh` on session start. Installs pre-commit hooks, verifies compilers, pre-caches environment. Web sessions clone default branch; specify branch in task prompt for alternatives. Network limited to allowlisted domains by default.
 
 ### Git Workflow
 
@@ -347,25 +283,11 @@ git commit --no-verify
 
 ### Security & Network (Claude Code on Web)
 
-When running Claude Code on the web, the following security measures apply:
+**Network**: Default-limited to allowlisted domains (GitHub, npm, PyPI, Docker, build tools). Configurable per environment. GitHub operations proxied securely with scoped credentials—no secrets in sandbox.
 
-**Network Access:**
-- **Default**: Limited to allowlisted domains (GitHub, package managers, build tools, cloud services)
-- **Configuration**: Can be changed per environment in web session settings
-- **Examples of allowed domains**: npmjs.org, pypi.org, github.com, docker.io, etc.
-- **GitHub operations**: Handled through secure proxy with scoped credentials (no credentials in sandbox)
+**Isolation**: Isolated Anthropic VMs. Code modified in sandbox before PR. Credentials proxied, never stored locally.
 
-**Isolation & Protection:**
-- Each session runs in isolated, Anthropic-managed virtual machines
-- Code is analyzed and modified within isolated VMs before PR creation
-- Credentials (git tokens, signing keys) never stored in sandbox - proxied securely
-- Pre-configured environment with common toolchains pre-installed
-
-**For QLever specifically:**
-- All Boost, ANTLR, ICU, OpenSSL dependencies are available in the universal image
-- Build tools: CMake, Ninja, GCC, Clang pre-installed
-- Database support: PostgreSQL, Redis available if needed
-- No custom network configuration needed for standard builds
+**QLever environment**: Boost, ANTLR, ICU, OpenSSL, CMake, Ninja, GCC, Clang, PostgreSQL, Redis pre-installed. Standard builds need no custom config.
 
 ### Commit Message Guidelines
 
@@ -539,17 +461,11 @@ ctest -j$(nproc) --output-on-failure  # Use all cores
 
 ## Important Conventions for AI Assistants
 
-### Using Agent Skills
+### Using Agent Skills & Concurrent Agents
 
-Before working on tasks, **invoke relevant Agent Skills** from `.claude/skills/`:
+**Agent Skills** (`.claude/skills/`): build-test, code-quality, cpp-patterns, debug-profile, sparql-rdf. Auto-triggered by task context. Invoke explicitly with `Skill` tool if needed.
 
-1. **build-test** - When building, running tests, or troubleshooting builds
-2. **code-quality** - When formatting, checking style, or analyzing code
-3. **debug-profile** - When debugging crashes, memory issues, or optimizing performance
-4. **cpp-patterns** - When designing new features or refactoring code
-5. **sparql-rdf** - When working with SPARQL queries or RDF data
-
-Skills are automatically discovered and invoked based on your task context. If a skill applies, you'll see guidance integrated into your work.
+**Concurrent agents**: Always launch 10 concurrent agents for planning, context gathering, and parallel work. Use `Task` tool with `subagent_type` (Explore, Plan, general-purpose) to parallelize. Example: scanning codebase, planning architecture, gathering context simultaneously.
 
 ### Code Modification Guidelines
 
@@ -938,6 +854,22 @@ cmake -DPERFTOOLS_PROFILER=ON ..
 
 ---
 
+## Sparse Priming Representation (SPR) 80/20 Approach
+
+**All agent-generated text uses SPR 80/20**: Capture 80% semantic value with 20% word count. Distill to succinct statements, associations, concepts. Primes downstream models efficiently. Write for LLM comprehension, not human readability.
+
+**Implementation:**
+- **Planning**: Sparse bullet points, essential associations only
+- **Context gathering**: Distilled facts, core patterns, key relationships
+- **Agent communication**: Dense concept statements, minimal prose
+- **Documentation**: Essential assertions with analogies, metaphors for latent space activation
+
+**C++ warm startup**: Pre-compiled headers (`-DUSE_PRECOMPILED_HEADERS=true`), SessionStart hook pre-caches environment, build artifacts persisted across sessions. Cold builds eliminated via persistent pre-warming.
+
+**Concurrent agent pattern**: Always spawn 10 parallel agents for planning, exploration, context gathering. Example workflow: (1) Explore codebase, (2) Plan architecture, (3) Identify patterns, (4-10) Parallel specialized analysis—concurrency covers 80% of work surface simultaneously.
+
+---
+
 ## Useful Commands
 
 ### Quick Development Workflow
@@ -1038,21 +970,23 @@ find test -name "*Test.cpp" | head -20
 ## Document Metadata
 
 - **Last Updated**: 2026-01-01
-- **Created For**: AI Assistant Development Support (Cloud & Web Optimized)
-- **Scope**: Comprehensive guide for QLever codebase with Claude Code on the web
+- **Format**: SPR 80/20 (Sparse Priming Representation)
+- **Created For**: AI Assistant Development Support (Web-Optimized, Concurrent Agents, Warm C++)
+- **Scope**: QLever codebase guide with Claude Code on web integration
 - **Status**: Complete and Ready for Use
 
-**Key Updates:**
-- Added Claude Code on the web quick start and environment setup
-- Documented 5 custom Agent Skills for domain-specific guidance
-- Added SessionStart hook configuration for automatic dependency installation
-- Included Superpowers skills library for advanced workflows
-- Added security & network information for web-based development
+**Key Features:**
+- SPR 80/20 condensed for downstream model efficiency
+- Claude Code on web quick start with auto-setup hooks
+- 5 custom Agent Skills (build-test, code-quality, cpp-patterns, debug-profile, sparql-rdf)
+- Concurrent agent pattern (10 parallel agents for planning/exploration)
+- C++ warm startup (pre-compiled headers, persistent build artifacts)
+- Security & network isolation details for web sandbox
+- Integration with Superpowers skills library (vendors/superpowers/)
 
-**Maintenance Notes:**
-- Update this document when major architectural changes occur
-- Document new design patterns as they emerge
-- Keep technology stack section current with dependency updates
-- Add new troubleshooting entries as issues are discovered
-- Update Agent Skills in `.claude/skills/` as domain knowledge improves
-- Sync with Superpowers updates in `vendors/superpowers/`
+**Maintenance:**
+- All generated text: SPR 80/20 style (80% semantic value, 20% words)
+- Always spawn concurrent agents for context gathering and planning
+- Keep C++ warm startup configs enabled
+- Update Agent Skills as domain knowledge evolves
+- Sync Superpowers library regularly
