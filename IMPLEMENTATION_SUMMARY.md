@@ -64,14 +64,14 @@ Native Bindings: 17/17 tests passing ✅
 | Breaking Changes | 0 |
 | Backward Compatibility | 100% |
 
-## 🚀 Performance Gains
+## 🚀 Performance Potential
 
-**Real-World Dashboard Scenario:**
-- 100 dashboard queries
-- 5 queries repeated 10x each (50 total cached accesses)
-- Without cache: 20 seconds total
-- With cache: 20.05 seconds total
-- **Cached queries: 99.75% faster**
+**Theoretical Improvement (Cache Hit):**
+- Network round-trip (HTTP): ~100-200ms
+- Cache lookup: <1ms
+- **Potential improvement: 100-200x for cached queries**
+
+**Note:** Performance claims require actual benchmarking with a running QLever server. The cache module is production-ready and tested; actual performance depends on network latency and query complexity.
 
 ## 📋 Git Commits
 
