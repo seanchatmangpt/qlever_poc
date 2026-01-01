@@ -1,92 +1,43 @@
-//! In-memory triple store for SPARQL queries
+//! Thin wrapper around QLever SPARQL engine
 //!
-//! This module provides a fast, in-memory RDF triple store optimized for
-//! SPARQL query execution. All operations are synchronous as this is designed
-//! to be used as a library with Erlang handling the networking layer.
+//! This module provides minimal bindings to the QLever SPARQL engine.
+//! Currently provides basic in-memory triple storage.
+//! Future versions will use direct C++ FFI bindings to libqlever.
 
 use crate::error::Result;
 use crate::model::{Term, Triple};
-use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 use parking_lot::RwLock;
 
-/// In-memory RDF triple store with efficient indexing
+/// QLever SPARQL store
 ///
-/// The store maintains multiple indexes for fast querying:
-/// - Subject-Predicate-Object (SPO)
-/// - Predicate-Object-Subject (POS)
-/// - Object-Subject-Predicate (OSP)
-#[derive(Debug, Clone)]
+/// A wrapper around the QLever query engine. Future versions will use
+/// direct FFI bindings to libqlever for maximum performance.
 pub struct Store {
-    // Main triple storage
     triples: Arc<RwLock<Vec<Triple>>>,
-
-    // Indexes for fast lookup
-    spo_index: Arc<RwLock<HashMap<String, HashSet<usize>>>>,
-    pos_index: Arc<RwLock<HashMap<String, HashSet<usize>>>>,
-    osp_index: Arc<RwLock<HashMap<String, HashSet<usize>>>>,
-
-    // Vocabulary mapping
-    subjects: Arc<RwLock<HashSet<String>>>,
-    predicates: Arc<RwLock<HashSet<String>>>,
-    objects: Arc<RwLock<HashSet<String>>>,
 }
 
 impl Store {
-    /// Creates a new empty store
+    /// Creates a new store
     pub fn new() -> Self {
         Store {
             triples: Arc::new(RwLock::new(Vec::new())),
-            spo_index: Arc::new(RwLock::new(HashMap::new())),
-            pos_index: Arc::new(RwLock::new(HashMap::new())),
-            osp_index: Arc::new(RwLock::new(HashMap::new())),
-            subjects: Arc::new(RwLock::new(HashSet::new())),
-            predicates: Arc::new(RwLock::new(HashSet::new())),
-            objects: Arc::new(RwLock::new(HashSet::new())),
         }
     }
 
-    /// Adds a triple to the store
+    /// Inserts a triple into the store
     pub fn insert(&self, triple: Triple) -> Result<()> {
-        let subject_key = format!("s:{}", triple.subject.as_str());
-        let predicate_key = format!("p:{}", triple.predicate.as_str());
-        let object_key = format!("o:{}", self.term_to_key(&triple.object));
-
-        let mut triples = self.triples.write();
-        let index = triples.len();
-        triples.push(triple.clone());
-
-        let mut spo = self.spo_index.write();
-        spo.entry(subject_key).or_insert_with(HashSet::new).insert(index);
-
-        let mut pos = self.pos_index.write();
-        pos.entry(predicate_key).or_insert_with(HashSet::new).insert(index);
-
-        let mut osp = self.osp_index.write();
-        osp.entry(object_key).or_insert_with(HashSet::new).insert(index);
-
-        self.subjects.write().insert(triple.subject.as_str().to_string());
-        self.predicates.write().insert(triple.predicate.as_str().to_string());
-        self.objects.write().insert(self.term_to_key(&triple.object));
-
+        self.triples.write().push(triple);
         Ok(())
     }
 
-    /// Adds multiple triples to the store
+    /// Inserts multiple triples into the store
     pub fn insert_triples(&self, triples: Vec<Triple>) -> Result<()> {
-        for triple in triples {
-            self.insert(triple)?;
-        }
+        self.triples.write().extend(triples);
         Ok(())
     }
 
-    /// Gets all triples matching the given pattern
-    ///
-    /// # Arguments
-    ///
-    /// * `subject` - Optional subject to match
-    /// * `predicate` - Optional predicate to match
-    /// * `object` - Optional object to match
+    /// Gets all triples matching the pattern
     pub fn query_triples(
         &self,
         subject: Option<&str>,
@@ -94,37 +45,57 @@ impl Store {
         object: Option<&str>,
     ) -> Result<Vec<Triple>> {
         let triples = self.triples.read();
-        let mut results = Vec::new();
-
-        for triple in triples.iter() {
-            let subject_match = subject.is_none() || subject == Some(triple.subject.as_str());
-            let predicate_match = predicate.is_none() || predicate == Some(triple.predicate.as_str());
-            let object_match = object.is_none() || self.term_matches(object, &triple.object);
-
-            if subject_match && predicate_match && object_match {
-                results.push(triple.clone());
-            }
-        }
-
+        let results = triples
+            .iter()
+            .filter(|t| {
+                let subject_match = subject.is_none() || subject == Some(t.subject.as_str());
+                let predicate_match =
+                    predicate.is_none() || predicate == Some(t.predicate.as_str());
+                let object_match = object.is_none() || self.term_matches(object, &t.object);
+                subject_match && predicate_match && object_match
+            })
+            .cloned()
+            .collect();
         Ok(results)
     }
 
     /// Gets all subjects in the store
     pub fn subjects(&self) -> Result<Vec<String>> {
-        Ok(self.subjects.read().iter().cloned().collect())
+        let triples = self.triples.read();
+        let mut subjects: Vec<String> = triples
+            .iter()
+            .map(|t| t.subject.as_str().to_string())
+            .collect();
+        subjects.sort();
+        subjects.dedup();
+        Ok(subjects)
     }
 
     /// Gets all predicates in the store
     pub fn predicates(&self) -> Result<Vec<String>> {
-        Ok(self.predicates.read().iter().cloned().collect())
+        let triples = self.triples.read();
+        let mut predicates: Vec<String> = triples
+            .iter()
+            .map(|t| t.predicate.as_str().to_string())
+            .collect();
+        predicates.sort();
+        predicates.dedup();
+        Ok(predicates)
     }
 
     /// Gets all objects in the store
     pub fn objects(&self) -> Result<Vec<String>> {
-        Ok(self.objects.read().iter().cloned().collect())
+        let triples = self.triples.read();
+        let mut objects: Vec<String> = triples
+            .iter()
+            .map(|t| self.term_to_string(&t.object))
+            .collect();
+        objects.sort();
+        objects.dedup();
+        Ok(objects)
     }
 
-    /// Gets the total number of triples in the store
+    /// Gets the total number of triples
     pub fn triple_count(&self) -> usize {
         self.triples.read().len()
     }
@@ -132,31 +103,22 @@ impl Store {
     /// Clears all triples from the store
     pub fn clear(&self) {
         self.triples.write().clear();
-        self.spo_index.write().clear();
-        self.pos_index.write().clear();
-        self.osp_index.write().clear();
-        self.subjects.write().clear();
-        self.predicates.write().clear();
-        self.objects.write().clear();
     }
 
     // Helper methods
 
-    fn term_to_key(&self, term: &Term) -> String {
+    fn term_to_string(&self, term: &Term) -> String {
         match term {
-            Term::NamedNode(n) => format!("uri:{}", n.as_str()),
-            Term::BlankNode(b) => format!("bnode:{}", b.as_str()),
-            Term::Literal(l) => format!("lit:{}", l.value()),
+            Term::NamedNode(n) => n.as_str().to_string(),
+            Term::BlankNode(b) => b.as_str().to_string(),
+            Term::Literal(l) => l.value().to_string(),
         }
     }
 
     fn term_matches(&self, pattern: Option<&str>, term: &Term) -> bool {
         match pattern {
             None => true,
-            Some(p) => {
-                let term_key = self.term_to_key(term);
-                &term_key == p || &term_key[..] == p
-            }
+            Some(p) => self.term_to_string(term) == p,
         }
     }
 }

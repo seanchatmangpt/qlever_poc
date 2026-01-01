@@ -1,25 +1,25 @@
-//! QLever Rust - Fast in-memory SPARQL database
+//! QLever Rust - Thin bindings to libqlever
 //!
-//! A high-performance, in-memory RDF/SPARQL engine designed to be embedded in Erlang
-//! applications via Rust/Erlang interoperability. This library provides the fastest
-//! possible SPARQL query execution for in-memory datasets.
+//! A minimal Rust wrapper around the QLever C++ SPARQL engine, designed for embedding
+//! in Erlang applications. Provides only the core data types and store interface needed
+//! for maximum performance.
 //!
-//! # Core Features
+//! # Core Components
 //!
-//! - **In-Memory Triple Store**: Fast, indexed storage of RDF triples
-//! - **Synchronous Operations**: All operations are synchronous (no async overhead)
-//! - **Multi-Index Support**: SPO, POS, OSP indexes for optimal query performance
-//! - **RDF Data Model**: Support for IRIs, Blank Nodes, and Literals
-//! - **Query Result Caching**: Optional LRU cache for frequently executed queries
-//! - **Zero Networking**: Pure data structure library - Erlang handles all I/O
+//! - **Store**: Minimal wrapper around libqlever (future C++ FFI)
+//! - **RDF Data Model**: NamedNode, BlankNode, Literal, Term, Triple, Quad types
+//! - **Query Results**: QuerySolution bindings from SPARQL queries
+//! - **Query Cache**: Optional LRU cache for result caching
+//! - **Zero Overhead**: No serialization, no networking, no async runtime
 //!
-//! # Architecture
+//! # Design Philosophy
 //!
-//! This library is designed to be embedded in Erlang applications. The Rust side
-//! handles fast in-memory SPARQL processing while Erlang handles:
-//! - Network communication
-//! - Concurrency management
-//! - Integration with other systems
+//! This library is intentionally minimal. It provides only:
+//! - Data type definitions for RDF terms
+//! - A thin Store wrapper (will use libqlever FFI)
+//! - Optional result caching
+//!
+//! Complexity is left to the caller (Erlang) or delegated to libqlever (C++).
 //!
 //! # Examples
 //!

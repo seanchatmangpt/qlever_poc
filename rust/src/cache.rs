@@ -1,7 +1,8 @@
-//! Query result caching with TTL and LRU eviction
+//! Optional query result caching with TTL and LRU eviction
 //!
-//! This module provides an LRU cache for SPARQL query results with time-to-live (TTL) support.
-//! Results are automatically evicted when they expire or when the cache exceeds its size limit.
+//! Provides an LRU cache for SPARQL query results with time-to-live (TTL) support.
+//! This is an optional optimization - results are automatically evicted when they expire
+//! or when the cache exceeds its size limit. Not required for basic Store usage.
 
 use crate::query::QuerySolution;
 use std::collections::HashMap;
