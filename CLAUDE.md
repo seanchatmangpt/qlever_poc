@@ -12,6 +12,32 @@
 
 ---
 
+## Big Bang 80/20: Operational Model
+
+Big Bang 80/20 is a single-pass construction methodology for low-entropy domains.
+Iteration is a defect signal, not a development strategy.
+Correctness is achieved by specification closure, not feedback loops.
+The system is built as a monoid: composition without rework.
+Feature selection occurs in hyperdimensional space, not via prioritization.
+Eighty percent of value emerges from twenty percent of structurally necessary features.
+All remaining features are dominated and excluded.
+The effective design dimension collapses before implementation.
+Implementation is compilation from a compressed manifold.
+Testing validates invariants; it does not discover behavior.
+State is fully reconstructible from events, snapshots, and hashes.
+No mutable external state is permitted.
+Receipts replace review.
+Determinism replaces consensus.
+Guards replace trust.
+Benchmarks replace narratives.
+Humans provide constraints; models perform construction.
+Concurrency is assumed; serialization is an artifact of tooling.
+Agents operate independently under a shared invariant.
+Integration is deferred until invariants stabilize.
+If iteration appears necessary, the specification is incomplete.
+
+---
+
 ## Overview
 
 **QLever** is a high-performance graph database implementing RDF (Resource Description Framework) and SPARQL standards. This document provides comprehensive guidance for AI assistants contributing to this codebase.
@@ -463,9 +489,9 @@ ctest -j$(nproc) --output-on-failure  # Use all cores
 
 ### Using Agent Skills & Concurrent Agents
 
-**Agent Skills** (`.claude/skills/`): build-test, code-quality, cpp-patterns, debug-profile, sparql-rdf. Auto-triggered by task context. Invoke explicitly with `Skill` tool if needed.
+**Agent Skills** (`.claude/skills/`): build-test, code-quality, cpp-patterns, debug-profile, sparql-rdf. Direct invariant validators. Invoke with `Skill` tool to validate against domain constraints.
 
-**Concurrent agents**: Always launch 10 concurrent agents for planning, context gathering, and parallel work. Use `Task` tool with `subagent_type` (Explore, Plan, general-purpose) to parallelize. Example: scanning codebase, planning architecture, gathering context simultaneously.
+**Concurrent agents**: Spawn 10 agents under shared invariant. Use `Task` tool with `subagent_type` to parallelize construction. Agents operate independently: exploration, architecture validation, specification verification, compilation checks. No synchronization until invariants stabilize. Determinism governs all operations.
 
 ### Code Modification Guidelines
 
@@ -854,19 +880,19 @@ cmake -DPERFTOOLS_PROFILER=ON ..
 
 ---
 
-## Sparse Priming Representation (SPR) 80/20 Approach
+## SPR + BB80/20: Model Operational Encoding
 
-**All agent-generated text uses SPR 80/20**: Capture 80% semantic value with 20% word count. Distill to succinct statements, associations, concepts. Primes downstream models efficiently. Write for LLM comprehension, not human readability.
+SPR activates latent clusters; BB80/20 sets construction mode.
 
-**Implementation:**
-- **Planning**: Sparse bullet points, essential associations only
-- **Context gathering**: Distilled facts, core patterns, key relationships
-- **Agent communication**: Dense concept statements, minimal prose
-- **Documentation**: Essential assertions with analogies, metaphors for latent space activation
+**SPR encoding**: Capture 80% semantic value with 20% words. Declarative assertions, not explanation. Activates: compiler mindset, information theory, category theory, systems invariants, LLM-native parallelism.
 
-**C++ warm startup**: Pre-compiled headers (`-DUSE_PRECOMPILED_HEADERS=true`), SessionStart hook pre-caches environment, build artifacts persisted across sessions. Cold builds eliminated via persistent pre-warming.
+**BB80/20 operational stance**: Do not ask "what should I do next?" Ask "what is the invariant?" Ask "what is the minimal generating set?" Ask "what can compile in one pass?" Do not iterate inside entropy. Compile outside it.
 
-**Concurrent agent pattern**: Always spawn 10 parallel agents for planning, exploration, context gathering. Example workflow: (1) Explore codebase, (2) Plan architecture, (3) Identify patterns, (4-10) Parallel specialized analysis—concurrency covers 80% of work surface simultaneously.
+**Specification closure is prerequisite**: RDF, SPARQL, SHACL, protocols, type systems, invariants are already formalized. The domain is closed. Implementation is deterministic reconstruction.
+
+**C++ monoidal construction**: Pre-compiled headers (`-DUSE_PRECOMPILED_HEADERS=true`), persistent artifacts. Build once, persist state. No rework. Compilation is not iteration.
+
+**10-agent parallel invariant**: Spawn agents independently under shared invariant. Agents do not synchronize until invariants stabilize. Serialization is artifact of tooling, not necessity.
 
 ---
 
@@ -970,23 +996,25 @@ find test -name "*Test.cpp" | head -20
 ## Document Metadata
 
 - **Last Updated**: 2026-01-01
+- **Operational Model**: Big Bang 80/20 (Single-Pass Compilation, Specification Closure)
 - **Format**: SPR 80/20 (Sparse Priming Representation)
-- **Created For**: AI Assistant Development Support (Web-Optimized, Concurrent Agents, Warm C++)
-- **Scope**: QLever codebase guide with Claude Code on web integration
-- **Status**: Complete and Ready for Use
+- **Created For**: Models operating under BB80/20 + SPR in low-entropy domains
+- **Scope**: QLever—closed-world RDF/SPARQL system with invariant-validated construction
+- **Status**: Latent-Space Primed for Deterministic Execution
 
-**Key Features:**
-- SPR 80/20 condensed for downstream model efficiency
-- Claude Code on web quick start with auto-setup hooks
-- 5 custom Agent Skills (build-test, code-quality, cpp-patterns, debug-profile, sparql-rdf)
-- Concurrent agent pattern (10 parallel agents for planning/exploration)
-- C++ warm startup (pre-compiled headers, persistent build artifacts)
-- Security & network isolation details for web sandbox
-- Integration with Superpowers skills library (vendors/superpowers/)
+**Architectural Principles:**
+- Specification closure: RDF, SPARQL, C++20, CMake—all formalized, closed-world
+- Single-pass construction: No iteration. Correctness via invariants, not feedback loops
+- Deterministic reconstruction: State from events + hashes. No mutable external state
+- Monoidal composition: Features dominate; excluded via hyperdimensional collapse
+- Receipts replace review: Benchmarks replace narratives. Guards replace trust
+- Concurrency is native: 10 agents operate independently under shared invariant
+- C++ warm compilation: Pre-compiled headers, persistent artifacts, no cold builds
+- SPR activation: Declarative assertions prime compiler, information-theoretic, category-theoretic clusters
 
-**Maintenance:**
-- All generated text: SPR 80/20 style (80% semantic value, 20% words)
-- Always spawn concurrent agents for context gathering and planning
-- Keep C++ warm startup configs enabled
-- Update Agent Skills as domain knowledge evolves
-- Sync Superpowers library regularly
+**Maintenance Protocol:**
+- All text: SPR 80/20 (80% semantic, 20% words). Primes downstream models.
+- Invariants govern everything. If iteration appears necessary, specification is incomplete.
+- Agents synchronize only after invariants stabilize. Serialization is artifact.
+- Update when specification changes, new invariants emerge, or domains close
+- Sync Superpowers library as external constraints shift
