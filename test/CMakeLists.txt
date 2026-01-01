@@ -124,6 +124,7 @@ add_subdirectory(backports)
 add_subdirectory(rdfTypes)
 add_subdirectory(joinAlgorithms)
 add_subdirectory(libqlever)
+add_subdirectory(integration)
 
 addLinkAndDiscoverTest(ValueIdComparatorsTest util)
 
@@ -479,20 +480,7 @@ addLinkAndDiscoverTestSerial(QueryRewriteUtilTest engine)
 
 addLinkAndDiscoverTestSerial(HttpErrorTest engine)
 
-# SHACL tests
-addLinkAndDiscoverTest(engine/shacl/ShaclConstraintEvaluatorTest engine)
-
-addLinkAndDiscoverTest(engine/shacl/ShaclShapeParserTest engine)
-
-addLinkAndDiscoverTest(engine/shacl/ShaclShapeRegistryTest engine)
-
-addLinkAndDiscoverTest(engine/shacl/LogicalShapesTest engine)
-
-addLinkAndDiscoverTest(engine/shacl/AdvancedConstraintsTest engine)
-
-addLinkAndDiscoverTest(engine/shacl/ComplexPropertyPathsTest engine)
-
-addLinkAndDiscoverTest(engine/shacl/PathResolverTest engine)
+# SHACL tests are registered in test/engine/shacl/CMakeLists.txt
 
 addLinkAndDiscoverTest(TimeTracerTest)
 

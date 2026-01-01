@@ -18,7 +18,8 @@ add_library(engine
         QueryExecutionContext.cpp ExistsJoin.cpp SparqlProtocol.cpp ParsedRequestBuilder.cpp
         NeutralOptional.cpp Load.cpp StripColumns.cpp NamedResultCache.cpp
         ExplicitIdTableOperation.cpp StringMapping.cpp MaterializedViews.cpp
-        PermutationSelector.cpp
+        PermutationSelector.cpp RuleExpansion.cpp DatalogQueryPlanner.cpp
+        FixpointComputation.cpp
         shacl/ShaclConstraintEvaluator.cpp shacl/ShaclShapeParser.cpp
         shacl/ShaclShapeRegistry.cpp shacl/ShaclValidator.cpp shacl/LogicalShapes.cpp
         shacl/AdvancedConstraints.cpp shacl/ShapeComposition.cpp

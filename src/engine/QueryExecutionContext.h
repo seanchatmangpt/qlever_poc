@@ -11,7 +11,7 @@
 #include <string>
 
 #include "backports/three_way_comparison.h"
-#include "engine/MemoryAllocationOptimizer.h"
+#include "util/MemoryAllocationOptimizer.h"
 #include "engine/QueryPlanningCostFactors.h"
 #include "engine/Result.h"
 #include "engine/RuntimeInformation.h"

@@ -1,0 +1,139 @@
+# Test RDF data for Datalog integration tests
+# Family relationship data and graph reachability examples
+
+@prefix : <http://example.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# ============================================================================
+# FAMILY RELATIONSHIPS - Test recursive rules and transitive closure
+# ============================================================================
+
+# Generation 1 (grandparents)
+:Alice :parentOf :Bob .
+:Alice :parentOf :Carol .
+:David :parentOf :Bob .
+:David :parentOf :Carol .
+
+# Generation 2 (parents)
+:Bob :parentOf :Eve .
+:Bob :parentOf :Frank .
+:Carol :parentOf :Grace .
+:Carol :parentOf :Henry .
+
+# Generation 3 (children)
+:Eve :parentOf :Ivan .
+:Frank :parentOf :Julia .
+:Grace :parentOf :Kevin .
+
+# Additional parent relationships for testing
+:Henry :parentOf :Laura .
+:Henry :parentOf :Mark .
+
+# Sibling relationships (for testing non-recursive rules)
+:Bob :siblingOf :Carol .
+:Carol :siblingOf :Bob .
+:Eve :siblingOf :Frank .
+:Frank :siblingOf :Eve .
+:Grace :siblingOf :Henry .
+:Henry :siblingOf :Grace .
+
+# Spouse relationships
+:Alice :spouseOf :David .
+:David :spouseOf :Alice .
+:Bob :spouseOf :Emma .
+:Emma :spouseOf :Bob .
+
+# ============================================================================
+# GRAPH REACHABILITY - Test path finding and graph algorithms
+# ============================================================================
+
+# Simple directed graph: A -> B -> C -> D
+:NodeA :edge :NodeB .
+:NodeB :edge :NodeC .
+:NodeC :edge :NodeD .
+
+# Additional paths for testing multiple routes
+:NodeA :edge :NodeE .
+:NodeE :edge :NodeC .
+
+# Cyclic graph for testing fixpoint computation
+:NodeX :edge :NodeY .
+:NodeY :edge :NodeZ .
+:NodeZ :edge :NodeX .
+
+# Branch structure
+:NodeP :edge :NodeQ .
+:NodeP :edge :NodeR .
+:NodeQ :edge :NodeS .
+:NodeR :edge :NodeS .
+
+# ============================================================================
+# ORGANIZATIONAL HIERARCHY - Test depth and complex relationships
+# ============================================================================
+
+:CEO :manages :VP1 .
+:CEO :manages :VP2 .
+:VP1 :manages :Manager1 .
+:VP1 :manages :Manager2 .
+:VP2 :manages :Manager3 .
+:Manager1 :manages :Employee1 .
+:Manager1 :manages :Employee2 .
+:Manager2 :manages :Employee3 .
+:Manager3 :manages :Employee4 .
+:Manager3 :manages :Employee5 .
+
+# ============================================================================
+# ADDITIONAL TEST DATA - Various predicates for mixed queries
+# ============================================================================
+
+# Person attributes
+:Alice :name "Alice Johnson" .
+:Bob :name "Bob Johnson" .
+:Carol :name "Carol Smith" .
+:David :name "David Johnson" .
+:Eve :name "Eve Johnson" .
+
+# Age data (for testing constants in queries)
+:Alice :age 75 .
+:Bob :age 50 .
+:Carol :age 48 .
+:Eve :age 25 .
+
+# Location data
+:Alice :livesIn :CityA .
+:Bob :livesIn :CityB .
+:Carol :livesIn :CityA .
+:Eve :livesIn :CityC .
+
+# Friend relationships (symmetric, non-family)
+:Eve :friendOf :Frank .
+:Frank :friendOf :Eve .
+:Grace :friendOf :Kevin .
+:Kevin :friendOf :Grace .
+
+# Type information
+:Alice rdf:type :Person .
+:Bob rdf:type :Person .
+:Carol rdf:type :Person .
+:David rdf:type :Person .
+:Eve rdf:type :Person .
+:Frank rdf:type :Person .
+:Grace rdf:type :Person .
+:Henry rdf:type :Person .
+
+# ============================================================================
+# EDGE CASES - Data for testing boundary conditions
+# ============================================================================
+
+# Single node with no edges (isolated)
+:Orphan rdf:type :Person .
+
+# Self-loop
+:Narcissus :knows :Narcissus .
+
+# Very long name for stress testing
+:LongName :name "This is a very long name with many characters to test the system's ability to handle longer string literals without issues" .
+
+# Empty predicate test (no objects for some subjects)
+:EmptyNode rdf:type :TestNode .

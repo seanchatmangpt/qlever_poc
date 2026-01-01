@@ -24,6 +24,7 @@
 #include "engine/CheckUsePatternTrick.h"
 #include "engine/CountAvailablePredicates.h"
 #include "engine/CountConnectedSubgraphs.h"
+#include "engine/DatalogQueryPlanner.h"
 #include "engine/Describe.h"
 #include "engine/Distinct.h"
 #include "engine/Filter.h"
@@ -245,6 +246,23 @@ std::vector<SubtreePlan> QueryPlanner::createExecutionTrees(ParsedQuery& pq,
 QueryExecutionTree QueryPlanner::createExecutionTree(ParsedQuery& pq,
                                                      bool isSubquery) {
   try {
+    // Check if this query contains Datalog rule predicates and delegate to
+    // DatalogQueryPlanner if so.
+    if (_ruleDatabase && hasRulePredicates(pq)) {
+      DatalogQueryPlanner datalogPlanner(_ruleDatabase, this);
+      auto datalogTree = datalogPlanner.planDatalogQuery(pq);
+      // DatalogQueryPlanner returns shared_ptr, but we need to return by value
+      auto result = std::move(*datalogTree);
+      auto& rootOperation = *result.getRootOperation();
+      // Collect all the warnings and pass them to the created tree
+      for (const auto& warning : warnings_) {
+        rootOperation.addWarning(warning);
+      }
+      warnings_.clear();
+      return result;
+    }
+
+    // Standard SPARQL query planning (existing logic)
     auto lastRow = createExecutionTrees(pq, isSubquery);
     auto minInd = findCheapestExecutionTree(lastRow);
     AD_LOG_DEBUG << "Done creating execution plan" << std::endl;
@@ -2107,6 +2125,71 @@ bool QueryPlanner::TripleGraph::isSimilar(
 // _____________________________________________________________________________
 void QueryPlanner::setEnablePatternTrick(bool enablePatternTrick) {
   _enablePatternTrick = enablePatternTrick;
+}
+
+// _____________________________________________________________________________
+void QueryPlanner::setRuleDatabase(std::shared_ptr<RuleDatabase> ruleDatabase) {
+  _ruleDatabase = std::move(ruleDatabase);
+}
+
+// _____________________________________________________________________________
+bool QueryPlanner::hasRulePredicates(const ParsedQuery& pq) const {
+  // If no RuleDatabase is set, there are no rule predicates
+  if (!_ruleDatabase) {
+    return false;
+  }
+
+  // Helper lambda to recursively check a graph pattern for rule predicates
+  std::function<bool(const parsedQuery::GraphPattern&)> checkGraphPattern;
+  checkGraphPattern = [this, &checkGraphPattern](
+                          const parsedQuery::GraphPattern& pattern) -> bool {
+    // Check the basic graph pattern (triples)
+    for (const auto& triple : pattern._graphPatterns) {
+      // Visit each graph pattern operation
+      bool hasRule = triple.visit(
+          ad_utility::OverloadCallOperator{
+              // BasicGraphPattern: check each triple
+              [this](const parsedQuery::BasicGraphPattern& bgp) -> bool {
+                for (const auto& t : bgp._triples) {
+                  // Check if predicate is an IRI (not a variable or complex
+                  // property path)
+                  auto predicateName = t.getSimplePredicate();
+                  if (predicateName.has_value() &&
+                      _ruleDatabase->hasRuleFor(
+                          std::string(predicateName.value()))) {
+                    return true;
+                  }
+                }
+                return false;
+              },
+              // Recursively check nested patterns
+              [&checkGraphPattern](const parsedQuery::GroupGraphPattern& ggp)
+                  -> bool { return checkGraphPattern(ggp._child); },
+              [&checkGraphPattern](const parsedQuery::Optional& opt) -> bool {
+                return checkGraphPattern(opt._child);
+              },
+              [&checkGraphPattern](const parsedQuery::Minus& minus) -> bool {
+                return checkGraphPattern(minus._child);
+              },
+              [&checkGraphPattern](const parsedQuery::Union& un) -> bool {
+                return checkGraphPattern(un._child1) ||
+                       checkGraphPattern(un._child2);
+              },
+              [&checkGraphPattern](const parsedQuery::Subquery& subquery)
+                  -> bool {
+                return checkGraphPattern(subquery.get()._rootGraphPattern);
+              },
+              // For other pattern types, no rule predicates
+              [](const auto&) -> bool { return false; }});
+      if (hasRule) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  // Check the root graph pattern
+  return checkGraphPattern(pq._rootGraphPattern);
 }
 
 // _________________________________________________________________________________
