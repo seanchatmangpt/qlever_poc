@@ -44,11 +44,24 @@
     "build:all": "npm run build:browser && npm run build:node",
     "build:types": "tsc src/index.d.ts --noEmit",
     "dev": "wasm-pack build --dev",
-    "test": "wasm-pack test --headless --firefox",
-    "test:node": "npm run build:dev && node tests/node.test.js",
-    "test:libqlever": "npm run build:libqlever && npm run test:node",
-    "clean": "rm -rf pkg dist target wasm_build",
-    "prepublishOnly": "npm run build:all"
+    "test": "vitest run",
+    "test:build": "vitest run tests/build.test.ts",
+    "test:load": "vitest run tests/load.test.ts",
+    "test:datafactory": "vitest run tests/datafactory.test.ts",
+    "test:querybuilder": "vitest run tests/querybuilder.test.ts",
+    "test:store": "vitest run tests/store.test.ts",
+    "test:examples": "vitest run tests/examples.test.ts",
+    "test:performance": "vitest run tests/performance.test.ts",
+    "test:browser": "vitest run --environment jsdom tests/browser.test.ts",
+    "test:node": "vitest run --environment node tests/node.test.ts",
+    "test:watch": "vitest watch",
+    "test:coverage": "vitest run --coverage",
+    "test:ci": "vitest run --coverage --reporter=verbose",
+    "test:debug": "vitest --inspect-brk --inspect --single-thread",
+    "test:profile": "node --prof tests/perf-profile.js",
+    "test:libqlever": "npm run build:libqlever && npm run test",
+    "clean": "rm -rf pkg dist target wasm_build coverage",
+    "prepublishOnly": "npm run build:all && npm run test:coverage"
   },
   "keywords": [
     "qlever",
@@ -64,9 +77,14 @@
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
+    "@vitest/coverage-v8": "^1.0.0",
+    "@vitest/ui": "^1.0.0",
     "typescript": "^5.0.0",
+    "vitest": "^1.0.0",
     "wasm-pack": "^1.3.4",
-    "wasm-bindgen-cli": "^1.0.1"
+    "wasm-bindgen-cli": "^1.0.1",
+    "jsdom": "^23.0.0",
+    "happy-dom": "^12.0.0"
   },
   "engines": {
     "node": ">=14.0.0"
