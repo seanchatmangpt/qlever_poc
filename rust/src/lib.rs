@@ -1,25 +1,24 @@
-//! QLever Rust - Thin bindings to libqlever
+//! QLever Rust - Fast in-memory SPARQL database
 //!
-//! A minimal Rust wrapper around the QLever C++ SPARQL engine, designed for embedding
-//! in Erlang applications. Provides only the core data types and store interface needed
-//! for maximum performance.
+//! A high-performance, thread-safe RDF/SPARQL engine designed for embedding in Erlang.
+//! All operations are synchronous with zero serialization overhead.
 //!
 //! # Core Components
 //!
-//! - **Store**: Minimal wrapper around libqlever (future C++ FFI)
+//! - **Store**: Fast in-memory triple store with concurrent access
 //! - **RDF Data Model**: NamedNode, BlankNode, Literal, Term, Triple, Quad types
 //! - **Query Results**: QuerySolution bindings from SPARQL queries
-//! - **Query Cache**: Optional LRU cache for result caching
-//! - **Zero Overhead**: No serialization, no networking, no async runtime
+//! - **Query Cache**: Optional LRU cache with TTL for result caching
+//! - **Zero Overhead**: No serialization, no async runtime, no networking
 //!
 //! # Design Philosophy
 //!
-//! This library is intentionally minimal. It provides only:
-//! - Data type definitions for RDF terms
-//! - A thin Store wrapper (will use libqlever FFI)
-//! - Optional result caching
-//!
-//! Complexity is left to the caller (Erlang) or delegated to libqlever (C++).
+//! This library is minimal and focused:
+//! - Pure data structures with no bloat
+//! - Fast in-memory operations
+//! - Thread-safe via parking_lot RwLock
+//! - Optional caching for frequently executed queries
+//! - Erlang handles networking and distribution
 //!
 //! # Examples
 //!
@@ -50,17 +49,10 @@ pub mod error;
 pub mod model;
 pub mod query;
 pub mod store;
-pub mod store_ffi;
-pub mod ffi;
 pub mod cache;
 
 pub use error::{Error, Result};
 pub use model::{BlankNode, Literal, NamedNode, Quad, Term, Triple};
 pub use query::QuerySolution;
-pub use cache::{QueryCache, CacheStats};
-
-// Choose store implementation based on availability:
-// - store_ffi::Store: Direct C++ FFI (when libqlever is linked) - FASTEST, zero-copy
-// - store::Store: In-memory Rust (fallback) - good for testing
 pub use store::Store;
-pub use store_ffi::Store as StoreFFI;
+pub use cache::{QueryCache, CacheStats};
