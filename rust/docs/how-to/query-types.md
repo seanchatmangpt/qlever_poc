@@ -2,6 +2,34 @@
 
 How to run SELECT, ASK, CONSTRUCT, and DESCRIBE queries.
 
+> ⏱️ **20 minutes** | 🎯 **Intermediate** | 📦 **SPARQL 1.1**
+
+---
+
+## TL;DR {#tldr}
+
+```rust
+// SELECT — Get variables
+let results = store.query("SELECT ?x WHERE { ?x ?p ?o }").await?;
+
+// ASK — True/false
+let exists = store.ask("ASK { ?x ?p ?o }").await?;
+
+// CONSTRUCT — Build triples
+let triples = store.construct("CONSTRUCT { ?s ?p ?o } WHERE { ... }").await?;
+
+// DESCRIBE — Get details about resource
+let quads = store.describe("DESCRIBE <http://example.org/alice>").await?;
+```
+
+**When to use what:**
+| Query Type | Use When | Latency |
+|-----------|----------|---------|
+| **SELECT** | You want variable values | Fast |
+| **ASK** | You just need yes/no answer | ⚡ Fastest |
+| **CONSTRUCT** | You want to build new triples | Medium |
+| **DESCRIBE** | You want all facts about resource | Medium |
+
 ---
 
 ## SELECT Queries

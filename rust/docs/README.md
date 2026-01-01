@@ -4,7 +4,17 @@ Welcome to the complete documentation for QLever Rust bindings. This documentati
 
 ---
 
-## Choose Your Path
+## 🚀 Start Here
+
+### ⚡ **[Quick Reference](./QUICKREF.md)** — Code Snippets (2 min)
+Copy-paste patterns for all common operations. Bookmark this!
+
+### 🗺️ **[Learning Path](./LEARNING_PATH.md)** — Choose Your Route (5 min)
+Personalized guide: "I want to..." → "I should read..."
+
+---
+
+## Choose Your Path by Learning Style
 
 ### 🎓 **[Tutorials](./tutorials/)**
 

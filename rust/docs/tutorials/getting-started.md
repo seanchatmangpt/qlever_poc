@@ -2,11 +2,58 @@
 
 A step-by-step guide to set up and execute your first SPARQL query.
 
-**Time:** ~15 minutes | **Prerequisites:** Rust 1.70+ | **Level:** Beginner
+> ⏱️ **15 minutes** | 🎯 **Beginner** | 📦 **Rust 1.70+, Docker**
 
 ---
 
-## Step 1: Set Up QLever Server
+## TL;DR — Just Give Me Code {#tldr}
+
+```bash
+# 1. Start server (requires Docker)
+docker run -d -p 7777:7777 qlever:latest
+
+# 2-3. Create project and add deps
+cargo new my-app && cd my-app
+cat >> Cargo.toml << 'EOF'
+
+[dependencies]
+qlever = { path = "../rust" }
+tokio = { version = "1", features = ["full"] }
+EOF
+
+# 4. Write main.rs
+cat > src/main.rs << 'EOF'
+use qlever::Store;
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let store = Store::new("http://localhost:7777")?;
+    let results = store.query("SELECT ?s ?p WHERE { ?s ?p ?o } LIMIT 5").await?;
+    for (i, sol) in results.iter().enumerate() {
+        println!("  Result {}: {:?}", i + 1, sol);
+    }
+    Ok(())
+}
+EOF
+
+# 5. Run
+cargo run
+```
+
+**Expected output:**
+```
+  Result 1: {"s": "http://...", "p": "http://..."}
+  Result 2: {"s": "http://...", "p": "http://..."}
+  ...
+```
+
+✅ **Done!** Your first SPARQL query executed.
+
+---
+
+## Detailed Step-by-Step
+
+### Step 1: Set Up QLever Server
 
 You need a running QLever server. The easiest way is Docker:
 

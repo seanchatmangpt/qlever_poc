@@ -1,12 +1,20 @@
 # QLever Rust Bindings
 
-A high-performance, type-safe Rust wrapper for QLever, a scalable RDF/SPARQL graph database. Query billions of triples with millisecond latency.
+<div align="center">
 
-**Status:** Production-ready | **License:** Apache 2.0 | **Minimum Rust:** 1.70
+A high-performance, type-safe Rust wrapper for QLever—a scalable RDF/SPARQL graph database.
+**Query billions of triples with millisecond latency.**
+
+[![Status: Production-ready](https://img.shields.io/badge/Status-Production%20Ready-green?style=flat-square)](.)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue?style=flat-square)](LICENSE)
+[![Minimum Rust: 1.70](https://img.shields.io/badge/Rust-1.70%2B-orange?style=flat-square)](.)
+[![Latest Docs](https://img.shields.io/badge/Docs-Latest-brightgreen?style=flat-square)](./docs/)
+
+</div>
 
 ---
 
-## Quick Start (30 seconds)
+## ⚡ Quick Start (30 seconds)
 
 ```rust
 use qlever::Store;
@@ -24,6 +32,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
     Ok(())
 }
+```
+
+**Expected output:**
+```
+{"s": "http://example.org/alice", "p": "http://example.org/knows"}
+{"s": "http://example.org/alice", "p": "http://example.org/name"}
+...
 ```
 
 ---

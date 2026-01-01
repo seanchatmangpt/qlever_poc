@@ -2,6 +2,38 @@
 
 Practical techniques for faster queries: caching, connection reuse, and query optimization.
 
+> ⏱️ **25 minutes** | 🎯 **Intermediate** | 🚀 **High Impact**
+
+---
+
+## TL;DR — 6 Rules for Speed {#tldr}
+
+1. **Cache queries** (50% faster for repeats) — Use `QueryCache`
+2. **Write specific SPARQL** — Add type filters, predicates
+3. **Reuse store connection** — Don't reconnect per query
+4. **Batch queries** — Use `tokio::join!` for concurrent execution
+5. **Stream large results** — Use `.query_streaming()` for millions of rows
+6. **Use ASK for existence** — Much faster than SELECT COUNT
+
+**Impact:** 2-10x faster queries with minimal code changes.
+
+**Estimated improvement:**
+- Single queries: 1-2x faster (caching)
+- Repeated queries: 10-100x faster (caching hit)
+- Large results: 100x less memory (streaming)
+- Batch queries: 3-5x faster (concurrency)
+
+---
+
+## Implementation Checklist
+
+- [ ] Add query caching for repeated queries?
+- [ ] Make SPARQL more specific (add type filters)?
+- [ ] Reuse `Store` connection instead of reconnecting?
+- [ ] Batch related queries with `join!`?
+- [ ] Use streaming for large result sets?
+- [ ] Replace `SELECT COUNT(*)` with `ASK`?
+
 ---
 
 ## Rule #1: Use Query Caching
