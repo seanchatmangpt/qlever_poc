@@ -196,18 +196,41 @@ setup_conan() {
 # Install system dependencies
 install_system_deps() {
     echo "Installing system dependencies..."
-    
+
     # Update package list (non-fatal if it fails)
     echo "  Updating package list..."
     sudo apt-get update >/dev/null 2>&1 || echo "${YELLOW}Warning: apt-get update failed (may be in restricted environment)${NC}"
-    
-    # Install essential packages
+
+    # Core build tools and compilers
     install_if_missing "build-essential" "Build tools (GCC, make, etc.)"
+    install_if_missing "cmake" "CMake build system"
     install_if_missing "ninja-build" "Ninja build system"
-    install_if_missing "libicu-dev" "ICU development libraries"
     install_if_missing "pkg-config" "pkg-config"
-    
-    # Verify python3-pip (usually present, but check)
+    install_if_missing "git" "Git version control"
+
+    # Internationalization and localization
+    install_if_missing "libicu-dev" "ICU development libraries"
+    install_if_missing "tzdata" "Timezone data"
+
+    # UUID support
+    install_if_missing "uuid-runtime" "UUID runtime utilities"
+    install_if_missing "uuid-dev" "UUID development libraries"
+
+    # Memory management and compression
+    install_if_missing "libjemalloc-dev" "Jemalloc memory allocator"
+    install_if_missing "libzstd-dev" "Zstandard compression library"
+
+    # Security libraries
+    install_if_missing "libssl-dev" "OpenSSL development libraries"
+
+    # Boost libraries (required for QLever)
+    install_if_missing "libboost-dev" "Boost development libraries"
+    install_if_missing "libboost-program-options-dev" "Boost program options"
+    install_if_missing "libboost-iostreams-dev" "Boost iostreams"
+    install_if_missing "libboost-url-dev" "Boost URL library"
+    install_if_missing "libboost-container-dev" "Boost container library"
+
+    # Python development
     if ! command_exists "pip" && ! command_exists "pip3"; then
         echo "  Installing python3-pip..."
         install_if_missing "python3-pip" "Python pip"
