@@ -485,3 +485,6 @@ qlever_target_link_libraries(VocabularyMergerMain index parser ${CMAKE_THREAD_LI
 
 add_executable(PrintIndexVersionMain src/PrintIndexVersionMain.cpp)
 qlever_target_link_libraries(PrintIndexVersionMain util)
+
+add_executable(N3VerifierMain src/util/N3VerifierMain.cpp src/util/N3ComplianceVerifier.cpp)
+qlever_target_link_libraries(N3VerifierMain util)
