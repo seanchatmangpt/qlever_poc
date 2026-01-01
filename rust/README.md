@@ -234,6 +234,8 @@ See [FFI Performance](./docs/explanations/ffi-performance.md) for deep dives.
 
 For more, see [Error Handling Guide](./docs/how-to/error-handling.md).
 
+👉 **[See Complete FAQ](./docs/FAQ.md)** for answers to 50+ common questions.
+
 ---
 
 ## Development

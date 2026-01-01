@@ -12,6 +12,9 @@ Copy-paste patterns for all common operations. Bookmark this!
 ### 🗺️ **[Learning Path](./LEARNING_PATH.md)** — Choose Your Route (5 min)
 Personalized guide: "I want to..." → "I should read..."
 
+### ❓ **[FAQ](./FAQ.md)** — 50+ Common Questions (2 min)
+Quick answers to common questions about setup, usage, and troubleshooting.
+
 ---
 
 ## Choose Your Path by Learning Style
