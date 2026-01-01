@@ -1,5 +1,52 @@
 # CLAUDE.md - QLever Codebase Guide for AI Assistants
 
+## Quick Start: Claude Code on the Web
+
+**QLever is optimized for [Claude Code on the web](https://code.claude.com/)** - work on this repository directly from the Claude app without needing a local checkout.
+
+### How to use Claude Code on the web with QLever
+
+1. Visit [claude.ai/code](https://claude.ai/code)
+2. Connect your GitHub account
+3. Select the **seanchatmangpt/qlever** repository
+4. Submit your task (bug fix, feature, question about code)
+5. Claude will work with automatic dependency installation and pre-configured environment
+6. Review changes and create a PR when done
+
+### Available Agent Skills
+
+QLever includes custom Agent Skills (in `.claude/skills/`) that guide Claude on domain-specific tasks:
+
+- **build-test** - CMake builds, ctest execution, build troubleshooting
+- **code-quality** - Formatting with clang-format, linting, spell checking
+- **cpp-patterns** - C++ design patterns, QLever architecture, modern C++
+- **debug-profile** - Memory debugging (ASAN), profiling, performance analysis
+- **sparql-rdf** - SPARQL query semantics, RDF models, semantic web standards
+
+These skills are **automatically invoked** based on your task. For example:
+- "Build the project and run tests" → Triggers **build-test**
+- "Fix this memory leak" → Triggers **debug-profile**
+- "Write a SPARQL query for..." → Triggers **sparql-rdf**
+
+See [.claude/skills/README.md](./.claude/skills/README.md) for full details on each skill.
+
+### Working with Feature Branches
+
+All changes develop on feature branches (e.g., `claude/my-feature-XYZ`):
+
+```bash
+# Claude Code on web automatically:
+# 1. Creates isolated workspace on branch
+# 2. Installs dependencies (via SessionStart hook)
+# 3. Runs tests and validates work
+# 4. Pushes to GitHub branch
+# 5. Ready for PR creation
+```
+
+**To move from web to terminal:** Click "Open in CLI" and paste the command in your local checkout.
+
+---
+
 ## Overview
 
 **QLever** is a high-performance graph database implementing RDF (Resource Description Framework) and SPARQL standards. This document provides comprehensive guidance for AI assistants contributing to this codebase.
@@ -147,6 +194,39 @@ Fundamental RDF data types.
 
 ## Development Workflow
 
+### Environment Setup (Claude Code on Web)
+
+**Automatic dependency installation** is configured in `.claude/settings.json` using SessionStart hooks:
+
+```json
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/scripts/setup-dev-env.sh"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+When you start a Claude Code session (web or local), this hook automatically:
+- Installs pre-commit hooks for code quality checks
+- Verifies compiler and build tool availability
+- Sets up development environment
+
+**For Claude Code on web specifically:**
+- Repository is cloned with default branch (main/master)
+- To use a specific branch, specify in your task prompt: "Work on branch `feature/xyz`"
+- Environment variables can be configured in your web session settings
+- Internet access is limited to allowlisted domains by default (see Security & Network section below)
+
 ### Git Workflow
 
 **Branch Naming Convention:**
@@ -264,6 +344,28 @@ git commit --no-verify
 - SPARQL conformance testing
 - Format verification
 - C++17 compatibility testing
+
+### Security & Network (Claude Code on Web)
+
+When running Claude Code on the web, the following security measures apply:
+
+**Network Access:**
+- **Default**: Limited to allowlisted domains (GitHub, package managers, build tools, cloud services)
+- **Configuration**: Can be changed per environment in web session settings
+- **Examples of allowed domains**: npmjs.org, pypi.org, github.com, docker.io, etc.
+- **GitHub operations**: Handled through secure proxy with scoped credentials (no credentials in sandbox)
+
+**Isolation & Protection:**
+- Each session runs in isolated, Anthropic-managed virtual machines
+- Code is analyzed and modified within isolated VMs before PR creation
+- Credentials (git tokens, signing keys) never stored in sandbox - proxied securely
+- Pre-configured environment with common toolchains pre-installed
+
+**For QLever specifically:**
+- All Boost, ANTLR, ICU, OpenSSL dependencies are available in the universal image
+- Build tools: CMake, Ninja, GCC, Clang pre-installed
+- Database support: PostgreSQL, Redis available if needed
+- No custom network configuration needed for standard builds
 
 ### Commit Message Guidelines
 
@@ -437,6 +539,18 @@ ctest -j$(nproc) --output-on-failure  # Use all cores
 
 ## Important Conventions for AI Assistants
 
+### Using Agent Skills
+
+Before working on tasks, **invoke relevant Agent Skills** from `.claude/skills/`:
+
+1. **build-test** - When building, running tests, or troubleshooting builds
+2. **code-quality** - When formatting, checking style, or analyzing code
+3. **debug-profile** - When debugging crashes, memory issues, or optimizing performance
+4. **cpp-patterns** - When designing new features or refactoring code
+5. **sparql-rdf** - When working with SPARQL queries or RDF data
+
+Skills are automatically discovered and invoked based on your task context. If a skill applies, you'll see guidance integrated into your work.
+
 ### Code Modification Guidelines
 
 **Before Making Changes:**
@@ -444,6 +558,7 @@ ctest -j$(nproc) --output-on-failure  # Use all cores
 2. Understand existing patterns in the codebase
 3. Search for similar implementations to understand conventions
 4. Check recent commits for context on similar changes
+5. If relevant to your task, invoke the appropriate Agent Skill for domain-specific guidance
 
 **When Making Changes:**
 1. **Minimal Modifications**: Only change what's necessary
@@ -893,25 +1008,51 @@ find test -name "*Test.cpp" | head -20
 
 ## Resources & Links
 
+### QLever & Development
 - **Repository**: https://github.com/seanchatmangpt/qlever
+- **Claude Code on Web**: https://code.claude.com/ - Run Claude Code tasks directly from the Claude app
+- **Claude Code Documentation**: https://code.claude.com/docs/ - Full documentation for web-based development
+
+### Agent Skills
+- **QLever Agent Skills**: See [.claude/skills/README.md](./.claude/skills/README.md) for custom skills
+- **Superpowers Skills Library**: [vendors/superpowers](./vendors/superpowers/) - Advanced development workflows
+  - Included skills: brainstorming, planning, debugging, code review, TDD patterns, and more
+
+### Standards & Specifications
 - **SPARQL Spec**: https://www.w3.org/TR/sparql11-query/
 - **RDF Spec**: https://www.w3.org/RDF/
+
+### Build & Testing Tools
 - **CMake Documentation**: https://cmake.org/cmake/help/latest/
 - **Google Test Documentation**: https://google.github.io/googletest/
 - **Boost Documentation**: https://www.boost.org/doc/libs/1_81_0/
 - **ANTLR**: https://www.antlr.org/
 
+### C++ & Modern Techniques
+- **C++20 Standard**: https://en.cppreference.com/w/cpp/20
+- **C++ Core Guidelines**: https://github.com/isocpp/CppCoreGuidelines
+- **Google C++ Style Guide**: https://google.github.io/styleguide/cppguide.html (enforced via clang-format)
+
 ---
 
 ## Document Metadata
 
-- **Last Updated**: 2025-12-31
-- **Created For**: AI Assistant Development Support
-- **Scope**: Comprehensive guide for QLever codebase
+- **Last Updated**: 2026-01-01
+- **Created For**: AI Assistant Development Support (Cloud & Web Optimized)
+- **Scope**: Comprehensive guide for QLever codebase with Claude Code on the web
 - **Status**: Complete and Ready for Use
+
+**Key Updates:**
+- Added Claude Code on the web quick start and environment setup
+- Documented 5 custom Agent Skills for domain-specific guidance
+- Added SessionStart hook configuration for automatic dependency installation
+- Included Superpowers skills library for advanced workflows
+- Added security & network information for web-based development
 
 **Maintenance Notes:**
 - Update this document when major architectural changes occur
 - Document new design patterns as they emerge
 - Keep technology stack section current with dependency updates
 - Add new troubleshooting entries as issues are discovered
+- Update Agent Skills in `.claude/skills/` as domain knowledge improves
+- Sync with Superpowers updates in `vendors/superpowers/`
