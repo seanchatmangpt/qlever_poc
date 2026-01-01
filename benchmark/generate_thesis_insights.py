@@ -33,27 +33,61 @@ class ThesisInsightAnalyzer:
         self.insights = []
 
     def extract_measurements(self, data: Dict) -> List[Dict[str, Any]]:
-        """Extract measurements from benchmark data."""
+        """Extract measurements from benchmark data with validation."""
         measurements = []
 
+        if not isinstance(data, dict):
+            print(f"Warning: Expected dict, got {type(data)}")
+            return measurements
+
         if 'measurements' in data:
-            for name, info in data['measurements'].items():
-                measurements.append({
-                    'name': name,
-                    'time_ms': info.get('time_ms', 0),
-                    'metadata': info.get('metadata', {})
-                })
+            if not isinstance(data['measurements'], dict):
+                print("Warning: 'measurements' should be a dict")
+            else:
+                for name, info in data['measurements'].items():
+                    try:
+                        if not isinstance(info, dict):
+                            continue
+                        time_ms = info.get('time_ms')
+                        if time_ms is None:
+                            continue
+                        time_ms = float(time_ms)
+                        measurements.append({
+                            'name': str(name),
+                            'time_ms': time_ms,
+                            'metadata': info.get('metadata', {}) if isinstance(info.get('metadata'), dict) else {}
+                        })
+                    except (ValueError, TypeError) as e:
+                        print(f"Warning: Skipping '{name}' - invalid time_ms: {e}")
+                        continue
 
         if 'groups' in data:
-            for group_name, group_data in data['groups'].items():
-                if 'measurements' in group_data:
-                    for name, info in group_data['measurements'].items():
-                        measurements.append({
-                            'name': f"{name}",
-                            'group': group_name,
-                            'time_ms': info.get('time_ms', 0),
-                            'metadata': info.get('metadata', {})
-                        })
+            if not isinstance(data['groups'], dict):
+                print("Warning: 'groups' should be a dict")
+            else:
+                for group_name, group_data in data['groups'].items():
+                    if not isinstance(group_data, dict):
+                        continue
+                    if 'measurements' in group_data:
+                        if not isinstance(group_data['measurements'], dict):
+                            continue
+                        for name, info in group_data['measurements'].items():
+                            try:
+                                if not isinstance(info, dict):
+                                    continue
+                                time_ms = info.get('time_ms')
+                                if time_ms is None:
+                                    continue
+                                time_ms = float(time_ms)
+                                measurements.append({
+                                    'name': str(name),
+                                    'group': str(group_name),
+                                    'time_ms': time_ms,
+                                    'metadata': info.get('metadata', {}) if isinstance(info.get('metadata'), dict) else {}
+                                })
+                            except (ValueError, TypeError) as e:
+                                print(f"Warning: Skipping '{group_name}/{name}' - invalid time_ms: {e}")
+                                continue
 
         return measurements
 

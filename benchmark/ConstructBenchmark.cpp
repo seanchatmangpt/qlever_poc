@@ -12,18 +12,19 @@
 
 #include <chrono>
 #include <memory>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
 #include "../benchmark/infrastructure/Benchmark.h"
 #include "../benchmark/infrastructure/BenchmarkMeasurementContainer.h"
 #include "../benchmark/infrastructure/BenchmarkMetadata.h"
-#include "../test/util/IndexTestHelpers.h"
 #include "engine/ExportQueryExecutionTrees.h"
 #include "engine/QueryPlanner.h"
 #include "parser/SparqlParser.h"
 #include "util/ConfigManager/ConfigManager.h"
 #include "util/IndexTestHelpers.h"
+#include "util/Log.h"
 #include "util/Timer.h"
 
 using namespace std::string_literals;
@@ -40,49 +41,65 @@ struct ConstructQueryResult {
   uint64_t resultSize;
 };
 
+// Thread-local IRI manager to avoid static state contamination
+thread_local EncodedIriManager g_iriManager;
+
 // Parse and execute a CONSTRUCT query with the given knowledge graph
 ConstructQueryResult executeConstructQuery(
     const std::string& turtleKg, const std::string& sparqlQuery,
     ad_utility::MediaType mediaType) {
-  // Setup the index from the turtle data
-  ad_utility::testing::TestIndexConfig config{turtleKg};
-  auto qec = ad_utility::testing::getQec(std::move(config));
-  qec->clearCacheUnpinnedOnly();
-
-  auto cancellationHandle =
-      std::make_shared<ad_utility::CancellationHandle<>>();
-  QueryPlanner qp{qec, cancellationHandle};
-
-  // Parse the SPARQL query
-  static EncodedIriManager iriManager;
-  auto pq = SparqlParser::parseQuery(&iriManager, sparqlQuery, {});
-
-  // Create execution tree
-  auto qet = qp.createExecutionTree(pq);
-
-  // Execute and export
-  ad_utility::Timer timer(ad_utility::Timer::Started);
-  auto result = ExportQueryExecutionTrees::computeResult(
-      pq, qet, mediaType, timer, cancellationHandle);
-
-  std::string output;
-  for (const auto& block : result) {
-    output += block;
-  }
-
   ConstructQueryResult queryResult;
-  if (mediaType == ad_utility::MediaType::tsv) {
-    queryResult.tsv = output;
-  } else if (mediaType == ad_utility::MediaType::csv) {
-    queryResult.csv = output;
-  } else if (mediaType == ad_utility::MediaType::turtle) {
-    queryResult.turtle = output;
-  } else if (mediaType == ad_utility::MediaType::qleverJson) {
-    queryResult.qleverJson = output;
-  }
+  queryResult.resultSize = 0;
 
-  // Extract result size from JSON
-  queryResult.resultSize = output.length();
+  try {
+    // Setup the index from the turtle data
+    ad_utility::testing::TestIndexConfig config{turtleKg};
+    auto qec = ad_utility::testing::getQec(std::move(config));
+    if (!qec) {
+      LOG(ERROR) << "Failed to create query execution context from knowledge graph";
+      return queryResult;
+    }
+    qec->clearCacheUnpinnedOnly();
+
+    auto cancellationHandle =
+        std::make_shared<ad_utility::CancellationHandle<>>();
+    QueryPlanner qp{qec, cancellationHandle};
+
+    // Parse the SPARQL query
+    auto pq = SparqlParser::parseQuery(&g_iriManager, sparqlQuery, {});
+
+    // Create execution tree
+    auto qet = qp.createExecutionTree(pq);
+
+    // Execute and export
+    ad_utility::Timer timer(ad_utility::Timer::Started);
+    auto result = ExportQueryExecutionTrees::computeResult(
+        pq, qet, mediaType, timer, cancellationHandle);
+
+    std::string output;
+    for (const auto& block : result) {
+      output += block;
+    }
+
+    if (mediaType == ad_utility::MediaType::tsv) {
+      queryResult.tsv = output;
+    } else if (mediaType == ad_utility::MediaType::csv) {
+      queryResult.csv = output;
+    } else if (mediaType == ad_utility::MediaType::turtle) {
+      queryResult.turtle = output;
+    } else if (mediaType == ad_utility::MediaType::qleverJson) {
+      queryResult.qleverJson = output;
+    }
+
+    // Store output size (bytes of serialized result)
+    queryResult.resultSize = output.length();
+  } catch (const std::exception& e) {
+    LOG(ERROR) << "Error executing CONSTRUCT query: " << e.what();
+    // Return default-initialized result (empty, 0 size)
+  } catch (...) {
+    LOG(ERROR) << "Unknown error executing CONSTRUCT query";
+    // Return default-initialized result (empty, 0 size)
+  }
 
   return queryResult;
 }

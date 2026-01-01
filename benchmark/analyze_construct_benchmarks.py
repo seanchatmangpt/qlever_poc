@@ -32,29 +32,66 @@ def load_benchmark_results(filepath: str) -> Dict[str, Any]:
         sys.exit(1)
 
 def extract_measurements(benchmark_data: Dict[str, Any]) -> List[Dict[str, Any]]:
-    """Extract individual measurements from benchmark data."""
+    """Extract individual measurements from benchmark data with validation."""
     measurements = []
+
+    if not isinstance(benchmark_data, dict):
+        print(f"Error: Expected dict, got {type(benchmark_data)}")
+        return measurements
 
     # Handle direct measurements at top level
     if 'measurements' in benchmark_data:
-        for name, data in benchmark_data['measurements'].items():
-            measurements.append({
-                'name': name,
-                'time_ms': data.get('time_ms', 0),
-                'metadata': data.get('metadata', {})
-            })
+        if not isinstance(benchmark_data['measurements'], dict):
+            print("Warning: 'measurements' should be a dict")
+        else:
+            for name, data in benchmark_data['measurements'].items():
+                try:
+                    time_ms = data.get('time_ms') if isinstance(data, dict) else None
+                    if time_ms is None:
+                        print(f"Warning: Skipping measurement '{name}' - missing time_ms")
+                        continue
+                    # Validate and convert time_ms to float
+                    time_ms = float(time_ms)
+                    measurements.append({
+                        'name': str(name),
+                        'time_ms': time_ms,
+                        'metadata': data.get('metadata', {}) if isinstance(data, dict) else {}
+                    })
+                except (ValueError, TypeError) as e:
+                    print(f"Warning: Skipping measurement '{name}' - invalid time_ms: {e}")
+                    continue
 
     # Handle grouped measurements
     if 'groups' in benchmark_data:
-        for group_name, group_data in benchmark_data['groups'].items():
-            if 'measurements' in group_data:
-                for name, data in group_data['measurements'].items():
-                    measurements.append({
-                        'name': f"{group_name}/{name}",
-                        'time_ms': data.get('time_ms', 0),
-                        'group': group_name,
-                        'metadata': data.get('metadata', {})
-                    })
+        if not isinstance(benchmark_data['groups'], dict):
+            print("Warning: 'groups' should be a dict")
+        else:
+            for group_name, group_data in benchmark_data['groups'].items():
+                if not isinstance(group_data, dict):
+                    print(f"Warning: Group '{group_name}' should be a dict")
+                    continue
+                if 'measurements' in group_data:
+                    if not isinstance(group_data['measurements'], dict):
+                        print(f"Warning: Group '{group_name}' measurements should be a dict")
+                        continue
+                    for name, data in group_data['measurements'].items():
+                        try:
+                            time_ms = data.get('time_ms') if isinstance(data, dict) else None
+                            if time_ms is None:
+                                continue
+                            time_ms = float(time_ms)
+                            measurements.append({
+                                'name': f"{group_name}/{name}",
+                                'time_ms': time_ms,
+                                'group': str(group_name),
+                                'metadata': data.get('metadata', {}) if isinstance(data, dict) else {}
+                            })
+                        except (ValueError, TypeError) as e:
+                            print(f"Warning: Skipping measurement '{group_name}/{name}' - invalid time_ms: {e}")
+                            continue
+
+    if not measurements:
+        print("Warning: No valid measurements found in data")
 
     return measurements
 

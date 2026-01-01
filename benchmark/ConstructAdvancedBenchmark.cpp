@@ -14,6 +14,7 @@
 #include <atomic>
 #include <chrono>
 #include <memory>
+#include <stdexcept>
 #include <string>
 #include <thread>
 #include <vector>
@@ -21,12 +22,12 @@
 #include "../benchmark/infrastructure/Benchmark.h"
 #include "../benchmark/infrastructure/BenchmarkMeasurementContainer.h"
 #include "../benchmark/infrastructure/BenchmarkMetadata.h"
-#include "../test/util/IndexTestHelpers.h"
 #include "engine/ExportQueryExecutionTrees.h"
 #include "engine/QueryPlanner.h"
 #include "parser/SparqlParser.h"
 #include "util/ConfigManager/ConfigManager.h"
 #include "util/IndexTestHelpers.h"
+#include "util/Log.h"
 #include "util/Timer.h"
 
 using namespace std::string_literals;
@@ -135,39 +136,55 @@ struct QueryMetrics {
   double throughputBytesPerMs;
 };
 
+// Thread-local IRI manager to avoid static state contamination
+thread_local EncodedIriManager g_iriManagerAdvanced;
+
 QueryMetrics executeConstructWithMetrics(
     const std::string& turtleKg, const std::string& sparqlQuery,
     ad_utility::MediaType mediaType) {
-  // Setup index
-  ad_utility::testing::TestIndexConfig config{turtleKg};
-  auto qec = ad_utility::testing::getQec(std::move(config));
-  qec->clearCacheUnpinnedOnly();
+  QueryMetrics result{0.0, 0, 0.0};
 
-  // Parse and plan
-  auto cancellationHandle =
-      std::make_shared<ad_utility::CancellationHandle<>>();
-  QueryPlanner qp{qec, cancellationHandle};
+  try {
+    // Setup index
+    ad_utility::testing::TestIndexConfig config{turtleKg};
+    auto qec = ad_utility::testing::getQec(std::move(config));
+    if (!qec) {
+      LOG(ERROR) << "Failed to create query execution context";
+      return result;
+    }
+    qec->clearCacheUnpinnedOnly();
 
-  static EncodedIriManager iriManager;
-  auto pq = SparqlParser::parseQuery(&iriManager, sparqlQuery, {});
+    // Parse and plan
+    auto cancellationHandle =
+        std::make_shared<ad_utility::CancellationHandle<>>();
+    QueryPlanner qp{qec, cancellationHandle};
 
-  // Measure execution
-  ad_utility::Timer timer(ad_utility::Timer::Started);
-  auto qet = qp.createExecutionTree(pq);
-  ad_utility::Timer exportTimer(ad_utility::Timer::Started);
+    auto pq = SparqlParser::parseQuery(&g_iriManagerAdvanced, sparqlQuery, {});
 
-  auto result = ExportQueryExecutionTrees::computeResult(pq, qet, mediaType, timer, cancellationHandle);
+    // Measure execution
+    ad_utility::Timer timer(ad_utility::Timer::Started);
+    auto qet = qp.createExecutionTree(pq);
+    ad_utility::Timer exportTimer(ad_utility::Timer::Started);
 
-  std::string output;
-  for (const auto& block : result) {
-    output += block;
+    auto queryResult = ExportQueryExecutionTrees::computeResult(pq, qet, mediaType, timer, cancellationHandle);
+
+    std::string output;
+    for (const auto& block : queryResult) {
+      output += block;
+    }
+
+    double executionMs = exportTimer.getMilliseconds();
+    size_t outputBytes = output.length();
+    double throughput = outputBytes > 0 ? outputBytes / executionMs : 0;
+
+    return {executionMs, outputBytes, throughput};
+  } catch (const std::exception& e) {
+    LOG(ERROR) << "Error executing CONSTRUCT with metrics: " << e.what();
+    return result;
+  } catch (...) {
+    LOG(ERROR) << "Unknown error executing CONSTRUCT with metrics";
+    return result;
   }
-
-  double executionMs = exportTimer.getMilliseconds();
-  size_t outputBytes = output.length();
-  double throughput = outputBytes > 0 ? outputBytes / executionMs : 0;
-
-  return {executionMs, outputBytes, throughput};
 }
 
 }  // namespace
