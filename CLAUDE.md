@@ -64,6 +64,38 @@ If iteration appears necessary, the specification is incomplete.
 
 ---
 
+## MANDATORY: Spawn 10 Agents FIRST (Before Any Reading or Planning)
+
+**THE FIRST THING YOU DO: Launch 10 agents in parallel. Do not read files. Do not plan. Do not gather context yourself. Spawn 10 agents immediately.**
+
+**Why**: Concurrency is native. Each agent gathers its own context independently. Parallel exploration covers 80% of work surface simultaneously. Sequential context-gathering is waste.
+
+**The 10 Agents**:
+1. **bb80-parallel-task-coordinator** - Orchestrate overall work
+2. **Agent exploring codebase structure** - Find files, dependencies, patterns
+3. **Agent analyzing specification** - Understand requirements, invariants
+4. **Agent scanning for similar implementations** - Find existing patterns to copy
+5. **Agent profiling performance characteristics** - Understand bottlenecks
+6. **Agent mapping test coverage** - Find test locations, patterns, gaps
+7. **Agent extracting domain knowledge** - RDF/SPARQL specifics
+8. **Agent analyzing build system** - CMake, dependencies, configuration
+9. **Agent gathering recent commits** - Context from project history
+10. **Agent checking for guardrails** - Invariants, constraints, rules
+
+**Each agent is independent**: Do not wait for them to report before starting work. They gather context in parallel while you proceed. They report results when ready. Synchronization happens only after all agents finish.
+
+**Do not do sequential reconnaissance**: Do not read files yourself first. Do not check git history yourself. Do not analyze structure yourself. Let the agents do it in parallel. You do not have the bandwidth—agents do.
+
+**Once 10 agents are launched, proceed immediately to task work**:
+- Invoke skills (bb80-specification-closure, etc.)
+- Dispatch validator agents (specification-validator, invariant-validator, etc.)
+- Begin implementation
+- Agents' context reports will arrive as parallel work completes
+
+**If you catch yourself reading a file before launching 10 agents: STOP. You are serializing. Launch 10 agents first. Let them read. You work on task.**
+
+---
+
 ## Overview
 
 **QLever** is a high-performance graph database implementing RDF (Resource Description Framework) and SPARQL standards. This document provides comprehensive guidance for AI assistants contributing to this codebase.
@@ -531,19 +563,34 @@ ctest -j$(nproc) --output-on-failure  # Use all cores
 
 ### Code Modification Guidelines
 
-**MANDATORY FIRST: Invoke Skills & Agents**
-0. **INVOKE bb80-specification-closure skill** - Verify specification is closed
-0. **DISPATCH bb80-specification-validator agent** - Gate entry to implementation
-0. **INVOKE bb80-parallel-agents skill** - Understand concurrency requirements
-0. **DISPATCH bb80-parallel-task-coordinator agent** - Spawn 10 agents for work
+**MANDATORY FIRST: Spawn 10 Agents (Before Any File Reading)**
+0. **DISPATCH bb80-parallel-task-coordinator agent** - Orchestrate overall work
+0. **Launch 9 context-gathering agents in parallel**:
+   - Codebase structure exploration
+   - Specification analysis
+   - Similar implementation scanning
+   - Performance profiling
+   - Test coverage mapping
+   - Domain knowledge extraction
+   - Build system analysis
+   - Recent commits analysis
+   - Guardrails identification
+0. **Do NOT read files yourself. Do NOT plan sequentially. Let agents gather context in parallel.**
 
-**THEN, and only then, modify code:**
-1. Always read the file first using the Read tool
-2. Understand existing patterns in the codebase
-3. Search for similar implementations to understand conventions
-4. Check recent commits for context on similar changes
-5. INVOKE bb80-invariant-construction skill before touching code
-6. DISPATCH bb80-invariant-validator agent to verify monoidal feasibility
+**IMMEDIATELY AFTER (while agents work in parallel):**
+1. **INVOKE bb80-specification-closure skill** - Verify specification is closed
+2. **DISPATCH bb80-specification-validator agent** - Gate entry to implementation
+3. **INVOKE bb80-parallel-agents skill** - Understand concurrency requirements
+4. **INVOKE bb80-invariant-construction skill** before touching code
+5. **DISPATCH bb80-invariant-validator agent** to verify monoidal feasibility
+6. **Begin implementation** - Agents' context reports will arrive as you work
+
+**Then, and only then, if needed:**
+- Always refer to agents' reports (they have read files for you)
+- Understand patterns from agent analysis
+- Use agent findings for similar implementation references
+- Check agent reports on recent commits
+- Agent invariant feedback guides code decisions
 
 **When Making Changes:**
 1. **Minimal Modifications**: Only change what's necessary
@@ -1048,6 +1095,7 @@ find test -name "*Test.cpp" | head -20
 **These are not negotiable. No rationalizations. No exceptions.**
 
 **EVERY TASK requires:**
+- ✅ **SPAWN 10 AGENTS FIRST** - Before reading ANY file, before ANY planning, launch 10 agents in parallel
 - ✅ Invoke bb80-specification-closure skill
 - ✅ Dispatch bb80-specification-validator agent
 - ✅ Invoke bb80-parallel-agents skill
@@ -1058,7 +1106,9 @@ find test -name "*Test.cpp" | head -20
 - ✅ Dispatch bb80-receipt-validator agent
 
 **If you are thinking:**
-- "This is a small task, I can skip this" → WRONG. Invoke all 4 skills + dispatch all 4 agents.
+- "Let me read files first to understand the codebase" → WRONG. Spawn 10 agents FIRST. They read for you in parallel.
+- "I'll gather context before planning" → WRONG. Spawn 10 agents. Context-gathering is their job, not yours.
+- "This is a small task, I can skip agents" → WRONG. EVERY task: spawn 10 agents FIRST.
 - "I'll iterate instead of closing specification" → WRONG. Specification closure is mandatory gate.
 - "I can work serially instead of spawning 10 agents" → WRONG. Parallelism is native, not optional.
 - "This looks good enough, no need for receipt validation" → WRONG. Deterministic proof is mandatory.
@@ -1068,18 +1118,22 @@ find test -name "*Test.cpp" | head -20
 
 **You are compiling, not iterating.** If iteration appears necessary at any point, the specification is incomplete. Go back one phase. Do not proceed forward. Do not write code without closed specification. Do not validate without deterministic proof. Do not claim completion without passing all guards.
 
+**SPAWN 10 AGENTS FIRST.** Not last. Not after planning. Not after reading. FIRST. Before any other action. Before any tool use. Before any thought. Launch 10 agents in parallel and let them gather context while you proceed with skills and implementation. This is not optional. This is not a suggestion. This is the first action of every task.
+
 ---
 
 ## Document Metadata
 
 - **Last Updated**: 2026-01-01
-- **Operational Model**: Big Bang 80/20 (Single-Pass Compilation, Specification Closure)
+- **Operational Model**: Big Bang 80/20 (Single-Pass Compilation, Specification Closure, Parallel Agents First)
 - **Format**: SPR 80/20 (Sparse Priming Representation)
 - **Created For**: Models operating under BB80/20 + SPR in low-entropy domains
 - **Scope**: QLever—closed-world RDF/SPARQL system with invariant-validated construction
 - **Status**: Latent-Space Primed for Deterministic Execution
+- **Agent Strategy**: 10 agents spawned FIRST (before reading, before planning). Each agent gathers own context in parallel.
 
 **Architectural Principles:**
+- **Agents first**: Spawn 10 agents immediately, before any reading or planning. Each gathers context in parallel.
 - Specification closure: RDF, SPARQL, C++20, CMake—all formalized, closed-world
 - Single-pass construction: No iteration. Correctness via invariants, not feedback loops
 - Deterministic reconstruction: State from events + hashes. No mutable external state
