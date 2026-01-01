@@ -1,20 +1,21 @@
 // EPIC 7: Deterministic Digest Computation (Implementation)
 
 #include "IngressDigest.h"
+
 #include <cstring>
-#include <sstream>
 #include <iomanip>
+#include <sstream>
 
 namespace qlever::ingress {
 
 Digest IngressDigest::compute(std::string_view normalized_json,
-                             uint32_t validation_mask,
-                             IngressErrorCode error_code) noexcept {
+                              uint32_t validation_mask,
+                              IngressErrorCode error_code) noexcept {
   // TODO: Implement SHA256 computation
   // 1. Serialize: normalized_json + validation_mask + error_code
   // 2. Apply SHA256 hashing
   // 3. Return 32-byte digest
-  
+
   Digest result = {};
   // Placeholder implementation
   std::memset(result.data(), 0, result.size());
@@ -24,7 +25,7 @@ Digest IngressDigest::compute(std::string_view normalized_json,
 std::string IngressDigest::hex_encode(const Digest& binary_digest) noexcept {
   std::ostringstream oss;
   for (unsigned char byte : binary_digest) {
-    oss << std::hex << std::setw(2) << std::setfill('0') 
+    oss << std::hex << std::setw(2) << std::setfill('0')
         << static_cast<int>(byte);
   }
   return oss.str();
@@ -37,9 +38,9 @@ Digest IngressDigest::hex_decode(std::string_view hex_string) noexcept {
 }
 
 bool IngressDigest::verify_determinism(std::string_view normalized_json,
-                                      uint32_t validation_mask,
-                                      IngressErrorCode error_code,
-                                      int iterations) noexcept {
+                                       uint32_t validation_mask,
+                                       IngressErrorCode error_code,
+                                       int iterations) noexcept {
   // TODO: Compute digest multiple times and verify all match
   Digest reference = compute(normalized_json, validation_mask, error_code);
   for (int i = 1; i < iterations; ++i) {
@@ -52,7 +53,7 @@ bool IngressDigest::verify_determinism(std::string_view normalized_json,
 }
 
 Digest IngressDigest::sha256(const unsigned char* input,
-                            size_t input_len) noexcept {
+                             size_t input_len) noexcept {
   // TODO: Implement SHA256
   // - Use OpenSSL, mbedTLS, or native implementation
   // - Ensure platform-independent results
@@ -62,15 +63,14 @@ Digest IngressDigest::sha256(const unsigned char* input,
 }
 
 std::string IngressDigest::serialize_canonical(
-    std::string_view normalized_json,
-    uint32_t validation_mask,
+    std::string_view normalized_json, uint32_t validation_mask,
     IngressErrorCode error_code) noexcept {
   // Canonical serialization (deterministic order)
   // Format: JSON || MASK (4 bytes LE) || ERRORCODE (2 bytes LE)
   std::string serialized;
   serialized.reserve(normalized_json.size() + 6);
   serialized.append(normalized_json);
-  
+
   // Append validation mask (4 bytes, little-endian)
   unsigned char mask_bytes[4];
   mask_bytes[0] = (validation_mask >> 0) & 0xFF;
@@ -78,14 +78,14 @@ std::string IngressDigest::serialize_canonical(
   mask_bytes[2] = (validation_mask >> 16) & 0xFF;
   mask_bytes[3] = (validation_mask >> 24) & 0xFF;
   serialized.append(reinterpret_cast<const char*>(mask_bytes), 4);
-  
+
   // Append error code (2 bytes, little-endian)
   unsigned char code_bytes[2];
   uint16_t code_value = static_cast<uint16_t>(error_code);
   code_bytes[0] = (code_value >> 0) & 0xFF;
   code_bytes[1] = (code_value >> 8) & 0xFF;
   serialized.append(reinterpret_cast<const char*>(code_bytes), 2);
-  
+
   return serialized;
 }
 

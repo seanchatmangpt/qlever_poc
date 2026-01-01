@@ -1,15 +1,17 @@
 // EPIC 7: SIMD-Accelerated JSON-LD Ingress Wrapper (Implementation)
 
 #include "SimdJsonIngressWrapper.h"
-#include "IngressDigest.h"
+
 #include <simdjson.h>
+
+#include "IngressDigest.h"
 
 namespace qlever::ingress {
 
 IngressResult SimdJsonIngressWrapper::parseJsonLd(
     std::string_view json_input) noexcept {
   IngressResult result;
-  
+
   if (json_input.empty()) {
     result.error = IngressErrorCode::PARSE_ERROR_EMPTY_INPUT;
     return result;
@@ -31,7 +33,7 @@ IngressResult SimdJsonIngressWrapper::parseJsonLd(
 IngressResult SimdJsonIngressWrapper::validateStructure(
     std::string_view json_input) noexcept {
   IngressResult result;
-  
+
   if (json_input.empty()) {
     result.error = IngressErrorCode::PARSE_ERROR_EMPTY_INPUT;
     return result;
@@ -47,10 +49,9 @@ IngressResult SimdJsonIngressWrapper::validateStructure(
 }
 
 IngressResult SimdJsonIngressWrapper::normalizeJsonLd(
-    std::string_view json_input,
-    std::string& normalized_output) noexcept {
+    std::string_view json_input, std::string& normalized_output) noexcept {
   IngressResult result;
-  
+
   if (json_input.empty()) {
     result.error = IngressErrorCode::PARSE_ERROR_EMPTY_INPUT;
     return result;
@@ -67,8 +68,7 @@ IngressResult SimdJsonIngressWrapper::normalizeJsonLd(
 }
 
 std::string SimdJsonIngressWrapper::compute_digest(
-    std::string_view normalized_json,
-    uint32_t validation_mask,
+    std::string_view normalized_json, uint32_t validation_mask,
     IngressErrorCode error_code) noexcept {
   // TODO: Implement SHA256 digest computation
   // - Use deterministic serialization

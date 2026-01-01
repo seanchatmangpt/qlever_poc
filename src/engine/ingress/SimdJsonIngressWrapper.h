@@ -5,18 +5,19 @@
 #ifndef QLEVER_ENGINE_INGRESS_SIMD_JSON_INGRESS_WRAPPER_H
 #define QLEVER_ENGINE_INGRESS_SIMD_JSON_INGRESS_WRAPPER_H
 
-#include "IngressResult.h"
-#include "ErrorCodes.h"
-#include <string_view>
 #include <string>
+#include <string_view>
+
+#include "ErrorCodes.h"
+#include "IngressResult.h"
 
 namespace qlever::ingress {
 
 class SimdJsonIngressWrapper {
-public:
+ public:
   SimdJsonIngressWrapper() = default;
   ~SimdJsonIngressWrapper() = default;
-  
+
   // Deleted copy/move constructors (stateless wrapper)
   SimdJsonIngressWrapper(const SimdJsonIngressWrapper&) = delete;
   SimdJsonIngressWrapper(SimdJsonIngressWrapper&&) = delete;
@@ -43,7 +44,7 @@ public:
   IngressResult normalizeJsonLd(std::string_view json_input,
                                 std::string& normalized_output) noexcept;
 
-private:
+ private:
   // SIMD technique flags (set by parser)
   enum class SimdTechnique : uint32_t {
     StructuralScanning = 1u << 0,   // SIMD byte classification

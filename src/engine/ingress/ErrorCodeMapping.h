@@ -4,8 +4,9 @@
 #ifndef QLEVER_ENGINE_INGRESS_ERROR_CODE_MAPPING_H
 #define QLEVER_ENGINE_INGRESS_ERROR_CODE_MAPPING_H
 
-#include "ErrorCodes.h"
 #include <string_view>
+
+#include "ErrorCodes.h"
 
 namespace qlever::ingress {
 
