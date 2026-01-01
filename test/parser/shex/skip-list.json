@@ -1,0 +1,71 @@
+{
+  "description": "W3C ShEx tests to skip (unimplemented features)",
+  "version": "1.0",
+  "skip": [
+    {
+      "id": ".*semanticAction.*",
+      "reason": "Semantic actions not implemented (Phase 4 feature)",
+      "pattern": true
+    },
+    {
+      "id": ".*virtualProperty.*",
+      "reason": "Virtual properties not implemented (Phase 4 feature)",
+      "pattern": true
+    },
+    {
+      "id": ".*annotation.*",
+      "reason": "Annotations not implemented (Phase 4 feature)",
+      "pattern": true
+    },
+    {
+      "id": ".*import.*",
+      "reason": "Schema imports not implemented (Phase 4 feature)",
+      "pattern": true
+    },
+    {
+      "id": ".*external.*",
+      "reason": "External shape references not implemented (Phase 4 feature)",
+      "pattern": true
+    },
+    {
+      "id": ".*recursion.*",
+      "reason": "Recursive shape validation not fully implemented",
+      "pattern": true
+    },
+    {
+      "id": ".*negation.*",
+      "reason": "NOT operator not implemented (Phase 3 feature)",
+      "pattern": true
+    },
+    {
+      "id": ".*disjunction.*",
+      "reason": "OR operator not fully implemented (Phase 3 feature)",
+      "pattern": true
+    },
+    {
+      "id": ".*languageIn.*",
+      "reason": "Language tag validation not implemented",
+      "pattern": true
+    },
+    {
+      "id": ".*uniqueLang.*",
+      "reason": "Unique language constraint not implemented",
+      "pattern": true
+    },
+    {
+      "id": ".*focus.*",
+      "reason": "Focus node features not implemented",
+      "pattern": true
+    },
+    {
+      "id": ".*sparql.*",
+      "reason": "SPARQL-based constraints not implemented",
+      "pattern": true
+    }
+  ],
+  "notes": [
+    "Patterns use regex matching for flexible test identification",
+    "Update this list as features are implemented",
+    "Remove entries when corresponding features are complete"
+  ]
+}

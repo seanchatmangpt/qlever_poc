@@ -28,7 +28,7 @@ QueryExecutionContext::QueryExecutionContext(
     NamedResultCache* namedResultCache,
     MaterializedViewsManager* materializedViewsManager,
     std::function<void(std::string)> updateCallback, const bool pinSubtrees,
-    const bool pinResult)
+    const bool pinResult, shex::ShapeSchemaManager* shapeSchemaManager)
     : _pinSubtrees(pinSubtrees),
       _pinResult(pinResult),
       _index(index),
@@ -37,10 +37,12 @@ QueryExecutionContext::QueryExecutionContext(
       _sortPerformanceEstimator(sortPerformanceEstimator),
       updateCallback_(std::move(updateCallback)),
       namedResultCache_(namedResultCache),
-      materializedViewsManager_(materializedViewsManager) {
+      materializedViewsManager_(materializedViewsManager),
+      shapeSchemaManager_(shapeSchemaManager) {
   AD_CORRECTNESS_CHECK(cache != nullptr);
   AD_CORRECTNESS_CHECK(namedResultCache != nullptr);
   AD_CORRECTNESS_CHECK(materializedViewsManager != nullptr);
+  // shapeSchemaManager is optional, so no check required
 }
 
 // _____________________________________________________________________________

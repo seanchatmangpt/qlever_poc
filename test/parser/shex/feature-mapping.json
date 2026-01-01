@@ -1,0 +1,229 @@
+{
+  "description": "Mapping of W3C ShEx tests to implementation features",
+  "version": "1.0",
+  "features": {
+    "cardinality": {
+      "name": "Cardinality Constraints",
+      "implemented": true,
+      "phase": "1",
+      "tests": [
+        "cardinality-exactlyOne-*",
+        "cardinality-zeroOrOne-*",
+        "cardinality-zeroOrMore-*",
+        "cardinality-oneOrMore-*",
+        "cardinality-range-*"
+      ],
+      "implementation": "src/parser/ShEx.h:Cardinality"
+    },
+    "nodeKind": {
+      "name": "Node Kind Constraints",
+      "implemented": true,
+      "phase": "1",
+      "tests": [
+        "nodeKind-iri-*",
+        "nodeKind-literal-*",
+        "nodeKind-bnode-*",
+        "nodeKind-nonliteral-*"
+      ],
+      "implementation": "src/parser/ShEx.h:ValueType"
+    },
+    "datatype": {
+      "name": "Datatype Constraints",
+      "implemented": "partial",
+      "phase": "2",
+      "tests": [
+        "datatype-string-*",
+        "datatype-integer-*",
+        "datatype-decimal-*",
+        "datatype-boolean-*",
+        "datatype-dateTime-*"
+      ],
+      "implementation": "src/parser/ShEx.h:ValueSetConstraint::datatypeRestriction",
+      "limitations": "Basic datatype checking only, facets not fully implemented"
+    },
+    "closedShapes": {
+      "name": "Closed Shapes",
+      "implemented": true,
+      "phase": "1",
+      "tests": [
+        "closed-shape-*",
+        "closed-exact-*"
+      ],
+      "implementation": "src/parser/ShEx.h:Shape::closed"
+    },
+    "extends": {
+      "name": "Shape Extension (EXTENDS)",
+      "implemented": true,
+      "phase": "2B",
+      "tests": [
+        "extends-*",
+        "inheritance-*"
+      ],
+      "implementation": "src/parser/ShEx.h:Shape::extendsShapeId_"
+    },
+    "extra": {
+      "name": "EXTRA Predicates",
+      "implemented": true,
+      "phase": "2B",
+      "tests": [
+        "extra-*",
+        "closed-extra-*"
+      ],
+      "implementation": "src/parser/ShEx.h:Shape::extraPredicates_"
+    },
+    "notExtra": {
+      "name": "!EXTRA (Forbidden Predicates)",
+      "implemented": true,
+      "phase": "2B",
+      "tests": [
+        "notExtra-*",
+        "forbidden-*"
+      ],
+      "implementation": "src/parser/ShEx.h:Shape::forbiddenExtraPredicates_"
+    },
+    "valueSet": {
+      "name": "Value Set Constraints",
+      "implemented": "partial",
+      "phase": "2",
+      "tests": [
+        "valueSet-iri-*",
+        "valueSet-literal-*",
+        "valueSet-stem-*"
+      ],
+      "implementation": "src/parser/ShEx.h:ValueSetConstraint::allowedIris",
+      "limitations": "IRI stems and language tags not fully implemented"
+    },
+    "stringFacet": {
+      "name": "String Facets (length, minLength, maxLength, pattern)",
+      "implemented": false,
+      "phase": "3",
+      "tests": [
+        "stringFacet-length-*",
+        "stringFacet-minLength-*",
+        "stringFacet-maxLength-*",
+        "stringFacet-pattern-*"
+      ],
+      "implementation": "Not yet implemented"
+    },
+    "numericFacet": {
+      "name": "Numeric Facets (minInclusive, maxInclusive, etc.)",
+      "implemented": false,
+      "phase": "3",
+      "tests": [
+        "numericFacet-minInclusive-*",
+        "numericFacet-maxInclusive-*",
+        "numericFacet-minExclusive-*",
+        "numericFacet-maxExclusive-*",
+        "numericFacet-totalDigits-*",
+        "numericFacet-fractionDigits-*"
+      ],
+      "implementation": "Not yet implemented"
+    },
+    "shapeReference": {
+      "name": "Shape References",
+      "implemented": "partial",
+      "phase": "2",
+      "tests": [
+        "shapeRef-*",
+        "reference-*"
+      ],
+      "implementation": "Basic references supported, recursive refs limited"
+    },
+    "conjunction": {
+      "name": "AND Operator",
+      "implemented": "partial",
+      "phase": "2",
+      "tests": [
+        "and-*",
+        "conjunction-*"
+      ],
+      "implementation": "Implicit AND in property lists, explicit AND partial"
+    },
+    "disjunction": {
+      "name": "OR Operator",
+      "implemented": false,
+      "phase": "3",
+      "tests": [
+        "or-*",
+        "disjunction-*",
+        "oneOf-*"
+      ],
+      "implementation": "Not yet implemented"
+    },
+    "negation": {
+      "name": "NOT Operator",
+      "implemented": false,
+      "phase": "3",
+      "tests": [
+        "not-*",
+        "negation-*"
+      ],
+      "implementation": "Not yet implemented"
+    },
+    "semanticAction": {
+      "name": "Semantic Actions",
+      "implemented": false,
+      "phase": "4",
+      "tests": [
+        "semanticAction-*",
+        "action-*"
+      ],
+      "implementation": "Not yet implemented (future feature)"
+    },
+    "annotation": {
+      "name": "Annotations",
+      "implemented": false,
+      "phase": "4",
+      "tests": [
+        "annotation-*"
+      ],
+      "implementation": "Not yet implemented (future feature)"
+    },
+    "import": {
+      "name": "Schema Import",
+      "implemented": false,
+      "phase": "4",
+      "tests": [
+        "import-*"
+      ],
+      "implementation": "Not yet implemented (future feature)"
+    },
+    "external": {
+      "name": "External Shape References",
+      "implemented": false,
+      "phase": "4",
+      "tests": [
+        "external-*"
+      ],
+      "implementation": "Not yet implemented (future feature)"
+    }
+  },
+  "implementation_status": {
+    "phase1_core": {
+      "features": ["cardinality", "nodeKind", "closedShapes"],
+      "completion": "100%",
+      "status": "Complete"
+    },
+    "phase2_extended": {
+      "features": ["datatype", "valueSet", "extends", "extra", "notExtra", "shapeReference", "conjunction"],
+      "completion": "70%",
+      "status": "In Progress"
+    },
+    "phase3_advanced": {
+      "features": ["stringFacet", "numericFacet", "disjunction", "negation"],
+      "completion": "10%",
+      "status": "Planned"
+    },
+    "phase4_future": {
+      "features": ["semanticAction", "annotation", "import", "external"],
+      "completion": "0%",
+      "status": "Future Work"
+    }
+  },
+  "notes": [
+    "Test patterns use glob-style matching (* = wildcard)",
+    "Implementation field points to relevant source code",
+    "Update completion percentages as features are implemented",
+    "Phase numbers align with development roadmap"
+  ]
+}

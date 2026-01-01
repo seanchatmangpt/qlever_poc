@@ -31,5 +31,12 @@ add_library(parser
         UpdateTriples.cpp
         MaterializedViewQuery.cpp
         ShEx.cpp
+        ShExNegation.cpp
+        ShExTripleExpression.cpp
+        ShExPhase2AImpl.cpp
+        ShExShapeReference.cpp
+        ShapeSerializer.cpp
+        TurtleSerializer.cpp
+        ShapeSerializerFactory.cpp
 )
 qlever_target_link_libraries(parser sparqlParser parserData sparqlExpressions rdfEscaping global re2::re2 util engine index rdfTypes)

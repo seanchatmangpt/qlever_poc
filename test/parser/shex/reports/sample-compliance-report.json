@@ -1,0 +1,347 @@
+{
+  "metadata": {
+    "generated_at": "2026-01-01T12:00:00Z",
+    "test_suite": "W3C ShEx Test Suite",
+    "implementation": "QLever ShEx (Phase 2)",
+    "version": "1.0.0"
+  },
+  "summary": {
+    "total_tests": 2847,
+    "passed": 1254,
+    "failed": 438,
+    "skipped": 1105,
+    "expected_failures": 50,
+    "errors": 0,
+    "compliance_percentage": 45.8,
+    "pass_rate": 74.8,
+    "total_execution_time_ms": 12450,
+    "average_execution_time_ms": 4
+  },
+  "feature_coverage": [
+    {
+      "name": "cardinality",
+      "total_tests": 287,
+      "passed_tests": 275,
+      "failed_tests": 12,
+      "skipped_tests": 0,
+      "coverage_percentage": 95.8,
+      "implemented": true,
+      "failed_test_ids": [
+        "cardinality-range-edge-01",
+        "cardinality-complex-nested-01"
+      ]
+    },
+    {
+      "name": "nodeKind",
+      "total_tests": 234,
+      "passed_tests": 226,
+      "failed_tests": 8,
+      "skipped_tests": 0,
+      "coverage_percentage": 96.6,
+      "implemented": true,
+      "failed_test_ids": [
+        "nodeKind-mixed-01",
+        "nodeKind-nonliteral-edge-01"
+      ]
+    },
+    {
+      "name": "closedShapes",
+      "total_tests": 156,
+      "passed_tests": 148,
+      "failed_tests": 8,
+      "skipped_tests": 0,
+      "coverage_percentage": 94.9,
+      "implemented": true,
+      "failed_test_ids": [
+        "closed-extra-edge-01",
+        "closed-extends-interaction-01"
+      ]
+    },
+    {
+      "name": "datatype",
+      "total_tests": 398,
+      "passed_tests": 201,
+      "failed_tests": 97,
+      "skipped_tests": 100,
+      "coverage_percentage": 50.5,
+      "implemented": true,
+      "failed_test_ids": [
+        "datatype-custom-01",
+        "datatype-facet-integration-01"
+      ]
+    },
+    {
+      "name": "valueSet",
+      "total_tests": 312,
+      "passed_tests": 156,
+      "failed_tests": 56,
+      "skipped_tests": 100,
+      "coverage_percentage": 50.0,
+      "implemented": true,
+      "failed_test_ids": [
+        "valueSet-stem-wildcard-01",
+        "valueSet-language-tag-01"
+      ]
+    },
+    {
+      "name": "extends",
+      "total_tests": 178,
+      "passed_tests": 162,
+      "failed_tests": 16,
+      "skipped_tests": 0,
+      "coverage_percentage": 91.0,
+      "implemented": true,
+      "failed_test_ids": [
+        "extends-deep-hierarchy-01",
+        "extends-diamond-problem-01"
+      ]
+    },
+    {
+      "name": "extra",
+      "total_tests": 145,
+      "passed_tests": 132,
+      "failed_tests": 13,
+      "skipped_tests": 0,
+      "coverage_percentage": 91.0,
+      "implemented": true,
+      "failed_test_ids": [
+        "extra-complex-interaction-01"
+      ]
+    },
+    {
+      "name": "notExtra",
+      "total_tests": 89,
+      "passed_tests": 81,
+      "failed_tests": 8,
+      "skipped_tests": 0,
+      "coverage_percentage": 91.0,
+      "implemented": true,
+      "failed_test_ids": [
+        "notExtra-edge-case-01"
+      ]
+    },
+    {
+      "name": "shapeReference",
+      "total_tests": 198,
+      "passed_tests": 148,
+      "failed_tests": 25,
+      "skipped_tests": 25,
+      "coverage_percentage": 74.7,
+      "implemented": true,
+      "failed_test_ids": [
+        "shapeRef-recursive-01",
+        "shapeRef-mutual-recursion-01"
+      ]
+    },
+    {
+      "name": "conjunction",
+      "total_tests": 123,
+      "passed_tests": 92,
+      "failed_tests": 31,
+      "skipped_tests": 0,
+      "coverage_percentage": 74.8,
+      "implemented": true,
+      "failed_test_ids": [
+        "and-complex-01",
+        "conjunction-edge-01"
+      ]
+    },
+    {
+      "name": "stringFacet",
+      "total_tests": 387,
+      "passed_tests": 19,
+      "failed_tests": 18,
+      "skipped_tests": 350,
+      "coverage_percentage": 4.9,
+      "implemented": false,
+      "failed_test_ids": []
+    },
+    {
+      "name": "numericFacet",
+      "total_tests": 298,
+      "passed_tests": 15,
+      "failed_tests": 13,
+      "skipped_tests": 270,
+      "coverage_percentage": 5.0,
+      "implemented": false,
+      "failed_test_ids": []
+    },
+    {
+      "name": "disjunction",
+      "total_tests": 187,
+      "passed_tests": 9,
+      "failed_tests": 8,
+      "skipped_tests": 170,
+      "coverage_percentage": 4.8,
+      "implemented": false,
+      "failed_test_ids": []
+    },
+    {
+      "name": "negation",
+      "total_tests": 134,
+      "passed_tests": 7,
+      "failed_tests": 7,
+      "skipped_tests": 120,
+      "coverage_percentage": 5.2,
+      "implemented": false,
+      "failed_test_ids": []
+    },
+    {
+      "name": "semanticAction",
+      "total_tests": 89,
+      "passed_tests": 0,
+      "failed_tests": 0,
+      "skipped_tests": 89,
+      "coverage_percentage": 0.0,
+      "implemented": false,
+      "failed_test_ids": []
+    },
+    {
+      "name": "annotation",
+      "total_tests": 67,
+      "passed_tests": 0,
+      "failed_tests": 0,
+      "skipped_tests": 67,
+      "coverage_percentage": 0.0,
+      "implemented": false,
+      "failed_test_ids": []
+    },
+    {
+      "name": "import",
+      "total_tests": 45,
+      "passed_tests": 0,
+      "failed_tests": 0,
+      "skipped_tests": 45,
+      "coverage_percentage": 0.0,
+      "implemented": false,
+      "failed_test_ids": []
+    },
+    {
+      "name": "external",
+      "total_tests": 34,
+      "passed_tests": 0,
+      "failed_tests": 0,
+      "skipped_tests": 34,
+      "coverage_percentage": 0.0,
+      "implemented": false,
+      "failed_test_ids": []
+    }
+  ],
+  "category_statistics": [
+    {
+      "name": "validation",
+      "total_tests": 1823,
+      "passed": 876,
+      "failed": 287,
+      "skipped": 660,
+      "compliance_percentage": 48.0
+    },
+    {
+      "name": "negativeSyntax",
+      "total_tests": 456,
+      "passed": 198,
+      "failed": 78,
+      "skipped": 180,
+      "compliance_percentage": 43.4
+    },
+    {
+      "name": "negativeStructure",
+      "total_tests": 298,
+      "passed": 112,
+      "failed": 43,
+      "skipped": 143,
+      "compliance_percentage": 37.6
+    },
+    {
+      "name": "positiveSyntax",
+      "total_tests": 234,
+      "passed": 198,
+      "failed": 24,
+      "skipped": 12,
+      "compliance_percentage": 84.6
+    },
+    {
+      "name": "representativeSyntax",
+      "total_tests": 36,
+      "passed": 32,
+      "failed": 4,
+      "skipped": 0,
+      "compliance_percentage": 88.9
+    }
+  ],
+  "failed_tests": [
+    {
+      "id": "cardinality-range-edge-01",
+      "name": "Cardinality range with edge case",
+      "category": "validation",
+      "type": "Validation",
+      "message": "Edge case in range validation not handled",
+      "features": ["cardinality"]
+    },
+    {
+      "id": "datatype-custom-01",
+      "name": "Custom datatype validation",
+      "category": "validation",
+      "type": "Validation",
+      "message": "Custom datatypes not fully supported",
+      "features": ["datatype"]
+    },
+    {
+      "id": "valueSet-stem-wildcard-01",
+      "name": "Value set with stem wildcards",
+      "category": "validation",
+      "type": "Validation",
+      "message": "IRI stem wildcards not implemented",
+      "features": ["valueSet"]
+    },
+    {
+      "id": "shapeRef-recursive-01",
+      "name": "Recursive shape reference",
+      "category": "validation",
+      "type": "Validation",
+      "message": "Recursive validation not fully supported",
+      "features": ["shapeReference"]
+    },
+    {
+      "id": "extends-diamond-problem-01",
+      "name": "Diamond inheritance pattern",
+      "category": "validation",
+      "type": "Validation",
+      "message": "Complex inheritance graph not handled",
+      "features": ["extends"]
+    }
+  ],
+  "recommendations": [
+    "Implement string facets to improve compliance by ~15%",
+    "Implement numeric facets to improve compliance by ~12%",
+    "Fix recursive shape reference handling",
+    "Add support for IRI stem wildcards in value sets",
+    "Implement OR and NOT operators for advanced validation"
+  ],
+  "phase_progress": {
+    "phase1_core": {
+      "completion": 100,
+      "status": "Complete",
+      "tests_passed": 649,
+      "tests_total": 677
+    },
+    "phase2_extended": {
+      "completion": 70,
+      "status": "In Progress",
+      "tests_passed": 880,
+      "tests_total": 1324
+    },
+    "phase3_advanced": {
+      "completion": 5,
+      "status": "Planned",
+      "tests_passed": 50,
+      "tests_total": 1006
+    },
+    "phase4_future": {
+      "completion": 0,
+      "status": "Future Work",
+      "tests_passed": 0,
+      "tests_total": 235
+    }
+  }
+}

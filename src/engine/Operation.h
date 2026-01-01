@@ -25,6 +25,11 @@
 // forward declaration needed to break dependencies
 class QueryExecutionTree;
 
+// forward declaration for shape validation
+namespace shex {
+struct ShapeOptimizationHints;
+}
+
 enum class ComputationMode {
   FULLY_MATERIALIZED,
   ONLY_IF_CACHED,
@@ -354,6 +359,25 @@ class Operation {
   // already sorted accordigngly.
   virtual bool isSortedBy(
       const std::vector<ColumnIndex>& sortColumns) const final;
+
+  // ==== Shape Validation Hooks ====
+
+  // Called before execution to validate preconditions.
+  // Can be used to check if shape constraints are satisfied before computing.
+  // Default implementation does nothing.
+  virtual void validatePreExecution() const {}
+
+  // Called after execution to validate postconditions.
+  // Can be used to verify shape constraints on computed results.
+  // Default implementation does nothing.
+  virtual void validatePostExecution([[maybe_unused]] const Result& result) const {}
+
+  // Get shape-based optimization hints for this operation.
+  // Returns nullopt if no shape hints are available.
+  // Used by QueryPlanner for shape-driven optimizations.
+  virtual std::optional<struct shex::ShapeOptimizationHints> getShapeHints() const {
+    return std::nullopt;
+  }
 
   // Try to create a version of this operation that is sorted on the given
   // `sortColumns`. The default implementation returns `std::nullopt`, assuming

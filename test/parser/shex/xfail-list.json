@@ -1,0 +1,36 @@
+{
+  "description": "W3C ShEx tests with expected failures (known issues)",
+  "version": "1.0",
+  "xfail": [
+    {
+      "id": "complex-regex-pattern-01",
+      "reason": "Complex regex patterns with Unicode not fully supported",
+      "issue": "https://github.com/seanchatmangpt/qlever/issues/TBD"
+    },
+    {
+      "id": "numeric-facet-edge-case-01",
+      "reason": "Edge case in numeric facet validation (max value boundary)",
+      "issue": "Known limitation in current implementation"
+    },
+    {
+      "id": "iri-stem-wildcard-01",
+      "reason": "IRI stem wildcards with special characters not supported",
+      "issue": "Requires enhanced IRI parsing"
+    },
+    {
+      "id": "string-facet-length-unicode-01",
+      "reason": "String length calculation with combining characters",
+      "issue": "Unicode normalization needed"
+    },
+    {
+      "id": "closed-shape-inheritance-01",
+      "reason": "Closed shape with EXTENDS has edge case with EXTRA predicates",
+      "issue": "Interaction between CLOSED, EXTENDS, and EXTRA needs refinement"
+    }
+  ],
+  "notes": [
+    "These tests are expected to fail until the issues are resolved",
+    "Track issues in GitHub and update reasons as needed",
+    "Remove entries when issues are fixed"
+  ]
+}

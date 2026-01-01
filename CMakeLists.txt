@@ -456,6 +456,7 @@ add_subdirectory(src/index)
 add_subdirectory(src/util)
 add_subdirectory(src/rdfTypes)
 add_subdirectory(src/global)
+add_subdirectory(src/shex)
 add_subdirectory(src/libqlever)
 add_subdirectory(benchmark)
 

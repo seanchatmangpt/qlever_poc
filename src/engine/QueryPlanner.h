@@ -17,6 +17,11 @@
 #include "parser/ParsedQuery.h"
 #include "parser/data/Types.h"
 
+// Forward declaration for shape validation
+namespace shex {
+struct ShapeOptimizationHints;
+}
+
 class QueryPlanner {
   using TextLimitMap =
       ad_utility::HashMap<Variable, parsedQuery::TextLimitMetaObject>;
@@ -262,6 +267,28 @@ class QueryPlanner {
 
  protected:
   QueryExecutionContext* getQec() const { return _qec; }
+
+  // ==== Shape-Based Optimization Methods ====
+
+  // Apply shape-based selectivity factor to cost estimate.
+  // Returns modified cost if shape hints are available, otherwise returns
+  // original cost.
+  virtual uint64_t applyShapeSelectivity(uint64_t baseCost,
+                                         const SubtreePlan& plan) const;
+
+  // Extract type filtering hints from shape constraints.
+  // Returns a list of type filters that can be pushed down to IndexScans.
+  virtual std::vector<TripleComponent> extractTypeFilters(
+      const SubtreePlan& plan) const;
+
+  // Refine join order using shape cardinality hints.
+  // Prioritizes joins where shapes indicate lower cardinality.
+  virtual void refineJoinOrderWithShapes(std::vector<SubtreePlan>& plans) const;
+
+  // Get shape hints for a specific variable in the plan.
+  // Returns nullopt if no shape information is available.
+  virtual std::optional<struct shex::ShapeOptimizationHints> getShapeHintsForVariable(
+      const SubtreePlan& plan, const Variable& var) const;
 
  private:
   QueryExecutionContext* _qec;

@@ -3325,3 +3325,110 @@ void QueryPlanner::GraphPatternPlanner::visitDescribe(
   candidatePlans_.push_back(std::vector{std::move(describeOp)});
   planner_.checkCancellation();
 }
+
+// _______________________________________________________________
+// Shape-Based Optimization Methods
+// _______________________________________________________________
+
+// Apply shape-based selectivity factor to cost estimate
+uint64_t QueryPlanner::applyShapeSelectivity(
+    uint64_t baseCost, const SubtreePlan& plan) const {
+  if (!_qec || !_qec->shapeSchemaManager()) {
+    return baseCost;
+  }
+
+  // Check if the operation provides shape hints
+  auto* op = plan._qet->getRootOperation();
+  auto hintsOpt = op->getShapeHints();
+  
+  if (!hintsOpt.has_value()) {
+    return baseCost;
+  }
+
+  const auto& hints = hintsOpt.value();
+  
+  // Apply selectivity factor to cost
+  double adjustedCost = static_cast<double>(baseCost) * hints.selectivityFactor;
+  
+  return static_cast<uint64_t>(adjustedCost);
+}
+
+// Extract type filtering hints from shape constraints
+std::vector<TripleComponent> QueryPlanner::extractTypeFilters(
+    const SubtreePlan& plan) const {
+  std::vector<TripleComponent> filters;
+  
+  if (!_qec || !_qec->shapeSchemaManager()) {
+    return filters;
+  }
+
+  auto* op = plan._qet->getRootOperation();
+  auto hintsOpt = op->getShapeHints();
+  
+  if (!hintsOpt.has_value()) {
+    return filters;
+  }
+
+  const auto& hints = hintsOpt.value();
+  
+  // Convert type constraints to triple components
+  // This is a simplified version - production would create proper FILTER
+  // expressions
+  for (const auto& typeId : hints.requiredTypes) {
+    // In practice, would create a filter like ?x rdf:type <typeId>
+    // For now, just return empty as this requires full filter expression
+    // construction
+  }
+  
+  return filters;
+}
+
+// Refine join order using shape cardinality hints
+void QueryPlanner::refineJoinOrderWithShapes(
+    std::vector<SubtreePlan>& plans) const {
+  if (!_qec || !_qec->shapeSchemaManager()) {
+    return;
+  }
+
+  // Sort plans by estimated selectivity (lower selectivity = smaller result =
+  // prefer earlier in join order)
+  std::sort(plans.begin(), plans.end(),
+            [this](const SubtreePlan& a, const SubtreePlan& b) {
+              auto aHints = a._qet->getRootOperation()->getShapeHints();
+              auto bHints = b._qet->getRootOperation()->getShapeHints();
+
+              // Plans without hints go last
+              if (!aHints.has_value() && !bHints.has_value()) {
+                return false;
+              }
+              if (!aHints.has_value()) {
+                return false;
+              }
+              if (!bHints.has_value()) {
+                return true;
+              }
+
+              // Prefer plans with lower selectivity (more selective = filters
+              // more)
+              return aHints->selectivityFactor < bHints->selectivityFactor;
+            });
+}
+
+// Get shape hints for a specific variable in the plan
+std::optional<shex::ShapeOptimizationHints>
+QueryPlanner::getShapeHintsForVariable(const SubtreePlan& plan,
+                                       const Variable& var) const {
+  if (!_qec || !_qec->shapeSchemaManager()) {
+    return std::nullopt;
+  }
+
+  // Check if the variable is bound in this plan
+  const auto& varCols = plan._qet->getVariableColumns();
+  if (!varCols.contains(var)) {
+    return std::nullopt;
+  }
+
+  // Try to get hints from the operation
+  auto* op = plan._qet->getRootOperation();
+  return op->getShapeHints();
+}

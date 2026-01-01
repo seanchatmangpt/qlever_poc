@@ -94,6 +94,12 @@ using QueryResultCache = ad_utility::ConcurrentCache<
 class NamedResultCache;
 class MaterializedViewsManager;
 
+// Forward declaration for shape validation
+namespace shex {
+class ShapeSchemaManager;
+struct ValidationConfig;
+}  // namespace shex
+
 // Execution context for queries.
 // Holds references to index and engine, implements caching.
 class QueryExecutionContext {
@@ -106,7 +112,8 @@ class QueryExecutionContext {
       MaterializedViewsManager* materializedViewsManager,
       std::function<void(std::string)> updateCallback =
           [](std::string) { /* No-op by default for testing */ },
-      bool pinSubtrees = false, bool pinResult = false);
+      bool pinSubtrees = false, bool pinResult = false,
+      shex::ShapeSchemaManager* shapeSchemaManager = nullptr);
 
   QueryResultCache& getQueryTreeCache() { return *_subtreeCache; }
 
@@ -175,6 +182,22 @@ class QueryExecutionContext {
     return *materializedViewsManager_;
   };
 
+  // Get the shape schema manager for shape validation and optimization.
+  // Returns nullptr if no shape schema is configured.
+  shex::ShapeSchemaManager* shapeSchemaManager() const {
+    return shapeSchemaManager_;
+  }
+
+  // Get the current shape validation configuration.
+  const shex::ValidationConfig& shapeValidationConfig() const {
+    return shapeValidationConfig_;
+  }
+
+  // Set the shape validation configuration.
+  void setShapeValidationConfig(const shex::ValidationConfig& config) {
+    shapeValidationConfig_ = config;
+  }
+
   // If `pinResultWithName_` is set, then the result of the query that is
   // executed using this context will be stored in the `namedQueryCache()` using
   // the string given in `PinResultWithName` as the query name. If
@@ -239,6 +262,12 @@ class QueryExecutionContext {
   // limiting the update frequency when `sendPriority` is `IfDue`.
   mutable std::chrono::steady_clock::time_point lastWebsocketUpdate_ =
       std::chrono::steady_clock::time_point::min();
+
+  // Shape schema manager for validation and optimization (optional).
+  shex::ShapeSchemaManager* shapeSchemaManager_ = nullptr;
+
+  // Default validation configuration for shape validation.
+  shex::ValidationConfig shapeValidationConfig_;
 };
 
 #endif  // QLEVER_SRC_ENGINE_QUERYEXECUTIONCONTEXT_H
