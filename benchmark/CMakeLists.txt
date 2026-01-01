@@ -55,3 +55,13 @@ linkBenchmark(CanonicalBenchmark)
 # Read Cache benchmark - EPIC 3 performance verification (Task 10)
 add_executable(ReadCacheBench readCache/ReadCacheBench.cpp)
 linkBenchmark(ReadCacheBench)
+
+# EPIC 5 Production Benchmark Suites (Task 10)
+# SHACL Validation performance benchmarks
+addAndLinkBenchmark(ShaclValidationBench engine parser)
+
+# N3 Verification performance benchmarks
+addAndLinkBenchmark(N3VerifyBench parser)
+
+# Datalog Fixpoint performance benchmarks
+addAndLinkBenchmark(DatalogFixpointBench engine parser)
