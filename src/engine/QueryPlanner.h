@@ -15,6 +15,7 @@
 #include "parser/GraphPattern.h"
 #include "parser/GraphPatternOperation.h"
 #include "parser/ParsedQuery.h"
+#include "parser/RuleDatabase.h"
 #include "parser/data/Types.h"
 
 class QueryPlanner {
@@ -250,6 +251,18 @@ class QueryPlanner {
 
   void setEnablePatternTrick(bool enablePatternTrick);
 
+  // Set the RuleDatabase for Datalog support (optional).
+  // When set, the QueryPlanner will detect and execute Datalog queries.
+  // @param ruleDatabase Shared pointer to the RuleDatabase containing Datalog
+  // rules
+  void setRuleDatabase(std::shared_ptr<RuleDatabase> ruleDatabase);
+
+  // Check if the query contains any predicates defined by Datalog rules.
+  // @param pq The parsed query to analyze
+  // @return true if at least one rule-defined predicate is found, false
+  // otherwise
+  bool hasRulePredicates(const ParsedQuery& pq) const;
+
   // Create a set of possible execution trees for the given parsed query. The
   // best (cheapest) execution tree according to the QueryPlanner is part of
   // that set. When the query has no `ORDER BY` clause, the set contains one
@@ -273,6 +286,10 @@ class QueryPlanner {
   bool _enablePatternTrick = true;
 
   CancellationHandle cancellationHandle_;
+
+  // Optional RuleDatabase for Datalog support. When set, the QueryPlanner
+  // will check for rule-defined predicates and delegate to DatalogQueryPlanner.
+  std::shared_ptr<RuleDatabase> _ruleDatabase = nullptr;
 
   std::optional<size_t> textLimit_ = std::nullopt;
 

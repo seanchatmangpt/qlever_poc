@@ -17,8 +17,9 @@ QLever implements the full SPARQL 1.1 standard, including federated queries,
 named graphs, the Graph Store HTTP Protocol, and updates. On top of its
 outstanding performance, QLever offers a variety of unique features: advanced
 text search capabilities, context-sensitive autocompletion of SPARQL queries,
-live query analysis, very efficient spatial queries, and the interactive
-visualization of very large numbers of geometric objects on a map.
+live query analysis, very efficient spatial queries, the interactive
+visualization of very large numbers of geometric objects on a map, and **Datalog
+support for recursive queries and inference rules**.
 
 [Here are demos of QLever](http://qlever.cs.uni-freiburg.de) on a variety of
 large datasets, including the complete Wikidata, Wikimedia Commons,
@@ -45,6 +46,38 @@ active and rapid development. If you find a bug or if you are missing a feature
 or if there is anything else you want to tell us, please [open an
 issue](https://github.com/ad-freiburg/qlever/issues) or [open a
 discussion](https://github.com/ad-freiburg/qlever/discussions).
+
+## 🔄 Datalog Support (NEW)
+
+QLever now supports **Datalog** for expressing recursive queries and inference rules! Datalog extends QLever's capabilities beyond SPARQL, making it easy to define transitive closures, graph algorithms, and ontology reasoning.
+
+**Quick Example:**
+
+```datalog
+# Define rules for ancestor relationships
+ancestor(?x, ?y) :- ?x <http://example.org/parentOf> ?y .
+ancestor(?x, ?z) :- ?x <http://example.org/parentOf> ?y, ancestor(?y, ?z).
+```
+
+```sparql
+# Query using the Datalog rule
+SELECT ?ancestor ?descendant WHERE {
+  ?ancestor <http://example.org/ancestor> ?descendant .
+}
+```
+
+**Features:**
+- 🔁 **Recursive rules** with efficient fixpoint computation
+- 🚀 **High performance** leveraging QLever's optimized SPARQL engine
+- 🔗 **Seamless integration** with SPARQL queries
+- 🧩 **Use cases**: Transitive closure, graph reachability, family trees, organizational hierarchies, ontology inference
+
+**Learn More:**
+- **[Datalog Guide](docs/datalog/DATALOG_GUIDE.md)** — Overview and quick start
+- **[Datalog Syntax](docs/datalog/DATALOG_SYNTAX.md)** — Complete syntax reference
+- **[Datalog Examples](docs/datalog/DATALOG_EXAMPLES.md)** — Real-world use cases
+- **[Datalog Performance](docs/datalog/DATALOG_PERFORMANCE.md)** — Optimization tips
+- **[Datalog API](docs/datalog/DATALOG_API.md)** — C++ programming guide
 
 ## 📚 Documentation
 

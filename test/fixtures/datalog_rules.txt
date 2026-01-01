@@ -1,0 +1,173 @@
+# ============================================================================
+# Datalog Rules for Integration Testing
+# ============================================================================
+# This file contains comprehensive Datalog rules for testing various aspects
+# of the Datalog implementation in QLever.
+#
+# Syntax:
+#   - Head predicate: lowercase identifier
+#   - Variables: SPARQL-style (?x, ?y, ?z)
+#   - IRIs: <http://example.org/resource>
+#   - Comments: # or //
+# ============================================================================
+
+# ============================================================================
+# SECTION 1: BASIC NON-RECURSIVE RULES
+# ============================================================================
+
+# Simple rule: parent relationship is just an alias
+parent(?x, ?y) :- ?x <http://example.org/parentOf> ?y .
+
+# Sibling rule (non-recursive)
+sibling(?x, ?y) :-
+  ?x <http://example.org/parentOf> ?z,
+  ?y <http://example.org/parentOf> ?z,
+  ?x != ?y .
+
+# Has child (inverse of parent)
+hasChild(?x, ?y) :- ?y <http://example.org/parentOf> ?x .
+
+# ============================================================================
+# SECTION 2: RECURSIVE RULES - TRANSITIVE CLOSURE
+# ============================================================================
+
+# Ancestor rule - classic transitive closure example
+# Base case: parent is an ancestor
+ancestor(?x, ?y) :- ?x <http://example.org/parentOf> ?y .
+
+# Recursive case: ancestor of ancestor is also ancestor
+ancestor(?x, ?z) :-
+  ?x <http://example.org/parentOf> ?y,
+  ancestor(?y, ?z) .
+
+# Alternative ancestor definition (different variable names)
+# Base case
+ancestorOf(?person, ?descendant) :-
+  ?person <http://example.org/parentOf> ?descendant .
+
+# Recursive case
+ancestorOf(?person, ?descendant) :-
+  ?person <http://example.org/parentOf> ?intermediate,
+  ancestorOf(?intermediate, ?descendant) .
+
+# ============================================================================
+# SECTION 3: GRAPH REACHABILITY
+# ============================================================================
+
+# Reachable nodes in a directed graph
+# Base case: directly connected nodes are reachable
+reachable(?from, ?to) :- ?from <http://example.org/edge> ?to .
+
+# Recursive case: transitively reachable via intermediate node
+reachable(?from, ?to) :-
+  ?from <http://example.org/edge> ?intermediate,
+  reachable(?intermediate, ?to) .
+
+# Path length 2 (non-recursive)
+pathLength2(?x, ?z) :-
+  ?x <http://example.org/edge> ?y,
+  ?y <http://example.org/edge> ?z .
+
+# ============================================================================
+# SECTION 4: ORGANIZATIONAL HIERARCHY
+# ============================================================================
+
+# Management chain
+# Base case
+manages(?manager, ?employee) :-
+  ?manager <http://example.org/manages> ?employee .
+
+# Recursive case: indirect management
+indirectlyManages(?boss, ?subordinate) :-
+  ?boss <http://example.org/manages> ?subordinate .
+
+indirectlyManages(?boss, ?subordinate) :-
+  ?boss <http://example.org/manages> ?intermediate,
+  indirectlyManages(?intermediate, ?subordinate) .
+
+# ============================================================================
+# SECTION 5: FAMILY RELATIONSHIPS - COMPLEX RULES
+# ============================================================================
+
+# Grandparent (non-recursive, two levels)
+grandparent(?gp, ?gc) :-
+  ?gp <http://example.org/parentOf> ?p,
+  ?p <http://example.org/parentOf> ?gc .
+
+# Great-grandparent (three levels)
+greatGrandparent(?ggp, ?ggc) :-
+  ?ggp <http://example.org/parentOf> ?gp,
+  ?gp <http://example.org/parentOf> ?p,
+  ?p <http://example.org/parentOf> ?ggc .
+
+# Cousin (children of siblings)
+cousin(?x, ?y) :-
+  ?px <http://example.org/parentOf> ?x,
+  ?py <http://example.org/parentOf> ?y,
+  ?px <http://example.org/siblingOf> ?py .
+
+# Related (any family connection via common ancestor)
+related(?x, ?y) :- ancestor(?a, ?x), ancestor(?a, ?y), ?x != ?y .
+
+# ============================================================================
+# SECTION 6: RULES WITH CONSTANTS
+# ============================================================================
+
+# Descendants of Alice specifically
+aliceDescendant(?x) :-
+  ancestor(<http://example.org/Alice>, ?x) .
+
+# People in the same city
+sameCity(?x, ?y) :-
+  ?x <http://example.org/livesIn> ?city,
+  ?y <http://example.org/livesIn> ?city,
+  ?x != ?y .
+
+# ============================================================================
+# SECTION 7: MULTIPLE PREDICATES IN BODY
+# ============================================================================
+
+# Extended family in same location
+extendedFamilyNearby(?x, ?y) :-
+  ancestor(?a, ?x),
+  ancestor(?a, ?y),
+  ?x <http://example.org/livesIn> ?city,
+  ?y <http://example.org/livesIn> ?city,
+  ?x != ?y .
+
+# Manager and friend
+managerAndFriend(?m, ?e) :-
+  manages(?m, ?e),
+  ?m <http://example.org/friendOf> ?e .
+
+# ============================================================================
+# SECTION 8: EDGE CASE RULES
+# ============================================================================
+
+# Rule with single variable (unary predicate)
+isPerson(?x) :- ?x <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.org/Person> .
+
+# Rule with three variables
+connection(?x, ?y, ?z) :-
+  ?x <http://example.org/edge> ?y,
+  ?y <http://example.org/edge> ?z .
+
+# Self-referential check
+knowsSelf(?x) :- ?x <http://example.org/knows> ?x .
+
+# ============================================================================
+# SECTION 9: PERFORMANCE TEST RULES
+# ============================================================================
+
+# Deep recursion test (4+ levels)
+deepAncestor(?x, ?y) :- ancestor(?x, ?y) .
+
+# Wide recursion (multiple branches)
+connected(?x, ?y) :- ?x <http://example.org/edge> ?y .
+connected(?x, ?y) :- ?x <http://example.org/parentOf> ?y .
+connected(?x, ?y) :- ?x <http://example.org/manages> ?y .
+connected(?x, ?z) :- connected(?x, ?y), connected(?y, ?z) .
+
+# ============================================================================
+# END OF RULES
+# ============================================================================
