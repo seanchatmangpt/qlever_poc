@@ -32,3 +32,7 @@ addAndLinkBenchmark(JoinAlgorithmBenchmark testUtil memorySize)
 addAndLinkBenchmark(ParallelMergeBenchmark testUtil)
 
 addAndLinkBenchmark(GroupByHashMapBenchmark engine testUtil gtest gmock)
+
+addAndLinkBenchmark(ConstructBenchmark engine testUtil queryPlanner parser)
+
+addAndLinkBenchmark(ConstructAdvancedBenchmark engine testUtil queryPlanner parser)
