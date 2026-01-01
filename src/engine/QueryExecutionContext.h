@@ -17,6 +17,7 @@
 #include "engine/Result.h"
 #include "engine/RuntimeInformation.h"
 #include "engine/SortPerformanceEstimator.h"
+#include "engine/queryCanonical/QueryFingerprint.h"
 #include "global/Epoch.h"
 #include "global/EpochManifest.h"
 #include "global/Id.h"
@@ -222,6 +223,18 @@ class QueryExecutionContext {
   auto& pinResultWithName() { return pinResultWithName_; }
   const auto& pinResultWithName() const { return pinResultWithName_; }
 
+  // Query fingerprint accessors for query shape canonicalization (EPIC 2)
+  // Set the fingerprint for this query execution context
+  void setQueryFingerprint(const ad_utility::QueryFingerprint& fingerprint) {
+    queryFingerprint_ = fingerprint;
+  }
+
+  // Get the query fingerprint if one has been set
+  [[nodiscard]] const std::optional<ad_utility::QueryFingerprint>&
+  getQueryFingerprint() const {
+    return queryFingerprint_;
+  }
+
   // Hook point for cache invalidation on epoch SERVE transition.
   // This method provides a centralized hook for cache management when an epoch
   // transitions to the SERVE state. Currently, cache invalidation is handled
@@ -296,6 +309,12 @@ class QueryExecutionContext {
   // and validation. Used to ensure cache consistency across different builds
   // and prevent stale cache hits when data versions differ.
   std::optional<ad_utility::EpochManifest> boundEpochManifest_;
+
+  // Query fingerprint for query shape canonicalization (EPIC 2)
+  // Contains complete deterministic identifier for this query's shape,
+  // enabling advanced caching strategies and query optimization.
+  // Set during query planning when canonicalization is enabled.
+  std::optional<ad_utility::QueryFingerprint> queryFingerprint_;
 
   // The last point in time when a websocket update was sent. This is used for
   // limiting the update frequency when `sendPriority` is `IfDue`.

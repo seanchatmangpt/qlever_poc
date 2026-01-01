@@ -1,1 +1,3 @@
 addLinkAndDiscoverTest(IriNormalizerTest engine)
+addLinkAndDiscoverTest(ConstantExtractorTest engine)
+addLinkAndDiscoverTest(DeterminismClassifierTest engine)
