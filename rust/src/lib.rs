@@ -47,6 +47,7 @@ pub mod store;
 pub mod cache;
 pub mod ffi;
 pub mod qlever_store;
+pub mod streaming;
 
 pub use error::{Error, Result};
 pub use model::{BlankNode, Literal, NamedNode, Quad, Term, Triple};
@@ -54,3 +55,4 @@ pub use query::QuerySolution;
 pub use qlever_store::{Store, QueryPlan};  // Primary Store is QLever-backed
 pub use store::Store as MemoryStore;  // In-memory store available as fallback
 pub use cache::{QueryCache, CacheStats};
+pub use streaming::{ResultIterator, LazyQueryResult, ChunkedResultIterator};

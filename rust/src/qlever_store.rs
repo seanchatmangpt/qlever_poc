@@ -280,6 +280,21 @@ impl Store {
             Ok(json)
         }
     }
+
+    pub fn query_streaming(&self, sparql: &str) -> Result<crate::streaming::LazyQueryResult> {
+        let json = self.query_raw_json(sparql)?;
+        crate::streaming::LazyQueryResult::from_json(json)
+    }
+
+    pub fn query_chunked(&self, sparql: &str, chunk_size: usize) -> Result<crate::streaming::ChunkedResultIterator> {
+        let json = self.query_raw_json(sparql)?;
+        crate::streaming::ChunkedResultIterator::new(json, chunk_size)
+    }
+
+    pub fn query_iterator(&self, sparql: &str) -> Result<crate::streaming::ResultIterator> {
+        let json = self.query_raw_json(sparql)?;
+        crate::streaming::ResultIterator::new(json)
+    }
 }
 
 pub struct QueryPlan {
