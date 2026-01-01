@@ -1,0 +1,44 @@
+{
+  "timestamp": "2026-01-01T08:31:06.969Z",
+  "status": "critical",
+  "protocols": {
+    "HTTP": {
+      "status": "unhealthy",
+      "error": "connect ECONNREFUSED 127.0.0.1:3000",
+      "circuitBreaker": "closed"
+    },
+    "WebSocket": {
+      "status": "unhealthy",
+      "error": "connect ECONNREFUSED 127.0.0.1:3002",
+      "circuitBreaker": "n/a"
+    },
+    "GraphQL": {
+      "status": "unhealthy",
+      "error": "connect ECONNREFUSED 127.0.0.1:3003",
+      "circuitBreaker": "n/a"
+    }
+  },
+  "contracts": {
+    "validation-error": {
+      "error": "Operation failed after 3 attempts: connect ECONNREFUSED 127.0.0.1:3000"
+    }
+  },
+  "resilience": {
+    "Connection Recovery": {
+      "passed": false
+    },
+    "Handle Management": {
+      "passed": false,
+      "error": "Operation failed after 3 attempts: connect ECONNREFUSED 127.0.0.1:3000"
+    },
+    "Error Propagation": {
+      "passed": true
+    }
+  },
+  "recommendations": [
+    "Restart unhealthy services: HTTP, WebSocket, GraphQL",
+    "Contract violations detected - check data integrity",
+    "2 resilience tests failed - review error handling"
+  ],
+  "score": "10.0"
+}
