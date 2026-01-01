@@ -41,7 +41,6 @@
 
 use crate::error::{Error, Result};
 use crate::ffi::types::QleverHandle;
-use crate::ffi::bindings::MediaType as FfiMediaType;
 use std::ffi::CString;
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -232,10 +231,33 @@ impl Qlever {
         self.handle.execute_plan(&plan.inner, format)
     }
 
+    // Internal helper: Normalize query for consistent caching
+    // Removes extra whitespace, comments, and normalizes formatting
+    fn normalize_query(query: &str) -> String {
+        query
+            .lines()
+            .map(|line| {
+                // Remove SPARQL comments
+                if let Some(pos) = line.find('#') {
+                    &line[..pos]
+                } else {
+                    line
+                }
+            })
+            .map(|line| line.trim())
+            .filter(|line| !line.is_empty())
+            .collect::<Vec<_>>()
+            .join(" ")
+            .split_whitespace()
+            .collect::<Vec<_>>()
+            .join(" ")
+    }
+
     // Internal helper: Get cached plan if available
     fn get_cached_plan(&self, query: &str) -> Option<crate::ffi::types::QueryPlan> {
+        let normalized = Self::normalize_query(query);
         let mut cache = self.plan_cache.write();
-        if let Some(cached) = cache.get_mut(query) {
+        if let Some(cached) = cache.get_mut(&normalized) {
             cached.hits += 1;
             return Some(cached.plan.clone());
         }
@@ -244,10 +266,11 @@ impl Qlever {
 
     // Internal helper: Cache a plan
     fn cache_plan(&self, query: &str, plan: crate::ffi::types::QueryPlan) {
+        let normalized = Self::normalize_query(query);
         let mut cache = self.plan_cache.write();
 
         // Simple LRU: Remove oldest entry if at capacity
-        if cache.len() >= self.max_plan_cache_size && !cache.contains_key(query) {
+        if cache.len() >= self.max_plan_cache_size && !cache.contains_key(&normalized) {
             // Remove plan with lowest hits (simple LRU approximation)
             if let Some(key) = cache
                 .iter()
@@ -259,7 +282,7 @@ impl Qlever {
         }
 
         cache.insert(
-            query.to_string(),
+            normalized,
             CachedPlan { plan, hits: 0 },
         );
     }
@@ -540,5 +563,87 @@ mod tests {
         assert_eq!(config.memory_limit_bytes, default_memory_limit());
         assert_eq!(config.cache_max_size_bytes, default_cache_size());
         assert_eq!(config.default_query_timeout_ms, default_timeout());
+    }
+
+    // Tests for query normalization and cache behavior
+    #[test]
+    fn test_query_normalization_removes_whitespace() {
+        let query1 = "SELECT ?s ?p ?o WHERE { ?s ?p ?o }";
+        let query2 = "SELECT  ?s  ?p  ?o  WHERE  {  ?s  ?p  ?o  }";
+
+        assert_eq!(Qlever::normalize_query(query1), Qlever::normalize_query(query2));
+    }
+
+    #[test]
+    fn test_query_normalization_removes_comments() {
+        let query1 = "SELECT ?s WHERE { ?s ?p ?o } # This is a comment";
+        let query2 = "SELECT ?s WHERE { ?s ?p ?o }";
+
+        assert_eq!(Qlever::normalize_query(query1), Qlever::normalize_query(query2));
+    }
+
+    #[test]
+    fn test_query_normalization_handles_multiline() {
+        let query = r#"SELECT ?s ?p ?o
+                       WHERE {
+                           ?s ?p ?o
+                       }"#;
+        let normalized = Qlever::normalize_query(query);
+
+        // Should be single line, normalized
+        assert!(!normalized.contains('\n'));
+        assert!(normalized.contains("SELECT"));
+        assert!(normalized.contains("WHERE"));
+    }
+
+    #[test]
+    fn test_query_normalization_idempotent() {
+        let query = "SELECT ?s WHERE { ?s ?p ?o }";
+        let norm1 = Qlever::normalize_query(query);
+        let norm2 = Qlever::normalize_query(&norm1);
+
+        assert_eq!(norm1, norm2);
+    }
+
+    #[test]
+    fn test_plan_cache_stats() {
+        let config = EngineConfig::builder("test")
+            .build()
+            .expect("Config creation failed");
+
+        let qlever = Qlever::new(config).expect("Engine creation failed");
+        let stats = qlever.plan_cache_stats();
+
+        assert_eq!(stats.cached_plans, 0);
+        assert_eq!(stats.total_hits, 0);
+    }
+
+    #[test]
+    fn test_plan_cache_disabled() {
+        let config = EngineConfig::builder("test")
+            .build()
+            .expect("Config creation failed");
+
+        let qlever = Qlever::new(config)
+            .expect("Engine creation failed")
+            .with_plan_cache(false, 100);
+
+        assert!(!qlever.plan_cache_enabled);
+        let stats = qlever.plan_cache_stats();
+        assert_eq!(stats.cached_plans, 0);
+    }
+
+    #[test]
+    fn test_plan_cache_custom_size() {
+        let config = EngineConfig::builder("test")
+            .build()
+            .expect("Config creation failed");
+
+        let qlever = Qlever::new(config)
+            .expect("Engine creation failed")
+            .with_plan_cache(true, 500);
+
+        assert!(qlever.plan_cache_enabled);
+        assert_eq!(qlever.max_plan_cache_size, 500);
     }
 }

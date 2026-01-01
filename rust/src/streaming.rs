@@ -1,8 +1,8 @@
-use crate::error::{Error, Result};
+use crate::error::Result;
 use crate::model::{NamedNode, Term};
 use crate::query::QuerySolution;
 use std::collections::BTreeMap;
-use serde_json::{json, Value};
+use serde_json::Value;
 
 pub struct ResultIterator {
     bindings: Vec<Value>,
