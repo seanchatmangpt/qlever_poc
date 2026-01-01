@@ -5,6 +5,7 @@
 
 #include "engine/QueryExecutionContext.h"
 
+#include "global/Epoch.h"
 #include "global/RuntimeParameters.h"
 #include "util/Exception.h"
 
@@ -37,7 +38,11 @@ QueryExecutionContext::QueryExecutionContext(
       _sortPerformanceEstimator(sortPerformanceEstimator),
       updateCallback_(std::move(updateCallback)),
       namedResultCache_(namedResultCache),
-      materializedViewsManager_(materializedViewsManager) {
+      materializedViewsManager_(materializedViewsManager),
+      currentEpochId_(ad_utility::globalEpochManager.withReadLock(
+          [](const ad_utility::EpochManager& manager) {
+            return manager.getCurrentEpochIdForQuery();
+          })) {
   AD_CORRECTNESS_CHECK(cache != nullptr);
   AD_CORRECTNESS_CHECK(namedResultCache != nullptr);
   AD_CORRECTNESS_CHECK(materializedViewsManager != nullptr);

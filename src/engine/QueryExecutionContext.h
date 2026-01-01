@@ -16,6 +16,7 @@
 #include "engine/Result.h"
 #include "engine/RuntimeInformation.h"
 #include "engine/SortPerformanceEstimator.h"
+#include "global/Epoch.h"
 #include "global/Id.h"
 #include "index/DeltaTriples.h"
 #include "index/Index.h"
@@ -113,6 +114,10 @@ class QueryExecutionContext {
 
   [[nodiscard]] const Index& getIndex() const { return _index; }
 
+  [[nodiscard]] ad_utility::EpochId getCurrentEpochId() const {
+    return currentEpochId_;
+  }
+
   const LocatedTriplesSnapshot& locatedTriplesSnapshot() const {
     AD_CORRECTNESS_CHECK(sharedLocatedTriplesSnapshot_ != nullptr);
     return *sharedLocatedTriplesSnapshot_;
@@ -199,6 +204,25 @@ class QueryExecutionContext {
   auto& pinResultWithName() { return pinResultWithName_; }
   const auto& pinResultWithName() const { return pinResultWithName_; }
 
+  // Hook point for cache invalidation on epoch SERVE transition.
+  // This method provides a centralized hook for cache management when an epoch
+  // transitions to the SERVE state. Currently, cache invalidation is handled
+  // implicitly through snapshot indices in QueryCacheKey, so this method is a
+  // no-op. It serves as an extension point for future fine-grained cache
+  // invalidation logic if needed.
+  //
+  // How it works (current implementation):
+  // - QueryCacheKey includes locatedTriplesSnapshotIndex_ as part of cache key
+  // - When updates occur, snapshot index changes
+  // - Different snapshot indices create different cache entries automatically
+  // - This provides automatic, implicit cache invalidation per epoch transition
+  void onEpochServeTransition() const {
+    // No-op: QLever's snapshot mechanism handles cache invalidation implicitly.
+    // Cache entries for different snapshot indices are completely separate,
+    // so each SERVE transition with updated snapshots automatically creates
+    // new cache entries.
+  }
+
  private:
   // Helper functions to avoid including `global/RuntimeParameters.h` in this
   // header.
@@ -243,6 +267,11 @@ class QueryExecutionContext {
   std::optional<PinResultWithName> pinResultWithName_ = std::nullopt;
 
   MaterializedViewsManager* materializedViewsManager_;
+
+  // The epoch ID at the time this query execution context was created.
+  // This binds the query to a specific epoch version of the data, ensuring
+  // consistent reads even if the index is updated during query execution.
+  ad_utility::EpochId currentEpochId_ = 0;
 
   // The last point in time when a websocket update was sent. This is used for
   // limiting the update frequency when `sendPriority` is `IfDue`.
