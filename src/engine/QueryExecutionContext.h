@@ -8,6 +8,7 @@
 
 #include <chrono>
 #include <memory>
+#include <optional>
 #include <string>
 
 #include "backports/three_way_comparison.h"
@@ -17,6 +18,7 @@
 #include "engine/RuntimeInformation.h"
 #include "engine/SortPerformanceEstimator.h"
 #include "global/Epoch.h"
+#include "global/EpochManifest.h"
 #include "global/Id.h"
 #include "index/DeltaTriples.h"
 #include "index/Index.h"
@@ -116,6 +118,22 @@ class QueryExecutionContext {
 
   [[nodiscard]] ad_utility::EpochId getCurrentEpochId() const {
     return currentEpochId_;
+  }
+
+  // Get manifest bound to this query execution context
+  // (for cache keying, validation, diagnostics)
+  [[nodiscard]] const std::optional<ad_utility::EpochManifest>&
+  getBoundEpochManifest() const {
+    return boundEpochManifest_;
+  }
+
+  // For cache key generation (includes manifest hash for determinism)
+  // Returns the manifest hash if a manifest is bound, empty string otherwise
+  [[nodiscard]] std::string getEpochDeterministicKey() const {
+    if (boundEpochManifest_.has_value()) {
+      return boundEpochManifest_->getManifestHash();
+    }
+    return "";
   }
 
   const LocatedTriplesSnapshot& locatedTriplesSnapshot() const {
@@ -272,6 +290,12 @@ class QueryExecutionContext {
   // This binds the query to a specific epoch version of the data, ensuring
   // consistent reads even if the index is updated during query execution.
   ad_utility::EpochId currentEpochId_ = 0;
+
+  // Manifest of the epoch this query is bound to.
+  // Contains metadata about the data version for deterministic cache keying
+  // and validation. Used to ensure cache consistency across different builds
+  // and prevent stale cache hits when data versions differ.
+  std::optional<ad_utility::EpochManifest> boundEpochManifest_;
 
   // The last point in time when a websocket update was sent. This is used for
   // limiting the update frequency when `sendPriority` is `IfDue`.

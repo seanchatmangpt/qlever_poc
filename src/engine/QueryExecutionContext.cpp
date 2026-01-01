@@ -22,6 +22,22 @@ std::chrono::milliseconds QueryExecutionContext::websocketUpdateInterval() {
 }
 
 // _____________________________________________________________________________
+// Helper function to retrieve the current epoch manifest
+static std::optional<ad_utility::EpochManifest> getEpochManifest() {
+  try {
+    // Query global epoch manager for manifest bound to current epoch
+    return ad_utility::globalEpochManager.withReadLock(
+        [](const ad_utility::EpochManager& manager) {
+          return manager.getCurrentEpochManifest();
+        });
+  } catch (...) {
+    // If manifest retrieval fails, continue without manifest
+    // (cache key will be empty string)
+    return std::nullopt;
+  }
+}
+
+// _____________________________________________________________________________
 QueryExecutionContext::QueryExecutionContext(
     const Index& index, QueryResultCache* const cache,
     ad_utility::AllocatorWithLimit<Id> allocator,
@@ -42,7 +58,8 @@ QueryExecutionContext::QueryExecutionContext(
       currentEpochId_(ad_utility::globalEpochManager.withReadLock(
           [](const ad_utility::EpochManager& manager) {
             return manager.getCurrentEpochIdForQuery();
-          })) {
+          })),
+      boundEpochManifest_(getEpochManifest()) {
   AD_CORRECTNESS_CHECK(cache != nullptr);
   AD_CORRECTNESS_CHECK(namedResultCache != nullptr);
   AD_CORRECTNESS_CHECK(materializedViewsManager != nullptr);
