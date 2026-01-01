@@ -1,0 +1,307 @@
+# 03-locations.n3 - Geographic Data
+# ====================================
+#
+# This file demonstrates:
+# - Modeling geographic locations
+# - Coordinates and spatial data
+# - Hierarchical relationships (city -> state -> country)
+# - Points of interest
+#
+# Use case: Geographic information system or travel application
+
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+@prefix gn: <http://www.geonames.org/ontology#> .
+@prefix ex: <http://example.org/> .
+@prefix loc: <http://example.org/location/> .
+
+# Define location-related classes
+ex:Country rdf:type rdfs:Class ;
+           rdfs:label "Country" .
+
+ex:State rdf:type rdfs:Class ;
+         rdfs:label "State or Province" .
+
+ex:City rdf:type rdfs:Class ;
+        rdfs:label "City" .
+
+ex:POI rdf:type rdfs:Class ;
+       rdfs:label "Point of Interest" .
+
+# Countries
+
+loc:usa rdf:type ex:Country ;
+        rdfs:label "United States of America" ;
+        ex:isoCode "US" ;
+        ex:capital loc:washington-dc ;
+        ex:population "331000000"^^xsd:integer ;
+        ex:area "9833520"^^xsd:decimal ;  # in square kilometers
+        ex:currency "USD" ;
+        ex:continent "North America" .
+
+loc:uk rdf:type ex:Country ;
+       rdfs:label "United Kingdom" ;
+       ex:isoCode "GB" ;
+       ex:capital loc:london ;
+       ex:population "67000000"^^xsd:integer ;
+       ex:area "242495"^^xsd:decimal ;
+       ex:currency "GBP" ;
+       ex:continent "Europe" .
+
+loc:france rdf:type ex:Country ;
+           rdfs:label "France" ;
+           ex:isoCode "FR" ;
+           ex:capital loc:paris ;
+           ex:population "67000000"^^xsd:integer ;
+           ex:area "643801"^^xsd:decimal ;
+           ex:currency "EUR" ;
+           ex:continent "Europe" .
+
+loc:japan rdf:type ex:Country ;
+          rdfs:label "Japan" ;
+          ex:isoCode "JP" ;
+          ex:capital loc:tokyo ;
+          ex:population "125000000"^^xsd:integer ;
+          ex:area "377975"^^xsd:decimal ;
+          ex:currency "JPY" ;
+          ex:continent "Asia" .
+
+# States in USA
+
+loc:california rdf:type ex:State ;
+               rdfs:label "California" ;
+               ex:stateCode "CA" ;
+               ex:country loc:usa ;
+               ex:capital loc:sacramento ;
+               ex:population "39000000"^^xsd:integer ;
+               ex:area "423970"^^xsd:decimal .
+
+loc:new-york-state rdf:type ex:State ;
+                   rdfs:label "New York" ;
+                   ex:stateCode "NY" ;
+                   ex:country loc:usa ;
+                   ex:capital loc:albany ;
+                   ex:population "20000000"^^xsd:integer ;
+                   ex:area "141300"^^xsd:decimal .
+
+loc:texas rdf:type ex:State ;
+          rdfs:label "Texas" ;
+          ex:stateCode "TX" ;
+          ex:country loc:usa ;
+          ex:capital loc:austin ;
+          ex:population "29000000"^^xsd:integer ;
+          ex:area "695662"^^xsd:decimal .
+
+# Cities in USA
+
+loc:san-francisco rdf:type ex:City ;
+                  rdfs:label "San Francisco" ;
+                  ex:state loc:california ;
+                  ex:country loc:usa ;
+                  ex:population "873965"^^xsd:integer ;
+                  geo:lat "37.7749"^^xsd:decimal ;
+                  geo:long "-122.4194"^^xsd:decimal ;
+                  ex:timezone "America/Los_Angeles" ;
+                  ex:elevation "16"^^xsd:decimal .  # meters
+
+loc:los-angeles rdf:type ex:City ;
+                rdfs:label "Los Angeles" ;
+                ex:state loc:california ;
+                ex:country loc:usa ;
+                ex:population "3979576"^^xsd:integer ;
+                geo:lat "34.0522"^^xsd:decimal ;
+                geo:long "-118.2437"^^xsd:decimal ;
+                ex:timezone "America/Los_Angeles" ;
+                ex:elevation "71"^^xsd:decimal .
+
+loc:sacramento rdf:type ex:City ;
+               rdfs:label "Sacramento" ;
+               ex:state loc:california ;
+               ex:country loc:usa ;
+               ex:population "524943"^^xsd:integer ;
+               geo:lat "38.5816"^^xsd:decimal ;
+               geo:long "-121.4944"^^xsd:decimal ;
+               ex:timezone "America/Los_Angeles" ;
+               ex:elevation "8"^^xsd:decimal .
+
+loc:new-york-city rdf:type ex:City ;
+                  rdfs:label "New York City" ;
+                  ex:state loc:new-york-state ;
+                  ex:country loc:usa ;
+                  ex:population "8336817"^^xsd:integer ;
+                  geo:lat "40.7128"^^xsd:decimal ;
+                  geo:long "-74.0060"^^xsd:decimal ;
+                  ex:timezone "America/New_York" ;
+                  ex:elevation "10"^^xsd:decimal .
+
+loc:albany rdf:type ex:City ;
+           rdfs:label "Albany" ;
+           ex:state loc:new-york-state ;
+           ex:country loc:usa ;
+           ex:population "97478"^^xsd:integer ;
+           geo:lat "42.6526"^^xsd:decimal ;
+           geo:long "-73.7562"^^xsd:decimal ;
+           ex:timezone "America/New_York" ;
+           ex:elevation "45"^^xsd:decimal .
+
+loc:austin rdf:type ex:City ;
+           rdfs:label "Austin" ;
+           ex:state loc:texas ;
+           ex:country loc:usa ;
+           ex:population "978908"^^xsd:integer ;
+           geo:lat "30.2672"^^xsd:decimal ;
+           geo:long "-97.7431"^^xsd:decimal ;
+           ex:timezone "America/Chicago" ;
+           ex:elevation "149"^^xsd:decimal .
+
+loc:houston rdf:type ex:City ;
+            rdfs:label "Houston" ;
+            ex:state loc:texas ;
+            ex:country loc:usa ;
+            ex:population "2304580"^^xsd:integer ;
+            geo:lat "29.7604"^^xsd:decimal ;
+            geo:long "-95.3698"^^xsd:decimal ;
+            ex:timezone "America/Chicago" ;
+            ex:elevation "32"^^xsd:decimal .
+
+loc:washington-dc rdf:type ex:City ;
+                  rdfs:label "Washington, D.C." ;
+                  ex:country loc:usa ;
+                  ex:population "705749"^^xsd:integer ;
+                  geo:lat "38.9072"^^xsd:decimal ;
+                  geo:long "-77.0369"^^xsd:decimal ;
+                  ex:timezone "America/New_York" ;
+                  ex:elevation "7"^^xsd:decimal .
+
+# Cities in other countries
+
+loc:london rdf:type ex:City ;
+           rdfs:label "London" ;
+           ex:country loc:uk ;
+           ex:population "9002488"^^xsd:integer ;
+           geo:lat "51.5074"^^xsd:decimal ;
+           geo:long "-0.1278"^^xsd:decimal ;
+           ex:timezone "Europe/London" ;
+           ex:elevation "11"^^xsd:decimal .
+
+loc:paris rdf:type ex:City ;
+          rdfs:label "Paris" ;
+          ex:country loc:france ;
+          ex:population "2161000"^^xsd:integer ;
+          geo:lat "48.8566"^^xsd:decimal ;
+          geo:long "2.3522"^^xsd:decimal ;
+          ex:timezone "Europe/Paris" ;
+          ex:elevation "35"^^xsd:decimal .
+
+loc:tokyo rdf:type ex:City ;
+          rdfs:label "Tokyo" ;
+          ex:country loc:japan ;
+          ex:population "14000000"^^xsd:integer ;
+          geo:lat "35.6762"^^xsd:decimal ;
+          geo:long "139.6503"^^xsd:decimal ;
+          ex:timezone "Asia/Tokyo" ;
+          ex:elevation "40"^^xsd:decimal .
+
+# Points of Interest
+
+loc:golden-gate-bridge rdf:type ex:POI ;
+                       rdfs:label "Golden Gate Bridge" ;
+                       ex:city loc:san-francisco ;
+                       ex:category "Landmark" ;
+                       geo:lat "37.8199"^^xsd:decimal ;
+                       geo:long "-122.4783"^^xsd:decimal ;
+                       ex:yearBuilt 1937 ;
+                       ex:description "Iconic suspension bridge spanning the Golden Gate strait" .
+
+loc:statue-of-liberty rdf:type ex:POI ;
+                      rdfs:label "Statue of Liberty" ;
+                      ex:city loc:new-york-city ;
+                      ex:category "Landmark" ;
+                      geo:lat "40.6892"^^xsd:decimal ;
+                      geo:long "-74.0445"^^xsd:decimal ;
+                      ex:yearBuilt 1886 ;
+                      ex:description "Colossal neoclassical sculpture on Liberty Island" .
+
+loc:eiffel-tower rdf:type ex:POI ;
+                 rdfs:label "Eiffel Tower" ;
+                 ex:city loc:paris ;
+                 ex:category "Landmark" ;
+                 geo:lat "48.8584"^^xsd:decimal ;
+                 geo:long "2.2945"^^xsd:decimal ;
+                 ex:yearBuilt 1889 ;
+                 ex:height "330"^^xsd:decimal ;  # meters
+                 ex:description "Wrought-iron lattice tower on the Champ de Mars" .
+
+loc:big-ben rdf:type ex:POI ;
+            rdfs:label "Big Ben" ;
+            ex:city loc:london ;
+            ex:category "Landmark" ;
+            geo:lat "51.5007"^^xsd:decimal ;
+            geo:long "-0.1246"^^xsd:decimal ;
+            ex:yearBuilt 1859 ;
+            ex:description "Clock tower at the Palace of Westminster" .
+
+loc:tokyo-tower rdf:type ex:POI ;
+                rdfs:label "Tokyo Tower" ;
+                ex:city loc:tokyo ;
+                ex:category "Landmark" ;
+                geo:lat "35.6586"^^xsd:decimal ;
+                geo:long "139.7454"^^xsd:decimal ;
+                ex:yearBuilt 1958 ;
+                ex:height "333"^^xsd:decimal ;
+                ex:description "Communications and observation tower" .
+
+loc:golden-gate-park rdf:type ex:POI ;
+                     rdfs:label "Golden Gate Park" ;
+                     ex:city loc:san-francisco ;
+                     ex:category "Park" ;
+                     geo:lat "37.7694"^^xsd:decimal ;
+                     geo:long "-122.4862"^^xsd:decimal ;
+                     ex:area "4.1"^^xsd:decimal ;  # square kilometers
+                     ex:description "Large urban park with gardens and museums" .
+
+loc:central-park rdf:type ex:POI ;
+                 rdfs:label "Central Park" ;
+                 ex:city loc:new-york-city ;
+                 ex:category "Park" ;
+                 geo:lat "40.7829"^^xsd:decimal ;
+                 geo:long "-73.9654"^^xsd:decimal ;
+                 ex:area "3.41"^^xsd:decimal ;
+                 ex:description "Urban public park in Manhattan" .
+
+# Distances between cities (in kilometers)
+loc:san-francisco ex:distanceTo [
+    ex:destination loc:los-angeles ;
+    ex:distance "559"^^xsd:decimal ;
+    ex:unit "km"
+] , [
+    ex:destination loc:new-york-city ;
+    ex:distance "4130"^^xsd:decimal ;
+    ex:unit "km"
+] , [
+    ex:destination loc:london ;
+    ex:distance "8620"^^xsd:decimal ;
+    ex:unit "km"
+] .
+
+# Climate data
+loc:san-francisco ex:climate [
+    rdf:type ex:ClimateData ;
+    ex:averageHighTemp "18"^^xsd:decimal ;  # Celsius
+    ex:averageLowTemp "10"^^xsd:decimal ;
+    ex:averageRainfall "530"^^xsd:decimal ;  # mm per year
+    ex:climateType "Mediterranean"
+] .
+
+loc:new-york-city ex:climate [
+    rdf:type ex:ClimateData ;
+    ex:averageHighTemp "17"^^xsd:decimal ;
+    ex:averageLowTemp "7"^^xsd:decimal ;
+    ex:averageRainfall "1270"^^xsd:decimal ;
+    ex:climateType "Humid subtropical"
+] .
+
+# Triple count: Approximately 200+ triples
+# This example demonstrates geographic hierarchies and spatial data

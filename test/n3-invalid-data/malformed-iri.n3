@@ -1,0 +1,2 @@
+# Invalid N3: unclosed IRI
+<http://example.org/unclosed <http://example.org/predicate> <http://example.org/object> .

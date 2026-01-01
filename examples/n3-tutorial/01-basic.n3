@@ -1,0 +1,67 @@
+# 01-basic.n3 - Introduction to N3 (Notation3) Format
+# =====================================================
+#
+# This file introduces the basics of N3 format:
+# - Prefix declarations
+# - Simple triples
+# - Basic syntax elements
+#
+# N3 is a compact format for expressing RDF triples in a human-readable way.
+# Each triple consists of: Subject Predicate Object .
+
+# Prefix declarations - shortcuts for common namespaces
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex: <http://example.org/> .
+
+# Simple triples: subject predicate object .
+# Each triple must end with a period (.)
+
+# Example 1: A simple statement about a person
+ex:Alice rdf:type ex:Person .
+ex:Alice ex:name "Alice Smith" .
+ex:Alice ex:age 30 .
+
+# Example 2: A statement about a book
+ex:Book1 rdf:type ex:Book .
+ex:Book1 ex:title "Introduction to RDF" .
+ex:Book1 ex:author ex:Alice .
+ex:Book1 ex:publishYear 2024 .
+
+# Example 3: Multiple statements about the same subject
+# Using semicolon (;) to avoid repeating the subject
+ex:Bob rdf:type ex:Person ;
+       ex:name "Bob Johnson" ;
+       ex:age 35 ;
+       ex:email "bob@example.org" .
+
+# Example 4: Using comma (,) to list multiple objects with same predicate
+ex:Charlie rdf:type ex:Person ;
+           ex:name "Charlie Brown" ;
+           ex:hobby "Reading", "Hiking", "Photography" .
+
+# Example 5: Typed literals using xsd datatypes
+ex:Product1 rdf:type ex:Product ;
+            ex:name "Laptop" ;
+            ex:price "999.99"^^xsd:decimal ;
+            ex:inStock "true"^^xsd:boolean ;
+            ex:releaseDate "2024-01-15"^^xsd:date .
+
+# Example 6: Language-tagged literals
+ex:Document1 rdf:type ex:Document ;
+             ex:title "Hello World"@en ;
+             ex:title "Hola Mundo"@es ;
+             ex:title "Bonjour le Monde"@fr .
+
+# Example 7: IRIs (Internationalized Resource Identifiers)
+# Full IRIs in angle brackets
+<http://example.org/Person/Diana> rdf:type ex:Person .
+<http://example.org/Person/Diana> ex:name "Diana Prince" .
+
+# Example 8: Comments
+# Lines starting with # are comments
+# They are ignored by the parser
+
+# Triple count summary: Approximately 25-30 triples in this file
+# This demonstrates the basic building blocks of N3 format

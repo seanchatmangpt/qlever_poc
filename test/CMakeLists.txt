@@ -198,6 +198,10 @@ endif ()
 
 addLinkAndDiscoverTestSerial(RdfParserTest parser re2)
 
+addLinkAndDiscoverTestSerial(N3IntegrationTest parser index engine)
+
+addLinkAndDiscoverTestSerial(N3ValidationTest parser re2)
+
 addLinkAndDiscoverTest(MultiColumnJoinTest engine)
 
 addLinkAndDiscoverTest(IdTableTest util)

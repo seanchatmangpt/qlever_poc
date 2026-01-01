@@ -1,0 +1,483 @@
+# property-lists.n3 - Property Lists and Syntactic Sugar
+# ========================================================
+#
+# This file demonstrates:
+# - Property list syntax (semicolon and comma)
+# - Blank node property lists (square brackets)
+# - Multiple objects for same predicate
+# - Nested property lists
+# - Best practices for readable N3
+#
+# N3 provides syntactic shortcuts to make RDF more readable and concise
+
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix ex: <http://example.org/> .
+@prefix person: <http://example.org/person/> .
+@prefix product: <http://example.org/product/> .
+
+# ==================
+# BASIC PROPERTY LISTS
+# ==================
+
+# Example 1: Without property lists (verbose)
+person:alice-verbose rdf:type ex:Person .
+person:alice-verbose ex:name "Alice Johnson" .
+person:alice-verbose ex:age "30"^^xsd:integer .
+person:alice-verbose ex:email "alice@example.org" .
+person:alice-verbose ex:city "San Francisco" .
+
+# Example 2: With property lists (semicolon separator)
+# Semicolon allows multiple predicates for the same subject
+person:alice-compact rdf:type ex:Person ;
+    ex:name "Alice Johnson" ;
+    ex:age "30"^^xsd:integer ;
+    ex:email "alice@example.org" ;
+    ex:city "San Francisco" .
+
+# ==================
+# MULTIPLE OBJECTS (COMMA SEPARATOR)
+# ==================
+
+# Example 3: Multiple hobbies using comma
+# Comma allows multiple objects for the same predicate
+person:bob rdf:type ex:Person ;
+    ex:name "Bob Smith" ;
+    ex:age "28"^^xsd:integer ;
+    ex:hobby "Reading", "Hiking", "Photography", "Cooking" ;
+    ex:skill "Python", "JavaScript", "SQL", "Docker" ;
+    ex:language "English", "Spanish", "French" .
+
+# Example 4: Multiple relationships
+person:charlie rdf:type ex:Person ;
+    ex:name "Charlie Brown" ;
+    foaf:knows person:alice-compact, person:bob, person:diana ;
+    ex:colleague person:alice-compact, person:bob ;
+    ex:friend person:diana, person:edward .
+
+person:diana rdf:type ex:Person ; ex:name "Diana Prince" .
+person:edward rdf:type ex:Person ; ex:name "Edward Lee" .
+
+# ==================
+# COMBINING SEMICOLON AND COMMA
+# ==================
+
+# Example 5: Combining both separators
+product:laptop rdf:type ex:Product ;
+    ex:name "ProBook Elite 15" ;
+    ex:brand "TechCorp" ;
+    ex:category "Electronics", "Computers", "Laptops" ;
+    ex:price "1299.99"^^xsd:decimal ;
+    ex:color "Silver", "Space Gray", "Black" ;
+    ex:feature "16GB RAM", "512GB SSD", "15-inch Display", "Backlit Keyboard" ;
+    ex:warranty "3 years" ;
+    ex:inStock "true"^^xsd:boolean .
+
+# Example 6: Complex product with many properties
+product:smartphone rdf:type ex:Product ;
+    ex:name "SmartPhone Pro 15" ;
+    ex:manufacturer "MobileTech" ;
+    ex:modelYear "2024"^^xsd:gYear ;
+    ex:screenSize "6.7"^^xsd:decimal ;
+    ex:storageOption "128GB", "256GB", "512GB", "1TB" ;
+    ex:colorOption "Midnight Black", "Silver", "Gold", "Blue" ;
+    ex:feature "5G", "Wireless Charging", "Water Resistant", "Face ID" ;
+    ex:operatingSystem "iOS 18" ;
+    ex:processor "A18 Pro" ;
+    ex:camera "48MP Main", "12MP Ultra Wide", "12MP Telephoto" ;
+    ex:batteryLife "Up to 29 hours video playback" ;
+    ex:price "999.00"^^xsd:decimal ;
+    ex:currency "USD" ;
+    ex:availableFrom "2024-09-20"^^xsd:date .
+
+# ==================
+# BLANK NODE PROPERTY LISTS
+# ==================
+
+# Example 7: Using blank nodes with square brackets
+# Square brackets create anonymous (blank) nodes inline
+person:fiona rdf:type ex:Person ;
+    ex:name "Fiona Green" ;
+    ex:age "35"^^xsd:integer ;
+
+    # Address as a blank node
+    ex:address [
+        rdf:type ex:Address ;
+        ex:street "456 Oak Avenue" ;
+        ex:city "New York" ;
+        ex:state "NY" ;
+        ex:zipCode "10001" ;
+        ex:country "USA"
+    ] ;
+
+    # Employment info as a blank node
+    ex:employment [
+        rdf:type ex:Employment ;
+        ex:company "TechCorp" ;
+        ex:position "Senior Engineer" ;
+        ex:startDate "2018-03-15"^^xsd:date ;
+        ex:salary "125000"^^xsd:decimal ;
+        ex:department "Engineering"
+    ] .
+
+# Example 8: Multiple blank nodes
+person:george rdf:type ex:Person ;
+    ex:name "George Wilson" ;
+
+    # Multiple addresses
+    ex:homeAddress [
+        ex:street "789 Pine Street" ;
+        ex:city "Seattle" ;
+        ex:state "WA" ;
+        ex:zipCode "98101"
+    ] ;
+
+    ex:workAddress [
+        ex:street "321 Tech Boulevard" ;
+        ex:city "Seattle" ;
+        ex:state "WA" ;
+        ex:zipCode "98109"
+    ] ;
+
+    # Contact methods
+    ex:contact [
+        rdf:type ex:EmailContact ;
+        ex:email "george@example.org" ;
+        ex:verified "true"^^xsd:boolean
+    ] , [
+        rdf:type ex:PhoneContact ;
+        ex:phoneNumber "+1-555-0123" ;
+        ex:phoneType "Mobile"
+    ] .
+
+# ==================
+# NESTED BLANK NODES
+# ==================
+
+# Example 9: Deeply nested blank nodes
+ex:company-acme rdf:type ex:Company ;
+    ex:name "Acme Corporation" ;
+    ex:headquarters [
+        rdf:type ex:Location ;
+        ex:address [
+            ex:street "100 Corporate Drive" ;
+            ex:city "San Francisco" ;
+            ex:state "CA"
+        ] ;
+        ex:coordinates [
+            ex:latitude "37.7749"^^xsd:decimal ;
+            ex:longitude "-122.4194"^^xsd:decimal
+        ]
+    ] ;
+    ex:ceo [
+        rdf:type ex:Person ;
+        ex:name "Jane Doe" ;
+        ex:contact [
+            ex:email "jane.doe@acme.com" ;
+            ex:officePhone "+1-555-0199"
+        ]
+    ] .
+
+# Example 10: Event with nested details
+ex:conference-2024 rdf:type ex:Event ;
+    ex:name "Tech Conference 2024" ;
+    ex:startDate "2024-10-15"^^xsd:date ;
+    ex:endDate "2024-10-17"^^xsd:date ;
+
+    ex:venue [
+        rdf:type ex:Venue ;
+        ex:name "Convention Center" ;
+        ex:address [
+            ex:street "747 Howard Street" ;
+            ex:city "San Francisco" ;
+            ex:state "CA"
+        ] ;
+        ex:capacity "5000"^^xsd:integer
+    ] ;
+
+    ex:organizer [
+        rdf:type ex:Organization ;
+        ex:name "Tech Events Inc" ;
+        ex:contact [
+            ex:email "info@techevents.com" ;
+            ex:phone "+1-555-0188"
+        ]
+    ] ;
+
+    ex:schedule [
+        ex:day1 [
+            ex:date "2024-10-15"^^xsd:date ;
+            ex:sessions [
+                ex:morning "Keynote: Future of AI" ;
+                ex:afternoon "Workshop: Machine Learning Basics"
+            ]
+        ] ;
+        ex:day2 [
+            ex:date "2024-10-16"^^xsd:date ;
+            ex:sessions [
+                ex:morning "Panel: Ethics in Technology" ;
+                ex:afternoon "Workshop: Web Development"
+            ]
+        ] ;
+        ex:day3 [
+            ex:date "2024-10-17"^^xsd:date ;
+            ex:sessions [
+                ex:morning "Presentations: Research Papers" ;
+                ex:afternoon "Closing Remarks"
+            ]
+        ]
+    ] .
+
+# ==================
+# COMPLEX REAL-WORLD EXAMPLES
+# ==================
+
+# Example 11: E-commerce order with property lists
+ex:order-12345 rdf:type ex:Order ;
+    ex:orderId "ORD-12345" ;
+    ex:orderDate "2024-11-15T14:30:00Z"^^xsd:dateTime ;
+    ex:status "Shipped" ;
+
+    ex:customer [
+        ex:customerId "CUST-789" ;
+        ex:name "Alice Johnson" ;
+        ex:email "alice@example.org" ;
+        ex:memberSince "2020-01-15"^^xsd:date
+    ] ;
+
+    ex:shippingAddress [
+        ex:recipient "Alice Johnson" ;
+        ex:street "123 Main Street" ;
+        ex:city "San Francisco" ;
+        ex:state "CA" ;
+        ex:zipCode "94102" ;
+        ex:country "USA"
+    ] ;
+
+    ex:billingAddress [
+        ex:street "123 Main Street" ;
+        ex:city "San Francisco" ;
+        ex:state "CA" ;
+        ex:zipCode "94102" ;
+        ex:country "USA"
+    ] ;
+
+    ex:item [
+        ex:product product:laptop ;
+        ex:quantity "1"^^xsd:integer ;
+        ex:unitPrice "1299.99"^^xsd:decimal ;
+        ex:discount "50.00"^^xsd:decimal ;
+        ex:subtotal "1249.99"^^xsd:decimal
+    ] , [
+        ex:product product:smartphone ;
+        ex:quantity "2"^^xsd:integer ;
+        ex:unitPrice "999.00"^^xsd:decimal ;
+        ex:discount "0.00"^^xsd:decimal ;
+        ex:subtotal "1998.00"^^xsd:decimal
+    ] ;
+
+    ex:payment [
+        ex:method "Credit Card" ;
+        ex:cardType "Visa" ;
+        ex:lastFourDigits "1234" ;
+        ex:transactionId "TXN-98765" ;
+        ex:amount "3247.99"^^xsd:decimal
+    ] ;
+
+    ex:shipping [
+        ex:carrier "FedEx" ;
+        ex:trackingNumber "FEDEX-123456789" ;
+        ex:shippingCost "12.00"^^xsd:decimal ;
+        ex:estimatedDelivery "2024-11-20"^^xsd:date
+    ] ;
+
+    ex:totals [
+        ex:subtotal "3247.99"^^xsd:decimal ;
+        ex:shipping "12.00"^^xsd:decimal ;
+        ex:tax "260.00"^^xsd:decimal ;
+        ex:total "3519.99"^^xsd:decimal
+    ] .
+
+# Example 12: Academic paper with authors and references
+ex:paper-ml-survey rdf:type ex:AcademicPaper ;
+    ex:title "Machine Learning: A Comprehensive Survey" ;
+    ex:doi "10.1234/ml.survey.2024" ;
+    ex:publicationDate "2024-06-15"^^xsd:date ;
+
+    ex:author [
+        ex:name "Dr. Alice Smith" ;
+        ex:affiliation "Stanford University" ;
+        ex:email "alice@stanford.edu" ;
+        ex:orcid "0000-0001-2345-6789"
+    ] , [
+        ex:name "Dr. Bob Johnson" ;
+        ex:affiliation "MIT" ;
+        ex:email "bob@mit.edu" ;
+        ex:orcid "0000-0002-3456-7890"
+    ] , [
+        ex:name "Dr. Charlie Brown" ;
+        ex:affiliation "UC Berkeley" ;
+        ex:email "charlie@berkeley.edu" ;
+        ex:orcid "0000-0003-4567-8901"
+    ] ;
+
+    ex:abstract "This paper presents a comprehensive survey of machine learning techniques..." ;
+    ex:keywords "machine learning", "artificial intelligence", "deep learning", "neural networks" ;
+    ex:pageCount "45"^^xsd:integer ;
+
+    ex:venue [
+        ex:type "Journal" ;
+        ex:name "Journal of Machine Learning Research" ;
+        ex:volume "25"^^xsd:integer ;
+        ex:issue "6"^^xsd:integer ;
+        ex:pages "1234-1278"
+    ] ;
+
+    ex:statistics [
+        ex:citationCount "127"^^xsd:integer ;
+        ex:downloadCount "3456"^^xsd:integer ;
+        ex:lastCited "2024-11-30"^^xsd:date
+    ] ;
+
+    ex:funding [
+        ex:agency "National Science Foundation" ;
+        ex:grantNumber "NSF-2024-001" ;
+        ex:amount "500000"^^xsd:decimal
+    ] .
+
+# Example 13: Restaurant with menu and reviews
+ex:restaurant-bella rdf:type ex:Restaurant ;
+    ex:name "La Bella Italia" ;
+    ex:cuisine "Italian" ;
+    ex:priceRange "$$-$$$" ;
+
+    ex:location [
+        ex:street "456 Columbus Avenue" ;
+        ex:city "San Francisco" ;
+        ex:state "CA" ;
+        ex:zipCode "94133" ;
+        ex:neighborhood "North Beach"
+    ] ;
+
+    ex:contact [
+        ex:phone "+1-555-0199" ;
+        ex:email "info@labellaitaliasc.com" ;
+        ex:website "http://labellaitaliasc.com"
+    ] ;
+
+    ex:hours [
+        ex:monday "11:00-22:00" ;
+        ex:tuesday "11:00-22:00" ;
+        ex:wednesday "11:00-22:00" ;
+        ex:thursday "11:00-22:00" ;
+        ex:friday "11:00-23:00" ;
+        ex:saturday "11:00-23:00" ;
+        ex:sunday "12:00-21:00"
+    ] ;
+
+    ex:features "Outdoor Seating", "Reservations", "Takeout", "Delivery", "Wine Bar" ;
+
+    ex:rating [
+        ex:overall "4.6"^^xsd:decimal ;
+        ex:food "4.7"^^xsd:decimal ;
+        ex:service "4.5"^^xsd:decimal ;
+        ex:ambiance "4.6"^^xsd:decimal ;
+        ex:value "4.4"^^xsd:decimal ;
+        ex:reviewCount "342"^^xsd:integer
+    ] ;
+
+    ex:popularDishes "Spaghetti Carbonara", "Margherita Pizza", "Tiramisu" ;
+
+    ex:awards "Michelin Bib Gourmand 2024", "Best Italian Restaurant SF 2023" .
+
+# Example 14: Book with detailed metadata
+ex:book-semantic-web rdf:type ex:Book ;
+    ex:title "The Semantic Web: A Comprehensive Guide" ;
+    ex:subtitle "Understanding RDF, SPARQL, and Linked Data" ;
+    ex:isbn "978-1-234567-89-0" ;
+    ex:isbn13 "978-1-234567-89-0" ;
+    ex:isbn10 "1-234567-89-X" ;
+
+    ex:author [
+        ex:name "Dr. Jane Smith" ;
+        ex:bio "Professor of Computer Science at MIT" ;
+        ex:homepage "http://janesmith.example.com"
+    ] ;
+
+    ex:publisher [
+        ex:name "Tech Books Publishing" ;
+        ex:location "New York, NY" ;
+        ex:founded "1995"^^xsd:gYear
+    ] ;
+
+    ex:publication [
+        ex:edition "2nd Edition" ;
+        ex:publicationDate "2024-06-15"^^xsd:date ;
+        ex:language "English" ;
+        ex:pageCount "456"^^xsd:integer ;
+        ex:format "Hardcover", "Paperback", "Kindle", "PDF"
+    ] ;
+
+    ex:pricing [
+        ex:hardcoverPrice "49.99"^^xsd:decimal ;
+        ex:paperbackPrice "29.99"^^xsd:decimal ;
+        ex:kindlePrice "19.99"^^xsd:decimal ;
+        ex:currency "USD"
+    ] ;
+
+    ex:subjects "Computer Science", "Semantic Web", "RDF", "SPARQL", "Linked Data" ;
+
+    ex:tableOfContents [
+        ex:chapter1 "Introduction to the Semantic Web" ;
+        ex:chapter2 "RDF Fundamentals" ;
+        ex:chapter3 "RDF Schema and Ontologies" ;
+        ex:chapter4 "SPARQL Query Language" ;
+        ex:chapter5 "Linked Data Principles" ;
+        ex:chapter6 "OWL and Reasoning" ;
+        ex:chapter7 "Applications and Use Cases"
+    ] ;
+
+    ex:reviews [
+        ex:averageRating "4.8"^^xsd:decimal ;
+        ex:totalReviews "127"^^xsd:integer ;
+        ex:fiveStarCount "98"^^xsd:integer ;
+        ex:fourStarCount "23"^^xsd:integer ;
+        ex:threeStarCount "5"^^xsd:integer ;
+        ex:twoStarCount "1"^^xsd:integer ;
+        ex:oneStarCount "0"^^xsd:integer
+    ] .
+
+# ==================
+# PROPERTY LIST BEST PRACTICES
+# ==================
+
+# Example 15: Readable formatting with proper indentation
+ex:well-formatted-entity rdf:type ex:Example ;
+    # Group related properties together
+    # Basic information
+    ex:name "Example Entity" ;
+    ex:type "Demonstration" ;
+    ex:created "2024-01-01"^^xsd:date ;
+
+    # Use comments to explain complex sections
+    # Contact information
+    ex:email "contact@example.org" ;
+    ex:phone "+1-555-0100" ;
+    ex:website <http://example.org> ;
+
+    # Use blank nodes for structured sub-properties
+    ex:location [
+        ex:city "San Francisco" ;
+        ex:country "USA"
+    ] ;
+
+    # Use commas for multiple values of same property
+    ex:tags "example", "demonstration", "best-practices" ;
+
+    # End with a period
+    ex:status "Active" .
+
+# Triple count: Approximately 500+ triples
+# This demonstrates various property list patterns and best practices for readable N3

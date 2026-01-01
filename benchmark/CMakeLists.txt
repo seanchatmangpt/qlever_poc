@@ -38,4 +38,6 @@ addAndLinkBenchmark(ConstructBenchmark engine testUtil queryPlanner parser)
 
 addAndLinkBenchmark(ConstructAdvancedBenchmark engine testUtil queryPlanner parser)
 
+addAndLinkBenchmark(N3BenchmarkTest parser)
+
 addAndLinkBenchmark(RdfParserBenchmark engine testUtil queryPlanner parser)

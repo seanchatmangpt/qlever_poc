@@ -1,0 +1,662 @@
+# N3 Examples - Sample SPARQL Queries
+# ======================================
+#
+# This file contains sample SPARQL queries for all N3 example datasets.
+# Each section corresponds to a specific N3 file.
+# Run these queries against QLever after loading the corresponding N3 data.
+
+# ==================
+# PREFIX DECLARATIONS
+# ==================
+# These prefixes are used across multiple queries
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX ex: <http://example.org/>
+PREFIX schema: <http://schema.org/>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX dc: <http://purl.org/dc/elements/1.1/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>
+
+# ==================================================================================
+# TUTORIAL EXAMPLES - 01-basic.n3
+# ==================================================================================
+
+# Query 1.1: Get all persons and their names
+# Expected: 4-5 persons (Alice, Bob, Charlie, Diana)
+SELECT ?person ?name WHERE {
+  ?person rdf:type ex:Person .
+  ?person ex:name ?name .
+}
+
+# Query 1.2: Get all typed literals with their datatypes
+# Expected: Multiple items with various XSD types
+SELECT ?subject ?predicate ?value (DATATYPE(?value) AS ?type) WHERE {
+  ?subject ?predicate ?value .
+  FILTER(isLiteral(?value) && DATATYPE(?value) != xsd:string)
+}
+LIMIT 20
+
+# Query 1.3: Get all language-tagged strings grouped by language
+# Expected: Strings in English, Spanish, French, etc.
+SELECT ?subject ?text ?lang WHERE {
+  ?subject ?predicate ?text .
+  FILTER(isLiteral(?text) && LANG(?text) != "")
+  BIND(LANG(?text) AS ?lang)
+}
+ORDER BY ?lang
+
+# Query 1.4: Count entities by type
+# Expected: Person, Book, Product, Document counts
+SELECT ?type (COUNT(?entity) AS ?count) WHERE {
+  ?entity rdf:type ?type .
+}
+GROUP BY ?type
+ORDER BY DESC(?count)
+
+# ==================================================================================
+# TUTORIAL EXAMPLES - 02-persons.n3
+# ==================================================================================
+
+# Query 2.1: Find all employees in Engineering department
+# Expected: Alice, Bob, Edward
+SELECT ?person ?name ?jobTitle ?salary WHERE {
+  ?person rdf:type ex:Person .
+  ?person ex:name ?name .
+  ?person ex:department "Engineering" .
+  ?person ex:jobTitle ?jobTitle .
+  OPTIONAL { ?person ex:salary ?salary }
+}
+ORDER BY DESC(?salary)
+
+# Query 2.2: Find who knows whom (social network)
+# Expected: Multiple foaf:knows relationships
+SELECT ?person1 ?name1 ?person2 ?name2 WHERE {
+  ?person1 foaf:knows ?person2 .
+  ?person1 foaf:name ?name1 .
+  ?person2 foaf:name ?name2 .
+}
+
+# Query 2.3: Find manager-employee relationships
+# Expected: Alice manages Bob and Edward
+SELECT ?manager ?managerName ?employee ?employeeName WHERE {
+  ?employee ex:reportsTo ?manager .
+  ?manager ex:name ?managerName .
+  ?employee ex:name ?employeeName .
+}
+
+# Query 2.4: Get employees with addresses (using blank nodes)
+# Expected: Employees with structured address info
+SELECT ?person ?name ?street ?city ?state WHERE {
+  ?person rdf:type ex:Person .
+  ?person ex:name ?name .
+  ?person foaf:based_near ?addr .
+  ?addr ex:street ?street .
+  ?addr ex:city ?city .
+  ?addr ex:state ?state .
+}
+
+# Query 2.5: Find people by salary range
+# Expected: High earners (>$100k)
+SELECT ?person ?name ?salary WHERE {
+  ?person rdf:type ex:Person .
+  ?person ex:name ?name .
+  ?person ex:salary ?salary .
+  FILTER(?salary > 100000)
+}
+ORDER BY DESC(?salary)
+
+# ==================================================================================
+# TUTORIAL EXAMPLES - 03-locations.n3
+# ==================================================================================
+
+# Query 3.1: Find all cities in California with populations
+# Expected: San Francisco, Los Angeles, Sacramento
+SELECT ?city ?population ?elevation WHERE {
+  ?city rdf:type ex:City .
+  ?city ex:state <http://example.org/location/california> .
+  ?city rdfs:label ?name .
+  ?city ex:population ?population .
+  OPTIONAL { ?city ex:elevation ?elevation }
+}
+ORDER BY DESC(?population)
+
+# Query 3.2: Find all points of interest with coordinates
+# Expected: Golden Gate Bridge, Eiffel Tower, etc.
+SELECT ?poi ?name ?lat ?long WHERE {
+  ?poi rdf:type ex:POI .
+  ?poi rdfs:label ?name .
+  ?poi geo:lat ?lat .
+  ?poi geo:long ?long .
+}
+
+# Query 3.3: Get geographic hierarchy (country -> state -> city)
+# Expected: USA -> California -> San Francisco, etc.
+SELECT ?country ?state ?city WHERE {
+  ?city rdf:type ex:City .
+  ?city ex:state ?state .
+  ?state ex:country ?country .
+  ?country rdfs:label ?countryName .
+  ?state rdfs:label ?stateName .
+  ?city rdfs:label ?cityName .
+}
+
+# Query 3.4: Find cities by timezone
+# Expected: Cities grouped by timezone
+SELECT ?timezone (COUNT(?city) AS ?cityCount) WHERE {
+  ?city rdf:type ex:City .
+  ?city ex:timezone ?timezone .
+}
+GROUP BY ?timezone
+ORDER BY DESC(?cityCount)
+
+# ==================================================================================
+# TUTORIAL EXAMPLES - 04-mixed-types.n3
+# ==================================================================================
+
+# Query 4.1: Find all boolean values
+# Expected: True/false values from various entities
+SELECT ?subject ?predicate ?value WHERE {
+  ?subject ?predicate ?value .
+  FILTER(DATATYPE(?value) = xsd:boolean)
+}
+
+# Query 4.2: Get all dates and times
+# Expected: Various date and dateTime values
+SELECT ?subject ?predicate ?value WHERE {
+  ?subject ?predicate ?value .
+  FILTER(DATATYPE(?value) IN (xsd:date, xsd:dateTime))
+}
+ORDER BY ?value
+
+# Query 4.3: Find numeric values within a range
+# Expected: Prices, quantities, etc.
+SELECT ?subject ?predicate ?value WHERE {
+  ?subject ?predicate ?value .
+  FILTER(DATATYPE(?value) = xsd:decimal && ?value >= 10 && ?value <= 100)
+}
+
+# Query 4.4: Get multilingual greetings
+# Expected: "Hello" in multiple languages
+SELECT ?lang ?greeting WHERE {
+  ?x ex:greeting ?greeting .
+  BIND(LANG(?greeting) AS ?lang)
+}
+ORDER BY ?lang
+
+# ==================================================================================
+# TUTORIAL EXAMPLES - 05-large-dataset.n3
+# ==================================================================================
+
+# Query 5.1: Find top-rated products
+# Expected: Products with rating > 4.5
+SELECT ?product ?name ?rating ?reviewCount ?price WHERE {
+  ?product rdf:type ex:Product .
+  ?product ex:name ?name .
+  ?product ex:rating ?rating .
+  ?product ex:reviewCount ?reviewCount .
+  ?product ex:price ?price .
+  FILTER(?rating > 4.5)
+}
+ORDER BY DESC(?rating) DESC(?reviewCount)
+LIMIT 10
+
+# Query 5.2: Find products by category and price range
+# Expected: Laptops between $1000-$2000
+SELECT ?product ?name ?price WHERE {
+  ?product rdf:type ex:Product .
+  ?product ex:category ex:Laptops .
+  ?product ex:name ?name .
+  ?product ex:price ?price .
+  FILTER(?price >= 1000 && ?price <= 2000)
+}
+ORDER BY ?price
+
+# Query 5.3: Find customers by membership level
+# Expected: Gold and Platinum members
+SELECT ?customer ?name ?membershipLevel ?lifetimeValue WHERE {
+  ?customer rdf:type ex:Customer .
+  ?customer ex:name ?name .
+  ?customer ex:membershipLevel ?membershipLevel .
+  ?customer ex:lifetimeValue ?lifetimeValue .
+  FILTER(?membershipLevel IN ("Gold", "Platinum"))
+}
+ORDER BY DESC(?lifetimeValue)
+
+# Query 5.4: Find orders with total amount > $1000
+# Expected: Large orders
+SELECT ?order ?orderId ?totalAmount ?status WHERE {
+  ?order rdf:type ex:Order .
+  ?order ex:orderId ?orderId .
+  ?order ex:totalAmount ?totalAmount .
+  ?order ex:status ?status .
+  FILTER(?totalAmount > 1000)
+}
+ORDER BY DESC(?totalAmount)
+
+# Query 5.5: Get product reviews with ratings
+# Expected: Reviews with 4-5 star ratings
+SELECT ?review ?product ?productName ?rating ?comment WHERE {
+  ?review rdf:type ex:Review .
+  ?review ex:product ?product .
+  ?product ex:name ?productName .
+  ?review ex:rating ?rating .
+  ?review ex:comment ?comment .
+  FILTER(?rating >= 4)
+}
+ORDER BY DESC(?rating)
+LIMIT 20
+
+# ==================================================================================
+# REAL-WORLD EXAMPLES - foaf-data.n3
+# ==================================================================================
+
+# Query 6.1: Find all people with their contact information
+# Expected: Researchers with email and homepage
+SELECT ?person ?name ?email ?homepage WHERE {
+  ?person rdf:type foaf:Person .
+  ?person foaf:name ?name .
+  OPTIONAL { ?person foaf:mbox ?email }
+  OPTIONAL { ?person foaf:homepage ?homepage }
+}
+
+# Query 6.2: Find social connections (who knows whom)
+# Expected: Social network graph
+SELECT ?person1 ?name1 ?person2 ?name2 WHERE {
+  ?person1 foaf:knows ?person2 .
+  ?person1 foaf:name ?name1 .
+  ?person2 foaf:name ?name2 .
+}
+
+# Query 6.3: Find people by interest
+# Expected: People interested in Semantic Web
+SELECT ?person ?name ?interest WHERE {
+  ?person rdf:type foaf:Person .
+  ?person foaf:name ?name .
+  ?person foaf:interest ?interest .
+}
+
+# Query 6.4: Get online accounts by service
+# Expected: Twitter, GitHub, LinkedIn accounts
+SELECT ?person ?name ?service ?accountName WHERE {
+  ?person foaf:name ?name .
+  ?person foaf:account ?account .
+  ?account foaf:accountServiceHomepage ?service .
+  ?account foaf:accountName ?accountName .
+}
+
+# ==================================================================================
+# REAL-WORLD EXAMPLES - schema-org.n3
+# ==================================================================================
+
+# Query 7.1: Find organizations with contact information
+# Expected: Companies with addresses and phones
+SELECT ?org ?name ?street ?city ?phone WHERE {
+  ?org rdf:type schema:Organization .
+  ?org schema:name ?name .
+  ?org schema:address ?addr .
+  ?addr schema:streetAddress ?street .
+  ?addr schema:addressLocality ?city .
+  OPTIONAL {
+    ?org schema:contactPoint ?contact .
+    ?contact schema:telephone ?phone .
+  }
+}
+
+# Query 7.2: Find events with dates and locations
+# Expected: Conferences and events
+SELECT ?event ?name ?startDate ?endDate ?location WHERE {
+  ?event rdf:type schema:Event .
+  ?event schema:name ?name .
+  ?event schema:startDate ?startDate .
+  ?event schema:endDate ?endDate .
+  ?event schema:location ?loc .
+  ?loc schema:name ?location .
+}
+ORDER BY ?startDate
+
+# Query 7.3: Find products with offers and ratings
+# Expected: Products with prices and ratings
+SELECT ?product ?name ?price ?currency ?rating WHERE {
+  ?product rdf:type schema:SoftwareApplication .
+  ?product schema:name ?name .
+  ?product schema:offers ?offer .
+  ?offer schema:price ?price .
+  ?offer schema:priceCurrency ?currency .
+  OPTIONAL {
+    ?product schema:aggregateRating ?aggRating .
+    ?aggRating schema:ratingValue ?rating .
+  }
+}
+
+# Query 7.4: Find articles with authors and dates
+# Expected: Blog posts and articles
+SELECT ?article ?headline ?authorName ?datePublished WHERE {
+  ?article rdf:type schema:Article .
+  ?article schema:headline ?headline .
+  ?article schema:author ?author .
+  ?author schema:name ?authorName .
+  ?article schema:datePublished ?datePublished .
+}
+ORDER BY DESC(?datePublished)
+
+# ==================================================================================
+# REAL-WORLD EXAMPLES - linked-data.n3
+# ==================================================================================
+
+# Query 8.1: Find entities with external links
+# Expected: Entities linked to DBpedia and Wikidata
+SELECT ?entity ?name ?dbpedia ?wikidata WHERE {
+  ?entity foaf:name ?name .
+  ?entity owl:sameAs ?dbpedia .
+  ?entity owl:sameAs ?wikidata .
+  FILTER(CONTAINS(str(?dbpedia), "dbpedia"))
+  FILTER(CONTAINS(str(?wikidata), "wikidata"))
+}
+
+# Query 8.2: Find people with their DBpedia information
+# Expected: Tim Berners-Lee, Vint Cerf, etc.
+SELECT ?person ?name ?birthDate ?nationality WHERE {
+  ?person rdf:type foaf:Person .
+  ?person foaf:name ?name .
+  OPTIONAL { ?person <http://dbpedia.org/ontology/birthDate> ?birthDate }
+  OPTIONAL { ?person <http://dbpedia.org/ontology/nationality> ?nationality }
+}
+
+# Query 8.3: Find concepts with their definitions
+# Expected: SKOS concepts with labels and definitions
+SELECT ?concept ?label ?definition WHERE {
+  ?concept rdf:type skos:Concept .
+  ?concept skos:prefLabel ?label .
+  ?concept skos:definition ?definition .
+  FILTER(LANG(?label) = "en")
+}
+
+# Query 8.4: Get dataset metadata (VoID)
+# Expected: Dataset information
+SELECT ?dataset ?title ?triples ?entities WHERE {
+  ?dataset rdf:type <http://rdfs.org/ns/void#Dataset> .
+  ?dataset dcterms:title ?title .
+  OPTIONAL { ?dataset <http://rdfs.org/ns/void#triples> ?triples }
+  OPTIONAL { ?dataset <http://rdfs.org/ns/void#entities> ?entities }
+}
+
+# ==================================================================================
+# REAL-WORLD EXAMPLES - knowledge-graph.n3
+# ==================================================================================
+
+# Query 9.1: Find researchers with h-index > 80
+# Expected: Top researchers
+SELECT ?researcher ?name ?hIndex ?citations WHERE {
+  ?researcher rdf:type ex:Researcher .
+  ?researcher foaf:name ?name .
+  ?researcher ex:hIndex ?hIndex .
+  ?researcher ex:totalCitations ?citations .
+  FILTER(?hIndex > 80)
+}
+ORDER BY DESC(?hIndex)
+
+# Query 9.2: Find collaborations (co-authors)
+# Expected: Research collaboration network
+SELECT ?researcher1 ?name1 ?researcher2 ?name2 WHERE {
+  ?researcher1 ex:coAuthor ?researcher2 .
+  ?researcher1 foaf:name ?name1 .
+  ?researcher2 foaf:name ?name2 .
+  FILTER(str(?researcher1) < str(?researcher2))  # Avoid duplicates
+}
+
+# Query 9.3: Find papers by research area
+# Expected: Papers on Machine Learning
+SELECT ?paper ?title ?authors WHERE {
+  ?paper rdf:type ex:ResearchPaper .
+  ?paper dcterms:title ?title .
+  ?paper ex:researchArea ex:machine-learning .
+  ?paper dcterms:creator ?author .
+  ?author foaf:name ?authors .
+}
+
+# Query 9.4: Find advisor-advisee relationships
+# Expected: PhD advisor relationships
+SELECT ?advisor ?advisorName ?student ?studentName WHERE {
+  ?student ex:advisedBy ?advisor .
+  ?student foaf:name ?studentName .
+  ?advisor foaf:name ?advisorName .
+}
+
+# Query 9.5: Get papers with high citation counts
+# Expected: Influential papers
+SELECT ?paper ?title ?citationCount ?venue WHERE {
+  ?paper rdf:type ex:ResearchPaper .
+  ?paper dcterms:title ?title .
+  ?paper ex:citationCount ?citationCount .
+  OPTIONAL { ?paper ex:venue ?venue }
+  FILTER(?citationCount > 100)
+}
+ORDER BY DESC(?citationCount)
+
+# ==================================================================================
+# ADVANCED EXAMPLES - collections-and-lists.n3
+# ==================================================================================
+
+# Query 10.1: Find all RDF lists with their first element
+# Expected: Various lists with first items
+SELECT ?list ?firstItem WHERE {
+  ?list rdf:first ?firstItem .
+}
+
+# Query 10.2: Get all items in rdf:Bag containers
+# Expected: Unordered collections
+SELECT ?bag ?label ?item WHERE {
+  ?bag rdf:type rdf:Bag .
+  OPTIONAL { ?bag rdfs:label ?label }
+  ?bag ?member ?item .
+  FILTER(STRSTARTS(str(?member), str(rdf:_)))
+}
+
+# Query 10.3: Get ordered sequences (rdf:Seq)
+# Expected: Ranked items in order
+SELECT ?seq ?label ?position ?item WHERE {
+  ?seq rdf:type rdf:Seq .
+  OPTIONAL { ?seq rdfs:label ?label }
+  ?seq ?member ?item .
+  FILTER(STRSTARTS(str(?member), str(rdf:_)))
+  BIND(REPLACE(str(?member), ".*_(\\d+)$", "$1") AS ?position)
+}
+ORDER BY ?seq ?position
+
+# ==================================================================================
+# ADVANCED EXAMPLES - property-lists.n3
+# ==================================================================================
+
+# Query 11.1: Find products with multiple colors
+# Expected: Products with color variations
+SELECT ?product ?name (GROUP_CONCAT(?color; separator=", ") AS ?colors) WHERE {
+  ?product rdf:type ex:Product .
+  ?product ex:name ?name .
+  ?product ex:color ?color .
+}
+GROUP BY ?product ?name
+
+# Query 11.2: Get entities with structured addresses
+# Expected: Entities with complete address information
+SELECT ?entity ?name ?street ?city ?state ?zip WHERE {
+  ?entity ex:name ?name .
+  ?entity ex:address ?addr .
+  ?addr ex:street ?street .
+  ?addr ex:city ?city .
+  OPTIONAL { ?addr ex:state ?state }
+  OPTIONAL { ?addr ex:zipCode ?zip }
+}
+
+# ==================================================================================
+# ADVANCED EXAMPLES - blank-nodes.n3
+# ==================================================================================
+
+# Query 12.1: Find reified statements with metadata
+# Expected: Statements about statements
+SELECT ?subject ?predicate ?object ?source ?confidence WHERE {
+  ?statement rdf:type rdf:Statement .
+  ?statement rdf:subject ?subject .
+  ?statement rdf:predicate ?predicate .
+  ?statement rdf:object ?object .
+  OPTIONAL { ?statement ex:source ?source }
+  OPTIONAL { ?statement ex:confidence ?confidence }
+}
+
+# Query 12.2: Get n-ary relations (employment history)
+# Expected: Employment records with multiple properties
+SELECT ?employee ?employer ?position ?startDate ?endDate WHERE {
+  ?employment rdf:type ex:Employment .
+  ?employment ex:employee ?employee .
+  ?employment ex:employer ?employer .
+  ?employment ex:position ?position .
+  OPTIONAL { ?employment ex:startDate ?startDate }
+  OPTIONAL { ?employment ex:endDate ?endDate }
+}
+
+# ==================================================================================
+# ADVANCED EXAMPLES - language-tags.n3
+# ==================================================================================
+
+# Query 13.1: Get greetings in all languages
+# Expected: "Hello" in multiple languages
+SELECT ?lang ?greeting WHERE {
+  ?x ex:message ?greeting .
+  BIND(LANG(?greeting) AS ?lang)
+  FILTER(?lang != "")
+}
+ORDER BY ?lang
+
+# Query 13.2: Find product names in specific language
+# Expected: Product names in French
+SELECT ?product ?name WHERE {
+  ?product rdf:type ex:Product .
+  ?product ex:name ?name .
+  FILTER(LANG(?name) = "fr")
+}
+
+# Query 13.3: Get all translations of a title
+# Expected: Same title in multiple languages
+SELECT ?lang ?title WHERE {
+  <http://example.org/data/book-001> dcterms:title ?title .
+  BIND(LANG(?title) AS ?lang)
+}
+ORDER BY ?lang
+
+# Query 13.4: Count entities by language
+# Expected: Distribution of language-tagged literals
+SELECT ?lang (COUNT(?text) AS ?count) WHERE {
+  ?s ?p ?text .
+  FILTER(isLiteral(?text) && LANG(?text) != "")
+  BIND(LANG(?text) AS ?lang)
+}
+GROUP BY ?lang
+ORDER BY DESC(?count)
+
+# ==================================================================================
+# COMPLEX CROSS-DATASET QUERIES
+# ==================================================================================
+
+# Query 14.1: Federated pattern - Find people and their organizations
+# Expected: People with their affiliated organizations
+SELECT ?person ?name ?org ?orgName WHERE {
+  ?person rdf:type foaf:Person .
+  ?person foaf:name ?name .
+  OPTIONAL {
+    ?person ex:affiliatedWith ?org .
+    ?org foaf:name ?orgName .
+  }
+}
+
+# Query 14.2: Property path - Friends of friends
+# Expected: 2-hop connections
+SELECT ?person1 ?name1 ?person2 ?name2 WHERE {
+  ?person1 foaf:knows/foaf:knows ?person2 .
+  ?person1 foaf:name ?name1 .
+  ?person2 foaf:name ?name2 .
+  FILTER(?person1 != ?person2)
+}
+LIMIT 20
+
+# Query 14.3: UNION - Find all names (people or organizations)
+# Expected: Combined list of entities with names
+SELECT DISTINCT ?entity ?name ?type WHERE {
+  {
+    ?entity rdf:type foaf:Person .
+    ?entity foaf:name ?name .
+    BIND("Person" AS ?type)
+  } UNION {
+    ?entity rdf:type schema:Organization .
+    ?entity schema:name ?name .
+    BIND("Organization" AS ?type)
+  }
+}
+ORDER BY ?type ?name
+
+# Query 14.4: Aggregation - Average values by category
+# Expected: Statistics by grouping
+SELECT ?category (AVG(?price) AS ?avgPrice) (COUNT(?product) AS ?count) WHERE {
+  ?product ex:category ?category .
+  ?product ex:price ?price .
+}
+GROUP BY ?category
+HAVING (COUNT(?product) > 5)
+ORDER BY DESC(?avgPrice)
+
+# ==================================================================================
+# UTILITY QUERIES
+# ==================================================================================
+
+# Query 15.1: List all classes in the dataset
+SELECT DISTINCT ?class (COUNT(?instance) AS ?instanceCount) WHERE {
+  ?instance rdf:type ?class .
+}
+GROUP BY ?class
+ORDER BY DESC(?instanceCount)
+
+# Query 15.2: List all predicates used
+SELECT DISTINCT ?predicate (COUNT(?s) AS ?usage) WHERE {
+  ?s ?predicate ?o .
+}
+GROUP BY ?predicate
+ORDER BY DESC(?usage)
+
+# Query 15.3: Find all language tags used
+SELECT DISTINCT ?lang (COUNT(?literal) AS ?count) WHERE {
+  ?s ?p ?literal .
+  FILTER(isLiteral(?literal) && LANG(?literal) != "")
+  BIND(LANG(?literal) AS ?lang)
+}
+GROUP BY ?lang
+ORDER BY DESC(?count)
+
+# Query 15.4: Count triples by subject
+SELECT ?subject (COUNT(?p) AS ?tripleCount) WHERE {
+  ?subject ?p ?o .
+}
+GROUP BY ?subject
+ORDER BY DESC(?tripleCount)
+LIMIT 20
+
+# Query 15.5: Find orphaned entities (no incoming links)
+SELECT ?entity (COUNT(?outgoing) AS ?outgoingLinks) WHERE {
+  ?entity rdf:type ?type .
+  OPTIONAL { ?entity ?p ?outgoing }
+  FILTER NOT EXISTS { ?x ?y ?entity }
+}
+GROUP BY ?entity
+ORDER BY DESC(?outgoingLinks)
+LIMIT 20
+
+# ==================================================================================
+# END OF QUERIES
+# ==================================================================================
+
+# Total queries: 70+
+# Coverage: All 13 N3 example files
+# Difficulty: Basic to Advanced
+# Categories: Filtering, Aggregation, Property Paths, Federated, Multilingual
