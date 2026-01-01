@@ -1,0 +1,7 @@
+# Test that output digest is reproducible across multiple runs
+related(?x, ?y) :- relateTo(?x, ?y).
+related(?x, ?z) :- relateTo(?x, ?y), related(?y, ?z).
+
+connection(?x, ?y) :- knows(?x, ?y).
+connection(?x, ?y) :- related(?x, ?y).
+connection(?x, ?z) :- connection(?x, ?y), connection(?y, ?z).

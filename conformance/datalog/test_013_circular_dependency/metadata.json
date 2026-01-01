@@ -1,0 +1,18 @@
+{
+  "test_name": "circular_dependency",
+  "description": "Handle circular dependencies between multiple predicates correctly",
+  "expected_iterations": 5,
+  "expected_derived_facts": 38,
+  "expected_rule_fires": {
+    "rule_0_transitiveDep_base": 4,
+    "rule_1_transitiveDep_recursive": 12,
+    "rule_2_transitiveReq_base": 3,
+    "rule_3_transitiveReq_recursive": 6,
+    "rule_4_allDeps_transitiveDep": 16,
+    "rule_5_allDeps_transitiveReq": 9,
+    "rule_6_allDeps_recursive": 10
+  },
+  "guards_triggered": false,
+  "subsystem": "datalog",
+  "feature_coverage": ["circular_dependency", "mutual_recursion", "complex_interaction"]
+}

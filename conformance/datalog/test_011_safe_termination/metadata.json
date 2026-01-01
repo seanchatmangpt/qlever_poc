@@ -1,0 +1,13 @@
+{
+  "test_name": "safe_termination",
+  "description": "Verify safe termination on cyclic graph without infinite loop",
+  "expected_iterations": 3,
+  "expected_derived_facts": 9,
+  "expected_rule_fires": {
+    "rule_0_base": 3,
+    "rule_1_recursive": 6
+  },
+  "guards_triggered": false,
+  "subsystem": "datalog",
+  "feature_coverage": ["safe_termination", "cyclic_graph", "fixpoint", "no_infinite_loop"]
+}

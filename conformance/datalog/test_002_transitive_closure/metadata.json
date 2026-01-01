@@ -1,0 +1,13 @@
+{
+  "test_name": "transitive_closure",
+  "description": "Compute transitive closure of parent relationship to derive ancestor",
+  "expected_iterations": 4,
+  "expected_derived_facts": 10,
+  "expected_rule_fires": {
+    "rule_0_base": 4,
+    "rule_1_transitive": 6
+  },
+  "guards_triggered": false,
+  "subsystem": "datalog",
+  "feature_coverage": ["recursion", "transitive_closure", "fixpoint"]
+}

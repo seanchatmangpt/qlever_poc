@@ -1,0 +1,10 @@
+# Complex graph with many interacting rules
+connected(?x, ?y) :- edge(?x, ?y).
+connected(?x, ?y) :- path(?x, ?y).
+connected(?x, ?z) :- connected(?x, ?y), connected(?y, ?z).
+
+bridged(?x, ?y) :- link(?x, ?z), connects(?z, ?y).
+
+networkReach(?x, ?y) :- connected(?x, ?y).
+networkReach(?x, ?y) :- bridged(?x, ?y).
+networkReach(?x, ?z) :- networkReach(?x, ?y), networkReach(?y, ?z).

@@ -1,0 +1,18 @@
+{
+  "outcome": "OK",
+  "derived_facts": 35,
+  "iterations": 5,
+  "rule_fires": {
+    "rule_0_connected_edge": 3,
+    "rule_1_connected_path": 2,
+    "rule_2_connected_recursive": 8,
+    "rule_3_bridged": 2,
+    "rule_4_networkReach_connected": 13,
+    "rule_5_networkReach_bridged": 2,
+    "rule_6_networkReach_recursive": 5
+  },
+  "output_digest_sha256": "placeholder_digest_006",
+  "guard_triggered": null,
+  "error": null,
+  "runtime_ms": 25
+}

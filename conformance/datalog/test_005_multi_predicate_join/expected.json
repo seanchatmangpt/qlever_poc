@@ -1,0 +1,12 @@
+{
+  "outcome": "OK",
+  "derived_facts": 2,
+  "iterations": 1,
+  "rule_fires": {
+    "rule_0_coworkerInSameCity": 2
+  },
+  "output_digest_sha256": "placeholder_digest_005",
+  "guard_triggered": null,
+  "error": null,
+  "runtime_ms": 12
+}

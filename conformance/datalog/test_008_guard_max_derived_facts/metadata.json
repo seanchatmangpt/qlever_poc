@@ -1,0 +1,14 @@
+{
+  "test_name": "guard_max_derived_facts",
+  "description": "Trigger max_derived_facts guard to prevent memory exhaustion",
+  "expected_iterations": 3,
+  "expected_derived_facts": 20,
+  "expected_rule_fires": {
+    "rule_0_base": 10,
+    "rule_1_recursive": 10
+  },
+  "guards_triggered": true,
+  "guard_name": "max_derived_facts",
+  "subsystem": "datalog",
+  "feature_coverage": ["guard", "max_derived_facts", "fail_closed"]
+}

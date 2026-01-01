@@ -1,0 +1,16 @@
+{
+  "outcome": "OK",
+  "derived_facts": 22,
+  "iterations": 4,
+  "rule_fires": {
+    "rule_0_related_base": 3,
+    "rule_1_related_recursive": 6,
+    "rule_2_connection_knows": 2,
+    "rule_3_connection_related": 9,
+    "rule_4_connection_recursive": 2
+  },
+  "output_digest_sha256": "placeholder_digest_012",
+  "guard_triggered": null,
+  "error": null,
+  "runtime_ms": 22
+}

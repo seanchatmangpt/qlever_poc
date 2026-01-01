@@ -1,0 +1,18 @@
+{
+  "test_name": "complex_graph",
+  "description": "Complex graph with many interacting rules and multiple predicates",
+  "expected_iterations": 5,
+  "expected_derived_facts": 35,
+  "expected_rule_fires": {
+    "rule_0_connected_edge": 3,
+    "rule_1_connected_path": 2,
+    "rule_2_connected_recursive": 8,
+    "rule_3_bridged": 2,
+    "rule_4_networkReach_connected": 13,
+    "rule_5_networkReach_bridged": 2,
+    "rule_6_networkReach_recursive": 5
+  },
+  "guards_triggered": false,
+  "subsystem": "datalog",
+  "feature_coverage": ["complex_graph", "multiple_rules", "recursion", "interaction"]
+}

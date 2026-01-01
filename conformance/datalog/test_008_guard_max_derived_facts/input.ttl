@@ -1,0 +1,13 @@
+@prefix : <http://example.org/> .
+
+# Dense graph that produces many derived facts
+:a :connects :b .
+:a :connects :c .
+:a :connects :d .
+:b :connects :c .
+:b :connects :d .
+:b :connects :e .
+:c :connects :d .
+:c :connects :e .
+:d :connects :e .
+:e :connects :f .

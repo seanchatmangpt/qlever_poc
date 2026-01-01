@@ -1,0 +1,4 @@
+# Rule that produces many facts through transitive closure
+# Guard should trigger when derived facts exceed limit (e.g., 20 facts)
+linked(?x, ?y) :- connects(?x, ?y).
+linked(?x, ?z) :- connects(?x, ?y), linked(?y, ?z).

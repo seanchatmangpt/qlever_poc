@@ -1,0 +1,15 @@
+{
+  "test_name": "multiple_rules",
+  "description": "Multiple rules firing in sequence with different predicates",
+  "expected_iterations": 2,
+  "expected_derived_facts": 12,
+  "expected_rule_fires": {
+    "rule_0_knows_friend": 2,
+    "rule_1_knows_colleague": 1,
+    "rule_2_knows_symmetric": 6,
+    "rule_3_canContact": 6
+  },
+  "guards_triggered": false,
+  "subsystem": "datalog",
+  "feature_coverage": ["multiple_rules", "sequence", "symmetry"]
+}

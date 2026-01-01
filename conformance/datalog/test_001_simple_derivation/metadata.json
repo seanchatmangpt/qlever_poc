@@ -1,0 +1,12 @@
+{
+  "test_name": "simple_derivation",
+  "description": "Simple fact derivation from base facts using single non-recursive rule",
+  "expected_iterations": 1,
+  "expected_derived_facts": 3,
+  "expected_rule_fires": {
+    "rule_0_knows": 3
+  },
+  "guards_triggered": false,
+  "subsystem": "datalog",
+  "feature_coverage": ["simple_derivation", "non_recursive"]
+}

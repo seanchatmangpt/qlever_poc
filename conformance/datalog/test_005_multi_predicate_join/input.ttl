@@ -1,0 +1,8 @@
+@prefix : <http://example.org/> .
+
+:alice :worksAt :companyA .
+:bob :worksAt :companyA .
+:charlie :worksAt :companyB .
+:alice :lives :cityX .
+:bob :lives :cityY .
+:charlie :lives :cityX .

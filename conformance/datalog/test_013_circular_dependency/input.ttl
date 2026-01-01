@@ -1,0 +1,10 @@
+@prefix : <http://example.org/> .
+
+# Circular dependencies between multiple predicates
+:a :depends :b .
+:b :depends :c .
+:c :depends :d .
+:d :depends :a .
+:a :requires :x .
+:x :requires :y .
+:y :requires :a .

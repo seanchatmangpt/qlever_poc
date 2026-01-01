@@ -1,0 +1,12 @@
+{
+  "test_name": "multi_predicate_join",
+  "description": "Join over multiple predicates to find coworkers in same city",
+  "expected_iterations": 1,
+  "expected_derived_facts": 2,
+  "expected_rule_fires": {
+    "rule_0_coworkerInSameCity": 2
+  },
+  "guards_triggered": false,
+  "subsystem": "datalog",
+  "feature_coverage": ["join", "multi_predicate", "complex_pattern"]
+}

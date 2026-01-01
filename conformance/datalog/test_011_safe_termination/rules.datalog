@@ -1,0 +1,4 @@
+# Recursive rule on cyclic graph - should terminate via fixpoint
+# No infinite loop should occur
+reachable(?x, ?y) :- cycle(?x, ?y).
+reachable(?x, ?z) :- cycle(?x, ?y), reachable(?y, ?z).

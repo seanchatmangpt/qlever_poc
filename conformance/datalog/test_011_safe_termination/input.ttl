@@ -1,0 +1,6 @@
+@prefix : <http://example.org/> .
+
+# Small cyclic graph that terminates safely
+:a :cycle :b .
+:b :cycle :c .
+:c :cycle :a .

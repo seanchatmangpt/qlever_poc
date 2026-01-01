@@ -1,0 +1,4 @@
+# Rule that would take long to compute
+# Guard should trigger when runtime exceeds limit (e.g., 100ms)
+chain(?x, ?y) :- p(?x, ?y).
+chain(?x, ?z) :- p(?x, ?y), chain(?y, ?z).

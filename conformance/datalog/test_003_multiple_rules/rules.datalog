@@ -1,0 +1,12 @@
+# Multiple rules firing in sequence
+# Rule 1: friends know each other
+knows(?x, ?y) :- friend(?x, ?y).
+
+# Rule 2: colleagues know each other
+knows(?x, ?y) :- colleague(?x, ?y).
+
+# Rule 3: knowing is symmetric
+knows(?y, ?x) :- knows(?x, ?y).
+
+# Rule 4: if you know someone, you can contact them
+canContact(?x, ?y) :- knows(?x, ?y).

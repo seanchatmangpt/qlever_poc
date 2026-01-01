@@ -1,0 +1,12 @@
+{
+  "outcome": "OK",
+  "derived_facts": 3,
+  "iterations": 1,
+  "rule_fires": {
+    "rule_0_knows": 3
+  },
+  "output_digest_sha256": "placeholder_digest_001",
+  "guard_triggered": null,
+  "error": null,
+  "runtime_ms": 10
+}

@@ -1,0 +1,11 @@
+# Circular dependencies between multiple derived predicates
+# Should handle mutual recursion correctly
+transitiveDep(?x, ?y) :- depends(?x, ?y).
+transitiveDep(?x, ?z) :- depends(?x, ?y), transitiveDep(?y, ?z).
+
+transitiveReq(?x, ?y) :- requires(?x, ?y).
+transitiveReq(?x, ?z) :- requires(?x, ?y), transitiveReq(?y, ?z).
+
+allDeps(?x, ?y) :- transitiveDep(?x, ?y).
+allDeps(?x, ?y) :- transitiveReq(?x, ?y).
+allDeps(?x, ?z) :- allDeps(?x, ?y), allDeps(?y, ?z).

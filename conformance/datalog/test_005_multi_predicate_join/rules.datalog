@@ -1,0 +1,2 @@
+# Join over multiple predicates: find coworkers in same city
+coworkerInSameCity(?x, ?y) :- worksAt(?x, ?company), worksAt(?y, ?company), lives(?x, ?city), lives(?y, ?city).

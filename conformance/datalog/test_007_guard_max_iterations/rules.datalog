@@ -1,0 +1,4 @@
+# This rule would require 15 iterations to complete
+# Guard should trigger before completion (e.g., at iteration 5)
+reachable(?x, ?y) :- next(?x, ?y).
+reachable(?x, ?z) :- next(?x, ?y), reachable(?y, ?z).

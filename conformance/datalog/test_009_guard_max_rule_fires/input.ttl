@@ -1,0 +1,10 @@
+@prefix : <http://example.org/> .
+
+# Graph that causes many rule firings
+:x1 :hop :x2 .
+:x2 :hop :x3 .
+:x3 :hop :x4 .
+:x4 :hop :x5 .
+:x5 :hop :x6 .
+:x6 :hop :x7 .
+:x7 :hop :x8 .

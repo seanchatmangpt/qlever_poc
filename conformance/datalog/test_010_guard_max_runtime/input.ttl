@@ -1,0 +1,12 @@
+@prefix : <http://example.org/> .
+
+# Large dataset to cause long runtime
+:s1 :p :s2 .
+:s2 :p :s3 .
+:s3 :p :s4 .
+:s4 :p :s5 .
+:s5 :p :s6 .
+:s6 :p :s7 .
+:s7 :p :s8 .
+:s8 :p :s9 .
+:s9 :p :s10 .

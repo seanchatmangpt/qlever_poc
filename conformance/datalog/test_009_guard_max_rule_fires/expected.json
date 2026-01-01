@@ -1,0 +1,13 @@
+{
+  "outcome": "GUARDED",
+  "derived_facts": 12,
+  "iterations": 4,
+  "rule_fires": {
+    "rule_0_base": 7,
+    "rule_1_recursive": 8
+  },
+  "output_digest_sha256": "",
+  "guard_triggered": "max_rule_fires",
+  "error": null,
+  "runtime_ms": 20
+}

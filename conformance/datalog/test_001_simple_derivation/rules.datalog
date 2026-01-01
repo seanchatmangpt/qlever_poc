@@ -1,0 +1,2 @@
+# Simple fact derivation: if A likes B, then A knows B
+knows(?x, ?y) :- likes(?x, ?y).

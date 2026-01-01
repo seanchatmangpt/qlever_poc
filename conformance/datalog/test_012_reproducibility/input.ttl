@@ -1,0 +1,8 @@
+@prefix : <http://example.org/> .
+
+# Dataset for reproducibility testing
+:entity1 :relateTo :entity2 .
+:entity2 :relateTo :entity3 .
+:entity3 :relateTo :entity1 .
+:entity1 :knows :entity4 .
+:entity4 :knows :entity5 .

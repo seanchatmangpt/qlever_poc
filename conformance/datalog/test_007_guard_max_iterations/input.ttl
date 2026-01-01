@@ -1,0 +1,18 @@
+@prefix : <http://example.org/> .
+
+# Large chain that would require many iterations
+:n0 :next :n1 .
+:n1 :next :n2 .
+:n2 :next :n3 .
+:n3 :next :n4 .
+:n4 :next :n5 .
+:n5 :next :n6 .
+:n6 :next :n7 .
+:n7 :next :n8 .
+:n8 :next :n9 .
+:n9 :next :n10 .
+:n10 :next :n11 .
+:n11 :next :n12 .
+:n12 :next :n13 .
+:n13 :next :n14 .
+:n14 :next :n15 .

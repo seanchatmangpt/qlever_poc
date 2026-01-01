@@ -1,0 +1,3 @@
+# Transitive closure: compute ancestor relationship from parent
+ancestor(?x, ?y) :- parent(?x, ?y).
+ancestor(?x, ?z) :- parent(?x, ?y), ancestor(?y, ?z).

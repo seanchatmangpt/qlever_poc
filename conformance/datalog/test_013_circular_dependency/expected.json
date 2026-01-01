@@ -1,0 +1,18 @@
+{
+  "outcome": "OK",
+  "derived_facts": 38,
+  "iterations": 5,
+  "rule_fires": {
+    "rule_0_transitiveDep_base": 4,
+    "rule_1_transitiveDep_recursive": 12,
+    "rule_2_transitiveReq_base": 3,
+    "rule_3_transitiveReq_recursive": 6,
+    "rule_4_allDeps_transitiveDep": 16,
+    "rule_5_allDeps_transitiveReq": 9,
+    "rule_6_allDeps_recursive": 10
+  },
+  "output_digest_sha256": "placeholder_digest_013",
+  "guard_triggered": null,
+  "error": null,
+  "runtime_ms": 28
+}

@@ -488,3 +488,12 @@ qlever_target_link_libraries(PrintIndexVersionMain util)
 
 add_executable(N3VerifierMain src/util/N3VerifierMain.cpp src/util/N3ComplianceVerifier.cpp)
 qlever_target_link_libraries(N3VerifierMain util)
+
+add_executable(ShExConformanceRunner src/engine/conformance/ShExConformanceRunner.cpp)
+qlever_target_link_libraries(ShExConformanceRunner engine util)
+
+add_executable(DatalogConformanceRunner src/engine/conformance/DatalogConformanceRunner.cpp)
+qlever_target_link_libraries(DatalogConformanceRunner engine util)
+
+add_executable(ShaclConformanceRunner src/ShaclConformanceRunnerMain.cpp src/engine/conformance/ShaclConformanceRunner.cpp)
+qlever_target_link_libraries(ShaclConformanceRunner engine util)

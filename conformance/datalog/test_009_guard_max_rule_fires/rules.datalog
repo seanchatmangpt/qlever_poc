@@ -1,0 +1,4 @@
+# Rule that fires many times
+# Guard should trigger when rule fires exceed limit (e.g., 15 fires)
+path(?x, ?y) :- hop(?x, ?y).
+path(?x, ?z) :- hop(?x, ?y), path(?y, ?z).

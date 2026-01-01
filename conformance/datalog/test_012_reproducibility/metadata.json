@@ -1,0 +1,16 @@
+{
+  "test_name": "reproducibility",
+  "description": "Verify output digest is reproducible across multiple runs",
+  "expected_iterations": 4,
+  "expected_derived_facts": 22,
+  "expected_rule_fires": {
+    "rule_0_related_base": 3,
+    "rule_1_related_recursive": 6,
+    "rule_2_connection_knows": 2,
+    "rule_3_connection_related": 9,
+    "rule_4_connection_recursive": 2
+  },
+  "guards_triggered": false,
+  "subsystem": "datalog",
+  "feature_coverage": ["reproducibility", "deterministic", "digest"]
+}

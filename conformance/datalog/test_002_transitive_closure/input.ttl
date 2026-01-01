@@ -1,0 +1,6 @@
+@prefix : <http://example.org/> .
+
+:alice :parent :bob .
+:bob :parent :charlie .
+:charlie :parent :david .
+:david :parent :eve .

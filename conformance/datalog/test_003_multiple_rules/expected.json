@@ -1,0 +1,15 @@
+{
+  "outcome": "OK",
+  "derived_facts": 12,
+  "iterations": 2,
+  "rule_fires": {
+    "rule_0_knows_friend": 2,
+    "rule_1_knows_colleague": 1,
+    "rule_2_knows_symmetric": 6,
+    "rule_3_canContact": 6
+  },
+  "output_digest_sha256": "placeholder_digest_003",
+  "guard_triggered": null,
+  "error": null,
+  "runtime_ms": 20
+}

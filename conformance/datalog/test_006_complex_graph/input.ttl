@@ -1,0 +1,12 @@
+@prefix : <http://example.org/> .
+
+# Complex graph with multiple relationship types
+:a1 :edge :a2 .
+:a2 :edge :a3 .
+:a3 :edge :a4 .
+:b1 :path :b2 .
+:b2 :path :b3 .
+:a1 :link :b1 .
+:a4 :link :b3 .
+:c1 :connects :a2 .
+:c1 :connects :b2 .

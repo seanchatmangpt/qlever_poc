@@ -1,0 +1,3 @@
+# Recursive reachability computation
+reachable(?x, ?y) :- edge(?x, ?y).
+reachable(?x, ?z) :- edge(?x, ?y), reachable(?y, ?z).

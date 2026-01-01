@@ -1,0 +1,13 @@
+{
+  "test_name": "recursive_rule",
+  "description": "Recursive rule with proper termination via fixpoint",
+  "expected_iterations": 5,
+  "expected_derived_facts": 15,
+  "expected_rule_fires": {
+    "rule_0_base": 5,
+    "rule_1_recursive": 10
+  },
+  "guards_triggered": false,
+  "subsystem": "datalog",
+  "feature_coverage": ["recursion", "reachability", "fixpoint_termination"]
+}
