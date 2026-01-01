@@ -46,6 +46,15 @@ or if there is anything else you want to tell us, please [open an
 issue](https://github.com/ad-freiburg/qlever/issues) or [open a
 discussion](https://github.com/ad-freiburg/qlever/discussions).
 
+## 📚 Documentation
+
+**Comprehensive documentation is available in the [docs/](docs/) folder:**
+- **[Quick Start Commands](docs/QUICK_START.md)** — Copy-paste examples for all use cases
+- **[Troubleshooting Guide](docs/TROUBLESHOOTING.md)** — Solutions for common problems
+- **[Full Documentation Index](docs/INDEX.md)** — Tutorials, how-to guides, reference, and explanations
+
+Or continue below for the quickstart.
+
 # Quickstart
 
 Use QLever via the `qlever` command-line interface (CLI),  which can be
