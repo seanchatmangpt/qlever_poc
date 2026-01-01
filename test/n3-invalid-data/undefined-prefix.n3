@@ -1,0 +1,2 @@
+# Invalid N3: using undefined prefix
+undefined:subject <http://example.org/predicate> <http://example.org/object> .

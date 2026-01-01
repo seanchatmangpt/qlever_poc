@@ -1,0 +1,2 @@
+# Invalid N3: invalid percent encoding in IRI
+<http://example.org/%ZZ> <http://example.org/predicate> <http://example.org/object> .
