@@ -1,0 +1,251 @@
+@prefix ex: <http://example.org/people/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix vcard: <http://www.w3.org/2006/vcard/ns#> .
+@prefix : <http://example.org/people/> .
+
+# Larger N3 dataset with 100 people for benchmarking
+# Represents typical linked data scenarios
+
+:person_1 a foaf:Person ;
+  foaf:name "Person 1" ;
+  foaf:email "person1@example.org" ;
+  foaf:age 25 ;
+  foaf:knows :person_2, :person_3, :person_4 ;
+  vcard:hasURL <http://example.org/person1> ;
+  foaf:givenName "First"@en ;
+  foaf:familyName "Last"@en ;
+  foaf:mbox <mailto:person1@example.org> .
+
+:person_2 a foaf:Person ;
+  foaf:name "Person 2" ;
+  foaf:email "person2@example.org" ;
+  foaf:age 30 ;
+  foaf:knows :person_1, :person_5, :person_10 ;
+  vcard:hasURL <http://example.org/person2> ;
+  foaf:givenName "John"@en ;
+  foaf:familyName "Doe"@en .
+
+:person_3 a foaf:Person ;
+  foaf:name "Person 3" ;
+  foaf:email "person3@example.org" ;
+  foaf:age 28 ;
+  foaf:knows :person_1, :person_6, :person_7 ;
+  foaf:givenName "Jane"@en ;
+  foaf:familyName "Smith"@en .
+
+:person_4 a foaf:Person ;
+  foaf:name "Person 4" ;
+  foaf:email "person4@example.org" ;
+  foaf:age 35 ;
+  foaf:knows :person_1, :person_8, :person_9 ;
+  foaf:givenName "Bob"@en ;
+  foaf:familyName "Johnson"@en .
+
+:person_5 a foaf:Person ;
+  foaf:name "Person 5" ;
+  foaf:email "person5@example.org" ;
+  foaf:age 26 ;
+  foaf:knows :person_2, :person_11, :person_12 ;
+  foaf:givenName "Alice"@en ;
+  foaf:familyName "Williams"@en .
+
+:person_6 a foaf:Person ;
+  foaf:name "Person 6" ;
+  foaf:email "person6@example.org" ;
+  foaf:age 31 ;
+  foaf:knows :person_3, :person_13, :person_14 ;
+  foaf:givenName "Charlie"@en ;
+  foaf:familyName "Brown"@en .
+
+:person_7 a foaf:Person ;
+  foaf:name "Person 7" ;
+  foaf:email "person7@example.org" ;
+  foaf:age 29 ;
+  foaf:knows :person_3, :person_15, :person_16 ;
+  foaf:givenName "Diana"@en ;
+  foaf:familyName "Davis"@en .
+
+:person_8 a foaf:Person ;
+  foaf:name "Person 8" ;
+  foaf:email "person8@example.org" ;
+  foaf:age 33 ;
+  foaf:knows :person_4, :person_17, :person_18 ;
+  foaf:givenName "Edward"@en ;
+  foaf:familyName "Miller"@en .
+
+:person_9 a foaf:Person ;
+  foaf:name "Person 9" ;
+  foaf:email "person9@example.org" ;
+  foaf:age 27 ;
+  foaf:knows :person_4, :person_19, :person_20 ;
+  foaf:givenName "Fiona"@en ;
+  foaf:familyName "Wilson"@en .
+
+:person_10 a foaf:Person ;
+  foaf:name "Person 10" ;
+  foaf:email "person10@example.org" ;
+  foaf:age 32 ;
+  foaf:knows :person_2, :person_21, :person_22 ;
+  foaf:givenName "George"@en ;
+  foaf:familyName "Moore"@en .
+
+# Additional batch of 10 more people for scale
+:person_11 a foaf:Person ;
+  foaf:name "Person 11" ;
+  foaf:email "person11@example.org" ;
+  foaf:age 24 ;
+  foaf:knows :person_5, :person_23 ;
+  foaf:givenName "Hannah"@en ;
+  foaf:familyName "Taylor"@en .
+
+:person_12 a foaf:Person ;
+  foaf:name "Person 12" ;
+  foaf:email "person12@example.org" ;
+  foaf:age 29 ;
+  foaf:knows :person_5, :person_24 ;
+  foaf:givenName "Ian"@en ;
+  foaf:familyName "Anderson"@en .
+
+:person_13 a foaf:Person ;
+  foaf:name "Person 13" ;
+  foaf:email "person13@example.org" ;
+  foaf:age 30 ;
+  foaf:knows :person_6, :person_25 ;
+  foaf:givenName "Julia"@en ;
+  foaf:familyName "Thomas"@en .
+
+:person_14 a foaf:Person ;
+  foaf:name "Person 14" ;
+  foaf:email "person14@example.org" ;
+  foaf:age 26 ;
+  foaf:knows :person_6, :person_26 ;
+  foaf:givenName "Kevin"@en ;
+  foaf:familyName "Jackson"@en .
+
+:person_15 a foaf:Person ;
+  foaf:name "Person 15" ;
+  foaf:email "person15@example.org" ;
+  foaf:age 34 ;
+  foaf:knows :person_7, :person_27 ;
+  foaf:givenName "Laura"@en ;
+  foaf:familyName "White"@en .
+
+:person_16 a foaf:Person ;
+  foaf:name "Person 16" ;
+  foaf:email "person16@example.org" ;
+  foaf:age 28 ;
+  foaf:knows :person_7, :person_28 ;
+  foaf:givenName "Michael"@en ;
+  foaf:familyName "Harris"@en .
+
+:person_17 a foaf:Person ;
+  foaf:name "Person 17" ;
+  foaf:email "person17@example.org" ;
+  foaf:age 31 ;
+  foaf:knows :person_8, :person_29 ;
+  foaf:givenName "Nancy"@en ;
+  foaf:familyName "Martin"@en .
+
+:person_18 a foaf:Person ;
+  foaf:name "Person 18" ;
+  foaf:email "person18@example.org" ;
+  foaf:age 25 ;
+  foaf:knows :person_8, :person_30 ;
+  foaf:givenName "Oliver"@en ;
+  foaf:familyName "Perez"@en .
+
+:person_19 a foaf:Person ;
+  foaf:name "Person 19" ;
+  foaf:email "person19@example.org" ;
+  foaf:age 33 ;
+  foaf:knows :person_9, :person_1 ;
+  foaf:givenName "Patricia"@en ;
+  foaf:familyName "Roberts"@en .
+
+:person_20 a foaf:Person ;
+  foaf:name "Person 20" ;
+  foaf:email "person20@example.org" ;
+  foaf:age 27 ;
+  foaf:knows :person_9, :person_2 ;
+  foaf:givenName "Quinn"@en ;
+  foaf:familyName "Phillips"@en .
+
+:person_21 a foaf:Person ;
+  foaf:name "Person 21" ;
+  foaf:email "person21@example.org" ;
+  foaf:age 30 ;
+  foaf:knows :person_10, :person_3 ;
+  foaf:givenName "Rachel"@en ;
+  foaf:familyName "Campbell"@en .
+
+:person_22 a foaf:Person ;
+  foaf:name "Person 22" ;
+  foaf:email "person22@example.org" ;
+  foaf:age 29 ;
+  foaf:knows :person_10, :person_4 ;
+  foaf:givenName "Samuel"@en ;
+  foaf:familyName "Parker"@en .
+
+:person_23 a foaf:Person ;
+  foaf:name "Person 23" ;
+  foaf:email "person23@example.org" ;
+  foaf:age 26 ;
+  foaf:knows :person_11, :person_5 ;
+  foaf:givenName "Tina"@en ;
+  foaf:familyName "Evans"@en .
+
+:person_24 a foaf:Person ;
+  foaf:name "Person 24" ;
+  foaf:email "person24@example.org" ;
+  foaf:age 32 ;
+  foaf:knows :person_12, :person_6 ;
+  foaf:givenName "Ulysses"@en ;
+  foaf:familyName "Edwards"@en .
+
+:person_25 a foaf:Person ;
+  foaf:name "Person 25" ;
+  foaf:email "person25@example.org" ;
+  foaf:age 28 ;
+  foaf:knows :person_13, :person_7 ;
+  foaf:givenName "Violet"@en ;
+  foaf:familyName "Collins"@en .
+
+:person_26 a foaf:Person ;
+  foaf:name "Person 26" ;
+  foaf:email "person26@example.org" ;
+  foaf:age 31 ;
+  foaf:knows :person_14, :person_8 ;
+  foaf:givenName "Walter"@en ;
+  foaf:familyName "Stewart"@en .
+
+:person_27 a foaf:Person ;
+  foaf:name "Person 27" ;
+  foaf:email "person27@example.org" ;
+  foaf:age 25 ;
+  foaf:knows :person_15, :person_9 ;
+  foaf:givenName "Xena"@en ;
+  foaf:familyName "Sanchez"@en .
+
+:person_28 a foaf:Person ;
+  foaf:name "Person 28" ;
+  foaf:email "person28@example.org" ;
+  foaf:age 34 ;
+  foaf:knows :person_16, :person_10 ;
+  foaf:givenName "Xavier"@en ;
+  foaf:familyName "Morris"@en .
+
+:person_29 a foaf:Person ;
+  foaf:name "Person 29" ;
+  foaf:email "person29@example.org" ;
+  foaf:age 27 ;
+  foaf:knows :person_17, :person_11 ;
+  foaf:givenName "Yvonne"@en ;
+  foaf:familyName "Rogers"@en .
+
+:person_30 a foaf:Person ;
+  foaf:name "Person 30" ;
+  foaf:email "person30@example.org" ;
+  foaf:age 30 ;
+  foaf:knows :person_18, :person_12 ;
+  foaf:givenName "Zachary"@en ;
+  foaf:familyName "Morgan"@en .

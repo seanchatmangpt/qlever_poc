@@ -406,6 +406,21 @@ class NQuadParser : public TurtleParser<Tokenizer_T> {
   bool nQuadLiteral();
 };
 
+// N3 (Notation 3) parser. N3 is a superset of Turtle, so for basic N3 files
+// (which is the typical use case), we can reuse the Turtle parser entirely.
+// Advanced N3 features like formulae, rules, and variables are not supported
+// in this implementation, following the 80/20 principle.
+template <class Tokenizer_T>
+class N3Parser : public TurtleParser<Tokenizer_T> {
+  using Base = TurtleParser<Tokenizer_T>;
+
+ public:
+  explicit N3Parser(const EncodedIriManager* ev) : Base{ev} {}
+  explicit N3Parser(const EncodedIriManager* ev,
+                    TripleComponent defaultGraphIri)
+      : Base{ev, std::move(defaultGraphIri)} {}
+};
+
 /**
  * Parses turtle from std::string. Used to perform unit tests for
  * the different parser rules

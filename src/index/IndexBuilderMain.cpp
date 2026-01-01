@@ -47,14 +47,16 @@ static constexpr auto checkNumParameterValues =
       throw std::runtime_error{error};
     };
 
-// Convert the `filetype` string, which must be "ttl", "nt", or "nq" to the
-// corresponding `qlever::Filetype` value. If no filetyp is given, try to deduce
-// the type from the filename.
+// Convert the `filetype` string, which must be "ttl", "nt", "n3", or "nq" to
+// the corresponding `qlever::Filetype` value. If no filetyp is given, try to
+// deduce the type from the filename.
 qlever::Filetype getFiletype(std::optional<std::string_view> filetype,
                              std::string_view filename) {
   auto impl = [](std::string_view s) -> std::optional<qlever::Filetype> {
     if (s == "ttl" || s == "nt") {
       return qlever::Filetype::Turtle;
+    } else if (s == "n3") {
+      return qlever::Filetype::N3;
     } else if (s == "nq") {
       return qlever::Filetype::NQuad;
     } else {
@@ -68,7 +70,7 @@ qlever::Filetype getFiletype(std::optional<std::string_view> filetype,
     } else {
       throw std::runtime_error{
           absl::StrCat("The value of --file-format or -F must be one of "
-                       "`ttl`, `nt`, or `nq`, but is `",
+                       "`ttl`, `nt`, `n3`, or `nq`, but is `",
                        filetype.value(), "`")};
     }
   }
@@ -77,7 +79,8 @@ qlever::Filetype getFiletype(std::optional<std::string_view> filetype,
   auto throwNotDeducable = [&filename]() {
     throw std::runtime_error{absl::StrCat(
         "Could not deduce the file format from the filename \"", filename,
-        "\". Either use files with names that end on `.ttl`, `.nt`, or `.nq`, "
+        "\". Either use files with names that end on `.ttl`, `.nt`, `.n3`, or "
+        "`.nq`, "
         "or explicitly set the format of the file via --file-format or -F")};
   };
   if (posOfDot == std::string::npos) {
