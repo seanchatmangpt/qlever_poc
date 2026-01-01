@@ -26,6 +26,7 @@
 #include "engine/QueryExecutionContext.h"
 #include "engine/QueryPlanner.h"
 #include "engine/SparqlProtocol.h"
+#include "global/Epoch.h"
 #include "global/RuntimeParameters.h"
 #include "index/IndexImpl.h"
 #include "parser/SparqlParser.h"
@@ -1085,6 +1086,10 @@ UpdateMetadata Server::processUpdateImpl(
     const PlannedQuery& plannedUpdate,
     ad_utility::SharedCancellationHandle cancellationHandle,
     DeltaTriples& deltaTriples, ad_utility::timer::TimeTracer& tracer) {
+  // Write barrier: enforce INGEST-only mutations
+  // Blocks all UPDATE/INSERT/DELETE operations during SERVE state
+  ad_utility::globalEpochManager.lock()->checkAllowedToMutate();
+
   const auto& qet = plannedUpdate.queryExecutionTree_;
   AD_CORRECTNESS_CHECK(plannedUpdate.parsedQuery_.hasUpdateClause());
 

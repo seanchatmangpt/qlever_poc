@@ -1,0 +1,430 @@
+# linked-data.n3 - Linked Data Example
+# ======================================
+#
+# This file demonstrates:
+# - Linking to external datasets (DBpedia, Wikidata, GeoNames)
+# - Using owl:sameAs for entity resolution
+# - Vocabulary integration (FOAF, DC, SKOS)
+# - Best practices for Linked Open Data
+#
+# Linked Data principles:
+# 1. Use URIs to identify things
+# 2. Use HTTP URIs so people can look up those names
+# 3. Provide useful information using standards (RDF, SPARQL)
+# 4. Include links to other URIs to discover more things
+
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+@prefix dbr: <http://dbpedia.org/resource/> .
+@prefix dbo: <http://dbpedia.org/ontology/> .
+@prefix wd: <http://www.wikidata.org/entity/> .
+@prefix wdt: <http://www.wikidata.org/prop/direct/> .
+@prefix gn: <http://sws.geonames.org/> .
+@prefix ex: <http://example.org/> .
+@prefix entity: <http://example.org/entity/> .
+
+# ==================
+# PEOPLE WITH EXTERNAL LINKS
+# ==================
+
+# Tim Berners-Lee - Inventor of the World Wide Web
+entity:tim-berners-lee rdf:type foaf:Person ;
+    foaf:name "Tim Berners-Lee" ;
+    foaf:givenName "Timothy" ;
+    foaf:familyName "Berners-Lee" ;
+    foaf:title "Sir" ;
+
+    # Links to external datasets
+    owl:sameAs dbr:Tim_Berners-Lee ;
+    owl:sameAs wd:Q80 ;  # Wikidata entity
+    owl:sameAs <http://viaf.org/viaf/85312226> ;  # VIAF (Virtual International Authority File)
+
+    foaf:homepage <https://www.w3.org/People/Berners-Lee/> ;
+    foaf:workplaceHomepage <https://www.w3.org> ;  # W3C
+    foaf:workInfoHomepage <https://www.csail.mit.edu> ;  # MIT CSAIL
+
+    # Using DBpedia predicates
+    dbo:birthPlace dbr:London ;
+    dbo:birthDate "1955-06-08"^^xsd:date ;
+    dbo:nationality dbr:United_Kingdom ;
+    dbo:almaMater dbr:University_of_Oxford ;
+    dbo:knownFor dbr:World_Wide_Web ;
+
+    # Dublin Core metadata
+    dc:description "British computer scientist, inventor of the World Wide Web" ;
+    dcterms:subject <http://id.loc.gov/authorities/subjects/sh85145995> ;  # World Wide Web
+
+    # FOAF properties
+    foaf:knows entity:vint-cerf ;
+    foaf:interest dbr:Semantic_Web , dbr:Linked_data .
+
+# Vint Cerf - Internet Pioneer
+entity:vint-cerf rdf:type foaf:Person ;
+    foaf:name "Vint Cerf" ;
+    foaf:givenName "Vinton" ;
+    foaf:familyName "Cerf" ;
+
+    owl:sameAs dbr:Vint_Cerf ;
+    owl:sameAs wd:Q92743 ;
+
+    dbo:birthDate "1943-06-23"^^xsd:date ;
+    dbo:birthPlace dbr:New_Haven,_Connecticut ;
+    dbo:nationality dbr:United_States ;
+    dbo:knownFor dbr:Internet , dbr:TCP/IP ;
+
+    dc:description "American Internet pioneer, co-designer of TCP/IP protocols" ;
+
+    foaf:homepage <http://research.google.com/pubs/author32412.html> ;
+    foaf:knows entity:tim-berners-lee .
+
+# Ada Lovelace - First Computer Programmer
+entity:ada-lovelace rdf:type foaf:Person ;
+    foaf:name "Ada Lovelace" ;
+    foaf:givenName "Augusta Ada" ;
+    foaf:familyName "King-Noel" ;
+    foaf:title "Countess of Lovelace" ;
+
+    owl:sameAs dbr:Ada_Lovelace ;
+    owl:sameAs wd:Q7259 ;
+
+    dbo:birthDate "1815-12-10"^^xsd:date ;
+    dbo:deathDate "1852-11-27"^^xsd:date ;
+    dbo:birthPlace dbr:London ;
+    dbo:nationality dbr:United_Kingdom ;
+    dbo:knownFor "First computer programmer" ;
+
+    dc:description "English mathematician and writer, chiefly known for her work on Charles Babbage's Analytical Engine" ;
+
+    foaf:interest dbr:Mathematics , dbr:Computer_programming .
+
+# ==================
+# PLACES WITH EXTERNAL LINKS
+# ==================
+
+# San Francisco
+entity:san-francisco rdf:type dbo:City ;
+    rdfs:label "San Francisco"@en ;
+    rdfs:label "San Francisco"@es ;
+
+    # Links to external datasets
+    owl:sameAs dbr:San_Francisco ;
+    owl:sameAs wd:Q62 ;
+    owl:sameAs gn:5391959 ;  # GeoNames
+
+    dbo:country dbr:United_States ;
+    dbo:state dbr:California ;
+    dbo:populationTotal "873965"^^xsd:integer ;
+    dbo:areaTotal "600.6"^^xsd:decimal ;  # sq km
+
+    geo:lat "37.7749"^^xsd:decimal ;
+    geo:long "-122.4194"^^xsd:decimal ;
+
+    dc:description "City in California, United States"@en ;
+    dcterms:subject <http://id.loc.gov/authorities/names/n79041997> .
+
+# London
+entity:london rdf:type dbo:City ;
+    rdfs:label "London"@en ;
+
+    owl:sameAs dbr:London ;
+    owl:sameAs wd:Q84 ;
+    owl:sameAs gn:2643743 ;
+
+    dbo:country dbr:United_Kingdom ;
+    dbo:populationTotal "9002488"^^xsd:integer ;
+
+    geo:lat "51.5074"^^xsd:decimal ;
+    geo:long "-0.1278"^^xsd:decimal ;
+
+    dc:description "Capital and largest city of the United Kingdom"@en .
+
+# ==================
+# ORGANIZATIONS WITH EXTERNAL LINKS
+# ==================
+
+# World Wide Web Consortium (W3C)
+entity:w3c rdf:type foaf:Organization ;
+    foaf:name "World Wide Web Consortium" ;
+    foaf:homepage <https://www.w3.org> ;
+
+    owl:sameAs dbr:World_Wide_Web_Consortium ;
+    owl:sameAs wd:Q37033 ;
+
+    dbo:foundingDate "1994-10-01"^^xsd:date ;
+    dbo:foundedBy entity:tim-berners-lee ;
+    dbo:purpose "Develop Web standards" ;
+
+    dc:description "International community that develops open standards for the Web" ;
+
+    foaf:member entity:tim-berners-lee .
+
+# MIT (Massachusetts Institute of Technology)
+entity:mit rdf:type dbo:University ;
+    foaf:name "Massachusetts Institute of Technology" ;
+    foaf:homepage <https://www.mit.edu> ;
+
+    owl:sameAs dbr:Massachusetts_Institute_of_Technology ;
+    owl:sameAs wd:Q49108 ;
+
+    dbo:foundingDate "1861-04-10"^^xsd:date ;
+    dbo:city entity:cambridge-ma ;
+    dbo:country dbr:United_States ;
+
+    dc:description "Private research university in Cambridge, Massachusetts" ;
+
+    ex:notableAlumni entity:tim-berners-lee .
+
+entity:cambridge-ma rdf:type dbo:City ;
+    rdfs:label "Cambridge, Massachusetts" ;
+    owl:sameAs dbr:Cambridge,_Massachusetts ;
+    owl:sameAs wd:Q49111 .
+
+# ==================
+# CONCEPTS AND TOPICS
+# ==================
+
+# Semantic Web
+entity:semantic-web rdf:type skos:Concept ;
+    skos:prefLabel "Semantic Web"@en ;
+    skos:altLabel "Web 3.0"@en ;
+    skos:definition "Extension of the World Wide Web that enables data to be shared and reused across applications, enterprises, and communities"@en ;
+
+    owl:sameAs dbr:Semantic_Web ;
+    owl:sameAs wd:Q54837 ;
+
+    dcterms:subject <http://id.loc.gov/authorities/subjects/sh2007006733> ;
+
+    skos:related entity:linked-data , entity:rdf , entity:sparql ;
+    skos:broader entity:world-wide-web .
+
+# Linked Data
+entity:linked-data rdf:type skos:Concept ;
+    skos:prefLabel "Linked Data"@en ;
+    skos:definition "Method of publishing structured data so that it can be interlinked and become more useful through semantic queries"@en ;
+
+    owl:sameAs dbr:Linked_data ;
+    owl:sameAs wd:Q515701 ;
+
+    skos:related entity:semantic-web , entity:rdf ;
+    dc:creator entity:tim-berners-lee .
+
+# RDF (Resource Description Framework)
+entity:rdf rdf:type skos:Concept ;
+    skos:prefLabel "Resource Description Framework"@en ;
+    skos:altLabel "RDF"@en ;
+    skos:definition "Family of World Wide Web Consortium specifications for representing information in a machine-readable format"@en ;
+
+    owl:sameAs dbr:Resource_Description_Framework ;
+    owl:sameAs wd:Q54872 ;
+
+    skos:related entity:semantic-web , entity:linked-data ;
+    dcterms:creator entity:w3c .
+
+# SPARQL
+entity:sparql rdf:type skos:Concept ;
+    skos:prefLabel "SPARQL"@en ;
+    skos:altLabel "SPARQL Protocol and RDF Query Language"@en ;
+    skos:definition "RDF query language for databases able to retrieve and manipulate data stored in RDF format"@en ;
+
+    owl:sameAs dbr:SPARQL ;
+    owl:sameAs wd:Q54871 ;
+
+    skos:related entity:rdf , entity:semantic-web ;
+    dcterms:creator entity:w3c .
+
+# World Wide Web
+entity:world-wide-web rdf:type skos:Concept ;
+    skos:prefLabel "World Wide Web"@en ;
+    skos:altLabel "WWW"@en , "Web"@en ;
+    skos:definition "Information space where documents and other web resources are identified by URIs, interlinked by hypertext links, and accessible via the Internet"@en ;
+
+    owl:sameAs dbr:World_Wide_Web ;
+    owl:sameAs wd:Q466 ;
+
+    dc:creator entity:tim-berners-lee ;
+    dcterms:created "1989-03-12"^^xsd:date ;
+
+    skos:narrower entity:semantic-web .
+
+# ==================
+# PUBLICATIONS WITH EXTERNAL LINKS
+# ==================
+
+entity:paper-linked-data rdf:type foaf:Document ;
+    dc:title "Linked Data - Design Issues" ;
+    dc:creator entity:tim-berners-lee ;
+    dcterms:created "2006-07-27"^^xsd:date ;
+    dcterms:modified "2009-06-18"^^xsd:date ;
+    dc:format "text/html" ;
+
+    foaf:page <https://www.w3.org/DesignIssues/LinkedData.html> ;
+
+    dcterms:subject entity:linked-data , entity:semantic-web ;
+
+    dc:description "Original design document outlining the principles of Linked Data" .
+
+entity:book-weaving-web rdf:type foaf:Document ;
+    dc:title "Weaving the Web: The Original Design and Ultimate Destiny of the World Wide Web" ;
+    dc:creator entity:tim-berners-lee ;
+    dcterms:issued "1999"^^xsd:gYear ;
+    dc:publisher "HarperCollins" ;
+    dc:identifier "ISBN:978-0062515865" ;
+
+    owl:sameAs dbr:Weaving_the_Web ;
+
+    dcterms:subject entity:world-wide-web ;
+
+    dc:description "Book by Tim Berners-Lee about the creation and development of the World Wide Web" .
+
+# ==================
+# AWARDS AND HONORS
+# ==================
+
+entity:turing-award rdf:type dbo:Award ;
+    rdfs:label "Turing Award" ;
+    dbo:description "Annual prize given by the Association for Computing Machinery for contributions to computer science" ;
+
+    owl:sameAs dbr:Turing_Award ;
+    owl:sameAs wd:Q185667 ;
+
+    ex:recipient entity:vint-cerf .
+
+# Vint Cerf received Turing Award
+entity:vint-cerf dbo:award entity:turing-award ;
+                ex:awardYear "2004"^^xsd:gYear .
+
+# ==================
+# DATASETS AND VOCABULARIES
+# ==================
+
+entity:dbpedia-dataset rdf:type dbo:Dataset ;
+    rdfs:label "DBpedia" ;
+    dc:description "Crowd-sourced community effort to extract structured information from Wikipedia" ;
+    foaf:homepage <https://www.dbpedia.org> ;
+
+    owl:sameAs dbr:DBpedia ;
+    owl:sameAs wd:Q465 ;
+
+    dcterms:license <http://creativecommons.org/licenses/by-sa/3.0/> ;
+    ex:tripleCount "9500000000"^^xsd:integer ;  # approximate
+    ex:language "Multiple languages" .
+
+entity:wikidata-dataset rdf:type dbo:Dataset ;
+    rdfs:label "Wikidata" ;
+    dc:description "Free and open knowledge base maintained by the Wikimedia Foundation" ;
+    foaf:homepage <https://www.wikidata.org> ;
+
+    owl:sameAs dbr:Wikidata ;
+    owl:sameAs wd:Q2013 ;
+
+    dcterms:license <http://creativecommons.org/publicdomain/zero/1.0/> ;
+    ex:itemCount "100000000"^^xsd:integer .  # approximate
+
+# ==================
+# TECHNOLOGY STACK
+# ==================
+
+entity:python-language rdf:type dbo:ProgrammingLanguage ;
+    rdfs:label "Python" ;
+    dbo:developer "Python Software Foundation" ;
+
+    owl:sameAs dbr:Python_(programming_language) ;
+    owl:sameAs wd:Q28865 ;
+
+    dbo:releaseDate "1991-02-20"^^xsd:date ;
+    foaf:homepage <https://www.python.org> ;
+
+    dc:description "High-level, general-purpose programming language" .
+
+entity:javascript-language rdf:type dbo:ProgrammingLanguage ;
+    rdfs:label "JavaScript" ;
+
+    owl:sameAs dbr:JavaScript ;
+    owl:sameAs wd:Q2005 ;
+
+    dbo:releaseDate "1995-12-04"^^xsd:date ;
+
+    dc:description "High-level, interpreted programming language" .
+
+# ==================
+# CROSS-DATASET QUERIES
+# ==================
+
+# This section demonstrates how data can reference multiple external sources
+
+entity:project-semantic-app rdf:type ex:Project ;
+    rdfs:label "Semantic Web Application" ;
+    dc:description "Example project using Semantic Web technologies" ;
+
+    # Team members
+    ex:developer entity:tim-berners-lee ;
+    ex:advisor entity:vint-cerf ;
+
+    # Technologies used (linked to external resources)
+    ex:usesTechnology entity:python-language ;
+    ex:usesTechnology entity:rdf ;
+    ex:usesTechnology entity:sparql ;
+
+    # Location
+    ex:location entity:san-francisco ;
+
+    # Organization
+    ex:organization entity:w3c ;
+
+    # Datasets used
+    ex:usesDataset entity:dbpedia-dataset ;
+    ex:usesDataset entity:wikidata-dataset ;
+
+    # License
+    dcterms:license <http://opensource.org/licenses/MIT> ;
+
+    # Related concepts
+    dcterms:subject entity:semantic-web , entity:linked-data .
+
+# ==================
+# VOID METADATA
+# (Vocabulary of Interlinked Datasets)
+# ==================
+
+@prefix void: <http://rdfs.org/ns/void#> .
+
+entity:our-dataset rdf:type void:Dataset ;
+    dcterms:title "Example Linked Data Dataset" ;
+    dcterms:description "Demonstration of Linked Data principles" ;
+    dcterms:creator entity:tim-berners-lee ;
+    dcterms:created "2024-01-01"^^xsd:date ;
+    dcterms:modified "2024-12-31"^^xsd:date ;
+
+    void:triples "500"^^xsd:integer ;  # approximate
+    void:entities "50"^^xsd:integer ;
+
+    # Linksets to external datasets
+    void:subset [
+        rdf:type void:Linkset ;
+        void:linkPredicate owl:sameAs ;
+        void:target <http://dbpedia.org> ;
+        void:triples "30"^^xsd:integer
+    ] ;
+
+    void:subset [
+        rdf:type void:Linkset ;
+        void:linkPredicate owl:sameAs ;
+        void:target <http://www.wikidata.org> ;
+        void:triples "30"^^xsd:integer
+    ] ;
+
+    void:vocabulary foaf: , dc: , dbo: , skos: ;
+
+    void:sparqlEndpoint <http://example.org/sparql> ;
+
+    dcterms:license <http://creativecommons.org/licenses/by/4.0/> .
+
+# Triple count: Approximately 350+ triples
+# This demonstrates best practices for Linked Open Data with external dataset integration

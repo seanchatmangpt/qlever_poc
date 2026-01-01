@@ -1,0 +1,3 @@
+# Invalid N3: prefix declaration missing IRI
+@prefix ex: .
+ex:subject ex:predicate ex:object .

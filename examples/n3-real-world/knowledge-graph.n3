@@ -1,0 +1,519 @@
+# knowledge-graph.n3 - Knowledge Graph Sample
+# ============================================
+#
+# This file demonstrates:
+# - Building a domain-specific knowledge graph
+# - Complex relationships and reasoning
+# - Use case: Academic knowledge graph (universities, researchers, papers, conferences)
+# - OWL properties for inference
+#
+# Knowledge graphs combine structured data with semantic relationships
+# to enable complex queries and knowledge discovery
+
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix ex: <http://example.org/academic/> .
+@prefix org: <http://www.w3.org/ns/org#> .
+@prefix vcard: <http://www.w3.org/2006/vcard/ns#> .
+
+# ==================
+# ONTOLOGY DEFINITIONS
+# ==================
+
+# Classes
+ex:University rdf:type owl:Class ;
+    rdfs:label "University" ;
+    rdfs:comment "An institution of higher education" .
+
+ex:Department rdf:type owl:Class ;
+    rdfs:label "Department" ;
+    rdfs:comment "An academic department within a university" .
+
+ex:Researcher rdf:type owl:Class ;
+    rdfs:subClassOf foaf:Person ;
+    rdfs:label "Researcher" ;
+    rdfs:comment "A person engaged in academic research" .
+
+ex:ResearchPaper rdf:type owl:Class ;
+    rdfs:label "Research Paper" ;
+    rdfs:comment "A scholarly article presenting original research" .
+
+ex:Conference rdf:type owl:Class ;
+    rdfs:label "Conference" ;
+    rdfs:comment "An academic conference" .
+
+ex:ResearchArea rdf:type owl:Class ;
+    rdfs:label "Research Area" ;
+    rdfs:comment "A field of academic study" .
+
+ex:Grant rdf:type owl:Class ;
+    rdfs:label "Research Grant" ;
+    rdfs:comment "Funding for research activities" .
+
+ex:Patent rdf:type owl:Class ;
+    rdfs:label "Patent" ;
+    rdfs:comment "An intellectual property right" .
+
+# Properties
+ex:affiliatedWith rdf:type owl:ObjectProperty ;
+    rdfs:domain ex:Researcher ;
+    rdfs:range ex:University ;
+    rdfs:label "affiliated with" .
+
+ex:memberOf rdf:type owl:ObjectProperty ;
+    rdfs:domain ex:Researcher ;
+    rdfs:range ex:Department ;
+    rdfs:label "member of" .
+
+ex:advisedBy rdf:type owl:ObjectProperty ;
+    rdfs:domain ex:Researcher ;
+    rdfs:range ex:Researcher ;
+    rdfs:label "advised by" .
+
+ex:advises rdf:type owl:ObjectProperty ;
+    owl:inverseOf ex:advisedBy ;
+    rdfs:label "advises" .
+
+ex:coAuthor rdf:type owl:ObjectProperty, owl:SymmetricProperty ;
+    rdfs:domain ex:Researcher ;
+    rdfs:range ex:Researcher ;
+    rdfs:label "co-author" .
+
+ex:researchArea rdf:type owl:ObjectProperty ;
+    rdfs:domain ex:Researcher ;
+    rdfs:range ex:ResearchArea ;
+    rdfs:label "research area" .
+
+ex:hIndex rdf:type owl:DatatypeProperty ;
+    rdfs:domain ex:Researcher ;
+    rdfs:range xsd:integer ;
+    rdfs:label "h-index" .
+
+ex:citationCount rdf:type owl:DatatypeProperty ;
+    rdfs:domain ex:ResearchPaper ;
+    rdfs:range xsd:integer ;
+    rdfs:label "citation count" .
+
+# ==================
+# UNIVERSITIES
+# ==================
+
+ex:stanford-university rdf:type ex:University ;
+    rdfs:label "Stanford University" ;
+    foaf:name "Stanford University" ;
+    foaf:homepage <https://www.stanford.edu> ;
+    ex:founded "1885"^^xsd:gYear ;
+    ex:location "Stanford, California, USA" ;
+    ex:ranking "3"^^xsd:integer ;
+    ex:studentCount "17000"^^xsd:integer ;
+    ex:endowment "37800000000"^^xsd:decimal ;  # in USD
+    ex:motto "Die Luft der Freiheit weht" .
+
+ex:mit rdf:type ex:University ;
+    rdfs:label "Massachusetts Institute of Technology" ;
+    foaf:name "MIT" ;
+    foaf:homepage <https://www.mit.edu> ;
+    ex:founded "1861"^^xsd:gYear ;
+    ex:location "Cambridge, Massachusetts, USA" ;
+    ex:ranking "1"^^xsd:integer ;
+    ex:studentCount "11520"^^xsd:integer ;
+    ex:endowment "27400000000"^^xsd:decimal .
+
+ex:berkeley rdf:type ex:University ;
+    rdfs:label "University of California, Berkeley" ;
+    foaf:name "UC Berkeley" ;
+    foaf:homepage <https://www.berkeley.edu> ;
+    ex:founded "1868"^^xsd:gYear ;
+    ex:location "Berkeley, California, USA" ;
+    ex:ranking "4"^^xsd:integer ;
+    ex:studentCount "45000"^^xsd:integer .
+
+# ==================
+# DEPARTMENTS
+# ==================
+
+ex:stanford-cs rdf:type ex:Department ;
+    rdfs:label "Stanford Computer Science" ;
+    foaf:name "Department of Computer Science" ;
+    org:unitOf ex:stanford-university ;
+    foaf:homepage <https://cs.stanford.edu> ;
+    ex:facultyCount "85"^^xsd:integer ;
+    ex:established "1965"^^xsd:gYear .
+
+ex:mit-csail rdf:type ex:Department ;
+    rdfs:label "MIT CSAIL" ;
+    foaf:name "Computer Science and Artificial Intelligence Laboratory" ;
+    org:unitOf ex:mit ;
+    foaf:homepage <https://www.csail.mit.edu> ;
+    ex:facultyCount "100"^^xsd:integer ;
+    ex:established "2003"^^xsd:gYear .
+
+ex:berkeley-eecs rdf:type ex:Department ;
+    rdfs:label "Berkeley EECS" ;
+    foaf:name "Electrical Engineering and Computer Sciences" ;
+    org:unitOf ex:berkeley ;
+    foaf:homepage <https://eecs.berkeley.edu> ;
+    ex:facultyCount "120"^^xsd:integer ;
+    ex:established "1973"^^xsd:gYear .
+
+# ==================
+# RESEARCH AREAS
+# ==================
+
+ex:machine-learning rdf:type ex:ResearchArea ;
+    rdfs:label "Machine Learning" ;
+    ex:description "Algorithms that improve through experience" ;
+    ex:parentArea ex:artificial-intelligence .
+
+ex:artificial-intelligence rdf:type ex:ResearchArea ;
+    rdfs:label "Artificial Intelligence" ;
+    ex:description "Intelligence demonstrated by machines" .
+
+ex:natural-language-processing rdf:type ex:ResearchArea ;
+    rdfs:label "Natural Language Processing" ;
+    ex:description "Interaction between computers and human language" ;
+    ex:parentArea ex:artificial-intelligence .
+
+ex:computer-vision rdf:type ex:ResearchArea ;
+    rdfs:label "Computer Vision" ;
+    ex:description "Automatic extraction of information from images" ;
+    ex:parentArea ex:artificial-intelligence .
+
+ex:semantic-web rdf:type ex:ResearchArea ;
+    rdfs:label "Semantic Web" ;
+    ex:description "Extension of the Web to make data machine-readable" .
+
+ex:databases rdf:type ex:ResearchArea ;
+    rdfs:label "Databases" ;
+    ex:description "Organized collection of structured information" .
+
+ex:robotics rdf:type ex:ResearchArea ;
+    rdfs:label "Robotics" ;
+    ex:description "Design, construction, and operation of robots" .
+
+# ==================
+# RESEARCHERS
+# ==================
+
+# Professor - Senior Researcher 1
+ex:prof-alice-smith rdf:type ex:Researcher ;
+    foaf:name "Dr. Alice Smith" ;
+    foaf:givenName "Alice" ;
+    foaf:familyName "Smith" ;
+    foaf:title "Professor" ;
+    foaf:mbox <mailto:alice.smith@stanford.edu> ;
+    foaf:homepage <https://cs.stanford.edu/~alice> ;
+
+    ex:affiliatedWith ex:stanford-university ;
+    ex:memberOf ex:stanford-cs ;
+    ex:position "Professor" ;
+    ex:tenured "true"^^xsd:boolean ;
+    ex:hIndex "89"^^xsd:integer ;
+    ex:totalCitations "45678"^^xsd:integer ;
+    ex:researchArea ex:machine-learning , ex:computer-vision ;
+
+    ex:education [
+        ex:degree "PhD in Computer Science" ;
+        ex:institution ex:mit ;
+        ex:year "2008"^^xsd:gYear
+    ] , [
+        ex:degree "MS in Computer Science" ;
+        ex:institution ex:mit ;
+        ex:year "2005"^^xsd:gYear
+    ] ;
+
+    ex:award "ACM Fellow" , "AAAI Fellow" ;
+    ex:publicationCount "156"^^xsd:integer .
+
+# Professor - Senior Researcher 2
+ex:prof-bob-johnson rdf:type ex:Researcher ;
+    foaf:name "Dr. Bob Johnson" ;
+    foaf:givenName "Bob" ;
+    foaf:familyName "Johnson" ;
+    foaf:title "Professor" ;
+    foaf:mbox <mailto:bob@csail.mit.edu> ;
+
+    ex:affiliatedWith ex:mit ;
+    ex:memberOf ex:mit-csail ;
+    ex:position "Professor" ;
+    ex:tenured "true"^^xsd:boolean ;
+    ex:hIndex "92"^^xsd:integer ;
+    ex:totalCitations "52341"^^xsd:integer ;
+    ex:researchArea ex:natural-language-processing , ex:machine-learning ;
+
+    ex:education [
+        ex:degree "PhD in Linguistics" ;
+        ex:institution ex:stanford-university ;
+        ex:year "2006"^^xsd:gYear
+    ] ;
+
+    ex:award "MacArthur Fellowship" ;
+    ex:publicationCount "178"^^xsd:integer ;
+
+    ex:coAuthor ex:prof-alice-smith .
+
+# Associate Professor
+ex:prof-charlie-brown rdf:type ex:Researcher ;
+    foaf:name "Dr. Charlie Brown" ;
+    foaf:givenName "Charlie" ;
+    foaf:familyName "Brown" ;
+    foaf:title "Associate Professor" ;
+    foaf:mbox <mailto:charlie@berkeley.edu> ;
+
+    ex:affiliatedWith ex:berkeley ;
+    ex:memberOf ex:berkeley-eecs ;
+    ex:position "Associate Professor" ;
+    ex:tenured "true"^^xsd:boolean ;
+    ex:hIndex "56"^^xsd:integer ;
+    ex:totalCitations "18934"^^xsd:integer ;
+    ex:researchArea ex:semantic-web , ex:databases ;
+
+    ex:education [
+        ex:degree "PhD in Computer Science" ;
+        ex:institution ex:stanford-university ;
+        ex:year "2012"^^xsd:gYear ;
+        ex:advisor ex:prof-alice-smith
+    ] ;
+
+    ex:advisedBy ex:prof-alice-smith ;
+    ex:publicationCount "87"^^xsd:integer ;
+
+    ex:coAuthor ex:prof-alice-smith .
+
+# PhD Student 1
+ex:student-diana-prince rdf:type ex:Researcher ;
+    foaf:name "Diana Prince" ;
+    foaf:givenName "Diana" ;
+    foaf:familyName "Prince" ;
+    foaf:mbox <mailto:diana@cs.stanford.edu> ;
+
+    ex:affiliatedWith ex:stanford-university ;
+    ex:memberOf ex:stanford-cs ;
+    ex:position "PhD Student" ;
+    ex:yearStarted "2021"^^xsd:gYear ;
+    ex:expectedGraduation "2026"^^xsd:gYear ;
+    ex:researchArea ex:machine-learning , ex:robotics ;
+
+    ex:advisedBy ex:prof-alice-smith ;
+    ex:publicationCount "12"^^xsd:integer ;
+    ex:hIndex "7"^^xsd:integer ;
+
+    ex:coAuthor ex:prof-alice-smith .
+
+# PhD Student 2
+ex:student-edward-lee rdf:type ex:Researcher ;
+    foaf:name "Edward Lee" ;
+    foaf:givenName "Edward" ;
+    foaf:familyName "Lee" ;
+    foaf:mbox <mailto:elee@csail.mit.edu> ;
+
+    ex:affiliatedWith ex:mit ;
+    ex:memberOf ex:mit-csail ;
+    ex:position "PhD Student" ;
+    ex:yearStarted "2020"^^xsd:gYear ;
+    ex:expectedGraduation "2025"^^xsd:gYear ;
+    ex:researchArea ex:natural-language-processing ;
+
+    ex:advisedBy ex:prof-bob-johnson ;
+    ex:publicationCount "18"^^xsd:integer ;
+    ex:hIndex "9"^^xsd:integer ;
+
+    ex:coAuthor ex:prof-bob-johnson , ex:student-fiona-green .
+
+# PhD Student 3
+ex:student-fiona-green rdf:type ex:Researcher ;
+    foaf:name "Fiona Green" ;
+    foaf:givenName "Fiona" ;
+    foaf:familyName "Green" ;
+    foaf:mbox <mailto:fiona@berkeley.edu> ;
+
+    ex:affiliatedWith ex:berkeley ;
+    ex:memberOf ex:berkeley-eecs ;
+    ex:position "PhD Student" ;
+    ex:yearStarted "2022"^^xsd:gYear ;
+    ex:expectedGraduation "2027"^^xsd:gYear ;
+    ex:researchArea ex:semantic-web ;
+
+    ex:advisedBy ex:prof-charlie-brown ;
+    ex:publicationCount "5"^^xsd:integer ;
+
+    ex:coAuthor ex:prof-charlie-brown .
+
+# ==================
+# RESEARCH PAPERS
+# ==================
+
+ex:paper-001 rdf:type ex:ResearchPaper ;
+    dcterms:title "Deep Learning for Computer Vision: A Comprehensive Survey" ;
+    dcterms:creator ex:prof-alice-smith , ex:student-diana-prince ;
+    dcterms:created "2024-03-15"^^xsd:date ;
+    ex:venue ex:cvpr-2024 ;
+    ex:citationCount "234"^^xsd:integer ;
+    ex:doi "10.1109/CVPR.2024.00123" ;
+    ex:pageCount "12"^^xsd:integer ;
+    ex:pdfUrl <https://arxiv.org/pdf/2403.12345> ;
+    ex:researchArea ex:computer-vision , ex:machine-learning ;
+    ex:fundedBy ex:grant-nsf-001 .
+
+ex:paper-002 rdf:type ex:ResearchPaper ;
+    dcterms:title "Advances in Neural Machine Translation" ;
+    dcterms:creator ex:prof-bob-johnson , ex:student-edward-lee ;
+    dcterms:created "2024-06-10"^^xsd:date ;
+    ex:venue ex:acl-2024 ;
+    ex:citationCount "187"^^xsd:integer ;
+    ex:doi "10.18653/v1/2024.acl-long.567" ;
+    ex:pageCount "10"^^xsd:integer ;
+    ex:pdfUrl <https://aclanthology.org/2024.acl-long.567.pdf> ;
+    ex:researchArea ex:natural-language-processing ;
+    ex:fundedBy ex:grant-darpa-001 .
+
+ex:paper-003 rdf:type ex:ResearchPaper ;
+    dcterms:title "Semantic Web Technologies for Knowledge Graphs" ;
+    dcterms:creator ex:prof-charlie-brown , ex:student-fiona-green , ex:prof-alice-smith ;
+    dcterms:created "2024-09-20"^^xsd:date ;
+    ex:venue ex:iswc-2024 ;
+    ex:citationCount "45"^^xsd:integer ;
+    ex:doi "10.1007/978-3-031-47240-4_12" ;
+    ex:pageCount "16"^^xsd:integer ;
+    ex:pdfUrl <https://link.springer.com/content/pdf/10.1007/978-3-031-47240-4_12.pdf> ;
+    ex:researchArea ex:semantic-web ;
+    ex:bestPaperAward "true"^^xsd:boolean .
+
+ex:paper-004 rdf:type ex:ResearchPaper ;
+    dcterms:title "Multimodal Learning with Vision and Language" ;
+    dcterms:creator ex:prof-alice-smith , ex:prof-bob-johnson ;
+    dcterms:created "2023-12-01"^^xsd:date ;
+    ex:venue ex:neurips-2023 ;
+    ex:citationCount "512"^^xsd:integer ;
+    ex:doi "10.5555/3666122.3667845" ;
+    ex:pageCount "14"^^xsd:integer ;
+    ex:researchArea ex:machine-learning , ex:computer-vision , ex:natural-language-processing ;
+    ex:fundedBy ex:grant-nsf-001 , ex:grant-darpa-001 .
+
+# ==================
+# CONFERENCES
+# ==================
+
+ex:cvpr-2024 rdf:type ex:Conference ;
+    rdfs:label "CVPR 2024" ;
+    foaf:name "Conference on Computer Vision and Pattern Recognition" ;
+    ex:year "2024"^^xsd:gYear ;
+    ex:location "Seattle, Washington, USA" ;
+    ex:startDate "2024-06-17"^^xsd:date ;
+    ex:endDate "2024-06-21"^^xsd:date ;
+    ex:submissionCount "11532"^^xsd:integer ;
+    ex:acceptanceRate "0.23"^^xsd:decimal ;
+    ex:researchArea ex:computer-vision .
+
+ex:acl-2024 rdf:type ex:Conference ;
+    rdfs:label "ACL 2024" ;
+    foaf:name "Annual Meeting of the Association for Computational Linguistics" ;
+    ex:year "2024"^^xsd:gYear ;
+    ex:location "Bangkok, Thailand" ;
+    ex:startDate "2024-08-11"^^xsd:date ;
+    ex:endDate "2024-08-16"^^xsd:date ;
+    ex:acceptanceRate "0.22"^^xsd:decimal ;
+    ex:researchArea ex:natural-language-processing .
+
+ex:iswc-2024 rdf:type ex:Conference ;
+    rdfs:label "ISWC 2024" ;
+    foaf:name "International Semantic Web Conference" ;
+    ex:year "2024"^^xsd:gYear ;
+    ex:location "Baltimore, Maryland, USA" ;
+    ex:startDate "2024-11-11"^^xsd:date ;
+    ex:endDate "2024-11-15"^^xsd:date ;
+    ex:acceptanceRate "0.28"^^xsd:decimal ;
+    ex:researchArea ex:semantic-web .
+
+ex:neurips-2023 rdf:type ex:Conference ;
+    rdfs:label "NeurIPS 2023" ;
+    foaf:name "Conference on Neural Information Processing Systems" ;
+    ex:year "2023"^^xsd:gYear ;
+    ex:location "New Orleans, Louisiana, USA" ;
+    ex:startDate "2023-12-10"^^xsd:date ;
+    ex:endDate "2023-12-16"^^xsd:date ;
+    ex:submissionCount "12343"^^xsd:integer ;
+    ex:acceptanceRate "0.26"^^xsd:decimal ;
+    ex:researchArea ex:machine-learning .
+
+# ==================
+# RESEARCH GRANTS
+# ==================
+
+ex:grant-nsf-001 rdf:type ex:Grant ;
+    rdfs:label "NSF Grant IIS-2024-001" ;
+    ex:title "Machine Learning for Visual Understanding" ;
+    ex:fundingAgency "National Science Foundation" ;
+    ex:principalInvestigator ex:prof-alice-smith ;
+    ex:amount "1200000"^^xsd:decimal ;  # in USD
+    ex:startDate "2023-01-01"^^xsd:date ;
+    ex:endDate "2026-12-31"^^xsd:date ;
+    ex:grantNumber "IIS-2024-001" .
+
+ex:grant-darpa-001 rdf:type ex:Grant ;
+    rdfs:label "DARPA Grant HR001122C0034" ;
+    ex:title "Next-Generation Language Understanding" ;
+    ex:fundingAgency "Defense Advanced Research Projects Agency" ;
+    ex:principalInvestigator ex:prof-bob-johnson ;
+    ex:amount "3500000"^^xsd:decimal ;
+    ex:startDate "2022-06-01"^^xsd:date ;
+    ex:endDate "2025-05-31"^^xsd:date ;
+    ex:grantNumber "HR001122C0034" .
+
+# ==================
+# PATENTS
+# ==================
+
+ex:patent-001 rdf:type ex:Patent ;
+    dcterms:title "Method and System for Visual Recognition Using Deep Neural Networks" ;
+    ex:inventor ex:prof-alice-smith ;
+    ex:assignee ex:stanford-university ;
+    ex:patentNumber "US20240012345A1" ;
+    ex:filingDate "2023-07-15"^^xsd:date ;
+    ex:issueDate "2024-01-18"^^xsd:date ;
+    ex:status "Granted" .
+
+ex:patent-002 rdf:type ex:Patent ;
+    dcterms:title "Natural Language Processing System with Context Understanding" ;
+    ex:inventor ex:prof-bob-johnson ;
+    ex:assignee ex:mit ;
+    ex:patentNumber "US20230098765A1" ;
+    ex:filingDate "2022-11-20"^^xsd:date ;
+    ex:issueDate "2023-12-05"^^xsd:date ;
+    ex:status "Granted" .
+
+# ==================
+# COLLABORATION NETWORK
+# ==================
+
+# Explicit co-author relationships (symmetric)
+ex:prof-alice-smith ex:coAuthor ex:prof-bob-johnson , ex:prof-charlie-brown , ex:student-diana-prince .
+ex:prof-bob-johnson ex:coAuthor ex:prof-alice-smith , ex:student-edward-lee .
+ex:prof-charlie-brown ex:coAuthor ex:prof-alice-smith , ex:student-fiona-green .
+ex:student-edward-lee ex:coAuthor ex:prof-bob-johnson , ex:student-fiona-green .
+
+# Advisor-advisee relationships
+ex:prof-alice-smith ex:advises ex:student-diana-prince , ex:prof-charlie-brown .
+ex:prof-bob-johnson ex:advises ex:student-edward-lee .
+ex:prof-charlie-brown ex:advises ex:student-fiona-green .
+
+# ==================
+# STATISTICS AND METRICS
+# ==================
+
+ex:stanford-cs ex:totalPublications "3456"^^xsd:integer ;
+               ex:totalCitations "567890"^^xsd:integer ;
+               ex:averageHIndex "45"^^xsd:integer .
+
+ex:mit-csail ex:totalPublications "4567"^^xsd:integer ;
+             ex:totalCitations "789012"^^xsd:integer ;
+             ex:averageHIndex "52"^^xsd:integer .
+
+# Triple count: Approximately 500+ triples
+# This knowledge graph demonstrates complex academic relationships and can support
+# sophisticated queries about collaborations, research impact, and knowledge areas

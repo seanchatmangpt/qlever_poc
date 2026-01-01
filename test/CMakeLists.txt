@@ -126,6 +126,19 @@ add_subdirectory(joinAlgorithms)
 add_subdirectory(libqlever)
 add_subdirectory(integration)
 
+# Epoch system tests
+if (SINGLE_TEST_BINARY)
+    target_sources(QLeverAllUnitTestsMain PUBLIC global/EpochTest.cpp global/EpochCacheInvalidationHookTest.cpp global/EpochManifestTest.cpp)
+    qlever_target_link_libraries(QLeverAllUnitTestsMain)
+else ()
+    add_executable(EpochTest global/EpochTest.cpp)
+    linkAndDiscoverTest(EpochTest)
+    add_executable(EpochCacheInvalidationHookTest global/EpochCacheInvalidationHookTest.cpp)
+    linkAndDiscoverTest(EpochCacheInvalidationHookTest)
+    add_executable(EpochManifestTest global/EpochManifestTest.cpp)
+    linkAndDiscoverTest(EpochManifestTest)
+endif ()
+
 addLinkAndDiscoverTest(ValueIdComparatorsTest util)
 
 addLinkAndDiscoverTest(SparqlParserTest parser engine sparqlExpressions)
@@ -198,6 +211,10 @@ else ()
 endif ()
 
 addLinkAndDiscoverTestSerial(RdfParserTest parser re2)
+
+addLinkAndDiscoverTestSerial(N3IntegrationTest parser index engine)
+
+addLinkAndDiscoverTestSerial(N3ValidationTest parser re2)
 
 addLinkAndDiscoverTest(MultiColumnJoinTest engine)
 
@@ -350,6 +367,8 @@ addLinkAndDiscoverTestSerial(ValuesForTestingTest index)
 
 addLinkAndDiscoverTestSerial(ExportQueryExecutionTreesTest index engine parser)
 
+addLinkAndDiscoverTestSerial(ConstructStressTest index engine parser)
+
 addLinkAndDiscoverTestSerial(AggregateExpressionTest parser sparqlExpressions index engine)
 
 addLinkAndDiscoverTest(OnDestructionDontThrowDuringStackUnwindingTest)
@@ -493,3 +512,7 @@ addLinkAndDiscoverTest(MaterializedViewsTest qlever engine server)
 addLinkAndDiscoverTestNoLibs(ConstexprMapTest)
 
 addLinkAndDiscoverTest(ConstructCausationModeTest engine)
+
+addLinkAndDiscoverTest(EpochCacheInvalidationHookTest)
+
+addLinkAndDiscoverTest(EpochManifestTest)

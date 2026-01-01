@@ -1,0 +1,391 @@
+# foaf-data.n3 - FOAF (Friend of a Friend) Vocabulary Data
+# ========================================================
+#
+# This file demonstrates:
+# - Real-world FOAF vocabulary usage
+# - Social network representation
+# - Person profiles with online accounts
+# - Relationships and connections
+#
+# FOAF is a widely-used vocabulary for describing people and their relationships
+# FOAF Spec: http://xmlns.com/foaf/spec/
+
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+@prefix ex: <http://example.org/> .
+@prefix person: <http://example.org/people/> .
+
+# ==================
+# PERSON PROFILES
+# ==================
+
+# Person 1: Alice - Software Developer
+person:alice rdf:type foaf:Person ;
+    foaf:name "Alice Johnson" ;
+    foaf:givenName "Alice" ;
+    foaf:familyName "Johnson" ;
+    foaf:nick "alicecodes" ;
+    foaf:title "Dr." ;
+    foaf:gender "female" ;
+    foaf:birthday "05-15" ;  # month-day format (year omitted for privacy)
+
+    # Contact information
+    foaf:mbox <mailto:alice.johnson@example.org> ;
+    foaf:mbox_sha1sum "abc123def456" ;  # SHA1 hash of email for privacy
+    foaf:phone <tel:+1-555-0101> ;
+
+    # Online presence
+    foaf:homepage <http://alice-johnson.com> ;
+    foaf:weblog <http://alice-johnson.com/blog> ;
+    foaf:img <http://alice-johnson.com/photo.jpg> ;
+    foaf:depiction <http://alice-johnson.com/profile-pic.jpg> ;
+
+    # Social media accounts
+    foaf:account [
+        rdf:type foaf:OnlineAccount ;
+        foaf:accountServiceHomepage <https://twitter.com> ;
+        foaf:accountName "alicecodes" ;
+        foaf:accountProfilePage <https://twitter.com/alicecodes>
+    ] ;
+
+    foaf:account [
+        rdf:type foaf:OnlineAccount ;
+        foaf:accountServiceHomepage <https://github.com> ;
+        foaf:accountName "alice-johnson" ;
+        foaf:accountProfilePage <https://github.com/alice-johnson>
+    ] ;
+
+    foaf:account [
+        rdf:type foaf:OnlineAccount ;
+        foaf:accountServiceHomepage <https://linkedin.com> ;
+        foaf:accountName "alice-johnson-dev" ;
+        foaf:accountProfilePage <https://linkedin.com/in/alice-johnson-dev>
+    ] ;
+
+    # Work and interests
+    foaf:workplaceHomepage <http://techcorp.example.com> ;
+    foaf:workInfoHomepage <http://techcorp.example.com/alice> ;
+    foaf:interest <https://en.wikipedia.org/wiki/Semantic_Web> ;
+    foaf:interest <https://en.wikipedia.org/wiki/Machine_Learning> ;
+    foaf:interest <https://en.wikipedia.org/wiki/Photography> ;
+    foaf:topic_interest <http://dbpedia.org/resource/Python_(programming_language)> ;
+    foaf:topic_interest <http://dbpedia.org/resource/Jazz> ;
+
+    # Education and skills
+    foaf:schoolHomepage <http://mit.edu> ;
+    ex:degree "PhD in Computer Science" ;
+    ex:expertise "Semantic Web Technologies" ;
+    ex:expertise "Artificial Intelligence" ;
+
+    # Publications
+    foaf:publications <http://alice-johnson.com/publications> ;
+
+    # Location
+    foaf:based_near [
+        rdf:type geo:Point ;
+        geo:lat "37.7749"^^xsd:decimal ;
+        geo:long "-122.4194"^^xsd:decimal ;
+        rdfs:label "San Francisco, CA"
+    ] ;
+
+    # Relationships
+    foaf:knows person:bob, person:charlie, person:diana ;
+    ex:mentor person:diana ;
+    ex:collaboratesWith person:bob .
+
+# Person 2: Bob - Data Scientist
+person:bob rdf:type foaf:Person ;
+    foaf:name "Robert Smith" ;
+    foaf:givenName "Robert" ;
+    foaf:familyName "Smith" ;
+    foaf:nick "bobdata" ;
+    foaf:gender "male" ;
+    foaf:birthday "08-22" ;
+
+    foaf:mbox <mailto:bob.smith@example.org> ;
+    foaf:homepage <http://bobsmith-data.com> ;
+    foaf:img <http://bobsmith-data.com/avatar.png> ;
+
+    foaf:account [
+        rdf:type foaf:OnlineAccount ;
+        foaf:accountServiceHomepage <https://twitter.com> ;
+        foaf:accountName "bobdata"
+    ] ;
+
+    foaf:workplaceHomepage <http://datascience-corp.example.com> ;
+    foaf:interest <https://en.wikipedia.org/wiki/Data_Science> ;
+    foaf:interest <https://en.wikipedia.org/wiki/Statistics> ;
+    foaf:topic_interest <http://dbpedia.org/resource/R_(programming_language)> ;
+
+    foaf:schoolHomepage <http://stanford.edu> ;
+    ex:degree "MS in Statistics" ;
+
+    foaf:based_near [
+        geo:lat "37.3861"^^xsd:decimal ;
+        geo:long "-122.0839"^^xsd:decimal ;
+        rdfs:label "Palo Alto, CA"
+    ] ;
+
+    foaf:knows person:alice, person:charlie ;
+    ex:collaboratesWith person:alice .
+
+# Person 3: Charlie - UX Designer
+person:charlie rdf:type foaf:Person ;
+    foaf:name "Charlie Brown" ;
+    foaf:givenName "Charlie" ;
+    foaf:familyName "Brown" ;
+    foaf:nick "charliedesigns" ;
+    foaf:gender "non-binary" ;
+    foaf:birthday "12-03" ;
+
+    foaf:mbox <mailto:charlie@example.org> ;
+    foaf:homepage <http://charlie-designs.com> ;
+    foaf:weblog <http://charlie-designs.com/blog> ;
+    foaf:img <http://charlie-designs.com/headshot.jpg> ;
+
+    foaf:account [
+        rdf:type foaf:OnlineAccount ;
+        foaf:accountServiceHomepage <https://dribbble.com> ;
+        foaf:accountName "charliedesigns"
+    ] ;
+
+    foaf:account [
+        rdf:type foaf:OnlineAccount ;
+        foaf:accountServiceHomepage <https://behance.net> ;
+        foaf:accountName "charlie_brown_design"
+    ] ;
+
+    foaf:workplaceHomepage <http://design-studio.example.com> ;
+    foaf:interest <https://en.wikipedia.org/wiki/User_experience_design> ;
+    foaf:interest <https://en.wikipedia.org/wiki/Typography> ;
+    foaf:interest <https://en.wikipedia.org/wiki/Painting> ;
+
+    foaf:schoolHomepage <http://risd.edu> ;  # Rhode Island School of Design
+    ex:degree "BFA in Graphic Design" ;
+
+    foaf:based_near [
+        geo:lat "40.7128"^^xsd:decimal ;
+        geo:long "-74.0060"^^xsd:decimal ;
+        rdfs:label "New York, NY"
+    ] ;
+
+    foaf:knows person:alice, person:bob, person:diana .
+
+# Person 4: Diana - Product Manager
+person:diana rdf:type foaf:Person ;
+    foaf:name "Diana Prince" ;
+    foaf:givenName "Diana" ;
+    foaf:familyName "Prince" ;
+    foaf:nick "dianapm" ;
+    foaf:gender "female" ;
+    foaf:birthday "03-10" ;
+
+    foaf:mbox <mailto:diana.prince@example.org> ;
+    foaf:homepage <http://diana-prince.com> ;
+    foaf:weblog <http://diana-prince.com/product-thoughts> ;
+    foaf:img <http://diana-prince.com/profile.jpg> ;
+
+    foaf:account [
+        rdf:type foaf:OnlineAccount ;
+        foaf:accountServiceHomepage <https://twitter.com> ;
+        foaf:accountName "dianapm"
+    ] ;
+
+    foaf:account [
+        rdf:type foaf:OnlineAccount ;
+        foaf:accountServiceHomepage <https://medium.com> ;
+        foaf:accountName "diana-prince"
+    ] ;
+
+    foaf:workplaceHomepage <http://product-co.example.com> ;
+    foaf:interest <https://en.wikipedia.org/wiki/Product_management> ;
+    foaf:interest <https://en.wikipedia.org/wiki/Agile_software_development> ;
+    foaf:interest <https://en.wikipedia.org/wiki/Yoga> ;
+
+    foaf:schoolHomepage <http://hbs.edu> ;  # Harvard Business School
+    ex:degree "MBA" ;
+
+    foaf:based_near [
+        geo:lat "42.3601"^^xsd:decimal ;
+        geo:long "-71.0589"^^xsd:decimal ;
+        rdfs:label "Boston, MA"
+    ] ;
+
+    foaf:knows person:alice, person:charlie ;
+    ex:mentors person:alice .
+
+# Person 5: Edward - Research Scientist
+person:edward rdf:type foaf:Person ;
+    foaf:name "Edward Lee" ;
+    foaf:givenName "Edward" ;
+    foaf:familyName "Lee" ;
+    foaf:nick "edresearch" ;
+    foaf:title "Prof." ;
+    foaf:gender "male" ;
+    foaf:birthday "07-18" ;
+
+    foaf:mbox <mailto:edward.lee@university.edu> ;
+    foaf:homepage <http://cs.university.edu/~elee> ;
+    foaf:img <http://cs.university.edu/~elee/photo.jpg> ;
+
+    foaf:account [
+        rdf:type foaf:OnlineAccount ;
+        foaf:accountServiceHomepage <https://scholar.google.com> ;
+        foaf:accountName "EdwardLee"
+    ] ;
+
+    foaf:account [
+        rdf:type foaf:OnlineAccount ;
+        foaf:accountServiceHomepage <https://orcid.org> ;
+        foaf:accountName "0000-0001-2345-6789"
+    ] ;
+
+    foaf:workplaceHomepage <http://university.edu> ;
+    foaf:workInfoHomepage <http://cs.university.edu> ;
+    foaf:interest <https://en.wikipedia.org/wiki/Natural_language_processing> ;
+    foaf:interest <https://en.wikipedia.org/wiki/Deep_learning> ;
+    foaf:topic_interest <http://dbpedia.org/resource/Computational_linguistics> ;
+
+    foaf:schoolHomepage <http://cmu.edu> ;
+    ex:degree "PhD in Computer Science" ;
+    ex:expertise "Natural Language Processing" ;
+    ex:expertise "Machine Learning" ;
+
+    foaf:publications <http://dblp.org/pid/12/3456> ;
+
+    foaf:based_near [
+        geo:lat "40.4406"^^xsd:decimal ;
+        geo:long "-79.9959"^^xsd:decimal ;
+        rdfs:label "Pittsburgh, PA"
+    ] ;
+
+    foaf:knows person:alice ;
+    ex:collaboratesWith person:alice .
+
+# Person 6: Fiona - Technical Writer
+person:fiona rdf:type foaf:Person ;
+    foaf:name "Fiona Green" ;
+    foaf:givenName "Fiona" ;
+    foaf:familyName "Green" ;
+    foaf:nick "fionawrites" ;
+    foaf:gender "female" ;
+    foaf:birthday "11-25" ;
+
+    foaf:mbox <mailto:fiona.green@example.org> ;
+    foaf:homepage <http://fiona-green.com> ;
+    foaf:weblog <http://fiona-green.com/writing-tips> ;
+    foaf:img <http://fiona-green.com/photo.jpg> ;
+
+    foaf:account [
+        rdf:type foaf:OnlineAccount ;
+        foaf:accountServiceHomepage <https://twitter.com> ;
+        foaf:accountName "fionawrites"
+    ] ;
+
+    foaf:workplaceHomepage <http://docs-company.example.com> ;
+    foaf:interest <https://en.wikipedia.org/wiki/Technical_writing> ;
+    foaf:interest <https://en.wikipedia.org/wiki/Creative_writing> ;
+    foaf:interest <https://en.wikipedia.org/wiki/Hiking> ;
+
+    foaf:schoolHomepage <http://unc.edu> ;
+    ex:degree "BA in English Literature" ;
+
+    foaf:based_near [
+        geo:lat "47.6062"^^xsd:decimal ;
+        geo:long "-122.3321"^^xsd:decimal ;
+        rdfs:label "Seattle, WA"
+    ] ;
+
+    foaf:knows person:charlie .
+
+# ==================
+# GROUPS AND PROJECTS
+# ==================
+
+# A research group
+ex:semantic-web-research-group rdf:type foaf:Group ;
+    foaf:name "Semantic Web Research Group" ;
+    foaf:homepage <http://swresearch.example.org> ;
+    foaf:member person:alice, person:edward ;
+    ex:leader person:edward ;
+    ex:founded "2015-01-01"^^xsd:date .
+
+# An open source project
+ex:rdf-toolkit-project rdf:type foaf:Project ;
+    foaf:name "RDF Toolkit" ;
+    foaf:homepage <http://github.com/rdf-toolkit> ;
+    ex:maintainer person:alice ;
+    ex:contributor person:bob ;
+    ex:license "Apache 2.0" ;
+    ex:status "Active" .
+
+# A professional organization
+ex:data-science-society rdf:type foaf:Organization ;
+    foaf:name "Data Science Society" ;
+    foaf:homepage <http://datasciencesociety.org> ;
+    foaf:member person:bob, person:alice ;
+    ex:president person:bob ;
+    ex:membershipType "Professional" .
+
+# ==================
+# DOCUMENTS AND PUBLICATIONS
+# ==================
+
+ex:paper-semantic-web rdf:type foaf:Document ;
+    foaf:title "Advances in Semantic Web Technologies" ;
+    ex:author person:alice, person:edward ;
+    ex:publicationDate "2024-06-15"^^xsd:date ;
+    ex:journal "Journal of Web Semantics" ;
+    ex:doi "10.1234/jws.2024.001" ;
+    foaf:page <http://journal.example.org/papers/semantic-web-2024> .
+
+ex:blog-post-ml rdf:type foaf:Document ;
+    foaf:title "Machine Learning Best Practices" ;
+    ex:author person:alice ;
+    ex:publicationDate "2024-11-20"^^xsd:date ;
+    foaf:page <http://alice-johnson.com/blog/ml-best-practices> ;
+    ex:format "Blog Post" .
+
+ex:design-portfolio rdf:type foaf:Document ;
+    foaf:title "Charlie's Design Portfolio 2024" ;
+    ex:author person:charlie ;
+    foaf:page <http://charlie-designs.com/portfolio> ;
+    ex:format "Portfolio" .
+
+# ==================
+# IMAGES AND MEDIA
+# ==================
+
+ex:alice-photo rdf:type foaf:Image ;
+    rdfs:label "Alice's Profile Photo" ;
+    foaf:depicts person:alice ;
+    foaf:maker person:alice ;
+    ex:width "800"^^xsd:integer ;
+    ex:height "800"^^xsd:integer ;
+    ex:format "image/jpeg" .
+
+ex:charlie-artwork rdf:type foaf:Image ;
+    rdfs:label "Charlie's Abstract Art" ;
+    foaf:maker person:charlie ;
+    ex:width "1920"^^xsd:integer ;
+    ex:height "1080"^^xsd:integer ;
+    ex:format "image/png" ;
+    ex:license "CC BY-SA 4.0" .
+
+# ==================
+# INVERSE RELATIONSHIPS
+# ==================
+
+# Mutual knows relationships (already defined above, shown here for clarity)
+# Alice knows Bob, Charlie, Diana
+# Bob knows Alice, Charlie
+# Charlie knows Alice, Bob, Diana
+# Diana knows Alice, Charlie
+# Edward knows Alice
+# Fiona knows Charlie
+
+# Triple count: Approximately 300+ triples
+# This demonstrates real-world FOAF usage for social network representation

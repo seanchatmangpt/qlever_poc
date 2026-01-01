@@ -1,0 +1,471 @@
+# schema-org.n3 - Schema.org Structured Data
+# ===========================================
+#
+# This file demonstrates:
+# - Schema.org vocabulary usage
+# - Structured data for websites
+# - Rich snippets and SEO
+# - Real-world entity descriptions
+#
+# Schema.org is the standard vocabulary for structured data on the web
+# Used by Google, Microsoft, Yahoo, and Yandex for rich search results
+# Spec: https://schema.org/
+
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix schema: <http://schema.org/> .
+@prefix ex: <http://example.org/> .
+@prefix entity: <http://example.org/entity/> .
+
+# ==================
+# ORGANIZATION
+# ==================
+
+entity:techcorp rdf:type schema:Organization ;
+    schema:name "TechCorp Solutions" ;
+    schema:legalName "TechCorp Solutions, Inc." ;
+    schema:url <http://techcorp.example.com> ;
+    schema:logo <http://techcorp.example.com/logo.png> ;
+    schema:description "Leading provider of enterprise software solutions" ;
+    schema:foundingDate "2010-03-15"^^xsd:date ;
+    schema:numberOfEmployees "450"^^xsd:integer ;
+
+    schema:address [
+        rdf:type schema:PostalAddress ;
+        schema:streetAddress "1234 Innovation Drive" ;
+        schema:addressLocality "San Francisco" ;
+        schema:addressRegion "CA" ;
+        schema:postalCode "94102" ;
+        schema:addressCountry "US"
+    ] ;
+
+    schema:contactPoint [
+        rdf:type schema:ContactPoint ;
+        schema:telephone "+1-555-0123" ;
+        schema:contactType "Customer Service" ;
+        schema:email "support@techcorp.example.com" ;
+        schema:availableLanguage "English", "Spanish", "French"
+    ] ;
+
+    schema:sameAs <https://twitter.com/techcorp> ,
+                  <https://linkedin.com/company/techcorp> ,
+                  <https://facebook.com/techcorp> ;
+
+    schema:founder entity:john-founder ;
+    schema:employee entity:person-alice, entity:person-bob .
+
+# ==================
+# PERSON (EMPLOYEES)
+# ==================
+
+entity:john-founder rdf:type schema:Person ;
+    schema:name "John Founder" ;
+    schema:givenName "John" ;
+    schema:familyName "Founder" ;
+    schema:jobTitle "CEO & Founder" ;
+    schema:email "john@techcorp.example.com" ;
+    schema:telephone "+1-555-0124" ;
+    schema:url <http://techcorp.example.com/team/john> ;
+    schema:image <http://techcorp.example.com/team/john.jpg> ;
+    schema:worksFor entity:techcorp ;
+    schema:alumniOf [
+        rdf:type schema:EducationalOrganization ;
+        schema:name "Stanford University"
+    ] .
+
+entity:person-alice rdf:type schema:Person ;
+    schema:name "Alice Johnson" ;
+    schema:givenName "Alice" ;
+    schema:familyName "Johnson" ;
+    schema:jobTitle "Senior Software Engineer" ;
+    schema:email "alice@techcorp.example.com" ;
+    schema:worksFor entity:techcorp .
+
+entity:person-bob rdf:type schema:Person ;
+    schema:name "Bob Smith" ;
+    schema:givenName "Bob" ;
+    schema:familyName "Smith" ;
+    schema:jobTitle "Data Scientist" ;
+    schema:email "bob@techcorp.example.com" ;
+    schema:worksFor entity:techcorp .
+
+# ==================
+# PRODUCTS
+# ==================
+
+entity:product-enterprise-suite rdf:type schema:SoftwareApplication ;
+    schema:name "Enterprise Suite Pro" ;
+    schema:description "Comprehensive business management software for enterprises" ;
+    schema:applicationCategory "BusinessApplication" ;
+    schema:operatingSystem "Windows, macOS, Linux" ;
+    schema:offers [
+        rdf:type schema:Offer ;
+        schema:price "999.00"^^xsd:decimal ;
+        schema:priceCurrency "USD" ;
+        schema:availability schema:InStock ;
+        schema:validFrom "2024-01-01"^^xsd:date
+    ] ;
+    schema:aggregateRating [
+        rdf:type schema:AggregateRating ;
+        schema:ratingValue "4.7"^^xsd:decimal ;
+        schema:reviewCount "234"^^xsd:integer ;
+        schema:bestRating "5"^^xsd:integer ;
+        schema:worstRating "1"^^xsd:integer
+    ] ;
+    schema:provider entity:techcorp ;
+    schema:softwareVersion "3.2.1" ;
+    schema:releaseNotes <http://techcorp.example.com/products/enterprise-suite/release-notes> ;
+    schema:screenshot <http://techcorp.example.com/products/enterprise-suite/screenshot.png> .
+
+# ==================
+# BOOK
+# ==================
+
+entity:book-semantic-web rdf:type schema:Book ;
+    schema:name "The Semantic Web: A Comprehensive Guide" ;
+    schema:author entity:author-jane-smith ;
+    schema:isbn "978-1-234567-89-0" ;
+    schema:bookEdition "2nd Edition" ;
+    schema:bookFormat schema:Hardcover ;
+    schema:numberOfPages "456"^^xsd:integer ;
+    schema:publisher entity:publisher-tech-books ;
+    schema:datePublished "2024-06-15"^^xsd:date ;
+    schema:inLanguage "en" ;
+    schema:description "A comprehensive guide to understanding and implementing Semantic Web technologies" ;
+
+    schema:offers [
+        rdf:type schema:Offer ;
+        schema:price "49.99"^^xsd:decimal ;
+        schema:priceCurrency "USD" ;
+        schema:availability schema:InStock ;
+        schema:seller entity:bookstore-online
+    ] ;
+
+    schema:aggregateRating [
+        rdf:type schema:AggregateRating ;
+        schema:ratingValue "4.8"^^xsd:decimal ;
+        schema:reviewCount "127"^^xsd:integer
+    ] ;
+
+    schema:review entity:review-book-1 .
+
+entity:author-jane-smith rdf:type schema:Person ;
+    schema:name "Dr. Jane Smith" ;
+    schema:honorificPrefix "Dr." ;
+    schema:givenName "Jane" ;
+    schema:familyName "Smith" ;
+    schema:url <http://janesmith.example.com> .
+
+entity:publisher-tech-books rdf:type schema:Organization ;
+    schema:name "Tech Books Publishing" ;
+    schema:url <http://techbooks.example.com> .
+
+entity:bookstore-online rdf:type schema:Store ;
+    schema:name "Online Bookstore" ;
+    schema:url <http://onlinebookstore.example.com> .
+
+entity:review-book-1 rdf:type schema:Review ;
+    schema:reviewRating [
+        rdf:type schema:Rating ;
+        schema:ratingValue "5"^^xsd:integer ;
+        schema:bestRating "5"^^xsd:integer
+    ] ;
+    schema:author [
+        rdf:type schema:Person ;
+        schema:name "Michael Reader"
+    ] ;
+    schema:datePublished "2024-07-20"^^xsd:date ;
+    schema:reviewBody "Excellent book! Comprehensive coverage of all Semantic Web topics. Highly recommended for both beginners and experts." .
+
+# ==================
+# EVENT (CONFERENCE)
+# ==================
+
+entity:conference-semweb-2024 rdf:type schema:Event ;
+    schema:name "Semantic Web Conference 2024" ;
+    schema:description "Annual international conference on Semantic Web technologies" ;
+    schema:startDate "2024-10-15T09:00:00-07:00"^^xsd:dateTime ;
+    schema:endDate "2024-10-17T17:00:00-07:00"^^xsd:dateTime ;
+    schema:eventStatus schema:EventScheduled ;
+    schema:eventAttendanceMode schema:OfflineEventAttendanceMode ;
+
+    schema:location [
+        rdf:type schema:Place ;
+        schema:name "San Francisco Convention Center" ;
+        schema:address [
+            rdf:type schema:PostalAddress ;
+            schema:streetAddress "747 Howard Street" ;
+            schema:addressLocality "San Francisco" ;
+            schema:addressRegion "CA" ;
+            schema:postalCode "94103" ;
+            schema:addressCountry "US"
+        ] ;
+        schema:geo [
+            rdf:type schema:GeoCoordinates ;
+            schema:latitude "37.7843"^^xsd:decimal ;
+            schema:longitude "-122.4013"^^xsd:decimal
+        ]
+    ] ;
+
+    schema:organizer entity:semweb-foundation ;
+
+    schema:offers [
+        rdf:type schema:Offer ;
+        schema:price "299.00"^^xsd:decimal ;
+        schema:priceCurrency "USD" ;
+        schema:availability schema:InStock ;
+        schema:validFrom "2024-06-01"^^xsd:date ;
+        schema:validThrough "2024-10-14"^^xsd:date ;
+        schema:url <http://semwebconf.example.com/register>
+    ] ;
+
+    schema:performer entity:speaker-alice, entity:speaker-edward ;
+    schema:maximumAttendeeCapacity "500"^^xsd:integer ;
+    schema:url <http://semwebconf.example.com> .
+
+entity:semweb-foundation rdf:type schema:Organization ;
+    schema:name "Semantic Web Foundation" ;
+    schema:url <http://semwebfoundation.example.org> .
+
+entity:speaker-alice rdf:type schema:Person ;
+    schema:name "Dr. Alice Johnson" ;
+    schema:url <http://alice-johnson.com> .
+
+entity:speaker-edward rdf:type schema:Person ;
+    schema:name "Prof. Edward Lee" ;
+    schema:url <http://cs.university.edu/~elee> .
+
+# ==================
+# RESTAURANT
+# ==================
+
+entity:restaurant-italian rdf:type schema:Restaurant ;
+    schema:name "La Bella Italia" ;
+    schema:description "Authentic Italian cuisine in the heart of San Francisco" ;
+    schema:image <http://labellaitaliasc.example.com/photos/main.jpg> ;
+    schema:url <http://labellaitaliasc.example.com> ;
+    schema:telephone "+1-555-0199" ;
+    schema:email "info@labellaitaliasc.example.com" ;
+
+    schema:servesCuisine "Italian" ;
+    schema:priceRange "$$" ;
+    schema:acceptsReservations "true"^^xsd:boolean ;
+
+    schema:address [
+        rdf:type schema:PostalAddress ;
+        schema:streetAddress "456 Columbus Avenue" ;
+        schema:addressLocality "San Francisco" ;
+        schema:addressRegion "CA" ;
+        schema:postalCode "94133" ;
+        schema:addressCountry "US"
+    ] ;
+
+    schema:geo [
+        rdf:type schema:GeoCoordinates ;
+        schema:latitude "37.7999"^^xsd:decimal ;
+        schema:longitude "-122.4103"^^xsd:decimal
+    ] ;
+
+    schema:openingHoursSpecification [
+        rdf:type schema:OpeningHoursSpecification ;
+        schema:dayOfWeek schema:Monday, schema:Tuesday, schema:Wednesday, schema:Thursday ;
+        schema:opens "11:00"^^xsd:time ;
+        schema:closes "22:00"^^xsd:time
+    ] , [
+        rdf:type schema:OpeningHoursSpecification ;
+        schema:dayOfWeek schema:Friday, schema:Saturday ;
+        schema:opens "11:00"^^xsd:time ;
+        schema:closes "23:00"^^xsd:time
+    ] , [
+        rdf:type schema:OpeningHoursSpecification ;
+        schema:dayOfWeek schema:Sunday ;
+        schema:opens "12:00"^^xsd:time ;
+        schema:closes "21:00"^^xsd:time
+    ] ;
+
+    schema:aggregateRating [
+        rdf:type schema:AggregateRating ;
+        schema:ratingValue "4.6"^^xsd:decimal ;
+        schema:reviewCount "342"^^xsd:integer
+    ] ;
+
+    schema:review entity:review-restaurant-1 .
+
+entity:review-restaurant-1 rdf:type schema:Review ;
+    schema:reviewRating [
+        rdf:type schema:Rating ;
+        schema:ratingValue "5"^^xsd:integer
+    ] ;
+    schema:author [
+        rdf:type schema:Person ;
+        schema:name "Sarah Foodie"
+    ] ;
+    schema:datePublished "2024-11-15"^^xsd:date ;
+    schema:reviewBody "Amazing pasta! The carbonara was perfectly creamy and the service was excellent." .
+
+# ==================
+# ARTICLE (BLOG POST)
+# ==================
+
+entity:article-ml-intro rdf:type schema:Article ;
+    schema:headline "Introduction to Machine Learning in 2024" ;
+    schema:alternativeHeadline "ML Basics for Beginners" ;
+    schema:description "A comprehensive introduction to machine learning concepts and applications" ;
+    schema:author entity:person-alice ;
+    schema:datePublished "2024-11-20T10:00:00Z"^^xsd:dateTime ;
+    schema:dateModified "2024-11-21T14:30:00Z"^^xsd:dateTime ;
+    schema:publisher entity:tech-blog ;
+    schema:image <http://techblog.example.com/articles/ml-intro/header.jpg> ;
+    schema:url <http://techblog.example.com/articles/ml-intro> ;
+    schema:wordCount "2500"^^xsd:integer ;
+    schema:inLanguage "en" ;
+    schema:articleSection "Technology" ;
+    schema:keywords "machine learning, AI, tutorial, beginners" ;
+
+    schema:about <http://dbpedia.org/resource/Machine_learning> ;
+
+    schema:commentCount "45"^^xsd:integer ;
+    schema:comment entity:comment-1 .
+
+entity:tech-blog rdf:type schema:Organization ;
+    schema:name "Tech Insights Blog" ;
+    schema:url <http://techblog.example.com> ;
+    schema:logo <http://techblog.example.com/logo.png> .
+
+entity:comment-1 rdf:type schema:Comment ;
+    schema:author [
+        rdf:type schema:Person ;
+        schema:name "John Learner"
+    ] ;
+    schema:dateCreated "2024-11-20T15:30:00Z"^^xsd:dateTime ;
+    schema:text "Great article! Very clear explanations for beginners." .
+
+# ==================
+# COURSE
+# ==================
+
+entity:course-rdf rdf:type schema:Course ;
+    schema:name "RDF and Semantic Web Technologies" ;
+    schema:description "Learn RDF, SPARQL, and Semantic Web fundamentals" ;
+    schema:provider entity:online-university ;
+    schema:courseCode "CS-501" ;
+    schema:numberOfCredits "3"^^xsd:integer ;
+    schema:timeRequired "P8W"^^xsd:duration ;  # 8 weeks
+    schema:educationalLevel "Graduate" ;
+    schema:inLanguage "en" ;
+
+    schema:hasCourseInstance [
+        rdf:type schema:CourseInstance ;
+        schema:courseMode "Online" ;
+        schema:startDate "2025-01-15"^^xsd:date ;
+        schema:endDate "2025-03-15"^^xsd:date ;
+        schema:instructor entity:speaker-edward
+    ] ;
+
+    schema:offers [
+        rdf:type schema:Offer ;
+        schema:price "499.00"^^xsd:decimal ;
+        schema:priceCurrency "USD" ;
+        schema:availability schema:InStock
+    ] .
+
+entity:online-university rdf:type schema:EducationalOrganization ;
+    schema:name "Online Tech University" ;
+    schema:url <http://onlinetech.example.edu> .
+
+# ==================
+# RECIPE
+# ==================
+
+entity:recipe-carbonara rdf:type schema:Recipe ;
+    schema:name "Classic Spaghetti Carbonara" ;
+    schema:image <http://recipes.example.com/carbonara.jpg> ;
+    schema:author [
+        rdf:type schema:Person ;
+        schema:name "Chef Mario"
+    ] ;
+    schema:datePublished "2024-05-10"^^xsd:date ;
+    schema:description "Traditional Italian carbonara recipe" ;
+    schema:prepTime "PT10M"^^xsd:duration ;  # 10 minutes
+    schema:cookTime "PT15M"^^xsd:duration ;  # 15 minutes
+    schema:totalTime "PT25M"^^xsd:duration ;
+    schema:recipeYield "4 servings" ;
+    schema:recipeCategory "Main Course" ;
+    schema:recipeCuisine "Italian" ;
+    schema:keywords "pasta, carbonara, Italian, quick" ;
+
+    schema:recipeIngredient "400g spaghetti" ,
+                            "200g guanciale or pancetta" ,
+                            "4 egg yolks" ,
+                            "100g Pecorino Romano cheese" ,
+                            "Black pepper to taste" ;
+
+    schema:recipeInstructions [
+        rdf:type schema:HowToStep ;
+        schema:position "1"^^xsd:integer ;
+        schema:text "Cook spaghetti in salted boiling water until al dente"
+    ] , [
+        rdf:type schema:HowToStep ;
+        schema:position "2"^^xsd:integer ;
+        schema:text "Fry guanciale until crispy"
+    ] , [
+        rdf:type schema:HowToStep ;
+        schema:position "3"^^xsd:integer ;
+        schema:text "Mix egg yolks with grated cheese"
+    ] , [
+        rdf:type schema:HowToStep ;
+        schema:position "4"^^xsd:integer ;
+        schema:text "Combine hot pasta with guanciale and egg mixture"
+    ] ;
+
+    schema:aggregateRating [
+        rdf:type schema:AggregateRating ;
+        schema:ratingValue "4.9"^^xsd:decimal ;
+        schema:reviewCount "567"^^xsd:integer
+    ] ;
+
+    schema:nutrition [
+        rdf:type schema:NutritionInformation ;
+        schema:calories "650 calories" ;
+        schema:carbohydrateContent "75g" ;
+        schema:proteinContent "25g" ;
+        schema:fatContent "28g"
+    ] .
+
+# ==================
+# MOVIE
+# ==================
+
+entity:movie-ai-story rdf:type schema:Movie ;
+    schema:name "The AI Story" ;
+    schema:description "A documentary about the history and future of artificial intelligence" ;
+    schema:director [
+        rdf:type schema:Person ;
+        schema:name "Director Jane"
+    ] ;
+    schema:actor [
+        rdf:type schema:Person ;
+        schema:name "Narrator Voice"
+    ] ;
+    schema:datePublished "2024-08-01"^^xsd:date ;
+    schema:duration "PT120M"^^xsd:duration ;  # 120 minutes
+    schema:genre "Documentary" ;
+    schema:contentRating "PG" ;
+    schema:inLanguage "en" ;
+
+    schema:aggregateRating [
+        rdf:type schema:AggregateRating ;
+        schema:ratingValue "4.5"^^xsd:decimal ;
+        schema:reviewCount "1234"^^xsd:integer
+    ] ;
+
+    schema:trailer [
+        rdf:type schema:VideoObject ;
+        schema:name "The AI Story - Official Trailer" ;
+        schema:url <http://videos.example.com/ai-story-trailer> ;
+        schema:duration "PT3M"^^xsd:duration
+    ] .
+
+# Triple count: Approximately 400+ triples
+# This demonstrates real-world Schema.org usage for structured data and SEO

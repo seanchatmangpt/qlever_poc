@@ -1,0 +1,2 @@
+# Invalid N3: cannot have both language tag and datatype
+<http://example.org/subject> <http://example.org/predicate> "text"@en^^<http://www.w3.org/2001/XMLSchema#string> .

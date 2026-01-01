@@ -1,0 +1,349 @@
+# collections-and-lists.n3 - RDF Collections and Lists
+# ======================================================
+#
+# This file demonstrates:
+# - RDF Collections (ordered lists using rdf:List)
+# - Property lists
+# - Containers (rdf:Bag, rdf:Seq, rdf:Alt)
+# - Collection syntax in N3
+#
+# Collections are fundamental RDF structures for representing ordered and unordered groups
+
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex: <http://example.org/> .
+@prefix data: <http://example.org/data/> .
+
+# ==================
+# RDF COLLECTIONS (LISTS)
+# ==================
+
+# RDF Lists are ordered collections with defined structure
+# Uses rdf:first, rdf:rest, and rdf:nil
+
+# Example 1: Shopping list using explicit list structure
+data:shopping-list-explicit rdf:type ex:ShoppingList ;
+    ex:name "Weekly Groceries" ;
+    ex:items [
+        rdf:first "Milk" ;
+        rdf:rest [
+            rdf:first "Bread" ;
+            rdf:rest [
+                rdf:first "Eggs" ;
+                rdf:rest [
+                    rdf:first "Butter" ;
+                    rdf:rest rdf:nil
+                ]
+            ]
+        ]
+    ] .
+
+# Example 2: Same shopping list using N3 collection syntax
+# Parentheses () create RDF Lists automatically
+data:shopping-list-compact rdf:type ex:ShoppingList ;
+    ex:name "Weekly Groceries (Compact)" ;
+    ex:items ( "Milk" "Bread" "Eggs" "Butter" ) .
+
+# Example 3: List of numbers
+data:fibonacci-sequence rdf:type ex:NumberSequence ;
+    ex:name "Fibonacci Sequence (First 10)" ;
+    ex:values ( 0 1 1 2 3 5 8 13 21 34 ) .
+
+# Example 4: List of resources (not literals)
+data:project-team rdf:type ex:Team ;
+    ex:name "Development Team" ;
+    ex:members ( data:person-alice data:person-bob data:person-charlie ) .
+
+data:person-alice rdf:type ex:Person ; ex:name "Alice" .
+data:person-bob rdf:type ex:Person ; ex:name "Bob" .
+data:person-charlie rdf:type ex:Person ; ex:name "Charlie" .
+
+# Example 5: Nested lists
+data:matrix-2x3 rdf:type ex:Matrix ;
+    ex:name "2x3 Matrix" ;
+    ex:rows (
+        ( 1 2 3 )
+        ( 4 5 6 )
+    ) .
+
+# Example 6: Mixed types in a list
+data:mixed-list rdf:type ex:DataList ;
+    ex:name "Mixed Data Types" ;
+    ex:values (
+        "String value"
+        42
+        "3.14"^^xsd:decimal
+        "2024-01-01"^^xsd:date
+        "true"^^xsd:boolean
+        data:person-alice
+    ) .
+
+# Example 7: List of coordinates
+data:route-path rdf:type ex:Route ;
+    ex:name "City Tour Path" ;
+    ex:coordinates (
+        [ ex:lat "37.7749"^^xsd:decimal ; ex:lon "-122.4194"^^xsd:decimal ]
+        [ ex:lat "37.8044"^^xsd:decimal ; ex:lon "-122.4078"^^xsd:decimal ]
+        [ ex:lat "37.8199"^^xsd:decimal ; ex:lon "-122.4783"^^xsd:decimal ]
+    ) .
+
+# Example 8: Ordered process steps
+data:recipe-steps rdf:type ex:Recipe ;
+    ex:name "Make Coffee" ;
+    ex:steps (
+        [ ex:stepNumber 1 ; ex:action "Boil water" ; ex:duration "PT5M"^^xsd:duration ]
+        [ ex:stepNumber 2 ; ex:action "Grind coffee beans" ; ex:duration "PT2M"^^xsd:duration ]
+        [ ex:stepNumber 3 ; ex:action "Add coffee to filter" ; ex:duration "PT1M"^^xsd:duration ]
+        [ ex:stepNumber 4 ; ex:action "Pour water over coffee" ; ex:duration "PT3M"^^xsd:duration ]
+        [ ex:stepNumber 5 ; ex:action "Serve" ; ex:duration "PT1M"^^xsd:duration ]
+    ) .
+
+# ==================
+# RDF CONTAINERS
+# ==================
+
+# rdf:Bag - Unordered collection (like a set, but allows duplicates)
+# Uses rdf:_1, rdf:_2, rdf:_3, etc.
+
+data:bag-example rdf:type rdf:Bag ;
+    rdfs:label "Favorite Colors (Unordered)" ;
+    rdf:_1 "Red" ;
+    rdf:_2 "Blue" ;
+    rdf:_3 "Green" ;
+    rdf:_4 "Yellow" ;
+    rdf:_5 "Purple" .
+
+data:student-grades rdf:type rdf:Bag ;
+    rdfs:label "Class Grades" ;
+    rdf:_1 "95"^^xsd:integer ;
+    rdf:_2 "87"^^xsd:integer ;
+    rdf:_3 "92"^^xsd:integer ;
+    rdf:_4 "88"^^xsd:integer ;
+    rdf:_5 "95"^^xsd:integer ;  # Note: duplicates allowed
+    rdf:_6 "91"^^xsd:integer .
+
+# rdf:Seq - Ordered collection (sequence)
+# Order matters, unlike Bag
+
+data:seq-example rdf:type rdf:Seq ;
+    rdfs:label "Top 5 Movies (Ranked)" ;
+    rdf:_1 "The Shawshank Redemption" ;
+    rdf:_2 "The Godfather" ;
+    rdf:_3 "The Dark Knight" ;
+    rdf:_4 "Pulp Fiction" ;
+    rdf:_5 "Forrest Gump" .
+
+data:race-results rdf:type rdf:Seq ;
+    rdfs:label "Race Results (1st to 5th)" ;
+    rdf:_1 data:runner-alice ;
+    rdf:_2 data:runner-bob ;
+    rdf:_3 data:runner-charlie ;
+    rdf:_4 data:runner-diana ;
+    rdf:_5 data:runner-edward .
+
+data:runner-alice rdf:type ex:Runner ; ex:name "Alice" ; ex:time "PT25M30S"^^xsd:duration .
+data:runner-bob rdf:type ex:Runner ; ex:name "Bob" ; ex:time "PT26M15S"^^xsd:duration .
+data:runner-charlie rdf:type ex:Runner ; ex:name "Charlie" ; ex:time "PT27M45S"^^xsd:duration .
+data:runner-diana rdf:type ex:Runner ; ex:name "Diana" ; ex:time "PT28M10S"^^xsd:duration .
+data:runner-edward rdf:type ex:Runner ; ex:name "Edward" ; ex:time "PT29M05S"^^xsd:duration .
+
+# rdf:Alt - Alternatives (represents choices)
+# Typically first element is the default
+
+data:alt-example rdf:type rdf:Alt ;
+    rdfs:label "Profile Picture Alternatives" ;
+    rdf:_1 <http://example.org/images/profile-high-res.jpg> ;  # Default
+    rdf:_2 <http://example.org/images/profile-medium.jpg> ;
+    rdf:_3 <http://example.org/images/profile-thumbnail.jpg> .
+
+data:language-alternatives rdf:type rdf:Alt ;
+    rdfs:label "Welcome Message Language Alternatives" ;
+    rdf:_1 "Welcome"@en ;  # Default
+    rdf:_2 "Bienvenue"@fr ;
+    rdf:_3 "Bienvenido"@es ;
+    rdf:_4 "Willkommen"@de ;
+    rdf:_5 "Benvenuto"@it .
+
+# ==================
+# EMPTY COLLECTIONS
+# ==================
+
+# Empty list
+data:empty-list rdf:type ex:DataList ;
+    ex:name "Empty List" ;
+    ex:items rdf:nil .
+
+# Empty list using parentheses syntax
+data:empty-list-compact rdf:type ex:DataList ;
+    ex:name "Empty List (Compact)" ;
+    ex:items ( ) .
+
+# ==================
+# COMPLEX COLLECTION EXAMPLES
+# ==================
+
+# Example: Course syllabus with weekly modules
+data:course-syllabus rdf:type ex:CourseSyllabus ;
+    ex:courseName "Introduction to RDF" ;
+    ex:modules (
+        [
+            ex:weekNumber 1 ;
+            ex:topic "RDF Basics" ;
+            ex:readings ( "RDF Primer" "Turtle Tutorial" ) ;
+            ex:assignments ( "Quiz 1" )
+        ]
+        [
+            ex:weekNumber 2 ;
+            ex:topic "SPARQL Queries" ;
+            ex:readings ( "SPARQL Specification" "Query Examples" ) ;
+            ex:assignments ( "Lab 1" "Quiz 2" )
+        ]
+        [
+            ex:weekNumber 3 ;
+            ex:topic "Semantic Web" ;
+            ex:readings ( "Semantic Web Overview" "Linked Data Principles" ) ;
+            ex:assignments ( "Project Proposal" "Quiz 3" )
+        ]
+    ) .
+
+# Example: Music playlist
+data:playlist-rock rdf:type ex:Playlist ;
+    ex:name "Classic Rock Essentials" ;
+    ex:description "Top classic rock songs" ;
+    ex:tracks (
+        [
+            ex:trackNumber 1 ;
+            ex:title "Stairway to Heaven" ;
+            ex:artist "Led Zeppelin" ;
+            ex:duration "PT8M2S"^^xsd:duration
+        ]
+        [
+            ex:trackNumber 2 ;
+            ex:title "Bohemian Rhapsody" ;
+            ex:artist "Queen" ;
+            ex:duration "PT5M55S"^^xsd:duration
+        ]
+        [
+            ex:trackNumber 3 ;
+            ex:title "Hotel California" ;
+            ex:artist "Eagles" ;
+            ex:duration "PT6M30S"^^xsd:duration
+        ]
+    ) .
+
+# Example: Family tree with ordered children
+data:family-smith rdf:type ex:Family ;
+    ex:familyName "Smith" ;
+    ex:parents ( data:parent-john data:parent-jane ) ;
+    ex:children (
+        [ ex:name "Alice" ; ex:birthOrder 1 ; ex:birthYear 2010 ]
+        [ ex:name "Bob" ; ex:birthOrder 2 ; ex:birthYear 2012 ]
+        [ ex:name "Charlie" ; ex:birthOrder 3 ; ex:birthYear 2015 ]
+    ) .
+
+data:parent-john rdf:type ex:Person ; ex:name "John Smith" ; ex:role "Father" .
+data:parent-jane rdf:type ex:Person ; ex:name "Jane Smith" ; ex:role "Mother" .
+
+# Example: Tournament bracket (nested structure)
+data:tournament-bracket rdf:type ex:Tournament ;
+    ex:name "Championship 2024" ;
+    ex:rounds (
+        [
+            ex:roundNumber 1 ;
+            ex:roundName "Quarterfinals" ;
+            ex:matches (
+                [ ex:team1 "Team A" ; ex:team2 "Team B" ; ex:winner "Team A" ]
+                [ ex:team1 "Team C" ; ex:team2 "Team D" ; ex:winner "Team C" ]
+                [ ex:team1 "Team E" ; ex:team2 "Team F" ; ex:winner "Team F" ]
+                [ ex:team1 "Team G" ; ex:team2 "Team H" ; ex:winner "Team G" ]
+            )
+        ]
+        [
+            ex:roundNumber 2 ;
+            ex:roundName "Semifinals" ;
+            ex:matches (
+                [ ex:team1 "Team A" ; ex:team2 "Team C" ; ex:winner "Team A" ]
+                [ ex:team1 "Team F" ; ex:team2 "Team G" ; ex:winner "Team G" ]
+            )
+        ]
+        [
+            ex:roundNumber 3 ;
+            ex:roundName "Finals" ;
+            ex:matches (
+                [ ex:team1 "Team A" ; ex:team2 "Team G" ; ex:winner "Team A" ]
+            )
+        ]
+    ) .
+
+# Example: Graph data structure
+data:graph-directed rdf:type ex:Graph ;
+    ex:name "Simple Directed Graph" ;
+    ex:vertices ( "A" "B" "C" "D" "E" ) ;
+    ex:edges (
+        [ ex:from "A" ; ex:to "B" ; ex:weight "5"^^xsd:integer ]
+        [ ex:from "A" ; ex:to "C" ; ex:weight "3"^^xsd:integer ]
+        [ ex:from "B" ; ex:to "D" ; ex:weight "2"^^xsd:integer ]
+        [ ex:from "C" ; ex:to "D" ; ex:weight "4"^^xsd:integer ]
+        [ ex:from "D" ; ex:to "E" ; ex:weight "1"^^xsd:integer ]
+    ) .
+
+# Example: Menu structure with nested categories
+data:restaurant-menu rdf:type ex:Menu ;
+    ex:name "Italian Restaurant Menu" ;
+    ex:sections (
+        [
+            ex:sectionName "Appetizers" ;
+            ex:items (
+                [ ex:name "Bruschetta" ; ex:price "8.99"^^xsd:decimal ]
+                [ ex:name "Caprese Salad" ; ex:price "10.99"^^xsd:decimal ]
+                [ ex:name "Garlic Bread" ; ex:price "5.99"^^xsd:decimal ]
+            )
+        ]
+        [
+            ex:sectionName "Main Courses" ;
+            ex:items (
+                [ ex:name "Spaghetti Carbonara" ; ex:price "16.99"^^xsd:decimal ]
+                [ ex:name "Margherita Pizza" ; ex:price "14.99"^^xsd:decimal ]
+                [ ex:name "Lasagna" ; ex:price "17.99"^^xsd:decimal ]
+            )
+        ]
+        [
+            ex:sectionName "Desserts" ;
+            ex:items (
+                [ ex:name "Tiramisu" ; ex:price "7.99"^^xsd:decimal ]
+                [ ex:name "Panna Cotta" ; ex:price "6.99"^^xsd:decimal ]
+            )
+        ]
+    ) .
+
+# ==================
+# COLLECTIONS WITH ANNOTATIONS
+# ==================
+
+# Example: Tagged list items
+data:todo-list rdf:type ex:TodoList ;
+    ex:name "Project Tasks" ;
+    ex:tasks (
+        [
+            ex:task "Design database schema" ;
+            ex:priority "High" ;
+            ex:completed "true"^^xsd:boolean ;
+            ex:assignee data:person-alice
+        ]
+        [
+            ex:task "Implement API endpoints" ;
+            ex:priority "High" ;
+            ex:completed "false"^^xsd:boolean ;
+            ex:assignee data:person-bob
+        ]
+        [
+            ex:task "Write documentation" ;
+            ex:priority "Medium" ;
+            ex:completed "false"^^xsd:boolean ;
+            ex:assignee data:person-charlie
+        ]
+    ) .
+
+# Triple count: Approximately 400+ triples
+# This demonstrates various collection patterns used in RDF/N3

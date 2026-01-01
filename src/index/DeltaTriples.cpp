@@ -14,6 +14,7 @@
 
 #include <absl/strings/str_cat.h>
 
+#include "ad_utility/Epoch.h"
 #include "backports/algorithm.h"
 #include "engine/ExecuteUpdate.h"
 #include "engine/ExportQueryExecutionTrees.h"
@@ -388,6 +389,10 @@ ReturnType DeltaTriplesManager::modify(
     const std::function<ReturnType(DeltaTriples&)>& function,
     bool writeToDiskAfterRequest, bool updateMetadataAfterRequest,
     ad_utility::timer::TimeTracer& tracer) {
+  // Secondary write barrier for defense-in-depth: catches any direct
+  // programmatic mutations even if Server-level barriers are bypassed.
+  globalEpochManager.lock()->checkAllowedToMutate();
+
   // While holding the lock for the underlying `DeltaTriples`, perform the
   // actual `function` (typically some combination of insert and delete
   // operations) and (while still holding the lock) update the
