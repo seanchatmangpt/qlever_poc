@@ -434,7 +434,8 @@ const server = app.listen(PORT, async () => {
   console.log(`   Metrics: http://localhost:${PORT}/system/metrics`);
   console.log(`   Status: http://localhost:${PORT}/system/status\n`);
 
-  healthMonitor.startMonitoring();
+  // Start health monitoring asynchronously without blocking server startup
+  healthMonitor.runMonitoring().catch(err => console.error('Health monitoring error:', err.message));
 });
 
 process.on('SIGTERM', () => {

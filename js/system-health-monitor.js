@@ -282,7 +282,4 @@ class SystemHealthMonitor {
   }
 }
 
-const monitor = new SystemHealthMonitor();
-monitor.runMonitoring().catch(console.error);
-
-module.exports = SystemHealthMonitor;
+module.exports = { SystemHealthMonitor };

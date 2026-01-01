@@ -1,5 +1,6 @@
 const express = require('express');
-const { ApolloServer, gql } = require('apollo-server-express');
+const { ApolloServer, gql } = require('@apollo/server');
+const { expressMiddleware } = require('@apollo/server/express4');
 const axios = require('axios');
 
 const typeDefs = gql`
@@ -296,7 +297,7 @@ async function startServer() {
   });
 
   await server.start();
-  server.applyMiddleware({ app });
+  app.use('/graphql', expressMiddleware(server));
 
   app.get('/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
@@ -304,7 +305,7 @@ async function startServer() {
 
   const PORT = process.env.GRAPHQL_PORT || 3003;
   app.listen(PORT, () => {
-    console.log(`GraphQL server listening on http://localhost:${PORT}${server.graphqlPath}`);
+    console.log(`GraphQL server listening on http://localhost:${PORT}/graphql`);
   });
 }
 
