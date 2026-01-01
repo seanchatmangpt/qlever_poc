@@ -64,6 +64,13 @@ overridden) via a command-line option with the same name, see `qlever <command>
 --help`.
 
 
+# Development Setup
+
+If you're contributing to QLever or building from source, see the development guide:
+- **Quick Start**: Run `./scripts/setup-dev-env.sh` then `./scripts/build-release.sh`
+- **Full Documentation**: See [`CLAUDE.md`](CLAUDE.md) for comprehensive development guidance
+- **Available Scripts**: `./scripts/build-debug.sh`, `./scripts/run-tests.sh`, `./scripts/format.sh`
+
 # Using QLever without the `qlever` CLI
 
 This is not recommended but can be useful or necessary in certain (in
