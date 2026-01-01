@@ -1,0 +1,82 @@
+# Simple SHACL SPARQL Constraint Examples
+# This file demonstrates basic SPARQL-based constraints
+# Perfect for getting started with sh:sparql
+
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex: <http://example.org/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+# Example 1: Simple ASK constraint
+# Check if a person has at least one friend
+ex:HasFriendShape a sh:NodeShape ;
+  sh:targetClass foaf:Person ;
+  sh:sparql [
+    sh:message "Person must have at least one friend" ;
+    sh:ask """
+      ASK {
+        $this foaf:knows ?friend .
+      }
+    """
+  ] .
+
+# Example 2: SELECT constraint with variable binding
+# Ensure age is positive
+ex:PositiveAgeShape a sh:NodeShape ;
+  sh:targetClass foaf:Person ;
+  sh:sparql [
+    sh:message "Age must be positive, found: {?age}" ;
+    sh:select """
+      SELECT $this ?age
+      WHERE {
+        $this foaf:age ?age .
+        FILTER (?age <= 0)
+      }
+    """
+  ] .
+
+# Example 3: Relationship validation
+# Manager must be a different person
+ex:DifferentManagerShape a sh:NodeShape ;
+  sh:targetClass ex:Employee ;
+  sh:sparql [
+    sh:message "An employee cannot be their own manager" ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this ex:manager $this .
+      }
+    """
+  ] .
+
+# Example 4: Value comparison across properties
+# End date must be after start date
+ex:ValidDateRangeShape a sh:NodeShape ;
+  sh:targetClass ex:Event ;
+  sh:sparql [
+    sh:message "End date must be after start date" ;
+    sh:select """
+      SELECT $this ?start ?end
+      WHERE {
+        $this ex:startDate ?start .
+        $this ex:endDate ?end .
+        FILTER (?end <= ?start)
+      }
+    """
+  ] .
+
+# Example 5: Counting values
+# Organization must have at least 2 employees
+ex:MinEmployeesShape a sh:NodeShape ;
+  sh:targetClass ex:Organization ;
+  sh:sparql [
+    sh:message "Organization must have at least 2 employees" ;
+    sh:select """
+      SELECT $this (COUNT(?emp) AS ?count)
+      WHERE {
+        $this ex:hasEmployee ?emp .
+      }
+      GROUP BY $this
+      HAVING (COUNT(?emp) < 2)
+    """
+  ] .

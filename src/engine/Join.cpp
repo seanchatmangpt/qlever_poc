@@ -13,6 +13,7 @@
 
 #include "backports/functional.h"
 #include "backports/type_traits.h"
+#include "engine/AdaptiveJoinOptimizer.h"
 #include "engine/AddCombinedRowToTable.h"
 #include "engine/CallFixedSize.h"
 #include "engine/IndexScan.h"
@@ -337,20 +338,50 @@ void Join::join(const IdTable& a, const IdTable& b, IdTable* result) const {
   auto cancellationCallback = [this]() { checkCancellation(); };
 
   // Determine whether we should use the galloping join optimization.
-  if (a.size() / b.size() > GALLOP_THRESHOLD && numUndefA == 0 &&
-      numUndefB == 0) {
-    // The first argument to the galloping join will always be the smaller
-    // input, so we need to switch the rows when adding them.
-    auto inverseAddRow = [&addRow](const auto& rowA, const auto& rowB) {
-      addRow(rowB, rowA);
-    };
-    ad_utility::gallopingJoin(joinColumnR, joinColumnL, ql::ranges::less{},
-                              inverseAddRow, {}, cancellationCallback);
-  } else if (b.size() / a.size() > GALLOP_THRESHOLD && numUndefA == 0 &&
-             numUndefB == 0) {
-    ad_utility::gallopingJoin(joinColumnL, joinColumnR, ql::ranges::less{},
-                              addRow, {}, cancellationCallback);
+  // Use adaptive algorithm selection instead of hardcoded GALLOP_THRESHOLD
+  bool hasUndefValues = (numUndefA > 0) || (numUndefB > 0);
+
+  if (!hasUndefValues) {
+    // Create table characteristics for adaptive join algorithm selection
+    AdaptiveJoinOptimizer::TableCharacteristics leftChars{
+        a.size(), a.numColumns(), a.size() * sizeof(ValueId) * a.numColumns()};
+    AdaptiveJoinOptimizer::TableCharacteristics rightChars{
+        b.size(), b.numColumns(), b.size() * sizeof(ValueId) * b.numColumns()};
+
+    // Select the optimal join algorithm based on table characteristics
+    auto selectedAlgorithm =
+        AdaptiveJoinOptimizer::selectJoinAlgorithm(leftChars, rightChars);
+
+    // Execute the selected algorithm
+    if (selectedAlgorithm ==
+        AdaptiveJoinOptimizer::JoinAlgorithm::GALLOPING_JOIN) {
+      // Use galloping join for skewed data
+      if (a.size() / b.size() > GALLOP_THRESHOLD) {
+        // The first argument to the galloping join will always be the smaller
+        // input, so we need to switch the rows when adding them.
+        auto inverseAddRow = [&addRow](const auto& rowA, const auto& rowB) {
+          addRow(rowB, rowA);
+        };
+        ad_utility::gallopingJoin(joinColumnR, joinColumnL, ql::ranges::less{},
+                                  inverseAddRow, {}, cancellationCallback);
+      } else if (b.size() / a.size() > GALLOP_THRESHOLD) {
+        ad_utility::gallopingJoin(joinColumnL, joinColumnR, ql::ranges::less{},
+                                  addRow, {}, cancellationCallback);
+      } else {
+        // Fallback to merge join if size ratio doesn't support galloping
+        ad_utility::zipperJoinWithUndef(
+            joinColumnL, joinColumnR, ql::ranges::less{}, addRow,
+            ad_utility::noop, ad_utility::noop, {}, cancellationCallback);
+      }
+    } else {
+      // Use merge join (default/safest algorithm)
+      auto numOutOfOrder = ad_utility::zipperJoinWithUndef(
+          joinColumnL, joinColumnR, ql::ranges::less{}, addRow,
+          ad_utility::noop, ad_utility::noop, {}, cancellationCallback);
+      AD_CORRECTNESS_CHECK(numOutOfOrder == 0);
+    }
   } else {
+    // Fall back to merge join when UNDEF values are present
     auto findSmallerUndefRangeLeft = [undefRangeA](auto&&...) {
       return ad_utility::IteratorRange{undefRangeA.first, undefRangeA.second};
     };
@@ -358,19 +389,10 @@ void Join::join(const IdTable& a, const IdTable& b, IdTable* result) const {
       return ad_utility::IteratorRange{undefRangeB.first, undefRangeB.second};
     };
 
-    auto numOutOfOrder = [&]() {
-      if (numUndefB == 0 && numUndefA == 0) {
-        return ad_utility::zipperJoinWithUndef(
-            joinColumnL, joinColumnR, ql::ranges::less{}, addRow,
-            ad_utility::noop, ad_utility::noop, {}, cancellationCallback);
-
-      } else {
-        return ad_utility::zipperJoinWithUndef(
-            joinColumnL, joinColumnR, ql::ranges::less{}, addRow,
-            findSmallerUndefRangeLeft, findSmallerUndefRangeRight, {},
-            cancellationCallback);
-      }
-    }();
+    auto numOutOfOrder = ad_utility::zipperJoinWithUndef(
+        joinColumnL, joinColumnR, ql::ranges::less{}, addRow,
+        findSmallerUndefRangeLeft, findSmallerUndefRangeRight, {},
+        cancellationCallback);
     AD_CORRECTNESS_CHECK(numOutOfOrder == 0);
   }
   *result = std::move(rowAdder).resultTable();

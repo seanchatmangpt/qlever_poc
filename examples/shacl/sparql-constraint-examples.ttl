@@ -1,0 +1,239 @@
+# SHACL SPARQL-Based Constraint Examples
+# This file demonstrates SPARQL-based constraints (sh:sparql)
+# SPARQL constraints provide custom validation logic beyond standard SHACL constraints
+
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex: <http://example.org/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# Example 1: Basic SPARQL ASK constraint
+# Validates that a person's age is consistent with their birth date
+ex:PersonAgeConsistencyShape a sh:NodeShape ;
+  sh:targetClass foaf:Person ;
+  sh:name "Person Age Consistency" ;
+  sh:description "Validates that age matches birth date" ;
+  sh:sparql [
+    sh:message "Age does not match birth date" ;
+    sh:prefixes ex: ;
+    sh:select """
+      SELECT $this
+      WHERE {
+        $this foaf:age ?age .
+        $this ex:birthDate ?birthDate .
+        FILTER (?age != YEAR(NOW()) - YEAR(?birthDate))
+      }
+    """
+  ] .
+
+# Example 2: SPARQL constraint checking relationships
+# Validates that a person's manager works in the same department
+ex:ManagerDepartmentShape a sh:NodeShape ;
+  sh:targetClass ex:Employee ;
+  sh:name "Manager Department Check" ;
+  sh:description "Manager must work in same department" ;
+  sh:sparql [
+    sh:message "Manager {?manager} does not work in the same department as {$this}" ;
+    sh:select """
+      SELECT $this ?manager
+      WHERE {
+        $this ex:manager ?manager .
+        $this ex:department ?dept1 .
+        ?manager ex:department ?dept2 .
+        FILTER (?dept1 != ?dept2)
+      }
+    """
+  ] .
+
+# Example 3: Property value constraint using SPARQL
+# Validates that email addresses are unique across all persons
+ex:UniqueEmailShape a sh:NodeShape ;
+  sh:targetClass foaf:Person ;
+  sh:name "Unique Email Constraint" ;
+  sh:description "Email addresses must be unique" ;
+  sh:sparql [
+    sh:message "Email {?email} is already used by another person" ;
+    sh:select """
+      SELECT $this ?email
+      WHERE {
+        $this foaf:email ?email .
+        ?other foaf:email ?email .
+        FILTER ($this != ?other)
+      }
+    """
+  ] .
+
+# Example 4: Complex business rule validation
+# Validates that project budgets don't exceed department budgets
+ex:ProjectBudgetShape a sh:NodeShape ;
+  sh:targetClass ex:Project ;
+  sh:name "Project Budget Constraint" ;
+  sh:description "Project budget cannot exceed department budget" ;
+  sh:sparql [
+    sh:message "Project budget {?projectBudget} exceeds department budget {?deptBudget}" ;
+    sh:select """
+      SELECT $this ?projectBudget ?deptBudget
+      WHERE {
+        $this ex:budget ?projectBudget .
+        $this ex:department ?dept .
+        ?dept ex:budget ?deptBudget .
+        FILTER (?projectBudget > ?deptBudget)
+      }
+    """
+  ] .
+
+# Example 5: Temporal constraint validation
+# Validates that start date is before end date
+ex:DateRangeShape a sh:NodeShape ;
+  sh:targetClass ex:Event ;
+  sh:name "Date Range Validation" ;
+  sh:description "Start date must be before end date" ;
+  sh:sparql [
+    sh:message "Start date {?start} must be before end date {?end}" ;
+    sh:select """
+      SELECT $this ?start ?end
+      WHERE {
+        $this ex:startDate ?start .
+        $this ex:endDate ?end .
+        FILTER (?start >= ?end)
+      }
+    """
+  ] .
+
+# Example 6: Path-based constraint
+# Validates that a person knows at least one person in their organization
+ex:OrganizationConnectionShape a sh:NodeShape ;
+  sh:targetClass foaf:Person ;
+  sh:name "Organization Connection" ;
+  sh:description "Must know at least one colleague" ;
+  sh:sparql [
+    sh:message "Person {$this} does not know anyone in organization {?org}" ;
+    sh:select """
+      SELECT $this ?org
+      WHERE {
+        $this foaf:organization ?org .
+        FILTER NOT EXISTS {
+          $this foaf:knows ?colleague .
+          ?colleague foaf:organization ?org .
+          FILTER ($this != ?colleague)
+        }
+      }
+    """
+  ] .
+
+# Example 7: Aggregation-based constraint
+# Validates that a team has at least 3 members
+ex:MinimumTeamSizeShape a sh:NodeShape ;
+  sh:targetClass ex:Team ;
+  sh:name "Minimum Team Size" ;
+  sh:description "Team must have at least 3 members" ;
+  sh:sparql [
+    sh:message "Team {$this} has only {?count} members (minimum 3 required)" ;
+    sh:select """
+      SELECT $this (COUNT(?member) AS ?count)
+      WHERE {
+        $this ex:hasMember ?member .
+      }
+      GROUP BY $this
+      HAVING (COUNT(?member) < 3)
+    """
+  ] .
+
+# Example 8: Cross-graph validation
+# Validates that referenced resources exist in another graph
+ex:ExternalReferenceShape a sh:NodeShape ;
+  sh:targetClass ex:Document ;
+  sh:name "External Reference Check" ;
+  sh:description "Referenced resource must exist" ;
+  sh:sparql [
+    sh:message "Referenced resource {?ref} does not exist" ;
+    sh:select """
+      SELECT $this ?ref
+      WHERE {
+        $this ex:references ?ref .
+        FILTER NOT EXISTS {
+          GRAPH ?g {
+            ?ref ?p ?o .
+          }
+        }
+      }
+    """
+  ] .
+
+# Example 9: Pattern matching with SPARQL
+# Validates complex patterns in property values
+ex:PhoneNumberFormatShape a sh:NodeShape ;
+  sh:targetClass foaf:Person ;
+  sh:name "Phone Number Format" ;
+  sh:description "Phone numbers must match international format" ;
+  sh:sparql [
+    sh:message "Phone number {?phone} does not match international format" ;
+    sh:select """
+      SELECT $this ?phone
+      WHERE {
+        $this foaf:phone ?phone .
+        FILTER (!REGEX(STR(?phone), "^\\\\+[0-9]{1,3}[0-9]{7,14}$"))
+      }
+    """
+  ] .
+
+# Example 10: Conditional constraint
+# Different validation rules based on person type
+ex:ConditionalValidationShape a sh:NodeShape ;
+  sh:targetClass foaf:Person ;
+  sh:name "Conditional Validation" ;
+  sh:description "Employees must have employee ID, contractors must have contract" ;
+  sh:sparql [
+    sh:message "Employee {$this} is missing required employee ID or contract" ;
+    sh:select """
+      SELECT $this ?type
+      WHERE {
+        $this rdf:type ?type .
+        {
+          # Employees must have employee ID
+          FILTER (?type = ex:Employee)
+          FILTER NOT EXISTS { $this ex:employeeId ?id }
+        } UNION {
+          # Contractors must have contract
+          FILTER (?type = ex:Contractor)
+          FILTER NOT EXISTS { $this ex:contract ?contract }
+        }
+      }
+    """
+  ] .
+
+# Example 11: ASK query constraint
+# Simple boolean check without returning bindings
+ex:HasManagerShape a sh:NodeShape ;
+  sh:targetClass ex:Employee ;
+  sh:name "Employee Has Manager" ;
+  sh:description "All employees must have a manager" ;
+  sh:sparql [
+    sh:message "Employee {$this} does not have a manager" ;
+    sh:ask """
+      ASK {
+        $this ex:manager ?manager .
+      }
+    """
+  ] .
+
+# Example 12: Multi-property validation
+# Validates relationships between multiple properties
+ex:SalaryRangeShape a sh:NodeShape ;
+  sh:targetClass ex:Employee ;
+  sh:name "Salary Range Validation" ;
+  sh:description "Salary must be within job grade range" ;
+  sh:sparql [
+    sh:message "Salary {?salary} is outside the range for grade {?grade}" ;
+    sh:select """
+      SELECT $this ?salary ?grade ?minSalary ?maxSalary
+      WHERE {
+        $this ex:salary ?salary .
+        $this ex:grade ?grade .
+        ?grade ex:minSalary ?minSalary .
+        ?grade ex:maxSalary ?maxSalary .
+        FILTER (?salary < ?minSalary || ?salary > ?maxSalary)
+      }
+    """
+  ] .

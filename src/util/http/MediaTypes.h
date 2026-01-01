@@ -29,6 +29,7 @@ enum class MediaType {
   tsv,
   csv,
   turtle,
+  n3,
   ntriples,
   octetStream,
   binaryQleverExport

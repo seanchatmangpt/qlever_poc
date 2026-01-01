@@ -1,0 +1,67 @@
+name: Documentation Validation
+
+on:
+  push:
+    paths:
+      - 'docs/**'
+      - 'DOCUMENTATION*.md'
+      - '.github/workflows/docs-validate.yml'
+  pull_request:
+    paths:
+      - 'docs/**'
+      - 'DOCUMENTATION*.md'
+      - '.github/workflows/docs-validate.yml'
+
+jobs:
+  validate-links:
+    name: Validate Documentation Links
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install markdown-link-check
+        run: npm install -g markdown-link-check
+
+      - name: Validate links
+        run: bash scripts/validate-links.sh
+
+  validate-consistency:
+    name: Validate Documentation Consistency
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Check port consistency (should be 7023)
+        run: |
+          # Should only find 7023 in docs (7001 is internal Docker port)
+          if grep -r "7001\|7024\|7025" docs/*.md docs/tutorials/*.md docs/how-to/*.md docs/reference/*.md 2>/dev/null; then
+            echo "❌ ERROR: Found non-7023 ports in documentation (only 7023 should be used externally)"
+            exit 1
+          fi
+          echo "✅ All ports are consistent (7023)"
+
+      - name: Check for outdated requirements
+        run: |
+          if grep -r "Ubuntu 18.04\|GCC 7\|Python 2\|CMake 2\." docs/ 2>/dev/null | grep -v "legacy"; then
+            echo "❌ WARNING: Found potentially outdated requirements in documentation"
+            echo "   Review and update to current versions (Ubuntu 22.04+, GCC 11+, Python 3.8+, CMake 3.27+)"
+          fi
+          echo "✅ Requirement check complete (check output above for warnings)"
+
+  spell-check:
+    name: Spell Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Run codespell
+        uses: codespell-project/actions-codespell@v2
+        with:
+          path: docs/
+          skip: legacy
+          check_filenames: true

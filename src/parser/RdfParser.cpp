@@ -1298,10 +1298,11 @@ static std::unique_ptr<RdfParserBase> makeSingleRdfParser(
   auto makeRdfParserImpl = ad_utility::ApplyAsValueIdentity{
       [&filename = file.filename_, &bufferSize, &graph, ev](
           auto useParallel,
-          auto isTurtleInput) -> std::unique_ptr<RdfParserBase> {
-        using InnerParser =
-            std::conditional_t<isTurtleInput == 1, TurtleParser<TokenizerT>,
-                               NQuadParser<TokenizerT>>;
+          auto fileTypeIndex) -> std::unique_ptr<RdfParserBase> {
+        using InnerParser = std::conditional_t<
+            fileTypeIndex == 0, TurtleParser<TokenizerT>,
+            std::conditional_t<fileTypeIndex == 1, N3Parser<TokenizerT>,
+                               NQuadParser<TokenizerT>>>;
         using Parser =
             std::conditional_t<useParallel == 1, RdfParallelParser<InnerParser>,
                                RdfStreamParser<InnerParser>>;
@@ -1310,11 +1311,21 @@ static std::unique_ptr<RdfParserBase> makeSingleRdfParser(
 
   // The call to `callFixedSize` lifts runtime integers to compile time
   // integers. We use it here to create the correct combination of template
-  // arguments.
-  return ad_utility::callFixedSize(
-      std::array{file.parseInParallel_ ? 1 : 0,
-                 file.filetype_ == qlever::Filetype::Turtle ? 1 : 0},
-      makeRdfParserImpl);
+  // arguments. fileTypeIndex: 0 = Turtle, 1 = N3, 2 = NQuad
+  auto getFileTypeIndex = [](qlever::Filetype ft) -> int {
+    switch (ft) {
+      case qlever::Filetype::Turtle:
+        return 0;
+      case qlever::Filetype::N3:
+        return 1;
+      case qlever::Filetype::NQuad:
+        return 2;
+    }
+    AD_FAIL();
+  };
+  return ad_utility::callFixedSize(std::array{file.parseInParallel_ ? 1 : 0,
+                                              getFileTypeIndex(file.filetype_)},
+                                   makeRdfParserImpl);
 }
 
 // _____________________________________________________________________________
@@ -1411,6 +1422,12 @@ template class RdfStreamParser<TurtleParser<Tokenizer>>;
 template class RdfStreamParser<TurtleParser<TokenizerCtre>>;
 template class RdfParallelParser<TurtleParser<Tokenizer>>;
 template class RdfParallelParser<TurtleParser<TokenizerCtre>>;
+template class N3Parser<Tokenizer>;
+template class N3Parser<TokenizerCtre>;
+template class RdfStreamParser<N3Parser<Tokenizer>>;
+template class RdfStreamParser<N3Parser<TokenizerCtre>>;
+template class RdfParallelParser<N3Parser<Tokenizer>>;
+template class RdfParallelParser<N3Parser<TokenizerCtre>>;
 template class RdfStreamParser<NQuadParser<Tokenizer>>;
 template class RdfStreamParser<NQuadParser<TokenizerCtre>>;
 template class RdfParallelParser<NQuadParser<Tokenizer>>;

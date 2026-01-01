@@ -1,0 +1,158 @@
+{
+  "timestamp": "2026-01-01T08:33:44.363Z",
+  "systemHealth": {
+    "protocols": {
+      "HTTP": {
+        "name": "HTTP",
+        "available": false,
+        "latency": null,
+        "responseTime": null,
+        "errors": [
+          "connect ECONNREFUSED 127.0.0.1:3000"
+        ]
+      },
+      "WebSocket": {
+        "name": "WebSocket",
+        "available": false,
+        "latency": null,
+        "responseTime": null,
+        "errors": [
+          "connect ECONNREFUSED 127.0.0.1:3002"
+        ]
+      },
+      "GraphQL": {
+        "name": "GraphQL",
+        "available": false,
+        "latency": null,
+        "responseTime": null,
+        "errors": [
+          "connect ECONNREFUSED 127.0.0.1:3003"
+        ]
+      },
+      "gRPC": {
+        "name": "gRPC",
+        "available": false,
+        "latency": null,
+        "responseTime": null,
+        "errors": [
+          "14 UNAVAILABLE: No connection established. Last error: Error: connect ECONNREFUSED 127.0.0.1:50051. Resolution note: "
+        ]
+      }
+    },
+    "contracts": {},
+    "boundaries": {
+      "JavaScript ↔ HTTP Server": {
+        "status": "failed",
+        "error": "connect ECONNREFUSED 127.0.0.1:3000"
+      },
+      "HTTP ↔ C++ FFI": {
+        "status": "failed",
+        "error": "connect ECONNREFUSED 127.0.0.1:3000"
+      }
+    },
+    "criticalPaths": [
+      {
+        "name": "Index Lifecycle",
+        "steps": [
+          {
+            "operation": "open",
+            "status": "failed",
+            "error": "connect ECONNREFUSED 127.0.0.1:3000"
+          }
+        ],
+        "status": "failed",
+        "totalTime": 4
+      },
+      {
+        "name": "Query Planning Pipeline",
+        "steps": [
+          {
+            "operation": "open",
+            "status": "failed",
+            "error": "connect ECONNREFUSED 127.0.0.1:3000"
+          }
+        ],
+        "status": "failed",
+        "totalTime": 2
+      }
+    ]
+  },
+  "failures": [
+    {
+      "layer": "protocol",
+      "protocol": "HTTP",
+      "error": "connect ECONNREFUSED 127.0.0.1:3000"
+    },
+    {
+      "layer": "protocol",
+      "protocol": "WebSocket",
+      "error": "connect ECONNREFUSED 127.0.0.1:3002"
+    },
+    {
+      "layer": "protocol",
+      "protocol": "GraphQL",
+      "error": "connect ECONNREFUSED 127.0.0.1:3003"
+    },
+    {
+      "layer": "protocol",
+      "protocol": "gRPC",
+      "error": "14 UNAVAILABLE: No connection established. Last error: Error: connect ECONNREFUSED 127.0.0.1:50051. Resolution note: "
+    },
+    {
+      "layer": "boundary",
+      "boundary": "JavaScript ↔ HTTP Server",
+      "error": "connect ECONNREFUSED 127.0.0.1:3000"
+    },
+    {
+      "layer": "boundary",
+      "boundary": "HTTP ↔ C++ FFI",
+      "error": "connect ECONNREFUSED 127.0.0.1:3000"
+    },
+    {
+      "layer": "critical-path",
+      "path": "Index Lifecycle",
+      "operation": "open",
+      "error": "connect ECONNREFUSED 127.0.0.1:3000"
+    },
+    {
+      "layer": "critical-path",
+      "path": "Query Planning Pipeline",
+      "operation": "open",
+      "error": "connect ECONNREFUSED 127.0.0.1:3000"
+    }
+  ],
+  "recommendations": [
+    {
+      "failure": "HTTP",
+      "recommendation": "Service not running on expected port. Check if HTTP is started."
+    },
+    {
+      "failure": "WebSocket",
+      "recommendation": "Service not running on expected port. Check if WebSocket is started."
+    },
+    {
+      "failure": "GraphQL",
+      "recommendation": "Service not running on expected port. Check if GraphQL is started."
+    },
+    {
+      "failure": "gRPC",
+      "recommendation": "Service not running on expected port. Check if gRPC is started."
+    },
+    {
+      "failure": "JavaScript ↔ HTTP Server",
+      "recommendation": "Service not running on expected port. Check if JavaScript ↔ HTTP Server is started."
+    },
+    {
+      "failure": "HTTP ↔ C++ FFI",
+      "recommendation": "Service not running on expected port. Check if HTTP ↔ C++ FFI is started."
+    },
+    {
+      "failure": "Index Lifecycle",
+      "recommendation": "Service not running on expected port. Check if undefined is started."
+    },
+    {
+      "failure": "Query Planning Pipeline",
+      "recommendation": "Service not running on expected port. Check if undefined is started."
+    }
+  ]
+}
