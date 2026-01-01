@@ -50,10 +50,17 @@ pub mod error;
 pub mod model;
 pub mod query;
 pub mod store;
+pub mod store_ffi;
+pub mod ffi;
 pub mod cache;
 
 pub use error::{Error, Result};
 pub use model::{BlankNode, Literal, NamedNode, Quad, Term, Triple};
 pub use query::QuerySolution;
-pub use store::Store;
 pub use cache::{QueryCache, CacheStats};
+
+// Choose store implementation based on availability:
+// - store_ffi::Store: Direct C++ FFI (when libqlever is linked) - FASTEST, zero-copy
+// - store::Store: In-memory Rust (fallback) - good for testing
+pub use store::Store;
+pub use store_ffi::Store as StoreFFI;
