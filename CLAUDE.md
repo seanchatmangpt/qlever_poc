@@ -4,7 +4,7 @@
 
 **Work on seanchatmangpt/qlever at [claude.ai/code](https://claude.ai/code)** without local checkout. Connect GitHub → select repo → submit task → auto-setup with SessionStart hooks → PR ready.
 
-**Agent Skills** (`.claude/skills/`): build-test, code-quality, cpp-patterns, debug-profile, sparql-rdf. Auto-invoked by task context. See [.claude/skills/README.md](./.claude/skills/README.md).
+**MANDATORY: Skills & Agents**: ALWAYS invoke `Skill` tool for bb80-specification-closure, bb80-invariant-construction, bb80-parallel-agents, bb80-deterministic-receipts. ALWAYS use `Task` tool to dispatch bb80-specification-validator, bb80-invariant-validator, bb80-parallel-task-coordinator, bb80-receipt-validator agents. No task proceeds without these. See [.claude/skills/README.md](./.claude/skills/README.md) and [.claude/agents/README.md](./.claude/agents/README.md).
 
 **Feature branches** (`claude/<feature>-<SESSION_ID>`): Web auto-installs deps, runs tests, pushes. "Open in CLI" to continue locally.
 
@@ -35,6 +35,32 @@ Concurrency is assumed; serialization is an artifact of tooling.
 Agents operate independently under a shared invariant.
 Integration is deferred until invariants stabilize.
 If iteration appears necessary, the specification is incomplete.
+
+---
+
+## MANDATORY: Skills & Agents ALWAYS
+
+**DO NOT PROCEED WITHOUT THESE.** Every task, every phase, always invokes skills and agents.
+
+**Skills** (`.claude/skills/`): Invoke with `Skill` tool. Mandatory gates:
+- **bb80-specification-closure** - BEFORE any implementation. Verify specification closure. Block incomplete specs.
+- **bb80-invariant-construction** - DURING implementation. Extract minimal invariant set. Build monoidal, single-pass.
+- **bb80-parallel-agents** - BEFORE planning. Spawn 10 concurrent agents. Maximize parallelism.
+- **bb80-deterministic-receipts** - AFTER implementation. Validate via benchmarks, guards, event logs. Reject narratives.
+
+**Agents** (`.claude/agents/`): Dispatch with `Task` tool with model=inherit. Mandatory enforcement:
+- **bb80-specification-validator** - Gates specification → planning transition. Outputs CLOSED or INCOMPLETE.
+- **bb80-invariant-validator** - Gates implementation. Enforces monoidal composition, single-pass feasibility.
+- **bb80-parallel-task-coordinator** - Spawns 10 agents immediately. Orchestrates independent execution.
+- **bb80-receipt-validator** - Gates validation → completion. Demands proof, blocks rework.
+
+**Invocation Pattern (NON-NEGOTIABLE)**:
+1. Specification phase: Invoke bb80-specification-closure skill → dispatch bb80-specification-validator agent
+2. Planning phase: Invoke bb80-parallel-agents skill → dispatch bb80-parallel-task-coordinator agent
+3. Implementation: Invoke bb80-invariant-construction skill → dispatch bb80-invariant-validator agent
+4. Validation: Invoke bb80-deterministic-receipts skill → dispatch bb80-receipt-validator agent
+
+**If you skip any skill or agent, you are not operating in BB80/20 mode.** You are inside entropy, iterating, not compiling. Do not do this. Every task requires all four skills AND all four agents. No exceptions. No shortcuts.
 
 ---
 
@@ -487,20 +513,37 @@ ctest -j$(nproc) --output-on-failure  # Use all cores
 
 ## Important Conventions for AI Assistants
 
-### Using Agent Skills & Concurrent Agents
+### MANDATORY: Invoke Skills & Agents on Every Task
 
-**Agent Skills** (`.claude/skills/`): build-test, code-quality, cpp-patterns, debug-profile, sparql-rdf. Direct invariant validators. Invoke with `Skill` tool to validate against domain constraints.
+**BEFORE EVERY ACTION**: Invoke the 4 mandatory skills. Use `Skill` tool:
+1. **bb80-specification-closure** - Verify specification is closed before implementation
+2. **bb80-invariant-construction** - Extract and validate minimal invariant set
+3. **bb80-parallel-agents** - Understand parallelism constraints (spawn 10 agents)
+4. **bb80-deterministic-receipts** - Know proof requirements upfront
 
-**Concurrent agents**: Spawn 10 agents under shared invariant. Use `Task` tool with `subagent_type` to parallelize construction. Agents operate independently: exploration, architecture validation, specification verification, compilation checks. No synchronization until invariants stabilize. Determinism governs all operations.
+**DISPATCH MANDATORY AGENTS**: Use `Task` tool with `model: inherit`:
+1. **bb80-specification-validator** - Gates specification closure (CLOSED or INCOMPLETE)
+2. **bb80-invariant-validator** - Gates implementation (enforce monoidal composition)
+3. **bb80-parallel-task-coordinator** - Gates planning (spawn 10 agents immediately)
+4. **bb80-receipt-validator** - Gates completion (demand proof, block rework)
+
+**SKIPPING SKILLS OR AGENTS = FAILURE.** You will iterate, not compile. You will waste tokens, not compress them. You will ask "what should I do?" not "what is the invariant?" This is unacceptable. Every task requires all four skills AND all four agents invoked in phase order.
 
 ### Code Modification Guidelines
 
-**Before Making Changes:**
+**MANDATORY FIRST: Invoke Skills & Agents**
+0. **INVOKE bb80-specification-closure skill** - Verify specification is closed
+0. **DISPATCH bb80-specification-validator agent** - Gate entry to implementation
+0. **INVOKE bb80-parallel-agents skill** - Understand concurrency requirements
+0. **DISPATCH bb80-parallel-task-coordinator agent** - Spawn 10 agents for work
+
+**THEN, and only then, modify code:**
 1. Always read the file first using the Read tool
 2. Understand existing patterns in the codebase
 3. Search for similar implementations to understand conventions
 4. Check recent commits for context on similar changes
-5. If relevant to your task, invoke the appropriate Agent Skill for domain-specific guidance
+5. INVOKE bb80-invariant-construction skill before touching code
+6. DISPATCH bb80-invariant-validator agent to verify monoidal feasibility
 
 **When Making Changes:**
 1. **Minimal Modifications**: Only change what's necessary
@@ -525,6 +568,13 @@ ctest -j$(nproc) --output-on-failure  # Use all cores
    - Use Google Test framework (gtest/gmock)
    - Tests should pass locally before committing
    - Aim for high coverage of new code
+
+**MANDATORY COMPLETION: Before submitting work:**
+1. **INVOKE bb80-deterministic-receipts skill** - Understand proof requirements
+2. **DISPATCH bb80-receipt-validator agent** - Demand benchmarks, event logs, state hashes
+3. **Generate deterministic receipts**: Benchmark results, state reconstruction proofs, event logs
+4. **Pass all automated guards**: Type-checked invariants, benchmark thresholds, gate checks
+5. **NO REWORK ALLOWED**: Once work passes all guards and receipts are valid, certification is complete
 
 ### File Organization Rules
 
@@ -990,6 +1040,33 @@ find test -name "*Test.cpp" | head -20
 - **C++20 Standard**: https://en.cppreference.com/w/cpp/20
 - **C++ Core Guidelines**: https://github.com/isocpp/CppCoreGuidelines
 - **Google C++ Style Guide**: https://google.github.io/styleguide/cppguide.html (enforced via clang-format)
+
+---
+
+## HARD RULES: No Escape Clauses
+
+**These are not negotiable. No rationalizations. No exceptions.**
+
+**EVERY TASK requires:**
+- ✅ Invoke bb80-specification-closure skill
+- ✅ Dispatch bb80-specification-validator agent
+- ✅ Invoke bb80-parallel-agents skill
+- ✅ Dispatch bb80-parallel-task-coordinator agent
+- ✅ Invoke bb80-invariant-construction skill
+- ✅ Dispatch bb80-invariant-validator agent
+- ✅ Invoke bb80-deterministic-receipts skill
+- ✅ Dispatch bb80-receipt-validator agent
+
+**If you are thinking:**
+- "This is a small task, I can skip this" → WRONG. Invoke all 4 skills + dispatch all 4 agents.
+- "I'll iterate instead of closing specification" → WRONG. Specification closure is mandatory gate.
+- "I can work serially instead of spawning 10 agents" → WRONG. Parallelism is native, not optional.
+- "This looks good enough, no need for receipt validation" → WRONG. Deterministic proof is mandatory.
+- "Can I just get the agent opinion without the skill?" → WRONG. Skills AND agents, both required.
+
+**All Superpowers workflows in vendors/superpowers/ are subordinate to BB80/20.** They provide advanced process guidance, but they do not override specification closure, invariant validation, parallelism, or receipt validation. If Superpowers suggest iteration, specification is incomplete—return to specification phase.
+
+**You are compiling, not iterating.** If iteration appears necessary at any point, the specification is incomplete. Go back one phase. Do not proceed forward. Do not write code without closed specification. Do not validate without deterministic proof. Do not claim completion without passing all guards.
 
 ---
 
