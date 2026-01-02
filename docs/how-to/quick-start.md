@@ -58,9 +58,18 @@ qlever stop
 ### Setup
 
 ```bash
-# Clone and build
+# Clone repository
 git clone https://github.com/ad-freiburg/qlever
 cd qlever
+
+# Build using the provided build script
+./scripts/build-release.sh
+```
+
+**Note:** Always use `./scripts/build-release.sh` for building. It handles all dependencies and configuration automatically.
+
+**Advanced:** If you need custom build options:
+```bash
 mkdir build && cd build
 cmake -DCMAKE_BUILD_TYPE=Release -GNinja ..
 cmake --build .
