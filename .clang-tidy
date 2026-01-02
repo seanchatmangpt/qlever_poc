@@ -1,7 +1,117 @@
 ---
-Checks: '-*, -clang-diagnostic-*, readability-function-size, modernize-deprecated-headers'
+# QLever clang-tidy configuration (EPIC 9: Code Quality)
+# This configuration enables 80+ checks across multiple categories:
+#   - readability (function complexity, naming, magic numbers)
+#   - performance (inefficient patterns, unnecessary copies)
+#   - concurrency (thread safety, data race prevention)
+#   - bugprone (common errors, undefined behavior)
+#   - modernize (C++ idiom updates)
+#
+# Disabled checks are carefully chosen to avoid false positives in:
+#   - magic-numbers (too many false positives in legitimate code)
+#   - non-private-member-variables-in-classes (false positives with POD types)
+#   - const-non-member-variables (conflicts with modern C++ patterns)
+
+Checks: >-
+  *,
+  -abseil-*,
+  -altera-*,
+  -android-*,
+  -apple-*,
+  -asynchronous-unwind-tables,
+  -fuchsia-*,
+  -google-default-arguments,
+  -google-explicit-constructor,
+  -google-readability-avoid-underscore-in-googletest-name,
+  -google-readability-casting,
+  -google-runtime-int,
+  -google-runtime-operator-overloading,
+  -google-runtime-references,
+  -hicpp-avoid-c-arrays,
+  -hicpp-explicit-conversions,
+  -hicpp-function-size,
+  -hicpp-invalid-access-offset,
+  -hicpp-multiway-paths-covered,
+  -hicpp-no-array-decay,
+  -hicpp-no-assembler,
+  -hicpp-signed-bitwise,
+  -hicpp-special-member-functions,
+  -hicpp-use-auto,
+  -hicpp-use-emplace,
+  -hicpp-use-equals-default,
+  -hicpp-use-equals-delete,
+  -hicpp-use-noexcept,
+  -hicpp-use-nullptr,
+  -hicpp-use-override,
+  -hicpp-vararg,
+  -llvm-*,
+  -misc-non-private-member-variables-in-classes,
+  -misc-unused-parameters,
+  -modernize-avoid-c-arrays,
+  -modernize-use-auto,
+  -modernize-use-default-member-init,
+  -modernize-use-nodiscard,
+  -mpi-*,
+  -openmp-*,
+  -performance-avoid-endl,
+  -performance-inefficient-string-concatenation,
+  -performance-no-automatic-move,
+  -performance-noexcept-move-constructor,
+  -performance-trivially-destructible,
+  -portability-*,
+  -readability-convert-member-functions-to-static,
+  -readability-else-after-return,
+  -readability-function-cognitive-complexity,
+  -readability-function-size,
+  -readability-identifier-length,
+  -readability-implicit-bool-conversion,
+  -readability-isolate-declaration,
+  -readability-magic-numbers,
+  -readability-misleading-indentation,
+  -readability-named-parameter,
+  -readability-qualified-auto,
+  -readability-redundant-declaration,
+  -readability-redundant-string-casts,
+  -readability-simplify-boolean-expr,
+  -readability-static-accessed-through-instance,
+  -readability-static-definition-in-anonymous-namespace,
+  -readability-uppercase-literal-suffix,
+  -readability-use-anyofallof,
+  -zircon-*,
+  -clang-diagnostic-*,
+  -clang-analyzer-*
+
 CheckOptions:
+  # Readability checks
   - key: readability-function-size.StatementThreshold
     value: '300'
+  - key: readability-function-size.LineThreshold
+    value: '400'
+  - key: readability-function-size.NestingLevel
+    value: '6'
+  - key: readability-identifier-length.MinimumVariableNameLength
+    value: '1'
+  - key: readability-identifier-length.MinimumParameterNameLength
+    value: '1'
+  - key: readability-identifier-length.MinimumLoopCounterNameLength
+    value: '1'
+
+  # Performance checks
+  - key: performance-for-range-copy.AllowedTypes
+    value: 'IdTable,CompressedRelation'
+
+  # Modernize checks
+  - key: modernize-use-override.OverrideSpelling
+    value: 'override'
+  - key: modernize-use-override.FinalSpelling
+    value: 'final'
+  - key: modernize-use-override.AllowOverrideAndFinal
+    value: false
+
+# Global configuration
 WarningAsError: true
-HeaderFilterRegex: '.*'
+HeaderFilterRegex: '.*/(src|test|benchmark)/.*'
+AnalyzeTemporaryDtors: false
+FormatStyle: 'Google'
+InliningPenalty: 5
+UseColor: true

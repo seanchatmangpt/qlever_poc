@@ -1,0 +1,40 @@
+name: Commit Message Validation
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+
+jobs:
+  commitlint:
+    runs-on: ubuntu-latest
+    name: Validate Conventional Commits
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate commit messages
+        uses: wagoid/commitlint-github-action@v5
+        with:
+          configFile: .commitlintrc.json
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Comment on PR if violations
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '❌ **Commit Message Validation Failed**\n\n' +
+                    'Please ensure all commit messages follow the Conventional Commits format:\n\n' +
+                    '```\n' +
+                    'type(scope): subject\n\n' +
+                    '[optional body]\n' +
+                    '```\n\n' +
+                    'See [CONTRIBUTING.md](../CONTRIBUTING.md#commit-message-guidelines) for details.'
+            })
