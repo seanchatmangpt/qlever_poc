@@ -6,6 +6,7 @@
 .PHONY: phase-a phase-b phase-c phase-d phase-e phase-f
 .PHONY: clean verify
 .PHONY: build test all
+.PHONY: help fast-build test-single
 
 # Toolchain and environment
 SHELL := /bin/bash
@@ -84,7 +85,8 @@ phase-c: phase-b setup-dev-env
 		      -DLOGLEVEL=INFO \
 		      -D_NO_TIMING_TESTS=ON \
 		      .. >/dev/null 2>&1 || exit 1; \
-		ninja -j4 >/dev/null 2>&1 || exit 1; \
+		NINJA_JOBS=$$(( $$(nproc) + 1 )); \
+		ninja -j$$NINJA_JOBS >/dev/null 2>&1 || exit 1; \
 		exit 0 \
 	'
 
@@ -166,6 +168,47 @@ test: phase-e
 # Equivalent to: make universe
 all: universe
 	@echo "All phases complete" >&2
+
+# ============================================================================
+# Convenience Targets (Developer Experience)
+# ============================================================================
+
+# help: Display all available targets with descriptions
+help:
+	@echo "QLever Build System (EPIC 8 Deterministic Construction)" >&2
+	@echo "" >&2
+	@echo "Entry Points:" >&2
+	@echo "  make universe  - Full deterministic build (phases A-F, all checks)" >&2
+	@echo "  make all       - Alias for 'make universe'" >&2
+	@echo "  make build     - Fast development build (phase C: compilation only)" >&2
+	@echo "  make test      - Run test suite (phase E: deterministic benchmarks)" >&2
+	@echo "" >&2
+	@echo "Utilities:" >&2
+	@echo "  make clean     - Remove build/ and .artifacts/ directories" >&2
+	@echo "  make verify    - Validate artifact manifest integrity" >&2
+	@echo "" >&2
+	@echo "Development Workflow:" >&2
+	@echo "  make fast-build      - Skip benchmarks (phases D, E, F) for rapid iteration" >&2
+	@echo "  make test-single     - Run single test: make test-single TEST=pattern" >&2
+	@echo "" >&2
+	@echo "Advanced:" >&2
+	@echo "  make phase-c   - Resume from phase C (compilation)" >&2
+	@echo "  make phase-d   - Resume from phase D (validation)" >&2
+	@echo "  make phase-e   - Resume from phase E (benchmarks)" >&2
+	@echo "" >&2
+	@echo "Documentation: See Makefile for phase descriptions (lines 24-150)" >&2
+
+# fast-build: Development build without benchmarking (skip phases D, E, F)
+# Useful for rapid iteration: compile → test subset → repeat
+fast-build: phase-c
+	@echo "Fast build complete (SKIPPING: phase D validation, phase E benchmarks)" >&2
+	@echo "To run full validation: make universe" >&2
+
+# test-single: Run a single test by pattern (requires TEST variable)
+# Usage: make test-single TEST=EngineTest
+test-single:
+	@test -n "$(TEST)" || (echo "Usage: make test-single TEST=pattern" >&2; echo "  Example: make test-single TEST=EngineTest" >&2; exit 1)
+	@cd $(BUILD_DIR) && ctest -R "$(TEST)" --output-on-failure
 
 # ============================================================================
 # Setup and Verification

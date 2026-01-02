@@ -101,6 +101,20 @@ endif ()
 ###############################################################################
 include(FetchContent)
 
+# Configure FetchContent caching to avoid re-downloading dependencies
+# This speeds up incremental builds and CI/CD pipelines
+if(NOT DEFINED FETCHCONTENT_CACHE_DIR)
+    set(FETCHCONTENT_CACHE_DIR "${CMAKE_BINARY_DIR}/_fc_cache" CACHE PATH "FetchContent cache directory")
+endif()
+
+# Allow FetchContent to use cached downloads
+set(FETCHCONTENT_UPDATES_DISCONNECTED OFF CACHE BOOL "Allow FetchContent to update dependencies")
+
+# Ensure cache directory exists
+if(NOT EXISTS "${FETCHCONTENT_CACHE_DIR}")
+    file(MAKE_DIRECTORY "${FETCHCONTENT_CACHE_DIR}")
+endif()
+
 ################################
 # GTEST AND GMOCK
 ################################
