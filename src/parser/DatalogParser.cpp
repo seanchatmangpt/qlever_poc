@@ -13,8 +13,6 @@
 #include "parser/TripleComponent.h"
 #include "util/ParseException.h"
 
-using ad_utility::triple_component::Iri;
-
 // =============================================================================
 // DatalogToken Implementation
 // =============================================================================
@@ -56,8 +54,7 @@ std::string DatalogToken::typeName() const {
 // DatalogTokenizer Implementation
 // =============================================================================
 
-DatalogTokenizer::DatalogTokenizer(std::string_view source)
-    : source_(source) {
+DatalogTokenizer::DatalogTokenizer(std::string_view source) : source_(source) {
   skipWhitespaceAndComments();
 }
 
@@ -109,8 +106,7 @@ DatalogToken DatalogTokenizer::next() {
                           tokenColumn);
     case ',':
       consumeChar();
-      return DatalogToken(DatalogTokenType::COMMA, ",", tokenLine,
-                          tokenColumn);
+      return DatalogToken(DatalogTokenType::COMMA, ",", tokenLine, tokenColumn);
     case '.':
       consumeChar();
       return DatalogToken(DatalogTokenType::DOT, ".", tokenLine, tokenColumn);
@@ -138,9 +134,9 @@ DatalogToken DatalogTokenizer::next() {
 
   // Invalid character
   consumeChar();
-  throw ParseException(
-      absl::StrCat("Unexpected character '", current, "' at line ", tokenLine,
-                   ", column ", tokenColumn));
+  throw ParseException(absl::StrCat("Unexpected character '",
+                                    std::string(1, current), "' at line ",
+                                    tokenLine, ", column ", tokenColumn));
 }
 
 DatalogToken DatalogTokenizer::peek() const {
@@ -239,9 +235,9 @@ DatalogToken DatalogTokenizer::tokenizeVariable() {
   }
 
   if (value.length() == 1) {
-    throw ParseException(
-        absl::StrCat("Invalid variable '?' at line ", tokenLine, ", column ",
-                     tokenColumn, ": variable name cannot be empty"));
+    throw ParseException(absl::StrCat("Invalid variable '?' at line ",
+                                      tokenLine, ", column ", tokenColumn,
+                                      ": variable name cannot be empty"));
   }
 
   return DatalogToken(DatalogTokenType::VARIABLE, value, tokenLine,
@@ -501,19 +497,21 @@ SparqlTriple DatalogParser::parseAtom(DatalogTokenizer& tokenizer) {
   // Convert to IRI for predicate
   std::string predicateIri =
       "<http://qlever.datalog.predicate/" + predicate + ">";
-  auto predicateIriComponent = Iri::fromIriref(predicateIri);
+  auto predicateIriComponent = TripleComponent::Iri::fromIriref(predicateIri);
 
   if (args.size() == 2) {
     // Binary predicate: subject predicate object
     return SparqlTriple(args[0], predicateIriComponent, args[1]);
   } else if (args.size() == 1) {
     // Unary predicate: subject rdf:type predicate
-    auto rdfType = Iri::fromIriref("<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>");
-    return SparqlTriple(args[0], rdfType, TripleComponent(predicateIriComponent));
+    auto rdfType = TripleComponent::Iri::fromIriref(
+        "<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>");
+    return SparqlTriple(args[0], rdfType,
+                        TripleComponent(predicateIriComponent));
   } else if (args.size() == 0) {
-    throw ParseException(absl::StrCat(
-        "Predicate '", predicate, "' has no arguments at line ",
-        predicateToken.line, ", column ", predicateToken.column));
+    throw ParseException(
+        absl::StrCat("Predicate '", predicate, "' has no arguments at line ",
+                     predicateToken.line, ", column ", predicateToken.column));
   } else {
     // N-ary predicate (n > 2): use reification approach
     // For now, we'll use the first two arguments as subject/object
@@ -521,7 +519,7 @@ SparqlTriple DatalogParser::parseAtom(DatalogTokenizer& tokenizer) {
     std::string naryPredicateIri = "<http://qlever.datalog.predicate/" +
                                    predicate + "/arity" +
                                    std::to_string(args.size()) + ">";
-    auto naryIri = Iri::fromIriref(naryPredicateIri);
+    auto naryIri = TripleComponent::Iri::fromIriref(naryPredicateIri);
     return SparqlTriple(args[0], naryIri, args[1]);
   }
 }
@@ -558,9 +556,9 @@ TripleComponent DatalogParser::parseTerm(DatalogTokenizer& tokenizer) {
     case DatalogTokenType::IRI: {
       tokenizer.next();  // consume
       // Remove < and > brackets
-      std::string iriValue =
-          token.value.substr(1, token.value.length() - 2);
-      return TripleComponent(Iri::fromIriref("<" + iriValue + ">"));
+      std::string iriValue = token.value.substr(1, token.value.length() - 2);
+      return TripleComponent(
+          TripleComponent::Iri::fromIriref("<" + iriValue + ">"));
     }
 
     case DatalogTokenType::STRING_LITERAL: {
@@ -578,10 +576,10 @@ TripleComponent DatalogParser::parseTerm(DatalogTokenizer& tokenizer) {
     }
 
     default:
-      throw ParseException(absl::StrCat("Expected term (variable, IRI, or "
-                                        "literal) but got '",
-                                        token.value, "' at line ", token.line,
-                                        ", column ", token.column));
+      throw ParseException(absl::StrCat(
+          "Expected term (variable, IRI, or "
+          "literal) but got '",
+          token.value, "' at line ", token.line, ", column ", token.column));
   }
 }
 
@@ -602,10 +600,9 @@ void DatalogParser::validatePredicateName(const std::string& name, size_t line,
   // Check that rest of name contains only alphanumeric or underscore
   for (char c : name) {
     if (!std::isalnum(static_cast<unsigned char>(c)) && c != '_') {
-      throwParseError(
-          absl::StrCat("Invalid character '", c, "' in predicate name '", name,
-                       "'"),
-          line, column);
+      throwParseError(absl::StrCat("Invalid character '", std::string(1, c),
+                                   "' in predicate name '", name, "'"),
+                      line, column);
     }
   }
 }
