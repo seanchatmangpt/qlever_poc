@@ -517,6 +517,7 @@ add_subdirectory(src/util)
 add_subdirectory(src/rdfTypes)
 add_subdirectory(src/global)
 add_subdirectory(src/libqlever)
+add_subdirectory(src/qleverest)
 add_subdirectory(benchmark)
 
 enable_testing()

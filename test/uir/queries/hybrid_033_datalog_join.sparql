@@ -1,0 +1,18 @@
+# UIR Semantic Equivalence Test
+# Query ID: hybrid_033_datalog_join
+# Description: Datalog Join - test 1
+# Category: hybrid
+# EPIC: 10.3 - Agent 3 Part 4
+
+PREFIX ex: <http://example.org/>
+
+# Datalog rule with joins
+# Rule: colleague(?x, ?y) :- worksAt(?x, ?org), worksAt(?y, ?org), ?x != ?y.
+
+SELECT ?person1 ?person2 ?org
+WHERE {
+  ?person1 ex:worksAt ?org .
+  ?person2 ex:worksAt ?org .
+  FILTER (?person1 != ?person2)
+}
+LIMIT 20

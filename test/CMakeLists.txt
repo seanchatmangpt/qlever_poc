@@ -125,6 +125,8 @@ add_subdirectory(rdfTypes)
 add_subdirectory(joinAlgorithms)
 add_subdirectory(libqlever)
 add_subdirectory(integration)
+add_subdirectory(fpv)
+add_subdirectory(qemu)
 
 # Epoch system tests
 if (SINGLE_TEST_BINARY)
@@ -150,6 +152,8 @@ addLinkAndDiscoverTestNoLibs(ConstexprSmallStringTest)
 addLinkAndDiscoverTest(CryptographicHashUtilsTest util)
 
 addLinkAndDiscoverTest(PhaseLockVerifierTest util)
+
+addLinkAndDiscoverTest(OpaqueHandlePoolTest util)
 
 addLinkAndDiscoverTest(CacheTest)
 
@@ -520,3 +524,11 @@ addLinkAndDiscoverTest(engine/RegressionDetectorTest engine)
 
 # EPIC 10.2 - Golden Corpus Reference Physics Suite
 addLinkAndDiscoverTest(GoldenCorpusTest engine parser)
+
+# EPIC 10.3 - Chaos Invariance: Entropy Injection & DivergenceAbort
+# Agent 7: Chaos testing with bit-flip injection (120+ scenarios)
+# Proves: ∀ bit_flip: (CorrectResult ∨ DivergenceAbort) ∧ ¬SilentCorruption
+addLinkAndDiscoverTest(chaos/EntropyInjectionHarnessTest engine util)
+
+# EPIC 10.3 Agent 5 Part 3: Memory Isolation Proof Tests
+addLinkAndDiscoverTestNoLibs(memory/MemoryIsolationProof util)

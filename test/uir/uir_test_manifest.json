@@ -1,0 +1,1137 @@
+{
+  "version": "1.0.0",
+  "source": "EPIC 10.3 - UIR Semantic Equivalence Test Suite",
+  "created": "2026-01-02",
+  "description": "Unified Physical Optimizer semantic equivalence validation - 100 Golden Query Set + 50 Constraint-Rule Hybrid tests",
+  "queries": [
+    {
+        "id": "golden_001_basic_triple",
+        "file": "queries/golden_001_basic_triple.sparql",
+        "description": "Basic triple pattern - test 1",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_002_basic_triple",
+        "file": "queries/golden_002_basic_triple.sparql",
+        "description": "Basic triple pattern - test 2",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_003_basic_triple",
+        "file": "queries/golden_003_basic_triple.sparql",
+        "description": "Basic triple pattern - test 3",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_004_basic_triple",
+        "file": "queries/golden_004_basic_triple.sparql",
+        "description": "Basic triple pattern - test 4",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_005_basic_triple",
+        "file": "queries/golden_005_basic_triple.sparql",
+        "description": "Basic triple pattern - test 5",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_006_basic_triple",
+        "file": "queries/golden_006_basic_triple.sparql",
+        "description": "Basic triple pattern - test 6",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_007_basic_triple",
+        "file": "queries/golden_007_basic_triple.sparql",
+        "description": "Basic triple pattern - test 7",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_008_basic_triple",
+        "file": "queries/golden_008_basic_triple.sparql",
+        "description": "Basic triple pattern - test 8",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_009_basic_triple",
+        "file": "queries/golden_009_basic_triple.sparql",
+        "description": "Basic triple pattern - test 9",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_010_basic_triple",
+        "file": "queries/golden_010_basic_triple.sparql",
+        "description": "Basic triple pattern - test 10",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_011_basic_triple",
+        "file": "queries/golden_011_basic_triple.sparql",
+        "description": "Basic triple pattern - test 11",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_012_basic_triple",
+        "file": "queries/golden_012_basic_triple.sparql",
+        "description": "Basic triple pattern - test 12",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_013_basic_triple",
+        "file": "queries/golden_013_basic_triple.sparql",
+        "description": "Basic triple pattern - test 13",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_014_basic_triple",
+        "file": "queries/golden_014_basic_triple.sparql",
+        "description": "Basic triple pattern - test 14",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_015_basic_triple",
+        "file": "queries/golden_015_basic_triple.sparql",
+        "description": "Basic triple pattern - test 15",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_016_filter",
+        "file": "queries/golden_016_filter.sparql",
+        "description": "FILTER clause variations - test 1",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_017_filter",
+        "file": "queries/golden_017_filter.sparql",
+        "description": "FILTER clause variations - test 2",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_018_filter",
+        "file": "queries/golden_018_filter.sparql",
+        "description": "FILTER clause variations - test 3",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_019_filter",
+        "file": "queries/golden_019_filter.sparql",
+        "description": "FILTER clause variations - test 4",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_020_filter",
+        "file": "queries/golden_020_filter.sparql",
+        "description": "FILTER clause variations - test 5",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_021_filter",
+        "file": "queries/golden_021_filter.sparql",
+        "description": "FILTER clause variations - test 6",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_022_filter",
+        "file": "queries/golden_022_filter.sparql",
+        "description": "FILTER clause variations - test 7",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_023_filter",
+        "file": "queries/golden_023_filter.sparql",
+        "description": "FILTER clause variations - test 8",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_024_filter",
+        "file": "queries/golden_024_filter.sparql",
+        "description": "FILTER clause variations - test 9",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_025_filter",
+        "file": "queries/golden_025_filter.sparql",
+        "description": "FILTER clause variations - test 10",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_026_optional",
+        "file": "queries/golden_026_optional.sparql",
+        "description": "OPTIONAL clause patterns - test 1",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_027_optional",
+        "file": "queries/golden_027_optional.sparql",
+        "description": "OPTIONAL clause patterns - test 2",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_028_optional",
+        "file": "queries/golden_028_optional.sparql",
+        "description": "OPTIONAL clause patterns - test 3",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_029_optional",
+        "file": "queries/golden_029_optional.sparql",
+        "description": "OPTIONAL clause patterns - test 4",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_030_optional",
+        "file": "queries/golden_030_optional.sparql",
+        "description": "OPTIONAL clause patterns - test 5",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_031_optional",
+        "file": "queries/golden_031_optional.sparql",
+        "description": "OPTIONAL clause patterns - test 6",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_032_optional",
+        "file": "queries/golden_032_optional.sparql",
+        "description": "OPTIONAL clause patterns - test 7",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_033_optional",
+        "file": "queries/golden_033_optional.sparql",
+        "description": "OPTIONAL clause patterns - test 8",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_034_union",
+        "file": "queries/golden_034_union.sparql",
+        "description": "UNION clause patterns - test 1",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_035_union",
+        "file": "queries/golden_035_union.sparql",
+        "description": "UNION clause patterns - test 2",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_036_union",
+        "file": "queries/golden_036_union.sparql",
+        "description": "UNION clause patterns - test 3",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_037_union",
+        "file": "queries/golden_037_union.sparql",
+        "description": "UNION clause patterns - test 4",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_038_union",
+        "file": "queries/golden_038_union.sparql",
+        "description": "UNION clause patterns - test 5",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_039_union",
+        "file": "queries/golden_039_union.sparql",
+        "description": "UNION clause patterns - test 6",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_040_union",
+        "file": "queries/golden_040_union.sparql",
+        "description": "UNION clause patterns - test 7",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_041_union",
+        "file": "queries/golden_041_union.sparql",
+        "description": "UNION clause patterns - test 8",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_042_distinct",
+        "file": "queries/golden_042_distinct.sparql",
+        "description": "DISTINCT modifier - test 1",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_043_distinct",
+        "file": "queries/golden_043_distinct.sparql",
+        "description": "DISTINCT modifier - test 2",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_044_distinct",
+        "file": "queries/golden_044_distinct.sparql",
+        "description": "DISTINCT modifier - test 3",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_045_distinct",
+        "file": "queries/golden_045_distinct.sparql",
+        "description": "DISTINCT modifier - test 4",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_046_distinct",
+        "file": "queries/golden_046_distinct.sparql",
+        "description": "DISTINCT modifier - test 5",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_047_order_by",
+        "file": "queries/golden_047_order_by.sparql",
+        "description": "ORDER BY clause - test 1",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_048_order_by",
+        "file": "queries/golden_048_order_by.sparql",
+        "description": "ORDER BY clause - test 2",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_049_order_by",
+        "file": "queries/golden_049_order_by.sparql",
+        "description": "ORDER BY clause - test 3",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_050_order_by",
+        "file": "queries/golden_050_order_by.sparql",
+        "description": "ORDER BY clause - test 4",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_051_order_by",
+        "file": "queries/golden_051_order_by.sparql",
+        "description": "ORDER BY clause - test 5",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_052_order_by",
+        "file": "queries/golden_052_order_by.sparql",
+        "description": "ORDER BY clause - test 6",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_053_order_by",
+        "file": "queries/golden_053_order_by.sparql",
+        "description": "ORDER BY clause - test 7",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_054_limit_offset",
+        "file": "queries/golden_054_limit_offset.sparql",
+        "description": "LIMIT and OFFSET - test 1",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_055_limit_offset",
+        "file": "queries/golden_055_limit_offset.sparql",
+        "description": "LIMIT and OFFSET - test 2",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_056_limit_offset",
+        "file": "queries/golden_056_limit_offset.sparql",
+        "description": "LIMIT and OFFSET - test 3",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_057_limit_offset",
+        "file": "queries/golden_057_limit_offset.sparql",
+        "description": "LIMIT and OFFSET - test 4",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_058_limit_offset",
+        "file": "queries/golden_058_limit_offset.sparql",
+        "description": "LIMIT and OFFSET - test 5",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_059_aggregate_count",
+        "file": "queries/golden_059_aggregate_count.sparql",
+        "description": "COUNT aggregation - test 1",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_060_aggregate_count",
+        "file": "queries/golden_060_aggregate_count.sparql",
+        "description": "COUNT aggregation - test 2",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_061_aggregate_count",
+        "file": "queries/golden_061_aggregate_count.sparql",
+        "description": "COUNT aggregation - test 3",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_062_aggregate_count",
+        "file": "queries/golden_062_aggregate_count.sparql",
+        "description": "COUNT aggregation - test 4",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_063_aggregate_count",
+        "file": "queries/golden_063_aggregate_count.sparql",
+        "description": "COUNT aggregation - test 5",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_064_aggregate_count",
+        "file": "queries/golden_064_aggregate_count.sparql",
+        "description": "COUNT aggregation - test 6",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_065_aggregate_sum",
+        "file": "queries/golden_065_aggregate_sum.sparql",
+        "description": "SUM aggregation - test 1",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_066_aggregate_sum",
+        "file": "queries/golden_066_aggregate_sum.sparql",
+        "description": "SUM aggregation - test 2",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_067_aggregate_sum",
+        "file": "queries/golden_067_aggregate_sum.sparql",
+        "description": "SUM aggregation - test 3",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_068_aggregate_sum",
+        "file": "queries/golden_068_aggregate_sum.sparql",
+        "description": "SUM aggregation - test 4",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_069_aggregate_avg",
+        "file": "queries/golden_069_aggregate_avg.sparql",
+        "description": "AVG aggregation - test 1",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_070_aggregate_avg",
+        "file": "queries/golden_070_aggregate_avg.sparql",
+        "description": "AVG aggregation - test 2",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_071_aggregate_avg",
+        "file": "queries/golden_071_aggregate_avg.sparql",
+        "description": "AVG aggregation - test 3",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_072_aggregate_avg",
+        "file": "queries/golden_072_aggregate_avg.sparql",
+        "description": "AVG aggregation - test 4",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_073_aggregate_min_max",
+        "file": "queries/golden_073_aggregate_min_max.sparql",
+        "description": "MIN/MAX aggregation - test 1",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_074_aggregate_min_max",
+        "file": "queries/golden_074_aggregate_min_max.sparql",
+        "description": "MIN/MAX aggregation - test 2",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_075_aggregate_min_max",
+        "file": "queries/golden_075_aggregate_min_max.sparql",
+        "description": "MIN/MAX aggregation - test 3",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_076_aggregate_min_max",
+        "file": "queries/golden_076_aggregate_min_max.sparql",
+        "description": "MIN/MAX aggregation - test 4",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_077_group_by",
+        "file": "queries/golden_077_group_by.sparql",
+        "description": "GROUP BY clause - test 1",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_078_group_by",
+        "file": "queries/golden_078_group_by.sparql",
+        "description": "GROUP BY clause - test 2",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_079_group_by",
+        "file": "queries/golden_079_group_by.sparql",
+        "description": "GROUP BY clause - test 3",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_080_group_by",
+        "file": "queries/golden_080_group_by.sparql",
+        "description": "GROUP BY clause - test 4",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_081_group_by",
+        "file": "queries/golden_081_group_by.sparql",
+        "description": "GROUP BY clause - test 5",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_082_group_by",
+        "file": "queries/golden_082_group_by.sparql",
+        "description": "GROUP BY clause - test 6",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_083_having",
+        "file": "queries/golden_083_having.sparql",
+        "description": "HAVING clause - test 1",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_084_having",
+        "file": "queries/golden_084_having.sparql",
+        "description": "HAVING clause - test 2",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_085_having",
+        "file": "queries/golden_085_having.sparql",
+        "description": "HAVING clause - test 3",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_086_having",
+        "file": "queries/golden_086_having.sparql",
+        "description": "HAVING clause - test 4",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_087_subquery",
+        "file": "queries/golden_087_subquery.sparql",
+        "description": "Subquery patterns - test 1",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_088_subquery",
+        "file": "queries/golden_088_subquery.sparql",
+        "description": "Subquery patterns - test 2",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_089_subquery",
+        "file": "queries/golden_089_subquery.sparql",
+        "description": "Subquery patterns - test 3",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_090_subquery",
+        "file": "queries/golden_090_subquery.sparql",
+        "description": "Subquery patterns - test 4",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_091_subquery",
+        "file": "queries/golden_091_subquery.sparql",
+        "description": "Subquery patterns - test 5",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_092_regex",
+        "file": "queries/golden_092_regex.sparql",
+        "description": "REGEX function - test 1",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_093_regex",
+        "file": "queries/golden_093_regex.sparql",
+        "description": "REGEX function - test 2",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_094_regex",
+        "file": "queries/golden_094_regex.sparql",
+        "description": "REGEX function - test 3",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_095_regex",
+        "file": "queries/golden_095_regex.sparql",
+        "description": "REGEX function - test 4",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_096_bind",
+        "file": "queries/golden_096_bind.sparql",
+        "description": "BIND clause - test 1",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_097_bind",
+        "file": "queries/golden_097_bind.sparql",
+        "description": "BIND clause - test 2",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_098_bind",
+        "file": "queries/golden_098_bind.sparql",
+        "description": "BIND clause - test 3",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_099_values",
+        "file": "queries/golden_099_values.sparql",
+        "description": "VALUES clause - test 1",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_100_values",
+        "file": "queries/golden_100_values.sparql",
+        "description": "VALUES clause - test 2",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_101_values",
+        "file": "queries/golden_101_values.sparql",
+        "description": "VALUES clause - test 3",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_102_minus",
+        "file": "queries/golden_102_minus.sparql",
+        "description": "MINUS clause - test 1",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_103_minus",
+        "file": "queries/golden_103_minus.sparql",
+        "description": "MINUS clause - test 2",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_104_minus",
+        "file": "queries/golden_104_minus.sparql",
+        "description": "MINUS clause - test 3",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_105_service",
+        "file": "queries/golden_105_service.sparql",
+        "description": "SERVICE clause - test 1",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_106_service",
+        "file": "queries/golden_106_service.sparql",
+        "description": "SERVICE clause - test 2",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_107_property_paths",
+        "file": "queries/golden_107_property_paths.sparql",
+        "description": "Property path patterns - test 1",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_108_property_paths",
+        "file": "queries/golden_108_property_paths.sparql",
+        "description": "Property path patterns - test 2",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_109_property_paths",
+        "file": "queries/golden_109_property_paths.sparql",
+        "description": "Property path patterns - test 3",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "golden_110_property_paths",
+        "file": "queries/golden_110_property_paths.sparql",
+        "description": "Property path patterns - test 4",
+        "category": "golden",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "hybrid_001_shacl_mincount",
+        "file": "queries/hybrid_001_shacl_mincount.sparql",
+        "description": "SHACL sh:minCount constraint - test 1",
+        "category": "hybrid",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "hybrid_002_shacl_mincount",
+        "file": "queries/hybrid_002_shacl_mincount.sparql",
+        "description": "SHACL sh:minCount constraint - test 2",
+        "category": "hybrid",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "hybrid_003_shacl_mincount",
+        "file": "queries/hybrid_003_shacl_mincount.sparql",
+        "description": "SHACL sh:minCount constraint - test 3",
+        "category": "hybrid",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "hybrid_004_shacl_mincount",
+        "file": "queries/hybrid_004_shacl_mincount.sparql",
+        "description": "SHACL sh:minCount constraint - test 4",
+        "category": "hybrid",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "hybrid_005_shacl_mincount",
+        "file": "queries/hybrid_005_shacl_mincount.sparql",
+        "description": "SHACL sh:minCount constraint - test 5",
+        "category": "hybrid",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "hybrid_006_shacl_maxcount",
+        "file": "queries/hybrid_006_shacl_maxcount.sparql",
+        "description": "SHACL sh:maxCount constraint - test 1",
+        "category": "hybrid",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "hybrid_007_shacl_maxcount",
+        "file": "queries/hybrid_007_shacl_maxcount.sparql",
+        "description": "SHACL sh:maxCount constraint - test 2",
+        "category": "hybrid",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "hybrid_008_shacl_maxcount",
+        "file": "queries/hybrid_008_shacl_maxcount.sparql",
+        "description": "SHACL sh:maxCount constraint - test 3",
+        "category": "hybrid",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "hybrid_009_shacl_maxcount",
+        "file": "queries/hybrid_009_shacl_maxcount.sparql",
+        "description": "SHACL sh:maxCount constraint - test 4",
+        "category": "hybrid",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "hybrid_010_shacl_pattern",
+        "file": "queries/hybrid_010_shacl_pattern.sparql",
+        "description": "SHACL sh:pattern constraint - test 1",
+        "category": "hybrid",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "hybrid_011_shacl_pattern",
+        "file": "queries/hybrid_011_shacl_pattern.sparql",
+        "description": "SHACL sh:pattern constraint - test 2",
+        "category": "hybrid",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "hybrid_012_shacl_pattern",
+        "file": "queries/hybrid_012_shacl_pattern.sparql",
+        "description": "SHACL sh:pattern constraint - test 3",
+        "category": "hybrid",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "hybrid_013_shacl_pattern",
+        "file": "queries/hybrid_013_shacl_pattern.sparql",
+        "description": "SHACL sh:pattern constraint - test 4",
+        "category": "hybrid",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "hybrid_014_shacl_datatype",
+        "file": "queries/hybrid_014_shacl_datatype.sparql",
+        "description": "SHACL sh:datatype constraint - test 1",
+        "category": "hybrid",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "hybrid_015_shacl_datatype",
+        "file": "queries/hybrid_015_shacl_datatype.sparql",
+        "description": "SHACL sh:datatype constraint - test 2",
+        "category": "hybrid",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "hybrid_016_shacl_datatype",
+        "file": "queries/hybrid_016_shacl_datatype.sparql",
+        "description": "SHACL sh:datatype constraint - test 3",
+        "category": "hybrid",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "hybrid_017_shacl_class",
+        "file": "queries/hybrid_017_shacl_class.sparql",
+        "description": "SHACL sh:class constraint - test 1",
+        "category": "hybrid",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "hybrid_018_shacl_class",
+        "file": "queries/hybrid_018_shacl_class.sparql",
+        "description": "SHACL sh:class constraint - test 2",
+        "category": "hybrid",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "hybrid_019_shacl_class",
+        "file": "queries/hybrid_019_shacl_class.sparql",
+        "description": "SHACL sh:class constraint - test 3",
+        "category": "hybrid",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "hybrid_020_shacl_class",
+        "file": "queries/hybrid_020_shacl_class.sparql",
+        "description": "SHACL sh:class constraint - test 4",
+        "category": "hybrid",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "hybrid_021_shacl_node",
+        "file": "queries/hybrid_021_shacl_node.sparql",
+        "description": "SHACL sh:node nested shapes - test 1",
+        "category": "hybrid",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "hybrid_022_shacl_node",
+        "file": "queries/hybrid_022_shacl_node.sparql",
+        "description": "SHACL sh:node nested shapes - test 2",
+        "category": "hybrid",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "hybrid_023_shacl_node",
+        "file": "queries/hybrid_023_shacl_node.sparql",
+        "description": "SHACL sh:node nested shapes - test 3",
+        "category": "hybrid",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "hybrid_024_datalog_recursion",
+        "file": "queries/hybrid_024_datalog_recursion.sparql",
+        "description": "Datalog recursive rules - test 1",
+        "category": "hybrid",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "hybrid_025_datalog_recursion",
+        "file": "queries/hybrid_025_datalog_recursion.sparql",
+        "description": "Datalog recursive rules - test 2",
+        "category": "hybrid",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "hybrid_026_datalog_recursion",
+        "file": "queries/hybrid_026_datalog_recursion.sparql",
+        "description": "Datalog recursive rules - test 3",
+        "category": "hybrid",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "hybrid_027_datalog_recursion",
+        "file": "queries/hybrid_027_datalog_recursion.sparql",
+        "description": "Datalog recursive rules - test 4",
+        "category": "hybrid",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "hybrid_028_datalog_recursion",
+        "file": "queries/hybrid_028_datalog_recursion.sparql",
+        "description": "Datalog recursive rules - test 5",
+        "category": "hybrid",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "hybrid_029_datalog_stratification",
+        "file": "queries/hybrid_029_datalog_stratification.sparql",
+        "description": "Datalog stratified negation - test 1",
+        "category": "hybrid",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "hybrid_030_datalog_stratification",
+        "file": "queries/hybrid_030_datalog_stratification.sparql",
+        "description": "Datalog stratified negation - test 2",
+        "category": "hybrid",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "hybrid_031_datalog_stratification",
+        "file": "queries/hybrid_031_datalog_stratification.sparql",
+        "description": "Datalog stratified negation - test 3",
+        "category": "hybrid",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "hybrid_032_datalog_stratification",
+        "file": "queries/hybrid_032_datalog_stratification.sparql",
+        "description": "Datalog stratified negation - test 4",
+        "category": "hybrid",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "hybrid_033_datalog_join",
+        "file": "queries/hybrid_033_datalog_join.sparql",
+        "description": "Datalog rule with joins - test 1",
+        "category": "hybrid",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "hybrid_034_datalog_join",
+        "file": "queries/hybrid_034_datalog_join.sparql",
+        "description": "Datalog rule with joins - test 2",
+        "category": "hybrid",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "hybrid_035_datalog_join",
+        "file": "queries/hybrid_035_datalog_join.sparql",
+        "description": "Datalog rule with joins - test 3",
+        "category": "hybrid",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "hybrid_036_datalog_join",
+        "file": "queries/hybrid_036_datalog_join.sparql",
+        "description": "Datalog rule with joins - test 4",
+        "category": "hybrid",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "hybrid_037_hybrid_shacl_datalog",
+        "file": "queries/hybrid_037_hybrid_shacl_datalog.sparql",
+        "description": "SHACL + Datalog combined - test 1",
+        "category": "hybrid",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "hybrid_038_hybrid_shacl_datalog",
+        "file": "queries/hybrid_038_hybrid_shacl_datalog.sparql",
+        "description": "SHACL + Datalog combined - test 2",
+        "category": "hybrid",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "hybrid_039_hybrid_shacl_datalog",
+        "file": "queries/hybrid_039_hybrid_shacl_datalog.sparql",
+        "description": "SHACL + Datalog combined - test 3",
+        "category": "hybrid",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "hybrid_040_hybrid_shacl_datalog",
+        "file": "queries/hybrid_040_hybrid_shacl_datalog.sparql",
+        "description": "SHACL + Datalog combined - test 4",
+        "category": "hybrid",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "hybrid_041_hybrid_shacl_datalog",
+        "file": "queries/hybrid_041_hybrid_shacl_datalog.sparql",
+        "description": "SHACL + Datalog combined - test 5",
+        "category": "hybrid",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "hybrid_042_hybrid_filter_constraint",
+        "file": "queries/hybrid_042_hybrid_filter_constraint.sparql",
+        "description": "SPARQL FILTER + SHACL constraint - test 1",
+        "category": "hybrid",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "hybrid_043_hybrid_filter_constraint",
+        "file": "queries/hybrid_043_hybrid_filter_constraint.sparql",
+        "description": "SPARQL FILTER + SHACL constraint - test 2",
+        "category": "hybrid",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "hybrid_044_hybrid_filter_constraint",
+        "file": "queries/hybrid_044_hybrid_filter_constraint.sparql",
+        "description": "SPARQL FILTER + SHACL constraint - test 3",
+        "category": "hybrid",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "hybrid_045_hybrid_filter_constraint",
+        "file": "queries/hybrid_045_hybrid_filter_constraint.sparql",
+        "description": "SPARQL FILTER + SHACL constraint - test 4",
+        "category": "hybrid",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "hybrid_046_hybrid_aggregate_rule",
+        "file": "queries/hybrid_046_hybrid_aggregate_rule.sparql",
+        "description": "SPARQL aggregate + Datalog rule - test 1",
+        "category": "hybrid",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "hybrid_047_hybrid_aggregate_rule",
+        "file": "queries/hybrid_047_hybrid_aggregate_rule.sparql",
+        "description": "SPARQL aggregate + Datalog rule - test 2",
+        "category": "hybrid",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "hybrid_048_hybrid_aggregate_rule",
+        "file": "queries/hybrid_048_hybrid_aggregate_rule.sparql",
+        "description": "SPARQL aggregate + Datalog rule - test 3",
+        "category": "hybrid",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "hybrid_049_hybrid_aggregate_rule",
+        "file": "queries/hybrid_049_hybrid_aggregate_rule.sparql",
+        "description": "SPARQL aggregate + Datalog rule - test 4",
+        "category": "hybrid",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+        "id": "hybrid_050_hybrid_aggregate_rule",
+        "file": "queries/hybrid_050_hybrid_aggregate_rule.sparql",
+        "description": "SPARQL aggregate + Datalog rule - test 5",
+        "category": "hybrid",
+        "digest": "PENDING_BASELINE_COMPUTATION"
+    }
+  ],
+  "notes": [
+    "Digests are SHA256 hashes of query result sets in canonical TSV format",
+    "Canonical TSV: sorted rows, deterministic column order, consistent value serialization",
+    "Baseline computation requires running queries against reference QLever instance",
+    "Test dataset: Use LUBM(1,0) minimal or equivalent small RDF dataset",
+    "Zero divergences tolerated - any digest mismatch aborts build",
+    "Golden queries (001-110): SPARQL 1.1 conformance tests",
+    "Hybrid queries (001-050): SPARQL + Datalog + SHACL integration tests"
+  ]
+}

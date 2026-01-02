@@ -1,0 +1,12 @@
+# UIR Semantic Equivalence Test
+# Query ID: golden_071_aggregate_avg
+# Description: Aggregate Avg - test 3
+# Category: golden
+# EPIC: 10.3 - Agent 3 Part 4
+
+PREFIX ex: <http://example.org/>
+
+SELECT (AVG(?age) AS ?avgAge)
+WHERE {
+  ?person ex:hasAge ?age .
+}

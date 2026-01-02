@@ -1,0 +1,15 @@
+# UIR Semantic Equivalence Test
+# Query ID: golden_083_having
+# Description: Having - test 1
+# Category: golden
+# EPIC: 10.3 - Agent 3 Part 4
+
+PREFIX ex: <http://example.org/>
+
+SELECT ?type (COUNT(?instance) AS ?count)
+WHERE {
+  ?instance a ?type .
+}
+GROUP BY ?type
+HAVING (COUNT(?instance) > 5)
+ORDER BY DESC(?count)

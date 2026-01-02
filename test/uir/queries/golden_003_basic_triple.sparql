@@ -1,0 +1,14 @@
+# UIR Semantic Equivalence Test
+# Query ID: golden_003_basic_triple
+# Description: Basic Triple - test 3
+# Category: golden
+# EPIC: 10.3 - Agent 3 Part 4
+
+PREFIX ex: <http://example.org/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT ?s ?p ?o
+WHERE {
+  ?s ?p ?o .
+}
+LIMIT 10

@@ -1,0 +1,27 @@
+# UIR Semantic Equivalence Test
+# Query ID: hybrid_003_shacl_mincount
+# Description: Shacl Mincount - test 3
+# Category: hybrid
+# EPIC: 10.3 - Agent 3 Part 4
+
+PREFIX sh: <http://www.w3.org/ns/shacl#>
+PREFIX ex: <http://example.org/>
+
+# SHACL sh:minCount constraint validation query
+# UIR should inject Focus-Node filtering logic
+
+SELECT ?shape ?targetNode ?property ?minCount
+WHERE {
+  ?shape a sh:NodeShape ;
+         sh:targetClass ex:Person ;
+         sh:property ?propertyShape .
+  
+  ?propertyShape sh:path ?property ;
+                 sh:minCount ?minCount .
+  
+  ?targetNode a ex:Person .
+  
+  FILTER (?minCount >= 1)
+}
+ORDER BY ?shape ?targetNode
+LIMIT 20

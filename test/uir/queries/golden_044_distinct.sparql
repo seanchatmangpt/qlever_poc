@@ -1,0 +1,13 @@
+# UIR Semantic Equivalence Test
+# Query ID: golden_044_distinct
+# Description: Distinct - test 3
+# Category: golden
+# EPIC: 10.3 - Agent 3 Part 4
+
+PREFIX ex: <http://example.org/>
+
+SELECT DISTINCT ?type
+WHERE {
+  ?s a ?type .
+}
+LIMIT 10

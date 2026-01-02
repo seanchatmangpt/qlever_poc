@@ -1,0 +1,14 @@
+[package]
+name = "qlever-fpv-kani"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+
+[dev-dependencies]
+
+[profile.dev]
+panic = "abort"
+
+[profile.release]
+panic = "abort"

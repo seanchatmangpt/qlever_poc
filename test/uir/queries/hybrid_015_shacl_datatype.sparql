@@ -1,0 +1,19 @@
+# UIR Semantic Equivalence Test
+# Query ID: hybrid_015_shacl_datatype
+# Description: Shacl Datatype - test 2
+# Category: hybrid
+# EPIC: 10.3 - Agent 3 Part 4
+
+PREFIX sh: <http://www.w3.org/ns/shacl#>
+PREFIX ex: <http://example.org/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?shape ?property ?datatype
+WHERE {
+  ?shape a sh:NodeShape ;
+         sh:property ?propertyShape .
+  
+  ?propertyShape sh:path ?property ;
+                 sh:datatype ?datatype .
+}
+LIMIT 20

@@ -1,0 +1,12 @@
+# UIR Semantic Equivalence Test
+# Query ID: golden_066_aggregate_sum
+# Description: Aggregate Sum - test 2
+# Category: golden
+# EPIC: 10.3 - Agent 3 Part 4
+
+PREFIX ex: <http://example.org/>
+
+SELECT (SUM(?value) AS ?total)
+WHERE {
+  ?item ex:hasValue ?value .
+}

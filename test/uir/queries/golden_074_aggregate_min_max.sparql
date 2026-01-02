@@ -1,0 +1,12 @@
+# UIR Semantic Equivalence Test
+# Query ID: golden_074_aggregate_min_max
+# Description: Aggregate Min Max - test 2
+# Category: golden
+# EPIC: 10.3 - Agent 3 Part 4
+
+PREFIX ex: <http://example.org/>
+
+SELECT (MIN(?age) AS ?minAge) (MAX(?age) AS ?maxAge)
+WHERE {
+  ?person ex:hasAge ?age .
+}

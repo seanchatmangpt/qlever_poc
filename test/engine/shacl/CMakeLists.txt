@@ -20,3 +20,6 @@ addLinkAndDiscoverTest(ComplexPropertyPathsTest engine)
 addLinkAndDiscoverTest(PathResolverTest engine)
 addLinkAndDiscoverTest(SparqlBasedConstraintTest engine)
 addLinkAndDiscoverTest(ShaclPlanningStrategyTest engine)
+
+# EPIC 10.3 - Focus-Node Injection optimization tests
+addLinkAndDiscoverTest(FocusNodeInjectionTest engine)

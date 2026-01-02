@@ -1,0 +1,23 @@
+# UIR Semantic Equivalence Test
+# Query ID: hybrid_037_hybrid_shacl_datalog
+# Description: Hybrid Shacl Datalog - test 1
+# Category: hybrid
+# EPIC: 10.3 - Agent 3 Part 4
+
+PREFIX sh: <http://www.w3.org/ns/shacl#>
+PREFIX ex: <http://example.org/>
+
+# Hybrid: SHACL constraint + Datalog rule
+# Rule: hasManager(?emp, ?mgr) :- worksIn(?emp, ?dept), manages(?mgr, ?dept).
+
+SELECT ?employee ?manager ?department
+WHERE {
+  ?shape a sh:NodeShape ;
+         sh:targetClass ex:Employee .
+  
+  ?employee a ex:Employee ;
+            ex:worksIn ?department .
+  
+  ?manager ex:manages ?department .
+}
+LIMIT 20
