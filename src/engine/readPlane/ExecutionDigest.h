@@ -85,27 +85,46 @@ struct ResultMetadata {
 
 // PlanInfo - Captures QueryExecutionTree structure for plan hash computation.
 // Must be serialized deterministically (sorted keys, no pointers).
+//
+// EPIC 10.1: Plan fingerprint represents operator topology ONLY
+// EXCLUDED: cost estimates, cardinality, timing, memory addresses, thread
+// counts INCLUDED: operator sequence, variable bindings, join keys, scan
+// patterns,
+//           grouping/order/limit
+//
+// This ensures fingerprint stability across query plan optimizations:
+// same topology + different costs = same fingerprint
 struct PlanInfo {
   // Canonical cache key from QueryExecutionTree (already deterministic)
   std::string plan_cache_key;
 
   // Operation descriptor chain (root to leaves, depth-first)
+  // Each descriptor now includes:
+  // - Operation type (Join, IndexScan, GroupBy, OrderBy, Limit, etc.)
+  // - Variable bindings (VariableToColumnMap, sorted)
+  // - Operation-specific topology (join columns, scan patterns, etc.)
+  // Format: "OpType(var1:col1,var2:col2)[topology_details]"
   std::vector<std::string> operation_descriptors;
 
-  // Plan cost estimate (deterministic, from query planner)
-  uint64_t cost_estimate = 0;
-
-  // Plan size estimate (deterministic, from query planner)
-  uint64_t size_estimate = 0;
+  // NOTE: cost_estimate and size_estimate REMOVED per EPIC 10.1 spec
+  // These are optimization metadata, not topology
+  // Including them would cause fingerprint changes on every re-optimization
 
   // Default constructor
   PlanInfo() = default;
 
   // Serialize to deterministic byte string for hashing
+  // Excludes all non-topology fields (cost, size, timing)
   [[nodiscard]] std::string toCanonicalBytes() const;
 
-  // Equality for testing
+  // Equality for testing (topology-only comparison)
   bool operator==(const PlanInfo& other) const = default;
+
+  // Factory method: Extract topology from QueryExecutionTree
+  // Performs depth-first traversal, captures operator sequence,
+  // variable bindings, join keys, scan patterns, grouping/order/limit
+  // EXCLUDES: cost estimates, cardinality, timing
+  [[nodiscard]] static PlanInfo extractTopology(const QueryExecutionTree& qet);
 };
 
 // ExecutionDigest - Complete deterministic identifier for a query execution.
@@ -185,9 +204,7 @@ struct ExecutionDigest {
   }
 
   // Equality operator (same as matches)
-  bool operator==(const ExecutionDigest& other) const {
-    return matches(other);
-  }
+  bool operator==(const ExecutionDigest& other) const { return matches(other); }
 
   bool operator!=(const ExecutionDigest& other) const {
     return !matches(other);

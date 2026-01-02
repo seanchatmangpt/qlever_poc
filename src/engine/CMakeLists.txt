@@ -38,7 +38,8 @@ add_library(engine
         readPlane/BenchmarkRealizationEngine.cpp
         readPlane/WorkloadCaptureAgent.cpp
         readPlane/ReadPlaneObservabilityPlane.cpp
-        readPlane/CacheCorrectnessProver.cpp)
+        readPlane/CacheCorrectnessProver.cpp
+        regression/RegressionDetector.cpp)
 
 qlever_target_link_libraries(engine util index parser global sparqlExpressions SortPerformanceEstimator Boost::iostreams s2 spatialjoin-dev pb_util pb_util_geo)
 

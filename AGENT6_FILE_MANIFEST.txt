@@ -1,0 +1,67 @@
+================================================================================
+AGENT 6 FILE MANIFEST
+================================================================================
+
+FILES CREATED (5):
+------------------
+
+1. /home/user/qlever/src/engine/ingress/JsonLdIngressNormalizer.h
+   Type: C++ Header
+   Size: 517 lines
+   Purpose: JSON-LD-only ingress normalizer API for SHACL/ShEx/N3/Datalog
+
+2. /home/user/qlever/src/engine/ingress/JsonLdIngressNormalizer.cpp
+   Type: C++ Implementation
+   Size: 434 lines
+   Purpose: Deterministic canonicalization + epoch binding implementation
+
+3. /home/user/qlever/test/engine/ingress/JsonLdIngressNormalizerTest.cpp
+   Type: Google Test Suite
+   Size: 546 lines
+   Purpose: 17 test cases validating determinism, rejection, guards, epoch binding
+
+4. /home/user/qlever/test/engine/ingress/CMakeLists.txt
+   Type: CMake Build Configuration
+   Size: 2 lines
+   Purpose: Register test suite with build system
+
+5. /home/user/qlever/docs/reference/jsonld-ingress-contract.md
+   Type: Specification Document
+   Size: 480 lines
+   Purpose: JSON-LD subset contract for SHACL/ShEx/N3/Datalog
+
+FILES MODIFIED (2):
+-------------------
+
+1. /home/user/qlever/src/engine/ingress/CMakeLists.txt
+   Change: Added JsonLdIngressNormalizer.cpp to qlever_ingress library
+   Lines Modified: +1
+
+2. /home/user/qlever/test/engine/CMakeLists.txt
+   Change: Added add_subdirectory(ingress) for test discovery
+   Lines Modified: +1
+
+DELIVERY ARTIFACTS (2):
+-----------------------
+
+1. /home/user/qlever/AGENT6_DELIVERY_SUMMARY.md
+   Purpose: Complete delivery summary with all details
+
+2. /home/user/qlever/AGENT6_VERIFICATION_CHECKLIST.md
+   Purpose: Verification checklist for all requirements
+
+================================================================================
+TOTAL: 9 FILES
+================================================================================
+
+Created: 5 files (~1,980 lines)
+Modified: 2 files (+2 lines)
+Documentation: 2 artifacts
+
+All files ready for:
+- Collision Detection
+- Convergence
+- Git Commit
+- Integration Testing
+
+================================================================================
