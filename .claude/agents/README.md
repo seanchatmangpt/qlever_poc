@@ -1,8 +1,10 @@
-# QLever Agents: Big Bang 80/20 Operational Mode
+# QLever Agents: Big Bang 80/20 + EPIC 9 Operational Mode
 
-This directory contains 4 foundational agents that enforce **Big Bang 80/20** (BB80/20) operational constraints throughout task execution.
+This directory contains **6 foundational agents** that enforce **Big Bang 80/20** (BB80/20) operational constraints and **EPIC 9** (Unified Atomic Cognitive Cycle) throughout task execution.
 
 ## Agents
+
+### BB80/20 Core Agents (4)
 
 ### 1. **bb80-specification-validator**
 Verify specification closure before implementation begins. Domain must be fully formalized (RDF, SPARQL, C++20, CMake) with zero design freedom. If multiple valid approaches exist, specification is incomplete—iterate on spec, not code.
@@ -23,6 +25,20 @@ Coordinate 10 concurrent agents operating independently under shared invariant. 
 Validate work via deterministic receipts (benchmarks, event logs, state hashes)—not narratives. Guards are automated checkpoints. If work passes all guards, it is correct. Benchmarks replace narratives. Determinism replaces consensus.
 
 **When to use**: After implementation and integration. Proof-based certification blocks iteration.
+
+---
+
+### EPIC 9 Agents (2) — Collision & Convergence
+
+### 5. **bb80-collision-detector** (NEW - EPIC 9)
+Identify structural, semantic, and execution path collisions across artifacts produced by 10 independent agents. Collision is required signal (not failure). Outputs deterministic collision map: which artifacts collide, at what level, overlap magnitude (0-100%), and reconciliation hints.
+
+**When to use**: After all 10 agents complete construction. Before convergence phase. Detects readiness for convergence orchestration.
+
+### 6. **bb80-convergence-orchestrator** (NEW - EPIC 9)
+Execute convergence phase via selection pressure on agent artifacts. Evaluates coverage, invariant preservation, redundancy elimination, construct minimality. Produces final merged artifact by selecting dominant artifacts, merging non-redundant portions, rewriting where needed, discarding subsumed work. Final artifact authorship erased.
+
+**When to use**: After collision detection completes. Synthesizes final artifact from 10 independent outputs. Passes result to receipt validator.
 
 ---
 
@@ -47,6 +63,20 @@ Validate work via deterministic receipts (benchmarks, event logs, state hashes)�
 → Block backtracking
 ```
 
+**Collision Detection Phase** (EPIC 9):
+```
+→ bb80-collision-detector (Analyze 10 agent outputs)
+→ Identify structural, semantic, execution path overlaps
+→ Output deterministic collision map
+```
+
+**Convergence Phase** (EPIC 9):
+```
+→ bb80-convergence-orchestrator (Execute selection pressure)
+→ Merge, discard, rewrite to synthesize final artifact
+→ Erase agent authorship boundaries
+```
+
 **Validation Phase**:
 ```
 → bb80-receipt-validator (Demand deterministic proof)
@@ -56,23 +86,34 @@ Validate work via deterministic receipts (benchmarks, event logs, state hashes)�
 
 ---
 
-## BB80/20 Operational Questions
+## BB80/20 + EPIC 9 Operational Questions
 
 Agents enforce these questions throughout execution:
 
+**BB80/20 Core**:
 - ✅ **Is specification closed?** (bb80-specification-validator)
 - ✅ **What is the minimal invariant?** (bb80-invariant-validator)
 - ✅ **Can this execute in one pass from invariants?** (bb80-invariant-validator)
 - ✅ **How many agents in parallel?** (bb80-parallel-task-coordinator)
+
+**EPIC 9 Atomic Cycle**:
+- ✅ **What collisions exist across artifacts?** (bb80-collision-detector)
+- ✅ **Which artifacts dominate?** (bb80-convergence-orchestrator)
+- ✅ **Can overlapping work be merged?** (bb80-convergence-orchestrator)
+- ✅ **What is the minimal final construction?** (bb80-convergence-orchestrator)
+
+**Validation**:
 - ✅ **What is the deterministic receipt?** (bb80-receipt-validator)
 - ✅ **Does work pass all guards?** (bb80-receipt-validator)
 
-NOT:
+NOT (These are forbidden):
 
 - ❌ "What should I do next?"
 - ❌ "Should I iterate?"
 - ❌ "Does this look good?"
 - ❌ "What if I try a different approach?"
+- ❌ "Collision means something failed"
+- ❌ "Can I skip collision detection?"
 
 ---
 
@@ -107,8 +148,12 @@ Skills provide conceptual/operational guidance.
 ## Integration with CLAUDE.md
 
 See CLAUDE.md:
-- "Big Bang 80/20: Operational Model" - Foundational frame
-- "SPR + BB80/20: Model Operational Encoding" - Latent-space priming
+- "Big Bang 80/20: Latent-Space Priming" - Foundational frame
+- "EPIC 9: Multi-Agent Cognitive Construction Law (Unified)" - Atomic cognitive cycle
+- "Collision Semantics" - Formal definition of collision detection
+- "Convergence Law" - Separate reconciliation process
+- "Refactoring Law" - Merge, discard, rewrite mandate
+- "Closure Conditions" - All 6 phases required or no output
 
-These agents implement the BB80/20 frame operationally throughout all tasks.
+These 6 agents implement the BB80/20 + EPIC 9 frame operationally throughout all non-trivial tasks.
 
