@@ -1,0 +1,172 @@
+{
+  "_schema_version": "1.0.0",
+  "_description": "EPIC 10.2 Agent 3 - Golden Query Set Manifest",
+  "_purpose": "BLAKE3 digests of query result sets for SIMD vs Scalar determinism validation",
+  "_format": "BLAKE3 hex digest (64 characters) of canonical result serialization",
+  "_validation_contract": "bit_parity(SIMD_Path, Scalar_Path) == TRUE for all queries",
+  "_authoritative_source": "W3C SPARQL 1.1 Test Suite + LUBM Benchmark Queries",
+  "_manifest_hash_algorithm": "SHA256",
+  "_generated_at": "2026-01-02T00:00:00Z",
+  "_agent": "Agent 3 - Ingress Determinism",
+
+  "w3c_sparql_queries": {
+    "_source": "https://www.w3.org/2009/sparql/docs/tests/",
+    "_test_suite_version": "SPARQL 1.1",
+    "_total_queries": 10,
+
+    "basic_select_001": {
+      "description": "Simple SELECT query with triple pattern",
+      "query_file": "queries/w3c/basic_select_001.sparql",
+      "data_file": "data/w3c/basic_triples.nt",
+      "expected_result_blake3": "pending_authoritative_run",
+      "expected_row_count": 3,
+      "expected_column_count": 2,
+      "validation_status": "not_yet_validated"
+    },
+
+    "filter_001": {
+      "description": "SELECT with FILTER clause (numeric comparison)",
+      "query_file": "queries/w3c/filter_001.sparql",
+      "data_file": "data/w3c/numeric_data.nt",
+      "expected_result_blake3": "pending_authoritative_run",
+      "expected_row_count": 5,
+      "expected_column_count": 3,
+      "validation_status": "not_yet_validated"
+    },
+
+    "optional_001": {
+      "description": "SELECT with OPTIONAL pattern",
+      "query_file": "queries/w3c/optional_001.sparql",
+      "data_file": "data/w3c/optional_data.nt",
+      "expected_result_blake3": "pending_authoritative_run",
+      "expected_row_count": 4,
+      "expected_column_count": 3,
+      "validation_status": "not_yet_validated"
+    },
+
+    "union_001": {
+      "description": "SELECT with UNION",
+      "query_file": "queries/w3c/union_001.sparql",
+      "data_file": "data/w3c/union_data.nt",
+      "expected_result_blake3": "pending_authoritative_run",
+      "expected_row_count": 6,
+      "expected_column_count": 2,
+      "validation_status": "not_yet_validated"
+    },
+
+    "aggregate_001": {
+      "description": "SELECT with GROUP BY and COUNT",
+      "query_file": "queries/w3c/aggregate_001.sparql",
+      "data_file": "data/w3c/aggregate_data.nt",
+      "expected_result_blake3": "pending_authoritative_run",
+      "expected_row_count": 2,
+      "expected_column_count": 2,
+      "validation_status": "not_yet_validated"
+    },
+
+    "order_by_001": {
+      "description": "SELECT with ORDER BY (deterministic row ordering)",
+      "query_file": "queries/w3c/order_by_001.sparql",
+      "data_file": "data/w3c/order_data.nt",
+      "expected_result_blake3": "pending_authoritative_run",
+      "expected_row_count": 10,
+      "expected_column_count": 2,
+      "validation_status": "not_yet_validated",
+      "criticality": "HIGH - Row ordering must be deterministic"
+    },
+
+    "distinct_001": {
+      "description": "SELECT DISTINCT (deterministic elimination)",
+      "query_file": "queries/w3c/distinct_001.sparql",
+      "data_file": "data/w3c/distinct_data.nt",
+      "expected_result_blake3": "pending_authoritative_run",
+      "expected_row_count": 4,
+      "expected_column_count": 1,
+      "validation_status": "not_yet_validated",
+      "criticality": "HIGH - DISTINCT must preserve deterministic order"
+    },
+
+    "subquery_001": {
+      "description": "SELECT with nested subquery",
+      "query_file": "queries/w3c/subquery_001.sparql",
+      "data_file": "data/w3c/subquery_data.nt",
+      "expected_result_blake3": "pending_authoritative_run",
+      "expected_row_count": 3,
+      "expected_column_count": 2,
+      "validation_status": "not_yet_validated"
+    },
+
+    "bind_001": {
+      "description": "SELECT with BIND expression",
+      "query_file": "queries/w3c/bind_001.sparql",
+      "data_file": "data/w3c/bind_data.nt",
+      "expected_result_blake3": "pending_authoritative_run",
+      "expected_row_count": 5,
+      "expected_column_count": 3,
+      "validation_status": "not_yet_validated"
+    },
+
+    "property_path_001": {
+      "description": "SELECT with property path (^, *, +)",
+      "query_file": "queries/w3c/property_path_001.sparql",
+      "data_file": "data/w3c/property_path_data.nt",
+      "expected_result_blake3": "pending_authoritative_run",
+      "expected_row_count": 7,
+      "expected_column_count": 2,
+      "validation_status": "not_yet_validated"
+    }
+  },
+
+  "lubm_stress_queries": {
+    "_source": "Lehigh University Benchmark (LUBM)",
+    "_description": "100-query stress suite for reasoning and scalability",
+    "_status": "Schema defined, queries to be populated",
+    "_total_queries": 100,
+
+    "lubm_q01": {
+      "description": "Graduate students in Department0 at University0",
+      "query_file": "queries/lubm/lubm_q01.sparql",
+      "data_file": "data/lubm/lubm_subset.nt",
+      "expected_result_blake3": "pending_authoritative_run",
+      "validation_status": "not_yet_validated"
+    },
+
+    "lubm_q02": {
+      "description": "Students and departments with memberOf relation",
+      "query_file": "queries/lubm/lubm_q02.sparql",
+      "data_file": "data/lubm/lubm_subset.nt",
+      "expected_result_blake3": "pending_authoritative_run",
+      "validation_status": "not_yet_validated"
+    },
+
+    "_remaining_queries": "98 more LUBM queries to be added (schema placeholder)"
+  },
+
+  "determinism_validation_protocol": {
+    "description": "How to validate SIMD vs Scalar equivalence",
+    "steps": [
+      "1. Parse RDF data through SIMD ingress path → result_simd",
+      "2. Parse identical RDF data through scalar fallback path → result_scalar",
+      "3. Serialize both results to canonical format (ResultDigest::serializeCanonical)",
+      "4. Compute BLAKE3(canonical_simd) and BLAKE3(canonical_scalar)",
+      "5. Assert: BLAKE3(canonical_simd) == BLAKE3(canonical_scalar)",
+      "6. Record result in manifest.json",
+      "7. Repeat for all queries in golden set"
+    ],
+    "failure_criteria": [
+      "Different BLAKE3 digests for same input",
+      "Different row counts",
+      "Different column counts",
+      "Different row ordering (unless ORDER BY is absent - then unordered set comparison)",
+      "Forbidden content detected (pointers, thread IDs, timestamps, floats in digest)"
+    ],
+    "success_criteria": "All queries produce identical BLAKE3 digests for SIMD and Scalar paths"
+  },
+
+  "_manifest_integrity": {
+    "algorithm": "SHA256",
+    "digest": "pending_completion",
+    "computed_at": "pending_completion",
+    "verified_by": "Agent 3 - Ingress Determinism"
+  }
+}

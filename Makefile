@@ -101,6 +101,9 @@ phase-d: phase-c
 		cd $(BUILD_DIR); \
 		test -d CMakeFiles || exit 1; \
 		test -f Makefile -o -f build.ninja || exit 1; \
+		echo "PHASE_D: Running SHACL validation tests (fail-closed)" >&2; \
+		ctest -R "Shacl" --output-on-failure || exit 1; \
+		echo "PHASE_D: SHACL validation passed" >&2; \
 		exit 0 \
 	'
 

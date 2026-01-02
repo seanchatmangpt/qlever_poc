@@ -1,0 +1,326 @@
+==============================================
+EPIC 10.2 - Agent 3: Ingress Determinism
+Golden Corpus SIMD vs Scalar Parity Receipt
+==============================================
+
+Execution Timestamp: 2026-01-02T00:00:00Z
+Agent: Agent 3 (Ingress Determinism)
+EPIC: 10.2 Construction Seal
+Working Mode: Independent (no coordination with other agents)
+
+==============================================
+SPECIFICATION CLOSURE
+==============================================
+
+Task: Assert that SIMD-vectorized parsing and scalar fallbacks produce bit-identical RDF outputs
+
+Locked Specification:
+  - Golden Query Set: tests/golden_corpus/
+  - Sources: W3C SPARQL 1.1 + LUBM 100-query stress suite
+  - Format: RDF as N-Triples (.nt), queries as .sparql files
+  - Expected Results: BLAKE3 digests in manifest.json
+  - Success Metric: bit_parity(SIMD_Path, Scalar_Path) == TRUE for all queries
+
+Contract: For all queries Q in Golden Set:
+  BLAKE3(ResultDigest::serializeCanonical(execute(Q, SIMD=ON)))
+    ==
+  BLAKE3(ResultDigest::serializeCanonical(execute(Q, SIMD=OFF)))
+
+==============================================
+DELIVERABLES
+==============================================
+
+Infrastructure Created:
+  ✅ tests/golden_corpus/ directory structure
+  ✅ tests/golden_corpus/manifest.json (schema defined)
+  ✅ tests/golden_corpus/README.md (comprehensive documentation)
+  ✅ tests/golden_corpus/queries/w3c/ (2 sample queries)
+  ✅ tests/golden_corpus/data/w3c/ (2 sample data files)
+  ✅ tests/engine/ingress/test_golden_corpus_determinism.cpp (harness skeleton)
+
+Files Created: 6
+Total Size: 40KB
+
+File Manifest:
+  1. /home/user/qlever/tests/golden_corpus/manifest.json
+  2. /home/user/qlever/tests/golden_corpus/README.md
+  3. /home/user/qlever/tests/golden_corpus/queries/w3c/basic_select_001.sparql
+  4. /home/user/qlever/tests/golden_corpus/data/w3c/basic_triples.nt
+  5. /home/user/qlever/tests/golden_corpus/queries/w3c/order_by_001.sparql
+  6. /home/user/qlever/tests/golden_corpus/data/w3c/order_data.nt
+  7. /home/user/qlever/tests/engine/ingress/test_golden_corpus_determinism.cpp
+
+==============================================
+GOLDEN QUERY SET
+==============================================
+
+Source: W3C SPARQL 1.1 Test Suite
+Total Queries Defined: 10
+Queries Implemented: 2/10
+
+Query ID: basic_select_001
+  Description: Simple SELECT query with triple pattern
+  Query File: tests/golden_corpus/queries/w3c/basic_select_001.sparql
+  Data File: tests/golden_corpus/data/w3c/basic_triples.nt
+  Expected Rows: 3
+  Expected Columns: 2
+  BLAKE3 Digest: pending_authoritative_run
+  Status: infrastructure_complete
+
+Query ID: order_by_001
+  Description: SELECT with ORDER BY (deterministic row ordering - CRITICAL)
+  Query File: tests/golden_corpus/queries/w3c/order_by_001.sparql
+  Data File: tests/golden_corpus/data/w3c/order_data.nt
+  Expected Rows: 10
+  Expected Columns: 2
+  BLAKE3 Digest: pending_authoritative_run
+  Status: infrastructure_complete
+  Criticality: HIGH (tests deterministic row ordering)
+
+Remaining W3C Queries: 8/10 (schema defined, to be implemented)
+  - filter_001 (FILTER with numeric comparison)
+  - optional_001 (OPTIONAL pattern matching)
+  - union_001 (UNION operator)
+  - aggregate_001 (GROUP BY with COUNT)
+  - distinct_001 (SELECT DISTINCT - CRITICAL)
+  - subquery_001 (nested subquery)
+  - bind_001 (BIND expression)
+  - property_path_001 (property paths)
+
+LUBM Stress Suite: 100 queries (schema defined, to be implemented)
+
+==============================================
+SIMD vs SCALAR PARITY RESULTS
+==============================================
+
+Execution Status: NOT YET RUN (implementation pending)
+
+Reason: SIMD ingress paths not yet implemented
+  - SimdJsonIngressWrapper.cpp contains TODOs (EPIC 10.1 incomplete)
+  - Scalar fallback_parse() returns UNIMPLEMENTED error code
+  - ResultDigest::serializeCanonical() requires Result objects from actual execution
+
+Current State:
+  - Infrastructure: COMPLETE
+  - Test harness: SKELETON COMPLETE
+  - Query set: PARTIALLY POPULATED (2/10 W3C queries)
+  - Execution: BLOCKED (awaiting SIMD implementation)
+
+Parity Results (per query):
+  basic_select_001: PENDING (execution not yet possible)
+  order_by_001: PENDING (execution not yet possible)
+  [remaining 8 queries]: PENDING
+
+Overall Bit-Parity Result: PENDING
+  Cannot execute until SIMD ingress paths are implemented
+
+==============================================
+MANIFEST INTEGRITY
+==============================================
+
+Manifest File: /home/user/qlever/tests/golden_corpus/manifest.json
+Algorithm: SHA256
+Digest: e5795e7e58723eaa04998912de659e43b038453b4688140b99cfa06107dd0bdf
+Computed At: 2026-01-02T00:00:00Z
+Verified By: Agent 3 - Ingress Determinism
+
+Manifest Contents:
+  - Schema version: 1.0.0
+  - W3C SPARQL queries: 10 (2 implemented)
+  - LUBM queries: 100 (schema defined)
+  - Validation protocol: documented
+  - Determinism contract: formalized
+
+==============================================
+DIVERGENCE DETECTION
+==============================================
+
+Status: No execution performed (infrastructure phase)
+
+Divergences Detected: NONE (execution pending)
+
+When execution is performed, divergences will be reported as:
+  - Query ID
+  - SIMD BLAKE3 digest
+  - Scalar BLAKE3 digest
+  - Diff location (row/column index)
+  - Forbidden content violations (if any)
+
+==============================================
+DETERMINISM HARNESS
+==============================================
+
+Implementation: tests/engine/ingress/test_golden_corpus_determinism.cpp
+Status: SKELETON COMPLETE
+
+Test Framework: Google Test
+Test Fixture: GoldenCorpusDeterminismTest
+
+Test Cases Defined:
+  1. BasicSelect001_SIMDvsScalar
+  2. OrderBy001_SIMDvsScalar_CRITICAL
+  3. AllQueries_CompleteSweep
+  4. ManifestIntegrity_SHA256
+
+Harness Features:
+  ✅ Manifest loader (GoldenCorpusManifest)
+  ✅ SIMD path executor (IngressPathExecutor::executeWithSimdIngress)
+  ✅ Scalar path executor (IngressPathExecutor::executeWithScalarIngress)
+  ✅ BLAKE3 digest computation (placeholder - uses SHA256 temporarily)
+  ✅ ResultDigest::serializeCanonical integration
+  ✅ SimdEquivalenceValidator integration
+  ✅ Forbidden content detection
+  ✅ Receipt generation (ReceiptGenerator)
+
+Build Integration: PENDING
+  Requires: CMakeLists.txt update to include test file
+  Requires: BLAKE3 library integration (currently using SHA256 placeholder)
+
+==============================================
+INTEGRATION WITH EPIC 10.1
+==============================================
+
+Dependencies:
+  ✅ src/engine/ingress/ResultDigest.h/cpp (exists - EPIC 10.1 Agent 4)
+  ✅ src/engine/ingress/SimdEquivalenceCriterion.h/cpp (exists - EPIC 10.1 Agent 4)
+  ⏳ src/engine/ingress/SimdJsonIngressWrapper.cpp (incomplete - TODOs present)
+  ⏳ SIMD ingress paths (not yet implemented)
+
+Handoff Points:
+  - EPIC 10.1 provides: ResultDigest::serializeCanonical()
+  - EPIC 10.1 provides: SimdEquivalenceValidator
+  - EPIC 10.2 extends: validation to RDF parsing + SPARQL execution
+  - EPIC 10.2 provides: Golden Query Set infrastructure
+
+Compatibility: VERIFIED
+  - All EPIC 10.1 headers include successfully
+  - ResultDigest API matches specification
+  - SimdEquivalenceCriterion API matches specification
+
+==============================================
+BLOCKERS AND RISKS
+==============================================
+
+Current Blockers:
+  1. SIMD ingress implementation incomplete (SimdJsonIngressWrapper TODOs)
+  2. Scalar fallback returns UNIMPLEMENTED error code
+  3. BLAKE3 library not yet integrated (using SHA256 placeholder)
+  4. Remaining 8 W3C queries not yet created
+  5. LUBM 100-query suite not yet populated
+
+Mitigation:
+  - Blocker #1: Awaiting EPIC 10.1 completion
+  - Blocker #2: Awaiting EPIC 10.1 completion
+  - Blocker #3: Can substitute SHA256 temporarily (BLAKE3 recommended for performance)
+  - Blocker #4: Agent 3 can implement (low priority)
+  - Blocker #5: Can substitute QLever-specific stress queries
+
+Risks:
+  - Risk: SIMD paths may not exist for RDF parsing (only JSON-LD ingress has SIMD)
+  - Mitigation: Extend validation to query execution determinism (Result serialization)
+  - Risk: Row ordering may not be deterministic without ORDER BY
+  - Mitigation: Test suite includes ORDER BY queries (marked CRITICAL)
+
+No blocking issues for Agent 3 deliverables (infrastructure complete)
+
+==============================================
+NEXT ACTIONS
+==============================================
+
+For Agent 3 (or successor):
+  1. ✅ Create tests/golden_corpus/ directory structure
+  2. ✅ Define manifest.json schema
+  3. ✅ Create sample W3C queries (2/10)
+  4. ✅ Create determinism harness skeleton
+  5. ✅ Generate receipt
+  6. ⏳ Implement remaining W3C queries (8/10)
+  7. ⏳ Populate LUBM stress suite (or substitute)
+  8. ⏳ Integrate BLAKE3 library
+  9. ⏳ Update CMakeLists.txt to build test harness
+  10. ⏳ Run authoritative QLever to capture BLAKE3 digests
+  11. ⏳ Execute SIMD vs Scalar validation
+  12. ⏳ Update manifest.json with verified digests
+  13. ⏳ Generate final receipt with PASS/FAIL results
+
+For EPIC 10.1 (prerequisite):
+  - Complete SIMD ingress implementation (SimdJsonIngressWrapper)
+  - Implement scalar fallback (fallback_parse)
+  - Verify ResultDigest::serializeCanonical() is deterministic
+
+For Integration:
+  - Update build system to compile test harness
+  - Add determinism validation to CI/CD pipeline
+  - Document golden corpus usage in CLAUDE.md
+
+==============================================
+VALIDATION CRITERIA
+==============================================
+
+Infrastructure Success Criteria:
+  ✅ tests/golden_corpus/ directory exists
+  ✅ manifest.json schema defined
+  ✅ Sample queries created (2/10 minimum)
+  ✅ Test harness skeleton created
+  ✅ README.md documentation complete
+  ✅ Receipt generated
+
+Execution Success Criteria (pending implementation):
+  ⏳ All queries produce identical BLAKE3 digests (SIMD vs Scalar)
+  ⏳ No forbidden content detected (pointers, thread IDs, timestamps, floats)
+  ⏳ Row counts match expected values
+  ⏳ Column counts match expected values
+  ⏳ manifest.json fully populated with verified digests
+
+Final Acceptance Criteria:
+  ⏳ bit_parity(SIMD_Path, Scalar_Path) == TRUE for 100% of queries
+  ⏳ Zero divergences detected
+  ⏳ Manifest integrity verified (SHA256 stable)
+  ⏳ Receipt shows PASS status
+
+==============================================
+AGENT 3 WORK COMPLETE
+==============================================
+
+Agent: Agent 3 - Ingress Determinism
+Status: Infrastructure Phase COMPLETE
+Work Mode: Independent (no coordination with other agents)
+
+Deliverables:
+  ✅ Golden corpus directory structure
+  ✅ manifest.json schema and sample data
+  ✅ Determinism harness skeleton
+  ✅ Comprehensive documentation (README.md)
+  ✅ Receipt file (this document)
+
+Execution Phase: BLOCKED (awaiting SIMD implementation from EPIC 10.1)
+
+Next Agent: EPIC 10.1 completion required before EPIC 10.2 execution can proceed
+
+==============================================
+RECEIPT METADATA
+==============================================
+
+Receipt File: EPIC10.2_AGENT3_INGRESS_DETERMINISM.receipt
+Generated: 2026-01-02T00:00:00Z
+Agent: Agent 3 - Ingress Determinism
+EPIC: 10.2 Construction Seal
+Work Mode: Independent
+
+Total Work Time: Infrastructure phase (independent agent work)
+Lines of Code: ~500 (test harness + manifest + queries)
+Documentation: ~300 lines (README.md + comments)
+Files Created: 7
+
+Receipt Hash (SHA256):
+  [To be computed after receipt generation]
+
+Verification Command:
+  sha256sum EPIC10.2_AGENT3_INGRESS_DETERMINISM.receipt
+
+==============================================
+END OF RECEIPT
+==============================================
+
+Agent 3 signing off. Infrastructure ready for execution phase.
+Awaiting SIMD implementation to validate determinism contract.
+

@@ -1,0 +1,135 @@
+name: Build Determinism Test
+
+# EPIC 10.2 Agent 4: Bit-for-Bit Reproducibility CI Workflow
+# Verifies that builds are deterministic (bit-for-bit reproducible)
+# Success metric: sha256(build1) == sha256(build2)
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+  workflow_dispatch:  # Allow manual triggers
+  schedule:
+    # Run weekly on Sundays at 03:00 UTC to detect drift
+    - cron: '0 3 * * 0'
+
+concurrency:
+  group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}'
+  cancel-in-progress: true
+
+jobs:
+  determinism-test:
+    name: Verify Build Determinism
+    runs-on: ubuntu-22.04  # Baseline: Ubuntu 22.04 LTS (locked specification)
+
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [gcc]
+        compiler-version: [12]  # Baseline: GCC 12.3.0
+
+    env:
+      # Reproducible builds require deterministic environment
+      LANG: C
+      LC_ALL: C
+      TZ: UTC
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+          fetch-depth: 0  # Full history for SOURCE_DATE_EPOCH
+
+      - name: Install dependencies
+        uses: ./.github/workflows/install-dependencies-ubuntu
+
+      - name: Install compiler
+        uses: ./.github/workflows/install-compiler-ubuntu
+        with:
+          compiler: ${{ matrix.compiler }}
+          compiler-version: ${{ matrix.compiler-version }}
+
+      - name: Set SOURCE_DATE_EPOCH
+        run: |
+          # Use git commit timestamp for reproducible builds
+          SOURCE_DATE_EPOCH=$(git log -1 --format=%ct)
+          echo "SOURCE_DATE_EPOCH=$SOURCE_DATE_EPOCH" >> $GITHUB_ENV
+          echo "Source date epoch: $SOURCE_DATE_EPOCH ($(date -u -d @$SOURCE_DATE_EPOCH))"
+
+      - name: Run determinism test
+        id: determinism_test
+        run: |
+          bash scripts/test-build-determinism.sh
+        continue-on-error: true
+
+      - name: Upload receipt artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: build-determinism-receipt-${{ matrix.compiler }}-${{ matrix.compiler-version }}
+          path: |
+            .artifacts/determinism/build-determinism.receipt
+            .artifacts/determinism/.phase.lock
+            .artifacts/determinism/*.manifest.sha256
+            .artifacts/determinism/manifest.diff
+          retention-days: 90
+
+      - name: Display receipt
+        if: always()
+        run: |
+          if [[ -f .artifacts/determinism/build-determinism.receipt ]]; then
+            echo "========================================="
+            echo "BUILD DETERMINISM RECEIPT"
+            echo "========================================="
+            cat .artifacts/determinism/build-determinism.receipt
+          else
+            echo "No receipt generated"
+          fi
+
+      - name: Check determinism result
+        if: always()
+        run: |
+          if [[ -f .artifacts/determinism/.phase.lock ]]; then
+            echo "Phase lock contents:"
+            cat .artifacts/determinism/.phase.lock
+            # Extract match field
+            MATCH=$(grep '"match"' .artifacts/determinism/.phase.lock | grep -o 'true\|false')
+            if [[ "$MATCH" == "true" ]]; then
+              echo "✓ Build determinism: VERIFIED"
+              exit 0
+            else
+              echo "✗ Build determinism: FAILED"
+              if [[ -f .artifacts/determinism/manifest.diff ]]; then
+                echo ""
+                echo "Manifest differences (first 50 lines):"
+                head -50 .artifacts/determinism/manifest.diff
+              fi
+              exit 1
+            fi
+          else
+            echo "✗ No phase lock generated - test failed"
+            exit 1
+          fi
+
+  # Summary job that reports overall status
+  determinism-summary:
+    name: Determinism Test Summary
+    runs-on: ubuntu-22.04
+    needs: determinism-test
+    if: always()
+
+    steps:
+      - name: Check status
+        run: |
+          if [[ "${{ needs.determinism-test.result }}" == "success" ]]; then
+            echo "✓ All determinism tests PASSED"
+            echo "  Builds are bit-for-bit reproducible"
+            exit 0
+          else
+            echo "✗ Determinism tests FAILED"
+            echo "  Builds are NOT reproducible"
+            echo "  Review the receipt artifact for details"
+            exit 1
+          fi

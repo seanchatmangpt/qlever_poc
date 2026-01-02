@@ -189,6 +189,15 @@ std::string RuleExpansion::getCacheKeyImpl() const {
     os << arguments_[i].toRdfLiteral();
   }
   os << ")";
+
+  // EPIC 10.2: Include epoch ID and manifest hash for epoch isolation
+  // This prevents cache contamination across different epochs
+  os << " epoch=" << _executionContext->getCurrentEpochId();
+  std::string manifestHash = _executionContext->getEpochDeterministicKey();
+  if (!manifestHash.empty()) {
+    os << " manifest=" << manifestHash;
+  }
+
   return os.str();
 }
 

@@ -1,0 +1,13 @@
+# W3C SPARQL 1.1 - Subquery
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+SELECT ?person ?name
+WHERE {
+  ?person foaf:name ?name .
+  {
+    SELECT ?person
+    WHERE {
+      ?person foaf:knows ?friend .
+    }
+    LIMIT 5
+  }
+}

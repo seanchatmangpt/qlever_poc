@@ -1,0 +1,8 @@
+# W3C SPARQL 1.1 - GROUP BY
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+SELECT ?type (COUNT(?s) AS ?count)
+WHERE {
+  ?s rdf:type ?type .
+}
+GROUP BY ?type
+LIMIT 10

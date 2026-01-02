@@ -1,0 +1,74 @@
+{
+  "version": "1.0.0",
+  "source": "W3C SPARQL 1.1 Query Language + QLever Reference Suite",
+  "created": "2026-01-02",
+  "description": "Golden Query Reference Physics Suite - Deterministic result validation via BLAKE3 digests",
+  "queries": [
+    {
+      "id": "q01_basic_triple",
+      "file": "q01_basic_triple.sparql",
+      "description": "Basic triple pattern - W3C SPARQL 1.1",
+      "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+      "id": "q02_filter",
+      "file": "q02_filter.sparql",
+      "description": "FILTER clause - W3C SPARQL 1.1",
+      "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+      "id": "q03_optional",
+      "file": "q03_optional.sparql",
+      "description": "OPTIONAL clause - W3C SPARQL 1.1",
+      "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+      "id": "q04_union",
+      "file": "q04_union.sparql",
+      "description": "UNION clause - W3C SPARQL 1.1",
+      "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+      "id": "q05_distinct",
+      "file": "q05_distinct.sparql",
+      "description": "DISTINCT modifier - W3C SPARQL 1.1",
+      "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+      "id": "q06_order_by",
+      "file": "q06_order_by.sparql",
+      "description": "ORDER BY clause - W3C SPARQL 1.1",
+      "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+      "id": "q07_aggregate_count",
+      "file": "q07_aggregate_count.sparql",
+      "description": "Aggregate function COUNT - W3C SPARQL 1.1",
+      "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+      "id": "q08_group_by",
+      "file": "q08_group_by.sparql",
+      "description": "GROUP BY clause - W3C SPARQL 1.1",
+      "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+      "id": "q09_subquery",
+      "file": "q09_subquery.sparql",
+      "description": "Subquery - W3C SPARQL 1.1",
+      "digest": "PENDING_BASELINE_COMPUTATION"
+    },
+    {
+      "id": "q10_regex",
+      "file": "q10_regex.sparql",
+      "description": "REGEX function - W3C SPARQL 1.1",
+      "digest": "PENDING_BASELINE_COMPUTATION"
+    }
+  ],
+  "notes": [
+    "Digests are BLAKE3 hashes of query result sets in canonical form",
+    "Canonical form: TSV-sorted, deterministic column order, consistent value serialization",
+    "Baseline computation requires running queries against reference QLever instance with test dataset",
+    "Test dataset: Use LUBM(1,0) or similar small but complete RDF dataset"
+  ]
+}
