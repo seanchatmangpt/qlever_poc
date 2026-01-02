@@ -109,6 +109,33 @@ Big-picture concepts and architecture. Understand *why* QLever works the way it 
 
 ---
 
+## 🤖 Agent Navigation (BB80/20 + EPIC 9)
+
+Autonomous agents: Use the **[Agent Documentation Guide](./AGENT_DOCUMENTATION_GUIDE.md)** for structured discovery by phase.
+
+**Critical path for agents:**
+1. **Specification Closure:** [CLAUDE.md](../CLAUDE.md) + [DIATAXIS_METADATA_SPEC.md](./DIATAXIS_METADATA_SPEC.md) + EPIC*.md files
+2. **Invariant Validation:** [QLEVEREST_THESIS_DOCUMENTATION.md](./QLEVEREST_THESIS_DOCUMENTATION.md) + [MONOIDAL_CONSTRUCTION_LAW.md](./MONOIDAL_CONSTRUCTION_LAW.md)
+3. **Collision Detection (EPIC 9):** [collision-detection-theory.md](./explanation/collision-detection-theory.md) + [EPIC_10_3_CONVERGENCE_SUMMARY.md](./epic-10-3/EPIC_10_3_CONVERGENCE_SUMMARY.md)
+4. **Convergence (EPIC 9):** [convergence-vs-consensus.md](./explanation/convergence-vs-consensus.md)
+5. **Deterministic Receipt:** [MONOIDAL_CONSTRUCTION_LAW.md](./MONOIDAL_CONSTRUCTION_LAW.md) + verification plane specs
+
+**Semantic tag search (rg queries):**
+```bash
+# Find critical docs by priority
+rg 'agent_priority: critical' docs/ --type md
+
+# Find invariant definitions
+rg 'invariants:.*Invariant' docs/ --type md
+
+# Find specs by verification plane
+rg 'Determinism Plane|Specification Closure Plane|Fail-Closed|Collision Detection|Convergence' docs/ --type md
+```
+
+**Agent discovery without iteration:** See [Agent Documentation Guide](./AGENT_DOCUMENTATION_GUIDE.md)
+
+---
+
 ## 📊 Find Demos
 
 QLever hosts live demo instances at http://qlever.cs.uni-freiburg.de with Wikidata, OpenStreetMap, UniProt, DBLP, and more. Each demo includes dataset statistics and query examples.
