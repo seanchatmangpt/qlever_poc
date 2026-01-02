@@ -22,4 +22,4 @@ addLinkAndDiscoverTest(SparqlBasedConstraintTest engine)
 addLinkAndDiscoverTest(ShaclPlanningStrategyTest engine)
 
 # EPIC 10.3 - Focus-Node Injection optimization tests
-addLinkAndDiscoverTest(FocusNodeInjectionTest engine)
+# addLinkAndDiscoverTest(FocusNodeInjectionTest engine)  # EPIC 10 WIP - file not yet present

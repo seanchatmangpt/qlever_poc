@@ -9,14 +9,18 @@
 
 namespace ad_utility {
 
-// Forward declaration to avoid circular dependencies
-class EpochManifest;
+// Epoch identifier - simple monotonic counter
+using EpochId = uint64_t;
+
+}  // namespace ad_utility
+
+// Include EpochManifest after EpochId is defined to break circular dependency
+#include "global/EpochManifest.h"
+
+namespace ad_utility {
 
 // Epoch enumeration
 enum class EpochState { INIT, INGEST, SEAL, SERVE };
-
-// Epoch identifier - simple monotonic counter
-using EpochId = uint64_t;
 
 // Ingress source classification
 enum class IngressSource { DIRECT_API, INGRESS_PIPELINE };

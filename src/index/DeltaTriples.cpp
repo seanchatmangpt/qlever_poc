@@ -391,7 +391,7 @@ ReturnType DeltaTriplesManager::modify(
     ad_utility::timer::TimeTracer& tracer) {
   // Secondary write barrier for defense-in-depth: catches any direct
   // programmatic mutations even if Server-level barriers are bypassed.
-  globalEpochManager.lock()->checkAllowedToMutate();
+  globalEpochManager.rlock()->checkAllowedToMutate();
 
   // While holding the lock for the underlying `DeltaTriples`, perform the
   // actual `function` (typically some combination of insert and delete

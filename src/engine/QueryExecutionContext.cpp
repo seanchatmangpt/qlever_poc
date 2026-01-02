@@ -8,6 +8,7 @@
 #include "global/Epoch.h"
 #include "global/RuntimeParameters.h"
 #include "util/Exception.h"
+#include "util/Log.h"
 
 using namespace std::chrono_literals;
 

@@ -99,6 +99,9 @@ endif ()
 ###############################################################################
 ##### Essential settings #####
 ###############################################################################
+# Add cmake module path for custom CMake modules
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
 include(FetchContent)
 
 # Configure FetchContent caching to avoid re-downloading dependencies
@@ -524,7 +527,6 @@ include_directories("${SIMDJSON_VENDOR_PATH}/include")
 message(STATUS "simdjson locked at: ${SIMDJSON_VENDOR_PATH}")
 
 add_subdirectory(src/engine)
-add_subdirectory(src/engine/ingress)
 if (USE_PRECOMPILED_HEADERS)
     target_precompile_headers(parser PRIVATE ${PRECOMPILED_HEADER_FILES_PARSER})
     target_precompile_headers(engine PRIVATE ${PRECOMPILED_HEADER_FILES_ENGINE})
@@ -534,7 +536,8 @@ add_subdirectory(src/util)
 add_subdirectory(src/rdfTypes)
 add_subdirectory(src/global)
 add_subdirectory(src/libqlever)
-add_subdirectory(src/qleverest)
+# TODO: src/qleverest needs CMakeLists.txt
+# add_subdirectory(src/qleverest)
 add_subdirectory(benchmark)
 
 enable_testing()

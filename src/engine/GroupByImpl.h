@@ -35,7 +35,7 @@ inline size_t getGroupByBlockSize() {
   // Cache the result since system characteristics don't change during execution
   static const size_t cachedBlockSize =
       AdaptiveResourceAllocation::calculateGroupByBlockSize(
-          8);  // Default: 8MB L3 cache
+          AdaptiveResourceAllocation::detectSystemInfo());
   return cachedBlockSize;
 }
 

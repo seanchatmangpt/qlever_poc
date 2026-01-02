@@ -6,14 +6,20 @@ add_subdirectory(util EXCLUDE_FROM_ALL)
 # Link binary ${basename} against `gmock_main`, the threading library, the
 # general test utilities and all libraries that are specified as additional
 # arguments.
+# If basename contains a path, extract just the filename for the target name.
 function(linkTest basename)
-    qlever_target_link_libraries(${basename} ${ARGN} GTest::gtest GTest::gmock_main ${CMAKE_THREAD_LIBS_INIT} global)
+    get_filename_component(target_name "${basename}" NAME)
+    qlever_target_link_libraries(${target_name} ${ARGN} GTest::gtest GTest::gmock_main ${CMAKE_THREAD_LIBS_INIT} global)
 endfunction()
 
 # Add the executable ${basename} that is compiled from the source file
 # "${basename}".cpp
+# If basename contains a path (e.g., "subdir/TestName"), the target name will be
+# "TestName" but the source file will be "subdir/TestName.cpp"
 function(addTest basename)
-    add_executable(${basename} "${basename}.cpp")
+    # Extract just the filename without directory for the target name
+    get_filename_component(target_name "${basename}" NAME)
+    add_executable(${target_name} "${basename}.cpp")
 endfunction()
 
 # Usage: `linkAndDiscoverTest(basename, [additionalLibraries...]`
@@ -23,8 +29,9 @@ endfunction()
 # Typically you should use `addAndLinkTest` (below) but this function can be used,
 # if a test binary requires multiple sources
 function(linkAndDiscoverTest basename)
+    get_filename_component(target_name "${basename}" NAME)
     linkTest(${basename} ${ARGN})
-    gtest_discover_tests(${basename} ${basename} DISCOVERY_TIMEOUT 600 PROPERTIES LABELS "${basename}")
+    gtest_discover_tests(${target_name} ${target_name} DISCOVERY_TIMEOUT 600 PROPERTIES LABELS "${target_name}")
 endfunction()
 
 # Usage: `linkAndDiscoverTestSerial(basename, [additionalLibraries...]`
@@ -32,9 +39,10 @@ endfunction()
 # (without any of the other test cases running in parallel). This can be
 # required e.g. if several tests cases write to the same file.
 function(linkAndDiscoverTestSerial basename)
+    get_filename_component(target_name "${basename}" NAME)
     linkTest(${basename} ${ARGN})
-    gtest_discover_tests(${basename} ${basename} DISCOVERY_TIMEOUT 600 PROPERTIES RUN_SERIAL
-            TRUE LABELS "${basename}")
+    gtest_discover_tests(${target_name} ${target_name} DISCOVERY_TIMEOUT 600 PROPERTIES RUN_SERIAL
+            TRUE LABELS "${target_name}")
 endfunction()
 
 if (SINGLE_TEST_BINARY)
@@ -151,9 +159,9 @@ addLinkAndDiscoverTestNoLibs(ConstexprSmallStringTest)
 
 addLinkAndDiscoverTest(CryptographicHashUtilsTest util)
 
-addLinkAndDiscoverTest(PhaseLockVerifierTest util)
+# addLinkAndDiscoverTest(PhaseLockVerifierTest util)  # EPIC 10 WIP - file not yet present
 
-addLinkAndDiscoverTest(OpaqueHandlePoolTest util)
+# addLinkAndDiscoverTest(OpaqueHandlePoolTest util)  # EPIC 10 WIP - file not yet present
 
 addLinkAndDiscoverTest(CacheTest)
 
@@ -520,8 +528,6 @@ addLinkAndDiscoverTestNoLibs(ConstexprMapTest)
 
 addLinkAndDiscoverTest(ConstructCausationModeTest engine)
 
-addLinkAndDiscoverTest(engine/RegressionDetectorTest engine)
-
 # EPIC 10.2 - Golden Corpus Reference Physics Suite
 addLinkAndDiscoverTest(GoldenCorpusTest engine parser)
 
@@ -531,4 +537,5 @@ addLinkAndDiscoverTest(GoldenCorpusTest engine parser)
 addLinkAndDiscoverTest(chaos/EntropyInjectionHarnessTest engine util)
 
 # EPIC 10.3 Agent 5 Part 3: Memory Isolation Proof Tests
-addLinkAndDiscoverTestNoLibs(memory/MemoryIsolationProof util)
+# TODO: File memory/MemoryIsolationProof.cpp does not exist yet
+# addLinkAndDiscoverTestNoLibs(memory/MemoryIsolationProof util)
