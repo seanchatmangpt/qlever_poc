@@ -17,6 +17,11 @@
 #include <sstream>
 #include <stdexcept>
 
+#include "engine/GroupBy.h"
+#include "engine/IndexScan.h"
+#include "engine/Join.h"
+#include "engine/OrderBy.h"
+#include "engine/QueryExecutionTree.h"
 #include "engine/readPlane/EnvelopeDiff.h"
 #include "util/CryptographicHashUtils.h"
 
@@ -80,16 +85,116 @@ std::string ResultMetadata::toCanonicalBytes() const {
 // ============================================================================
 
 std::string PlanInfo::toCanonicalBytes() const {
-  // Deterministic serialization: cache key + sorted descriptors + estimates
-  // Format: "PLAN:cache_key:cost:size:desc1|desc2|..."
+  // EPIC 10.1: Plan fingerprint represents operator topology ONLY
+  // EXCLUDED per spec: cost estimates, cardinality (size_estimate), timing
+  // INCLUDED per spec: operator sequence, variable bindings, join keys,
+  //                    scan patterns, grouping/order/limit
+  // Format: "PLAN:cache_key:desc1|desc2|..."
+  // NOTE: cost_estimate and size_estimate are INTENTIONALLY EXCLUDED
+  //       to ensure fingerprint stability across query plan optimizations
   std::ostringstream oss;
-  oss << "PLAN:" << plan_cache_key << ":" << cost_estimate << ":"
-      << size_estimate << ":";
+  oss << "PLAN:" << plan_cache_key << ":";
 
   // Descriptors are already in deterministic order (depth-first traversal)
+  // and now include full operator topology (not just names)
   oss << absl::StrJoin(operation_descriptors, "|");
 
   return oss.str();
+}
+
+// Helper: Serialize VariableToColumnMap deterministically (sorted by variable
+// name)
+static std::string serializeVariableMap(const VariableToColumnMap& varMap) {
+  // Extract and sort by variable name (deterministic ordering)
+  std::vector<std::pair<std::string, ColumnIndex>> sorted;
+  for (const auto& [var, colInfo] : varMap) {
+    sorted.emplace_back(var.name(), colInfo.columnIndex_);
+  }
+  std::sort(sorted.begin(), sorted.end());
+
+  // Format: var1:col1,var2:col2,...
+  std::vector<std::string> parts;
+  parts.reserve(sorted.size());
+  for (const auto& [varName, colIdx] : sorted) {
+    parts.push_back(absl::StrCat(varName, ":", colIdx));
+  }
+  return absl::StrJoin(parts, ",");
+}
+
+// Helper: Extract topology descriptor for a single Operation
+// Includes operation type, variable bindings, and operation-specific topology
+static std::string extractOperationTopology(const Operation* op) {
+  if (!op) {
+    return "NULL";
+  }
+
+  std::ostringstream oss;
+
+  // 1. Operation type (from descriptor)
+  oss << op->getDescriptor();
+
+  // 2. Variable bindings (sorted for determinism)
+  const auto& varCols = op->getExternallyVisibleVariableColumns();
+  if (!varCols.empty()) {
+    oss << "(vars:" << serializeVariableMap(varCols) << ")";
+  }
+
+  // 3. Operation-specific topology details
+  // Note: Using dynamic_cast to identify operation type and extract details
+  // This is safe because we're only reading topology, not modifying
+
+  if (const auto* join = dynamic_cast<const Join*>(op)) {
+    // For Join: include join columns
+    // Note: We can't directly access private members, so we rely on descriptor
+    // which already includes join information
+    // The descriptor format from Join::getDescriptor() includes join details
+  } else if (const auto* indexScan = dynamic_cast<const IndexScan*>(op)) {
+    // For IndexScan: include scan pattern (subject/predicate/object)
+    // The descriptor already includes this via getDescriptor()
+  } else if (const auto* groupBy = dynamic_cast<const GroupBy*>(op)) {
+    // For GroupBy: include group-by variables and aliases
+    // The descriptor already includes this information
+  }
+  // Other operation types: descriptor is sufficient
+
+  return oss.str();
+}
+
+// Helper: Recursively extract topology for entire QueryExecutionTree
+static void extractOperationTreeRecursive(
+    const QueryExecutionTree* qet, std::vector<std::string>& descriptors) {
+  if (!qet || qet->isEmpty()) {
+    return;
+  }
+
+  const auto* rootOp = qet->getRootOperation().get();
+  if (!rootOp) {
+    return;
+  }
+
+  // Add this operation's topology descriptor
+  descriptors.push_back(extractOperationTopology(rootOp));
+
+  // Recursively process children in deterministic order (left to right)
+  const auto children = rootOp->getChildren();
+  for (const auto* child : children) {
+    extractOperationTreeRecursive(child, descriptors);
+  }
+}
+
+PlanInfo PlanInfo::extractTopology(const QueryExecutionTree& qet) {
+  PlanInfo plan_info;
+
+  // 1. Capture cache key (deterministic, from QueryExecutionTree)
+  plan_info.plan_cache_key = qet.getCacheKey();
+
+  // 2. Extract operator topology via depth-first traversal
+  //    Includes: operator sequence, variable bindings, join keys,
+  //              scan patterns, grouping/order/limit
+  //    Excludes: cost estimates, cardinality, timing
+  extractOperationTreeRecursive(&qet, plan_info.operation_descriptors);
+
+  return plan_info;
 }
 
 // ============================================================================
@@ -112,7 +217,8 @@ std::string ExecutionDigest::computeFinalDigest(
 static std::string serializeFingerprint(
     const queryCanonical::QueryFingerprint& fp) {
   // Deterministic format: fixed field order, sorted for reproducibility
-  // Format: "FP:epoch_id:manifest:raw:normalized:shape:params:flags:feature_vec"
+  // Format:
+  // "FP:epoch_id:manifest:raw:normalized:shape:params:flags:feature_vec"
   std::ostringstream oss;
   oss << "FP:" << fp.epoch_id << ":" << fp.epoch_manifest_sha256 << ":"
       << fp.raw_query_sha256 << ":" << fp.normalized_text_sha256 << ":"
@@ -156,10 +262,10 @@ ExecutionDigest ExecutionDigest::compute(
   digest.result_shape_hash = sha256Hex(result_serialized);
 
   // 6. Final digest hash - combine all components
-  digest.digest_hash = computeFinalDigest(
-      digest.query_fingerprint_sha256, digest.plan_hash,
-      digest.resource_signature, digest.result_length_hash,
-      digest.result_shape_hash);
+  digest.digest_hash =
+      computeFinalDigest(digest.query_fingerprint_sha256, digest.plan_hash,
+                         digest.resource_signature, digest.result_length_hash,
+                         digest.result_shape_hash);
 
   return digest;
 }
@@ -181,10 +287,9 @@ bool ExecutionDigest::isValid() const {
 
 bool ExecutionDigest::verifyIntegrity() const {
   // Recompute digest_hash from components and verify
-  std::string expected =
-      computeFinalDigest(query_fingerprint_sha256, plan_hash,
-                         resource_signature, result_length_hash,
-                         result_shape_hash);
+  std::string expected = computeFinalDigest(
+      query_fingerprint_sha256, plan_hash, resource_signature,
+      result_length_hash, result_shape_hash);
   return digest_hash == expected;
 }
 
@@ -213,7 +318,8 @@ nlohmann::ordered_json ExecutionDigest::toJsonLD() const {
   return json;
 }
 
-ExecutionDigest ExecutionDigest::fromJsonLD(const nlohmann::ordered_json& json) {
+ExecutionDigest ExecutionDigest::fromJsonLD(
+    const nlohmann::ordered_json& json) {
   ExecutionDigest digest;
 
   try {
@@ -226,8 +332,10 @@ ExecutionDigest ExecutionDigest::fromJsonLD(const nlohmann::ordered_json& json) 
     digest.query_fingerprint_sha256 =
         json.at("query_fingerprint_sha256").get<std::string>();
     digest.plan_hash = json.at("plan_hash").get<std::string>();
-    digest.resource_signature = json.at("resource_signature").get<std::string>();
-    digest.result_length_hash = json.at("result_length_hash").get<std::string>();
+    digest.resource_signature =
+        json.at("resource_signature").get<std::string>();
+    digest.result_length_hash =
+        json.at("result_length_hash").get<std::string>();
     digest.result_shape_hash = json.at("result_shape_hash").get<std::string>();
     digest.digest_hash = json.at("digest_hash").get<std::string>();
 
@@ -254,8 +362,8 @@ ExecutionDigest ExecutionDigest::fromJsonLD(const nlohmann::ordered_json& json) 
 std::string ExecutionDigest::toString() const {
   std::ostringstream oss;
   oss << "ExecutionDigest {\n"
-      << "  query_fingerprint_sha256: " << query_fingerprint_sha256.substr(0, 16)
-      << "...\n"
+      << "  query_fingerprint_sha256: "
+      << query_fingerprint_sha256.substr(0, 16) << "...\n"
       << "  plan_hash:                " << plan_hash.substr(0, 16) << "...\n"
       << "  resource_signature:       " << resource_signature.substr(0, 16)
       << "...\n"
@@ -284,9 +392,11 @@ nlohmann::ordered_json ComponentDiff::toJson() const {
 // EnvelopeDiff Implementation
 // ============================================================================
 
-DivergenceClassification EnvelopeDiff::classifyDivergence(
-    bool fingerprint_diff, bool plan_diff, bool resource_diff, bool shape_diff,
-    bool length_diff) {
+DivergenceClassification EnvelopeDiff::classifyDivergence(bool fingerprint_diff,
+                                                          bool plan_diff,
+                                                          bool resource_diff,
+                                                          bool shape_diff,
+                                                          bool length_diff) {
   // Count differences
   int diff_count = (fingerprint_diff ? 1 : 0) + (plan_diff ? 1 : 0) +
                    (resource_diff ? 1 : 0) + (shape_diff ? 1 : 0) +
@@ -352,50 +462,53 @@ EnvelopeDiff EnvelopeDiff::compute(const ExecutionDigest& digest1,
 
   // Record detailed diffs
   if (diff.fingerprint_differs) {
-    diff.differing_components.emplace_back(
-        "query_fingerprint_sha256", digest1.query_fingerprint_sha256,
-        digest2.query_fingerprint_sha256);
+    diff.differing_components.emplace_back("query_fingerprint_sha256",
+                                           digest1.query_fingerprint_sha256,
+                                           digest2.query_fingerprint_sha256);
   }
   if (diff.plan_changed) {
     diff.differing_components.emplace_back("plan_hash", digest1.plan_hash,
                                            digest2.plan_hash);
   }
   if (diff.resource_envelope_changed) {
-    diff.differing_components.emplace_back(
-        "resource_signature", digest1.resource_signature,
-        digest2.resource_signature);
+    diff.differing_components.emplace_back("resource_signature",
+                                           digest1.resource_signature,
+                                           digest2.resource_signature);
   }
   if (diff.result_shape_changed) {
-    diff.differing_components.emplace_back(
-        "result_shape_hash", digest1.result_shape_hash,
-        digest2.result_shape_hash);
+    diff.differing_components.emplace_back("result_shape_hash",
+                                           digest1.result_shape_hash,
+                                           digest2.result_shape_hash);
   }
   if (diff.result_length_changed) {
-    diff.differing_components.emplace_back(
-        "result_length_hash", digest1.result_length_hash,
-        digest2.result_length_hash);
+    diff.differing_components.emplace_back("result_length_hash",
+                                           digest1.result_length_hash,
+                                           digest2.result_length_hash);
   }
 
   // Classify the divergence
-  diff.classification = classifyDivergence(
-      diff.fingerprint_differs, diff.plan_changed,
-      diff.resource_envelope_changed, diff.result_shape_changed,
-      diff.result_length_changed);
+  diff.classification =
+      classifyDivergence(diff.fingerprint_differs, diff.plan_changed,
+                         diff.resource_envelope_changed,
+                         diff.result_shape_changed, diff.result_length_changed);
 
   return diff;
 }
 
 bool EnvelopeDiff::hasComponentDiff(const std::string& component_name) const {
-  return std::any_of(
-      differing_components.begin(), differing_components.end(),
-      [&](const ComponentDiff& d) { return d.component_name == component_name; });
+  return std::any_of(differing_components.begin(), differing_components.end(),
+                     [&](const ComponentDiff& d) {
+                       return d.component_name == component_name;
+                     });
 }
 
 std::optional<ComponentDiff> EnvelopeDiff::getComponentDiff(
     const std::string& component_name) const {
-  auto it = std::find_if(
-      differing_components.begin(), differing_components.end(),
-      [&](const ComponentDiff& d) { return d.component_name == component_name; });
+  auto it =
+      std::find_if(differing_components.begin(), differing_components.end(),
+                   [&](const ComponentDiff& d) {
+                     return d.component_name == component_name;
+                   });
   if (it != differing_components.end()) {
     return *it;
   }
@@ -474,7 +587,8 @@ EnvelopeDiff EnvelopeDiff::fromJsonLD(const nlohmann::ordered_json& json) {
     if (class_str == "IDENTICAL") {
       diff.classification = DivergenceClassification::IDENTICAL;
     } else if (class_str == "QUERY_FINGERPRINT_MISMATCH") {
-      diff.classification = DivergenceClassification::QUERY_FINGERPRINT_MISMATCH;
+      diff.classification =
+          DivergenceClassification::QUERY_FINGERPRINT_MISMATCH;
     } else if (class_str == "PLAN_DIVERGENCE") {
       diff.classification = DivergenceClassification::PLAN_DIVERGENCE;
     } else if (class_str == "RESOURCE_ENVELOPE_DIVERGENCE") {

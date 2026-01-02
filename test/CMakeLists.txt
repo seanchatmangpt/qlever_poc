@@ -513,3 +513,5 @@ addLinkAndDiscoverTest(MaterializedViewsTest qlever engine server)
 addLinkAndDiscoverTestNoLibs(ConstexprMapTest)
 
 addLinkAndDiscoverTest(ConstructCausationModeTest engine)
+
+addLinkAndDiscoverTest(engine/RegressionDetectorTest engine)

@@ -40,11 +40,13 @@ add_executable(test_simd_ingress
   test_deterministic_digests.cpp
   test_hot_path_conformance.cpp
   ../../tests/engine/ingress/test_result_digest.cpp
+  ../../tests/engine/ingress/test_simd_equivalence.cpp
 )
 
 target_link_libraries(test_simd_ingress
   PRIVATE
     qlever_ingress
+    engine
     gtest
     gtest_main
 )

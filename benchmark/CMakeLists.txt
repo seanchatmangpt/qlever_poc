@@ -55,3 +55,7 @@ linkBenchmark(CanonicalBenchmark)
 # Read Cache benchmark - EPIC 3 performance verification (Task 10)
 add_executable(ReadCacheBench readCache/ReadCacheBench.cpp)
 linkBenchmark(ReadCacheBench)
+
+# Regression Gate - EPIC 10.1 regression detection (AGENT 10)
+add_executable(RegressionGate RegressionGate.cpp)
+linkBenchmark(RegressionGate)

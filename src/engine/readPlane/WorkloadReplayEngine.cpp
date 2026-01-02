@@ -122,9 +122,7 @@ void WorkloadReplayEngine::setQueryExecutionContext(
   impl_->qec = qec;
 }
 
-void WorkloadReplayEngine::setServer(Server* server) {
-  impl_->server = server;
-}
+void WorkloadReplayEngine::setServer(Server* server) { impl_->server = server; }
 
 void WorkloadReplayEngine::setIndex(const Index* index) {
   impl_->index = index;
@@ -354,9 +352,8 @@ ReplayResult WorkloadReplayEngine::replaySingle(const WorkloadRecord& record) {
       if (comparison.outcome ==
           DigestComparisonOutcome::CROSS_EPOCH_REPRODUCIBLE) {
         result.is_cross_epoch_reproducible = true;
-        AD_LOG_INFO << "CROSS_EPOCH_REPRODUCIBLE: Record "
-                    << record.sequence_id << " digest matches across epochs"
-                    << std::endl;
+        AD_LOG_INFO << "CROSS_EPOCH_REPRODUCIBLE: Record " << record.sequence_id
+                    << " digest matches across epochs" << std::endl;
       }
     } else {
       // DIVERGENCE - fail-closed
@@ -377,8 +374,7 @@ ReplayResult WorkloadReplayEngine::replaySingle(const WorkloadRecord& record) {
 
     if (impl_->config.collect_trace_events) {
       trace.push_back(ExecutionTraceEvent::now(
-          TraceEventType::QUERY_COMPLETE,
-          std::string("Error: ") + e.what()));
+          TraceEventType::QUERY_COMPLETE, std::string("Error: ") + e.what()));
     }
 
     AD_LOG_ERROR << "Error replaying record " << record.sequence_id << ": "
@@ -470,14 +466,13 @@ ExecutionDigest WorkloadReplayEngine::executeQueryAndComputeDigest(
   }
 
   // Build plan info for digest computation
-  PlanInfo plan_info;
-  plan_info.plan_cache_key = (*qet)->getCacheKey();
-  if ((*qet)->getRootOperation()) {
-    plan_info.operation_descriptors.push_back(
-        (*qet)->getRootOperation()->getDescriptor());
-    plan_info.cost_estimate = (*qet)->getCostEstimate();
-    plan_info.size_estimate = (*qet)->getSizeEstimate();
-  }
+  // EPIC 10.1: Extract operator topology ONLY (no cost/size estimates)
+  // Uses PlanInfo::extractTopology() for full tree traversal with:
+  // - Operator sequence (depth-first)
+  // - Variable bindings (sorted, deterministic)
+  // - Join keys, scan patterns, grouping/order/limit
+  // Excludes: cost estimates, cardinality, timing (optimization metadata)
+  PlanInfo plan_info = PlanInfo::extractTopology(*(*qet));
 
   // Build result metadata
   ResultMetadata result_meta;
@@ -492,8 +487,7 @@ ExecutionDigest WorkloadReplayEngine::executeQueryAndComputeDigest(
 
   // Compute execution digest using the existing ExecutionDigest::compute
   return ExecutionDigest::compute(record.query_fp, plan_info, resources,
-                                  result_meta,
-                                  result_meta.row_count);
+                                  result_meta, result_meta.row_count);
 }
 
 DigestComparisonResult WorkloadReplayEngine::compareDigests(
@@ -534,8 +528,7 @@ std::string WorkloadReplayEngine::reconstructQuery(
   }
 
   // Fallback: use normalized text hash (would need lookup)
-  throw std::runtime_error(
-      "Query text not available in record replay_params");
+  throw std::runtime_error("Query text not available in record replay_params");
 }
 
 std::optional<std::shared_ptr<QueryExecutionTree>>
@@ -559,8 +552,7 @@ WorkloadReplayEngine::parseAndPlanQuery(const std::string& query_text,
       "Query planning not yet implemented - requires full Server integration");
 }
 
-std::optional<std::shared_ptr<const Result>>
-WorkloadReplayEngine::executeQuery(
+std::optional<std::shared_ptr<const Result>> WorkloadReplayEngine::executeQuery(
     const std::shared_ptr<QueryExecutionTree>& qet) {
   // Execute the query through the QueryExecutionTree
   try {
@@ -681,8 +673,7 @@ std::unique_ptr<WorkloadReplayEngine> createReplayEngineFromJson(
 
   // Create manifest - note: this is a simplified version
   // Full implementation would parse all records
-  auto manifest =
-      new WorkloadManifest(epochId, epochManifestSha256, hostname);
+  auto manifest = new WorkloadManifest(epochId, epochManifestSha256, hostname);
 
   // Create engine with the manifest
   // Note: The manifest is leaked here - in production, use proper lifetime

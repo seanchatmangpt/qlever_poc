@@ -1,0 +1,21 @@
+{
+  "build_flags": "-O3 -DNDEBUG -march=native",
+  "bytes_hit_rate": 75.5,
+  "bytes_hits": 151,
+  "bytes_misses": 49,
+  "compiler": "g++ 11.4.0",
+  "machine_class": "x86_64-linux",
+  "max_ns": 12500000,
+  "mean_ns": 5200000,
+  "min_ns": 1800000,
+  "neg_hit_rate": 2.5,
+  "neg_hits": 5,
+  "p50_ns": 5000000,
+  "p95_ns": 9800000,
+  "p99_ns": 11200000,
+  "plan_hit_rate": 82.3,
+  "plan_hits": 165,
+  "plan_misses": 35,
+  "stddev_ns": 2100000,
+  "timestamp": "2026-01-02T00:00:00Z"
+}
