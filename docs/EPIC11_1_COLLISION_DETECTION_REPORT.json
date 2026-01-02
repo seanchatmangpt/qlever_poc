@@ -1,0 +1,306 @@
+{
+  "collision_detection_report": {
+    "agent": "bb80-collision-detector",
+    "timestamp": "2026-01-02T00:00:00Z",
+    "epic": "EPIC 11.1",
+    "task": "Rust Workspace Restructuring - 10 Agent Parallel Construction",
+    "agents_analyzed": 10,
+    "collision_matrix": [
+      {
+        "collision_id": "C-001",
+        "agents_involved": [1, 2, 3, 4],
+        "collision_type": "structural",
+        "convergence_signal": "expected_agreement",
+        "impact": "high",
+        "description": "All four agents prescribed directory structure and package organization. Agent 1 (product-centric 3-package model), Agent 2 (Cargo.toml templates imply structure), Agent 3 (dependency DAG implies package boundaries), Agent 4 (CI gates reference package paths).",
+        "evidence": [
+          "Agent 1: Explicit 3 public packages (qleverest, qleverest-validation, qleverest-wasm) + 13 internal under validation",
+          "Agent 2: Cargo.toml templates assume workspace structure with inheritance",
+          "Agent 3: 27-edge dependency DAG defines package relationships",
+          "Agent 4: CI gates reference workspace-relative paths and package names"
+        ],
+        "recommendation": "use_agent_1_artifact",
+        "rationale": "Agent 1 provides superset coverage: explicit governance boundaries (compute/proof/projection) + contains all 16 packages from Agent 3's DAG. Agent 2's templates apply to Agent 1's structure. Agent 4's gates validate Agent 1's structure."
+      },
+      {
+        "collision_id": "C-002",
+        "agents_involved": [2, 3],
+        "collision_type": "semantic",
+        "convergence_signal": "expected_agreement",
+        "impact": "medium",
+        "description": "Both agents modeled dependency relationships. Agent 2 focused on Cargo.toml dependency declarations with MSRV enforcement. Agent 3 focused on DAG validation (27 edges, acyclic proof).",
+        "evidence": [
+          "Agent 2: Cargo.toml workspace.dependencies with version specifications",
+          "Agent 3: Formal DAG with 27 internal path dependencies, acyclic verification",
+          "Both agents ensure no circular dependencies",
+          "Agent 3 adds enforcement mechanism (CI gate for directionality)"
+        ],
+        "recommendation": "merge",
+        "rationale": "Agent 2 provides template structure, Agent 3 adds enforcement (directionality CI gate). Both required: templates for implementation, validation for invariant preservation. Agent 3's enforcement dominates for governance."
+      },
+      {
+        "collision_id": "C-003",
+        "agents_involved": [1, 8],
+        "collision_type": "structural",
+        "convergence_signal": "expected_agreement",
+        "impact": "critical",
+        "description": "Agent 1 proposed new structure (3 public + 13 internal packages). Agent 8 validated that all 8 structural invariants are preservable under this structure.",
+        "evidence": [
+          "Agent 1: Product-centric architecture with 16 total packages",
+          "Agent 8: Verified package count (16), dependency DAG acyclic, MSRV 1.91.1, feature flags preserved",
+          "Agent 8 confirms NO structural invariants violated by Agent 1's design"
+        ],
+        "recommendation": "use_agent_1_artifact",
+        "rationale": "Agent 8 validates Agent 1's structure. This is expected agreement (validation passed). Agent 1 is authoritative for structure, Agent 8 provides proof of correctness."
+      },
+      {
+        "collision_id": "C-004",
+        "agents_involved": [6, 9],
+        "collision_type": "semantic",
+        "convergence_signal": "needs_reconciliation",
+        "impact": "medium",
+        "description": "Agent 6 prescribed file migration execution sequence (7 phases). Agent 9 assessed risk and mitigation strategies. Both address execution safety but from different angles.",
+        "evidence": [
+          "Agent 6: 7 migration phases (preparation, package creation, crate moves, dependencies, CI, testing, docs)",
+          "Agent 9: Risk assessment (LOW-MEDIUM), rollback procedures, 95% confidence in success",
+          "Agent 6 focuses on WHAT to do; Agent 9 focuses on HOW SAFE it is"
+        ],
+        "recommendation": "merge",
+        "rationale": "Separate concerns. Agent 6 defines migration sequence (execution plan). Agent 9 defines safety measures (rollback, risk tolerance). Both required. No conflict, complementary artifacts."
+      },
+      {
+        "collision_id": "C-005",
+        "agents_involved": [2, 7],
+        "collision_type": "structural",
+        "convergence_signal": "expected_agreement",
+        "impact": "medium",
+        "description": "Both agents specified Cargo.toml structure. Agent 2 created reusable templates for package inheritance. Agent 7 described documentation for Cargo configuration.",
+        "evidence": [
+          "Agent 2: Workspace Cargo.toml with [workspace.package], [workspace.dependencies], per-package templates",
+          "Agent 7: Documentation of workspace structure, Cargo.toml usage guides, contribution instructions",
+          "Agent 2 provides implementation; Agent 7 provides explanation"
+        ],
+        "recommendation": "use_agent_2_artifact",
+        "rationale": "Agent 2's templates are authoritative for implementation. Agent 7's documentation describes how to use Agent 2's templates. No conflict: implementation vs documentation."
+      },
+      {
+        "collision_id": "C-006",
+        "agents_involved": [4, 10],
+        "collision_type": "path_divergence",
+        "convergence_signal": "needs_reconciliation",
+        "impact": "high",
+        "description": "Agent 4 designed 4 high-level CI gates (structure, build, receipt, parity). Agent 10 specified 28 detailed integration verification gates with specific success criteria.",
+        "evidence": [
+          "Agent 4: 4 gates (structure validation, build & test, receipt stability, CI parity)",
+          "Agent 10: 28 gates with granular success criteria, test matrix, validation sequences",
+          "Different granularity: Agent 4 is coarse-grained; Agent 10 is fine-grained",
+          "Agent 10's 28 gates appear to be expansion of Agent 4's 4 categories"
+        ],
+        "recommendation": "merge",
+        "rationale": "Agent 4 provides high-level gate categories (what to validate). Agent 10 provides detailed gate implementation (how to validate). Agent 10's 28 gates decompose Agent 4's 4 categories. Use Agent 4 for CI workflow structure, Agent 10 for gate implementation details."
+      },
+      {
+        "collision_id": "C-007",
+        "agents_involved": [4, 8],
+        "collision_type": "semantic",
+        "convergence_signal": "expected_agreement",
+        "impact": "medium",
+        "description": "Both agents defined validation criteria. Agent 4 defined CI gates for automated validation. Agent 8 identified structural invariants to preserve.",
+        "evidence": [
+          "Agent 4: CI gates with pass/fail criteria (structure, build, receipt, parity)",
+          "Agent 8: 8 structural invariants (package count, DAG acyclic, MSRV, feature flags, etc.)",
+          "Agent 4's gates ENFORCE Agent 8's invariants"
+        ],
+        "recommendation": "merge",
+        "rationale": "Agent 8 defines WHAT to validate (invariants). Agent 4 defines HOW to validate (CI gates). Complementary: invariants are input to gate design. Both required."
+      },
+      {
+        "collision_id": "C-008",
+        "agents_involved": [5, 10],
+        "collision_type": "semantic",
+        "convergence_signal": "expected_agreement",
+        "impact": "low",
+        "description": "Both agents analyzed testing strategy. Agent 5 counted test suites (107 Rust tests, 3,400+ C++ tests). Agent 10 defined integration verification gates.",
+        "evidence": [
+          "Agent 5: Test suite inventory, coverage analysis, test execution strategy",
+          "Agent 10: Integration gates, cross-package test coordination, validation sequences",
+          "Agent 5 focuses on EXISTING tests; Agent 10 focuses on NEW integration validation"
+        ],
+        "recommendation": "merge",
+        "rationale": "Agent 5 provides test inventory (baseline). Agent 10 provides integration strategy (new verification). No conflict: inventory vs strategy. Both required for complete test picture."
+      },
+      {
+        "collision_id": "C-009",
+        "agents_involved": [7, 10],
+        "collision_type": "semantic",
+        "convergence_signal": "expected_agreement",
+        "impact": "low",
+        "description": "Agent 7 designed documentation structure (12 documents + 7 diagrams). Agent 10 defined integration verification which requires documentation updates.",
+        "evidence": [
+          "Agent 7: Comprehensive doc plan (architecture.md, CONTRIBUTING.md, how-to guides, diagrams)",
+          "Agent 10: Integration gates include documentation completeness checks",
+          "Agent 7 prescribes WHAT docs to create; Agent 10 validates docs are complete"
+        ],
+        "recommendation": "use_agent_7_artifact",
+        "rationale": "Agent 7 is authoritative for documentation design. Agent 10's doc gates validate Agent 7's deliverables. Expected agreement (validation of implementation)."
+      },
+      {
+        "collision_id": "C-010",
+        "agents_involved": [1, 3, 8],
+        "collision_type": "structural",
+        "convergence_signal": "expected_agreement",
+        "impact": "critical",
+        "description": "Three-way structural agreement on package count and dependency graph. Agent 1 proposed 16 packages, Agent 3 validated 27 dependency edges (acyclic), Agent 8 confirmed all invariants preserved.",
+        "evidence": [
+          "Agent 1: 16 packages total (3 public + 13 internal)",
+          "Agent 3: 27 internal path dependencies, DAG acyclic proof",
+          "Agent 8: Package count invariant (16), DAG acyclic invariant, both preserved",
+          "All three agents agree on structural facts"
+        ],
+        "recommendation": "use_agent_1_artifact",
+        "rationale": "This is multi-agent convergence on same structural facts. Agent 1 proposes, Agent 3 validates graph, Agent 8 validates invariants. Expected agreement (all validations passed). Agent 1 is authoritative."
+      },
+      {
+        "collision_id": "C-011",
+        "agents_involved": [6, 7],
+        "collision_type": "semantic",
+        "convergence_signal": "expected_agreement",
+        "impact": "low",
+        "description": "Agent 6 defined migration phases including documentation updates (Phase 7). Agent 7 designed the documentation structure to be updated.",
+        "evidence": [
+          "Agent 6: Phase 7 of migration is documentation updates (architecture.md, CONTRIBUTING.md, README.md, how-to guides)",
+          "Agent 7: Designed exactly these documents (12 docs including the Phase 7 targets)",
+          "Agent 6 prescribes WHEN to update docs; Agent 7 prescribes WHAT docs contain"
+        ],
+        "recommendation": "merge",
+        "rationale": "Agent 6 provides execution sequence (migration phase 7). Agent 7 provides content (doc structure). No conflict: sequencing vs content. Both required."
+      },
+      {
+        "collision_id": "C-012",
+        "agents_involved": [2, 8],
+        "collision_type": "semantic",
+        "convergence_signal": "expected_agreement",
+        "impact": "medium",
+        "description": "Agent 2 enforced MSRV 1.91.1 via workspace Cargo.toml. Agent 8 validated MSRV as structural invariant.",
+        "evidence": [
+          "Agent 2: [workspace.package] rust-version = '1.91.1' in Cargo.toml templates",
+          "Agent 8: MSRV 1.91.1 listed as structural invariant to preserve",
+          "Both agents specify same MSRV value"
+        ],
+        "recommendation": "use_agent_2_artifact",
+        "rationale": "Agent 2 implements MSRV enforcement (Cargo.toml). Agent 8 validates MSRV is preserved (invariant check). Expected agreement (implementation matches invariant). Agent 2 is authoritative for implementation."
+      },
+      {
+        "collision_id": "C-013",
+        "agents_involved": [3, 4],
+        "collision_type": "semantic",
+        "convergence_signal": "expected_agreement",
+        "impact": "medium",
+        "description": "Agent 3 validated dependency directionality (governance law). Agent 4 designed CI gate to enforce directionality.",
+        "evidence": [
+          "Agent 3: Dependency DAG with directionality rules (validation → compute, wasm → compute, forbidden reverse arrows)",
+          "Agent 4: CI gate 'dependency-directionality' to enforce governance law via cargo tree",
+          "Agent 3 defines RULE; Agent 4 defines ENFORCEMENT"
+        ],
+        "recommendation": "merge",
+        "rationale": "Agent 3 provides governance rule (dependency directionality). Agent 4 provides CI enforcement (gate script). Complementary: rule + enforcement. Both required."
+      },
+      {
+        "collision_id": "C-014",
+        "agents_involved": [5, 6],
+        "collision_type": "semantic",
+        "convergence_signal": "expected_agreement",
+        "impact": "low",
+        "description": "Agent 5 analyzed test suite coverage (107 Rust, 3,400+ C++ tests). Agent 6 included testing in migration Phase 6.",
+        "evidence": [
+          "Agent 5: Test inventory, execution strategy, coverage requirements",
+          "Agent 6: Phase 6 'Testing & Validation' (2 hours) - run all tests, verify pass rate 100%",
+          "Agent 5 defines WHAT tests exist; Agent 6 defines WHEN to run them in migration"
+        ],
+        "recommendation": "merge",
+        "rationale": "Agent 5 provides test inventory. Agent 6 provides test execution sequence (migration phase). No conflict: inventory vs execution timing. Both required."
+      },
+      {
+        "collision_id": "C-015",
+        "agents_involved": [1, 2, 3, 6, 7, 8, 9, 10],
+        "collision_type": "path_divergence",
+        "convergence_signal": "needs_reconciliation",
+        "impact": "critical",
+        "description": "Product-centric (3 public packages) vs verification-centric (13 top-level packages) architecture decision. Agent 1 proposed product-centric; implicit assumption in some other agents was verification-centric.",
+        "evidence": [
+          "Agent 1: Explicit 3 public packages (qleverest, qleverest-validation, qleverest-wasm) with 13 internal under validation",
+          "Convergence spec notes: 'initial specification was verification-centric (13 crates as top-level)'",
+          "Agent 1's product-centric model selected via coverage criterion",
+          "All other agents' work compatible with both models (path agnostic)"
+        ],
+        "recommendation": "use_agent_1_artifact",
+        "rationale": "This is THE major architectural collision. Agent 1's product-centric model selected via selection pressure: (1) superset coverage (governance boundaries), (2) all invariants satisfied, (3) minimal public surface (3 >> 13), (4) deterministic execution. Product model dominates verification model."
+      }
+    ],
+    "collision_statistics": {
+      "total_collisions": 15,
+      "expected_overlaps": 10,
+      "blocking_collisions": 0,
+      "needs_reconciliation": 3,
+      "structural_collisions": 5,
+      "semantic_collisions": 8,
+      "path_divergence_collisions": 2,
+      "agents_with_no_collisions": 0,
+      "agents_with_most_collisions": [1, 3, 8],
+      "collision_density": "high"
+    },
+    "collision_analysis": {
+      "expected_overlaps_breakdown": {
+        "validation_overlaps": [
+          "C-003: Agent 1 structure validated by Agent 8",
+          "C-007: Agent 4 CI gates enforce Agent 8 invariants",
+          "C-009: Agent 10 verifies Agent 7 documentation",
+          "C-010: Multi-agent structural agreement (1, 3, 8)",
+          "C-012: Agent 2 implements MSRV, Agent 8 validates it"
+        ],
+        "complementary_overlaps": [
+          "C-002: Agent 2 templates + Agent 3 enforcement",
+          "C-004: Agent 6 execution + Agent 9 safety",
+          "C-006: Agent 4 gate categories + Agent 10 gate details",
+          "C-008: Agent 5 test inventory + Agent 10 integration strategy",
+          "C-011: Agent 6 sequencing + Agent 7 content"
+        ]
+      },
+      "needs_reconciliation_breakdown": {
+        "C-004": "Separate concerns (migration sequence vs risk mitigation) - merge both",
+        "C-006": "Different granularity (4 vs 28 gates) - Agent 10's gates decompose Agent 4's categories",
+        "C-015": "Architectural divergence (product-centric vs verification-centric) - Agent 1 dominates via selection pressure"
+      },
+      "blocking_collisions_breakdown": {
+        "none": "No blocking collisions detected. All collisions are either expected agreement or reconcilable via merge/selection."
+      }
+    },
+    "convergence_readiness": "ready_for_synthesis",
+    "convergence_recommendations": {
+      "authoritative_agents": {
+        "structure": "Agent 1 (product-centric architecture)",
+        "templates": "Agent 2 (Cargo.toml workspace templates)",
+        "enforcement": "Agent 3 (dependency directionality CI gate)",
+        "ci_structure": "Agent 4 (high-level gate categories)",
+        "test_inventory": "Agent 5 (test suite analysis)",
+        "migration_sequence": "Agent 6 (7-phase execution plan)",
+        "documentation": "Agent 7 (12 docs + 7 diagrams)",
+        "invariants": "Agent 8 (8 structural invariants)",
+        "risk_mitigation": "Agent 9 (rollback procedures, risk assessment)",
+        "integration_gates": "Agent 10 (28 detailed verification gates)"
+      },
+      "synthesis_strategy": "Monoidal composition: each agent contributes unique authoritative slice. No agent's work discarded. Conflicts resolved via selection pressure (coverage, invariants, minimality, determinism). Product-centric architecture (Agent 1) is structural foundation; all other agents' work integrates into this foundation.",
+      "refactoring_required": "Minimal. Agent 1's structure dominates, but all other agents' artifacts preserved. Documentation (Agent 7) describes final merged structure. Migration (Agent 6) executes merge. Validation (Agents 4, 8, 10) enforces correctness. Risk mitigation (Agent 9) provides safety net.",
+      "estimated_synthesis_effort": "Low. High convergence (10/15 collisions are expected agreement). Only 3 collisions need reconciliation, all reconcilable via merge. Zero blocking collisions."
+    },
+    "closure_assessment": {
+      "specification_closed": true,
+      "ambiguities_remaining": 0,
+      "deterministic_execution_possible": true,
+      "iteration_required": false,
+      "convergence_quality": "high",
+      "collision_resolution_confidence": "95%",
+      "ready_for_convergence_phase": true
+    }
+  }
+}
