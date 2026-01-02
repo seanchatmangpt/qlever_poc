@@ -17,8 +17,13 @@ qlever_target_link_libraries(BitParityValidator
 )
 
 # Link against RapidCheck for property-based test generation
-find_package(rapidcheck CONFIG REQUIRED)
-target_link_libraries(BitParityValidator PRIVATE rapidcheck)
+# RapidCheck should be available from test/fpv FetchContent
+# Using plain signature to match qlever_target_link_libraries
+if(TARGET rapidcheck)
+  target_link_libraries(BitParityValidator rapidcheck)
+else()
+  message(WARNING "RapidCheck not available, BitParityValidator may not link properly")
+endif()
 
 # Ensure C++20 standard
 set_property(TARGET BitParityValidator PROPERTY CXX_STANDARD 20)
