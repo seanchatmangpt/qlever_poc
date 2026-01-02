@@ -8,6 +8,7 @@ add_library(qlever_ingress
   SimdJsonIngressWrapper.cpp
   IngressDigest.cpp
   ResultDigest.cpp
+  SimdEquivalenceCriterion.cpp
   ErrorCodes.cpp
   JsonLdIngressNormalizer.cpp
 )

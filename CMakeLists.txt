@@ -163,9 +163,43 @@ add_compile_definitions(SPATIALJOIN_NO_BZIP2=True SPATIALJOIN_NO_ZLIB=True)
 find_package(Threads REQUIRED)
 
 #################################
-# ICU (for proper collation
+# ICU (for proper collation)
+# Fallback for network-restricted environments with only runtime libs
 ################################
-find_package(ICU 60 REQUIRED COMPONENTS uc i18n)
+find_package(ICU 60 COMPONENTS uc i18n QUIET)
+
+if(NOT ICU_FOUND)
+  message(STATUS "Standard ICU dev package not found, trying runtime library fallback...")
+  # Fallback: link against runtime libraries if available
+  set(ICU_UC_LIBRARY "/usr/lib/x86_64-linux-gnu/libicuuc.so.74")
+  set(ICU_I18N_LIBRARY "/usr/lib/x86_64-linux-gnu/libicui18n.so.74")
+
+  if(EXISTS "${ICU_UC_LIBRARY}" AND EXISTS "${ICU_I18N_LIBRARY}")
+    message(STATUS "Using ICU runtime libraries (workaround mode for network-restricted environments)")
+    message(STATUS "  ICU_UC: ${ICU_UC_LIBRARY}")
+    message(STATUS "  ICU_I18N: ${ICU_I18N_LIBRARY}")
+
+    # Create imported targets for compatibility
+    if(NOT TARGET ICU::uc)
+      add_library(ICU::uc SHARED IMPORTED)
+      set_target_properties(ICU::uc PROPERTIES IMPORTED_LOCATION "${ICU_UC_LIBRARY}")
+    endif()
+    if(NOT TARGET ICU::i18n)
+      add_library(ICU::i18n SHARED IMPORTED)
+      set_target_properties(ICU::i18n PROPERTIES IMPORTED_LOCATION "${ICU_I18N_LIBRARY}")
+      set_target_properties(ICU::i18n PROPERTIES INTERFACE_LINK_LIBRARIES "ICU::uc")
+    endif()
+
+    set(ICU_FOUND TRUE)
+  else()
+    message(FATAL_ERROR "ICU runtime libraries not found at expected locations. Install libicu-dev or ensure libicu74 is available.")
+  endif()
+endif()
+
+# Ensure targets exist
+if(NOT TARGET ICU::uc OR NOT TARGET ICU::i18n)
+  message(FATAL_ERROR "Failed to configure ICU targets")
+endif()
 
 ###################################
 # JEMALLOC

@@ -1,4 +1,5 @@
 add_subdirectory(sparqlExpressions)
+add_subdirectory(ingress)
 add_library(SortPerformanceEstimator SortPerformanceEstimator.cpp)
 qlever_target_link_libraries(SortPerformanceEstimator parser)
 add_library(engine
@@ -35,13 +36,14 @@ add_library(engine
         readCache/ReadCacheManager.cpp readCache/AdmissionPolicy.cpp
         readCache/CacheMetrics.cpp readCache/MetricsExport.cpp
         readPlane/ExecutionDigest.cpp
+        readPlane/GuardConfiguration.cpp
         readPlane/BenchmarkRealizationEngine.cpp
         readPlane/WorkloadCaptureAgent.cpp
         readPlane/ReadPlaneObservabilityPlane.cpp
         readPlane/CacheCorrectnessProver.cpp
         regression/RegressionDetector.cpp)
 
-qlever_target_link_libraries(engine util index parser global sparqlExpressions SortPerformanceEstimator Boost::iostreams s2 spatialjoin-dev pb_util pb_util_geo)
+qlever_target_link_libraries(engine util index parser global sparqlExpressions qlever_ingress SortPerformanceEstimator Boost::iostreams s2 spatialjoin-dev pb_util pb_util_geo)
 
 # When `REDUCED_FEATURE_SET_FOR_CPP17` is set, do not link `engine` against the
 # `http` library (which requires C++20). This works because `http` is only used
