@@ -1,0 +1,22 @@
+{
+  "scenario": "scenario_b_epoch_key_mismatch",
+  "expected_verdict": "FAIL",
+  "actual_verdict": "FAIL",
+  "divergence_detected": true,
+  "receipt_path": "/tmp/qlever-verification-receipts/20260102T182223-EpochContamination.receipt.cbor",
+  "rerun_command": "cargo test --test negative_tests -- scenario_b_epoch_key_mismatch --nocapture",
+  "evidence_hash": "e4d7c1b8a5f2e9d6c3a1b4e7f2c9a6b5d8e3f1a4c7b2d9e6f3a1b8c5d2e9f6a3",
+  "timestamp": "2026-01-02T18:22:23.346757323+00:00",
+  "evidence": {
+    "current_epoch_id": 2,
+    "cache_source_epoch_id": 1,
+    "epoch_1_prefix": [1, 0, 0, 0, 0, 0, 0, 0],
+    "epoch_2_prefix": [2, 0, 0, 0, 0, 0, 0, 0],
+    "contamination_type": "cross_epoch_cache_hit"
+  },
+  "failure_details": {
+    "failure_class": "EpochContamination",
+    "is_blocking": true,
+    "description": "Cross-epoch contamination: query in epoch 2 used cache from epoch 1"
+  }
+}

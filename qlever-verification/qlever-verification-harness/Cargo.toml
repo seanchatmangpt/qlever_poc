@@ -8,6 +8,10 @@ description = "EPIC 11 Subsystem 10: Orchestration CLI + integration"
 name = "qlever-verify"
 path = "src/main.rs"
 
+[[bin]]
+name = "qlever-gate"
+path = "src/gate.rs"
+
 [dependencies]
 serde.workspace = true
 serde_json.workspace = true
@@ -17,6 +21,7 @@ thiserror.workspace = true
 anyhow.workspace = true
 chrono.workspace = true
 tokio.workspace = true
+blake3.workspace = true
 
 # All verification subsystems
 qlever-artifact-capture = { path = "../qlever-artifact-capture" }
@@ -31,3 +36,4 @@ qlever-chaos-verifier = { path = "../qlever-chaos-verifier" }
 
 [dev-dependencies]
 proptest.workspace = true
+tempfile.workspace = true

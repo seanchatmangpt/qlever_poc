@@ -12,6 +12,9 @@ members = [
     "qlever-simd-verifier",
     "qlever-chaos-verifier",
     "qlever-verification-harness",
+    "receipt_comparator",
+    "qlever-repro",
+    "qlever-witness",
 ]
 
 [workspace.package]

@@ -1,0 +1,83 @@
+INTEGRATION PHASE - AGENT 2: RECEIPT BUNDLE NORMALIZATION + COMPARATOR
+=======================================================================
+
+Agent: Agent 2
+Slice: Receipt bundle normalization + comparator tool
+Status: COMPLETE
+Timestamp: 2026-01-02T18:20:00Z
+
+CLAIMED DELIVERABLES:
+--------------------
+✅ /home/user/qlever/qlever-verification/receipt_comparator/src/main.rs (398 lines)
+✅ /home/user/qlever/qlever-verification/receipt_comparator/Cargo.toml
+✅ /home/user/qlever/qlever-verification/receipt_comparator/tests/integration_test.rs
+✅ Test suite: 6 tests total (4 unit + 2 integration), all passing
+✅ This claim file
+
+FUNCTIONALITY:
+-------------
+Tool reads receipt bundles from two directories (e.g., x86_64 and aarch64 runners):
+1. Loads verdict.json from both bundles
+2. Extracts all CBOR receipts (VerificationReceipt and SuccessReceipt)
+3. Normalizes JSON to canonical form (sorted keys, BTreeMap)
+4. Compares verdicts for byte-identical equality
+5. Compares receipt digests for determinism
+6. Outputs detailed comparison report: RECEIPT_COMPARISON_REPORT.md
+7. Exit codes:
+   - 0 = PASS (deterministic, receipts match)
+   - 1 = FAIL (non-deterministic, receipts differ)
+   - 2 = ERROR (parsing/reading failed)
+
+COMMAND SIGNATURE:
+-----------------
+receipt_comparator \
+  --bundle-a <path/to/x86_64/bundle> \
+  --bundle-b <path/to/aarch64/bundle> \
+  --output RECEIPT_COMPARISON_REPORT.md \
+  --verbose
+
+PROOF CRITERIA (ALL PASS):
+--------------------------
+✅ Builds without errors: `cargo build -p receipt_comparator`
+   - Result: Finished dev profile in 11.93s
+   - Exit code: 0
+
+✅ All tests pass: `cargo test -p receipt_comparator`
+   Unit tests (4):
+   - test_identical_bundles_match: PASS
+   - test_different_digests_detected: PASS
+   - test_success_receipt_comparison: PASS
+   - test_verdict_normalization: PASS
+
+   Integration tests (2):
+   - test_comparator_on_identical_bundles: PASS
+   - test_comparator_detects_differences: PASS
+
+   - Total: 6 passed, 0 failed, 0 ignored
+
+✅ Binary produced: target/debug/receipt_comparator (20MB)
+✅ Help message works: `receipt_comparator --help`
+
+DEPENDENCIES:
+------------
+- qlever-artifact-capture (VerificationReceipt, SuccessReceipt types)
+- serde/serde_json (JSON normalization)
+- ciborium (CBOR deserialization)
+- clap (CLI argument parsing)
+- tempfile (test fixtures)
+
+INTEGRATION POINTS:
+------------------
+- Input: Receipt bundles from gate command (Agent 6)
+- Input: CBOR receipts from artifact-capture (Agent 2 subsystem dependency)
+- Output: RECEIPT_COMPARISON_REPORT.md (human-readable)
+- Output: Exit code 0/1/2 (machine-checkable)
+
+DETERMINISM GUARANTEE:
+---------------------
+- Canonical JSON normalization (BTreeMap ensures key ordering)
+- Digest-based comparison (not timestamp-based)
+- Architecture-independent logic (pure Rust, no FFI in comparator itself)
+- CBOR schema validation via qlever-artifact-capture types
+
+CLAIM HOLDER: Agent 2 (Independent Execution Complete)

@@ -1,0 +1,28 @@
+{
+  "agent_id": 10,
+  "agent_name": "integration-agent-10",
+  "slice": "Artifact publishing/attachment logic (CI uploads)",
+  "owner": "EPIC 11 Integration Phase - Agent 10",
+  "claim_timestamp": "2026-01-02T18:00:00Z",
+  "shared_invariant": "All verification receipts and cross-architecture comparison results are deterministically published as CI artifacts with full provenance tracking",
+  "acceptance_criteria": [
+    "GitHub Actions workflow uploads verification artifacts from both x86_64 and aarch64",
+    "Artifact structure includes: verdict.json, receipt_bundle/, environment.json, repro_manifest.json",
+    "Cross-architecture comparison report (RECEIPT_COMPARISON_REPORT.md) uploaded if both architectures complete",
+    "Artifacts tagged with architecture identifier",
+    "Final publish job downloads all artifacts and generates integration summary",
+    "Local download script (scripts/download_ci_artifacts.sh) enables manual retrieval",
+    "All scripts are executable with no syntax errors",
+    "Workflow syntax validates correctly"
+  ],
+  "files_to_create": [
+    ".github/workflows/integration-test.yml",
+    "INTEGRATION_RESULTS_SUMMARY.md",
+    "scripts/download_ci_artifacts.sh",
+    "qlever-verification/artifact_publisher.sh"
+  ],
+  "dependencies": [
+    "Agent 1-9 outputs (receipts, verdicts, comparison reports)"
+  ],
+  "status": "completed"
+}
