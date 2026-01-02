@@ -82,3 +82,15 @@ build/_fc_cache/
 
 # CMake user presets (IDE configuration, generated locally)
 CMakeUserPresets.json
+CMakePresets.json
+
+# Conan-generated files (build scripts, environment setup)
+conanbuild.sh
+conanbuildenv-*.sh
+conanrun.sh
+conanrunenv-*.sh
+deactivate_conanbuild.sh
+deactivate_conanrun.sh
+
+# Build logs
+build_output.log
