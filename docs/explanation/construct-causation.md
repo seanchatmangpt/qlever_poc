@@ -115,12 +115,7 @@ WHERE {
 
 ```bash
 # Run all 24 tests - they either pass or fail, no in-between
-./scripts/run-tests.sh ConstructCausation
-
-# Run by outcome
-./scripts/run-tests.sh PostDecisionSystemTest
-./scripts/run-tests.sh DriftVisibleIntelligenceTest
-./scripts/run-tests.sh AntiPersuasiveCoordinationTest
+make test
 ```
 
 **Test Distribution** (where the 20% is):
@@ -323,7 +318,7 @@ FILTER(?v1 != ?v2)
 ---
 
 ## Run Tests
-./scripts/run-tests.sh ConstructCausation
+make test
 
 ## Run Benchmarks
 ./build/ConstructCausationModeBench > baseline.json
@@ -342,7 +337,7 @@ The one killer example that proves everything works together.
 1. **Pick a mode** from the 5 patterns
 2. **Write a test** using the existing test structure
 3. **Add a benchmark** to measure performance
-4. **Run**: `./scripts/run-tests.sh YourTest` and `./build/Benchmark`
+4. **Run**: `make test` and `./build/Benchmark`
 5. **Submit**: PR with test + benchmark + result
 
 That's it. No roadmap discussions. No "future work". Code or it doesn't exist.

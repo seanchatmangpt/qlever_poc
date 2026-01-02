@@ -69,7 +69,7 @@ Comprehensive comparison across N3, Turtle, and NQuad formats.
 ```bash
 # Build
 cd /home/user/qlever
-./scripts/build-release.sh
+make build
 
 # Run all benchmarks
 ./build/N3BenchmarkTest
@@ -79,12 +79,6 @@ cd /home/user/qlever
 
 # JSON output
 ./build/N3BenchmarkTest --output-format=json > results.json
-```
-
-**Note:** For incremental builds of just the benchmark after code changes:
-```bash
-cd build
-cmake --build . --target N3BenchmarkTest
 ```
 
 ## Expected Results Summary

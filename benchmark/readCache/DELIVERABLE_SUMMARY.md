@@ -73,13 +73,13 @@ BMReadCache (BenchmarkInterface)
 **Build Commands**:
 ```bash
 # Build (from project root)
-./scripts/build-release.sh
+make build
 
 # Run benchmark
 ./build/ReadCacheBench > read_cache_results.json
 
-# Run unit tests
-./scripts/run-tests.sh ReadCacheBenchTest
+# Run tests
+make test
 ```
 
 ### 4. Documentation
@@ -276,7 +276,7 @@ benchmarkModeA_ExactRepeats(results, context);
 # In GitHub Actions workflow
 - name: Run Read Cache Tests
   run: |
-    ./scripts/run-tests.sh ReadCacheBenchTest
+    make test
 ```
 
 **Performance Regression Detection**:

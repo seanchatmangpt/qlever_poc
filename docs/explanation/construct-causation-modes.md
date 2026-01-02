@@ -321,33 +321,25 @@ You want to verify that causation mode implementations work correctly.
 
 ```bash
 cd /home/user/qlever
-./scripts/build-release.sh
+make build
 ```
 
-**2. Run specific test fixture:**
+**2. Run all causation mode tests:**
 
 ```bash
-# Run all post-decision system tests
-./scripts/run-tests.sh PostDecisionSystemTest
-
-# Run error-as-data tests
-./scripts/run-tests.sh ErrorAsDataTest
-
-# Run coordination tests
-./scripts/run-tests.sh AntiPersuasiveCoordinationTest
+make test
 ```
 
-**3. Run all causation mode tests:**
-
-```bash
-./scripts/run-tests.sh ConstructCausation
-```
-
-**4. For advanced debugging:**
+**3. For advanced debugging:**
 
 ```bash
 cd build
 ctest -R ConstructCausation --output-on-failure --verbose
+
+# Run specific test suites
+ctest -R PostDecisionSystemTest --output-on-failure
+ctest -R ErrorAsDataTest --output-on-failure
+ctest -R AntiPersuasiveCoordinationTest --output-on-failure
 ```
 
 ### Common Issues
@@ -417,7 +409,7 @@ TEST_F(PostDecisionSystemTest, MyNewTest) {
 **3. Run the new test:**
 
 ```bash
-./scripts/run-tests.sh MyNewTest
+make test
 ```
 
 **4. Commit your changes:**
@@ -516,7 +508,7 @@ A causation mode query is producing unexpected results.
 
 ```bash
 export LOGLEVEL=DEBUG
-./scripts/run-tests.sh YourTest
+make test
 ```
 
 **2. Extract the query:**
@@ -900,17 +892,15 @@ WHERE {
 
 ### Build
 
-Use the provided build script which handles all configuration:
+Use the Makefile:
 
 ```bash
-./scripts/build-release.sh
+make build
 ```
 
-**Advanced build flags:**
+**Full construction (includes testing):**
 ```bash
-cmake -DCMAKE_BUILD_TYPE=Release \
-      -DCMAKE_CXX_STANDARD=20 \
-      -GNinja ..
+make
 ```
 
 ---

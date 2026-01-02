@@ -32,8 +32,8 @@ cmake --build . --target ReadCacheBench
 ### Running Unit Tests
 
 ```bash
-# Use test wrapper script
-./scripts/run-tests.sh ReadCacheBench
+# Run all tests
+make test
 ```
 
 ## Benchmark Modes
@@ -243,8 +243,8 @@ ldd ./ReadCacheBench
 ### Tests Fail
 
 ```bash
-# Run tests with output
-./scripts/run-tests.sh ReadCacheBench
+# Run tests
+make test
 
 # For advanced debugging, run test binary directly
 ./build/engine/readCache/ReadCacheBenchTest --gtest_filter="*"

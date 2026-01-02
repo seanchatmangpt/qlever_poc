@@ -62,17 +62,15 @@ qlever stop
 git clone https://github.com/ad-freiburg/qlever
 cd qlever
 
-# Build using the provided build script
-./scripts/build-release.sh
+# Build the project
+make build
 ```
 
-**Note:** Always use `./scripts/build-release.sh` for building. It handles all dependencies and configuration automatically.
+**Note:** Always use `make build` for development builds. The Makefile ensures all prerequisites are installed.
 
-**Advanced:** If you need custom build options:
+**Advanced:** For full deterministic construction (includes testing and verification):
 ```bash
-mkdir build && cd build
-cmake -DCMAKE_BUILD_TYPE=Release -GNinja ..
-cmake --build .
+make
 ```
 
 ### Build an Index

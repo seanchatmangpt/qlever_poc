@@ -175,9 +175,9 @@ If you skip any skill or agent: You are not operating in BB80/20 + EPIC 9. You a
 
 **SessionStart hooks** (`.claude/settings.json`): Auto-install deps via `scripts/setup-dev-env.sh` (see [`docs/how-to/claude-code-setup.md`](docs/how-to/claude-code-setup.md) for configuration details)
 
-**Build**: `./scripts/build-release.sh` (or `cmake -DCMAKE_BUILD_TYPE=Release -GNinja .. && cmake --build .` for advanced)
+**Build**: `make build` (or `make` for full deterministic construction)
 
-**Test**: `./scripts/run-tests.sh` (or `ctest --output-on-failure` for manual control)
+**Test**: `make test`
 
 **Git**: Feature branch `claude/<feature>-<SESSION_ID>`. Push with `-u origin <branch>`. Feature branches are isolated contexts.
 

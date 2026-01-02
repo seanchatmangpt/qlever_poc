@@ -159,42 +159,36 @@ The SHACL test suite validates QLever's implementation of the Shapes Constraint 
 ### All SHACL Tests
 
 ```bash
-./scripts/run-tests.sh Shacl
+make test
 ```
 
-### Specific Test Suites
+### Specific Test Suites (Advanced)
 
-```bash
-# W3C compliance tests
-./scripts/run-tests.sh ShaclCompliance
-
-# W3C test suite integration
-./scripts/run-tests.sh W3CShaclTestSuite
-
-# Shapes graph validation
-./scripts/run-tests.sh ShapesGraphValidation
-
-# Core component tests
-./scripts/run-tests.sh ShaclConstraintEvaluator
-./scripts/run-tests.sh ShaclShapeRegistry
-./scripts/run-tests.sh ShaclShapeParser
-```
-
-### Individual Test Cases
-
-```bash
-# Run specific test cases
-./scripts/run-tests.sh ShaclCompliance.W3C_MinCount_Constraint
-./scripts/run-tests.sh W3CShaclTestSuite.W3C_Core_Pattern_001
-```
-
-### Advanced: Direct ctest Usage
-
-For advanced testing with custom flags:
 ```bash
 cd build
-ctest -R Shacl --output-on-failure
-ctest -R Shacl --verbose --output-on-failure
+
+# W3C compliance tests
+ctest -R ShaclCompliance --output-on-failure
+
+# W3C test suite integration
+ctest -R W3CShaclTestSuite --output-on-failure
+
+# Shapes graph validation
+ctest -R ShapesGraphValidation --output-on-failure
+
+# Core component tests
+ctest -R ShaclConstraintEvaluator --output-on-failure
+ctest -R ShaclShapeRegistry --output-on-failure
+ctest -R ShaclShapeParser --output-on-failure
+```
+
+### Individual Test Cases (Advanced)
+
+```bash
+cd build
+# Run specific test cases
+ctest -R ShaclCompliance.W3C_MinCount_Constraint --output-on-failure
+ctest -R W3CShaclTestSuite.W3C_Core_Pattern_001 --output-on-failure
 ```
 
 ## Test Organization

@@ -5,14 +5,15 @@
 ```bash
 # Build
 cd /home/user/qlever
-./scripts/build-release.sh
+make build
 
 # Run benchmark
 cd build
 ./ReadCacheBench > read_cache_results.json
 
 # Run tests
-./scripts/run-tests.sh ReadCacheBenchTest
+cd /home/user/qlever
+make test
 ```
 
 ## What This Benchmark Does
@@ -58,7 +59,7 @@ Tests the EPIC 3 read caching system with three modes:
 
 **Build fails**: Check that you're on branch `claude/epic3-read-caching-7Rja2`
 
-**Test fails**: Run tests: `./scripts/run-tests.sh ReadCacheBenchTest`
+**Test fails**: Run tests: `make test`
 
 **Low speedup**: Check cache implementation in Tasks 1-9
 

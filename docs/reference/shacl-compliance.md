@@ -683,16 +683,18 @@ ShaclPlanningStrategy strategy;
 
 ### How to Verify Compliance
 
-Run the W3C test suite:
-
-```bash
-./scripts/run-tests.sh W3CShaclTestSuite
-```
-
 Run all SHACL tests:
 
 ```bash
-./scripts/run-tests.sh Shacl
+make test
+```
+
+For specific tests (advanced):
+
+```bash
+cd build
+ctest -R W3CShaclTestSuite --output-on-failure
+ctest -R Shacl --output-on-failure
 ```
 
 Generate compliance report:
