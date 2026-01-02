@@ -10,8 +10,9 @@
 pub mod decision_log;
 pub mod decision_classifier;
 
-pub use decision_classifier::{classify_decision, is_get_operation, is_put_operation, is_success, CacheTier};
-pub use decision_log::{CacheDecision, CacheDecisionLog, CacheDecisionType};
+pub use decision_classifier::{classify_decision, is_get_operation, is_put_operation, is_success};
+pub use decision_log::CacheDecisionLog;
+pub use qlever_kernel_runner::{CacheDecision, CacheDecisionType, CacheTier};
 use qlever_artifact_capture::{emit_receipt, FailureClass, VerificationReceipt};
 use thiserror::Error;
 

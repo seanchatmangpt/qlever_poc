@@ -1,0 +1,21 @@
+{
+  "subsystem_id": 2,
+  "subsystem_name": "qlever-artifact-capture",
+  "owner_agent_id": "agent-epic11-artifact-capture-002",
+  "claim_timestamp": "2026-01-02T00:00:00Z",
+  "shared_invariant": "Rust is the verification plane that makes cache correctness and epoch isolation non-negotiable. All failures are fail-closed with deterministic receipts.",
+  "spec_ref": "EPIC11_SPECIFICATION.md Part IV (Receipts & Failure Classification)",
+  "acceptance_criteria": [
+    "qlever-artifact-capture crate exists",
+    "VerificationReceipt CBOR serialization works",
+    "emit_receipt() writes to /tmp/qlever-verification-receipts/",
+    "All 10 failure classes can be serialized",
+    "CBOR schema validated against spec"
+  ],
+  "files_to_create": [
+    "src/lib.rs",
+    "src/receipt_format.rs",
+    "tests/receipt_validation.rs"
+  ],
+  "status": "claimed"
+}

@@ -1,0 +1,21 @@
+{
+  "subsystem_id": 7,
+  "subsystem_name": "qlever-epoch-verifier",
+  "owner_agent_id": "agent-epic11-epoch-verifier-007",
+  "claim_timestamp": "2026-01-02T00:00:00Z",
+  "shared_invariant": "Rust is the verification plane that makes cache correctness and epoch isolation non-negotiable. All failures are fail-closed with deterministic receipts.",
+  "spec_ref": "EPIC11_SPECIFICATION.md Part I Invariant A (Epoch Isolation)",
+  "acceptance_criteria": [
+    "qlever-epoch-verifier crate exists",
+    "Epoch struct represents epoch correctly",
+    "verify_isolation() detects cross-epoch hits",
+    "Epoch key binding logic correct",
+    "Test: EpochContaminationDetected passes"
+  ],
+  "files_to_create": [
+    "src/lib.rs",
+    "src/epoch_key.rs",
+    "tests/epoch_contamination_tests.rs"
+  ],
+  "status": "claimed"
+}

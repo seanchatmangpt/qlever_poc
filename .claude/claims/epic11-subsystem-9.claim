@@ -1,0 +1,21 @@
+{
+  "subsystem_id": 9,
+  "subsystem_name": "qlever-chaos-verifier",
+  "owner_agent_id": "agent-epic11-chaos-verifier-009",
+  "claim_timestamp": "2026-01-02T00:00:00Z",
+  "shared_invariant": "Rust is the verification plane that makes cache correctness and epoch isolation non-negotiable. All failures are fail-closed with deterministic receipts.",
+  "spec_ref": "EPIC11_SPECIFICATION.md Part IV (Failure Classification)",
+  "acceptance_criteria": [
+    "qlever-chaos-verifier crate exists",
+    "inject_fault() implements fault injection points",
+    "verify_recovery() confirms fail-closed behavior",
+    "Test: FaultInjectionAbort passes",
+    "Test: CorruptionDetection passes"
+  ],
+  "files_to_create": [
+    "src/lib.rs",
+    "src/fault_injection.rs",
+    "tests/chaos_tests.rs"
+  ],
+  "status": "claimed"
+}

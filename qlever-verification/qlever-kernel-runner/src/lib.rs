@@ -35,7 +35,7 @@ pub enum KernelExecutionMode {
 }
 
 /// Cache tier for query execution
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 #[repr(u8)]
 pub enum CacheTier {
     /// Raw byte cache (fastest, most specific)
@@ -44,6 +44,29 @@ pub enum CacheTier {
     Neg = 1,
     /// Query plan cache (planning results)
     Plan = 2,
+}
+
+impl TryFrom<&str> for CacheTier {
+    type Error = String;
+
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        match value.to_lowercase().as_str() {
+            "bytes" | "0" => Ok(CacheTier::Bytes),
+            "neg" | "1" => Ok(CacheTier::Neg),
+            "plan" | "2" => Ok(CacheTier::Plan),
+            _ => Err(format!("Invalid cache tier: {}", value)),
+        }
+    }
+}
+
+impl std::fmt::Display for CacheTier {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            CacheTier::Bytes => write!(f, "bytes"),
+            CacheTier::Neg => write!(f, "neg"),
+            CacheTier::Plan => write!(f, "plan"),
+        }
+    }
 }
 
 /// Query input for kernel execution
@@ -74,7 +97,7 @@ pub struct CacheStats {
 }
 
 /// Cache decision for transparency logging
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub struct CacheDecision {
     pub timestamp_ns: u64,
     pub query_id: String,

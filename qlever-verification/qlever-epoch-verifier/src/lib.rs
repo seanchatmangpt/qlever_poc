@@ -10,6 +10,7 @@
 pub mod epoch_key;
 
 pub use qlever_artifact_capture::FailureClass;
+pub use qlever_kernel_runner::CacheTier;
 use qlever_artifact_capture::{emit_receipt, VerificationReceipt};
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
@@ -74,18 +75,6 @@ pub struct CacheKeyWithEpoch {
     pub query_hash: [u8; 32],
     /// Cache tier (bytes/neg/plan)
     pub cache_tier: CacheTier,
-}
-
-/// Cache tier enumeration
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
-#[repr(u8)]
-pub enum CacheTier {
-    /// Raw byte cache (fastest, most specific)
-    Bytes = 0,
-    /// Negative cache (non-match results)
-    Neg = 1,
-    /// Query plan cache (planning results)
-    Plan = 2,
 }
 
 impl CacheKeyWithEpoch {

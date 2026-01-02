@@ -1,0 +1,21 @@
+{
+  "subsystem_id": 4,
+  "subsystem_name": "qlever-cache-verifier",
+  "owner_agent_id": "agent-epic11-cache-verifier-004",
+  "claim_timestamp": "2026-01-02T00:00:00Z",
+  "shared_invariant": "Rust is the verification plane that makes cache correctness and epoch isolation non-negotiable. All failures are fail-closed with deterministic receipts.",
+  "spec_ref": "EPIC11_SPECIFICATION.md Part I Invariant B4 (Cache Transparency)",
+  "acceptance_criteria": [
+    "qlever-cache-verifier crate exists",
+    "CacheDecisionLog parses correctly",
+    "verify_transparency() detects missing decision records",
+    "Test: NoSilentCacheBehavior passes",
+    "Cache decision logging is complete"
+  ],
+  "files_to_create": [
+    "src/lib.rs",
+    "src/decision_log.rs",
+    "tests/cache_behavior_tests.rs"
+  ],
+  "status": "claimed"
+}

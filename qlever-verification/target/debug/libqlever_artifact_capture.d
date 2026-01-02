@@ -1,0 +1,1 @@
+/home/user/qlever/qlever-verification/target/debug/libqlever_artifact_capture.rlib: /home/user/qlever/qlever-verification/qlever-artifact-capture/src/lib.rs /home/user/qlever/qlever-verification/qlever-artifact-capture/src/receipt_format.rs

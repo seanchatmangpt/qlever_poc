@@ -1,0 +1,21 @@
+{
+  "subsystem_id": 6,
+  "subsystem_name": "qlever-regression-verifier",
+  "owner_agent_id": "agent-epic11-regression-verifier-006",
+  "claim_timestamp": "2026-01-02T00:00:00Z",
+  "shared_invariant": "Rust is the verification plane that makes cache correctness and epoch isolation non-negotiable. All failures are fail-closed with deterministic receipts.",
+  "spec_ref": "EPIC11_SPECIFICATION.md Part I Invariant E (Regression Gates)",
+  "acceptance_criteria": [
+    "qlever-regression-verifier crate exists",
+    "RegressionGate checks all metrics in matrix",
+    "check_regressions() compares against baseline",
+    "Baseline storage (JSON or CBOR) works",
+    "Test: RegressionDetectionLatency passes"
+  ],
+  "files_to_create": [
+    "src/lib.rs",
+    "src/baseline.rs",
+    "tests/regression_gate_tests.rs"
+  ],
+  "status": "claimed"
+}

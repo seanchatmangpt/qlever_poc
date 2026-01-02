@@ -3,6 +3,7 @@
 //! Classifies and validates cache decisions according to EPIC 11 spec.
 
 use super::decision_log::CacheDecisionType;
+use qlever_kernel_runner::CacheTier;
 use thiserror::Error;
 
 /// Decision classification errors
@@ -13,37 +14,6 @@ pub enum ClassificationError {
 
     #[error("Invalid cache tier: {0}")]
     InvalidCacheTier(String),
-}
-
-/// Cache tier types
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum CacheTier {
-    Bytes = 0,
-    Neg = 1,
-    Plan = 2,
-}
-
-impl TryFrom<&str> for CacheTier {
-    type Error = ClassificationError;
-
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
-        match value.to_lowercase().as_str() {
-            "bytes" | "0" => Ok(CacheTier::Bytes),
-            "neg" | "1" => Ok(CacheTier::Neg),
-            "plan" | "2" => Ok(CacheTier::Plan),
-            _ => Err(ClassificationError::InvalidCacheTier(value.to_string())),
-        }
-    }
-}
-
-impl std::fmt::Display for CacheTier {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            CacheTier::Bytes => write!(f, "bytes"),
-            CacheTier::Neg => write!(f, "neg"),
-            CacheTier::Plan => write!(f, "plan"),
-        }
-    }
 }
 
 /// Classify cache decision types from string representations

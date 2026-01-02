@@ -2,41 +2,8 @@
 //!
 //! Implements the decision log format from EPIC 11 Invariant B4.
 
+pub use qlever_kernel_runner::{CacheDecision, CacheDecisionType};
 use serde::{Deserialize, Serialize};
-
-/// Cache decision types
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
-pub enum CacheDecisionType {
-    Hit,
-    Miss,
-    Admit,
-    Reject,
-    Evict,
-    Guarded,
-}
-
-impl std::fmt::Display for CacheDecisionType {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            CacheDecisionType::Hit => write!(f, "HIT"),
-            CacheDecisionType::Miss => write!(f, "MISS"),
-            CacheDecisionType::Admit => write!(f, "ADMIT"),
-            CacheDecisionType::Reject => write!(f, "REJECT"),
-            CacheDecisionType::Evict => write!(f, "EVICT"),
-            CacheDecisionType::Guarded => write!(f, "GUARDED"),
-        }
-    }
-}
-
-/// Cache decision record
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
-pub struct CacheDecision {
-    pub timestamp_ns: u64,
-    pub query_id: String,
-    pub decision: CacheDecisionType,
-    pub cache_tier: String,
-    pub evicted_entry_id: Option<String>,
-}
 
 /// Cache decision log - records all cache operations
 #[derive(Debug, Clone, Default)]
