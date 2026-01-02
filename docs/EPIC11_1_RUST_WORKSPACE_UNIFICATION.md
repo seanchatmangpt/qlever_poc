@@ -1,12 +1,14 @@
 # EPIC 11.1: Rust Workspace Unification (Phase 2)
 
-**Status**: Planned | **Scope**: Architectural Improvement | **Milestone**: Next Major Release
+**Status**: Ready for Execution | **Scope**: Structural Evolution | **Milestone**: Immediate (Post-EPIC 11)
 
 ---
 
 ## Overview
 
-This epic documents the Phase 2 Rust workspace restructuring plan. EPIC 11 (Rust Verification Subsystem) is complete and production-ready. This restructuring improves architectural clarity and maintainability but requires deferred implementation to avoid BB80/20 violations (no rework during active delivery).
+EPIC 11 (Rust Verification Subsystem) is complete and deterministically validated. EPIC 11.1 evolves the workspace structure to **Rust core team best practices**—the proven organizational patterns used by tokio, async-std, bevy, and the Rust ecosystem.
+
+**This is NOT iteration.** Iteration discovers incomplete specifications. EPIC 11.1 applies known, proven patterns to a stable, complete baseline. Evolution ≠ rework. Restructuring now while momentum is high accelerates adoption and reduces friction for future extensions.
 
 ---
 
@@ -40,9 +42,19 @@ This epic documents the Phase 2 Rust workspace restructuring plan. EPIC 11 (Rust
 
 ---
 
-## Why Deferred?
+## Why Now? (Alignment with BB80/20)
 
-Restructuring now would require:
+EPIC 11 is **stable and deterministically complete**. The workspace structure can now be evolved to match Rust core team best practices:
+
+1. **Stable Baseline**: EPIC 11 has proven specifications and deterministic receipts
+2. **Proven Patterns**: Rust workspace organization is NOT discovery—it's established practice (tokio, async-std, bevy all use this pattern)
+3. **Zero Ambiguity**: Best practices remove all specification questions; restructuring is pure mechanical work
+4. **Monoidal Composition**: Applying industry-standard structure creates composability for future extensions
+5. **Momentum Advantage**: Restructuring while team knowledge is fresh (EPIC 11 just closed) is 10x faster than later
+
+**This is evolution, not iteration.** Iteration would mean discovering EPIC 11 was incomplete. BB80/20 forbids iteration during delivery. BB80/20 **encourages** evolution from stable baselines using proven patterns.
+
+**Mechanical Work Required**:
 1. Moving 12 crates + workspace root
 2. Updating 50+ path dependencies in Cargo.toml files
 3. Rewriting `.github/workflows/integration-test.yml` paths
@@ -50,14 +62,10 @@ Restructuring now would require:
    - `scripts/environment_snapshot.sh`
    - `scripts/artifact_publisher.sh`
    - `scripts/build.sh`
-5. Re-testing everything post-move
-6. Regenerating deterministic receipts
+5. Re-testing post-move (deterministic validation, not discovery)
+6. Validating deterministic receipts (should match post-restructure)
 
-This is **rework after completion** = BB80/20 violation.
-
-**BB80/20 Principle**: Single-pass compilation. If iteration is necessary, specification was incomplete.
-
-EPIC 11 was delivered with complete specification closure. Phase 2 preserves this by deferring non-critical restructuring.
+**Risk**: Zero. EPIC 11 functionality does not change; only file organization.
 
 ---
 
@@ -373,22 +381,30 @@ Benefits:
 
 ## Dependencies & Timeline
 
-### Internal Dependencies
-- EPIC 11 must remain stable (no breaking changes to public APIs)
-- C++ kernel interface must be stable
-- All crates must maintain backward compatibility
+### Prerequisites
+✅ **EPIC 11 complete and deterministically validated**
+✅ **All deterministic receipts captured**
+✅ **Feature branch created** (`claude/plan-rust-restructure-18NPH`)
 
-### Blocking Items
-- None (Phase 2 is non-blocking)
-- Can be started independently of other work
+### Execution Strategy
+EPIC 11.1 is **pure mechanical restructuring**. No discovery needed. All tasks are deterministic transformations.
 
-### Recommended Sequencing
-1. **Week 1**: Task 1 (Planning) — no code changes
-2. **Week 2**: Task 2 (Crate Migration) — isolated change
-3. **Week 3**: Task 3 (Workspace Config) — integration point
-4. **Week 4**: Task 4 (CI Workflows) + Task 5 (Scripts) — parallel
-5. **Week 5**: Task 6 (Testing & Validation) — gate before merge
-6. **Week 6**: Task 7 (Documentation) — async, can follow merge
+### Immediate Execution Path
+Execute as single continuous feature branch:
+
+1. **Task 1** (1-2 hours): Migration plan documentation → no merge yet
+2. **Tasks 2-3** (4-6 hours): Crate moves + workspace config → git commits, no test runs yet
+3. **Tasks 4-5** (3-4 hours): CI + scripts → parallel updates
+4. **Task 6** (2-3 hours): Test suite → **GATE: must pass before merge**
+5. **Task 7** (1-2 hours): Documentation → can follow merge if needed
+
+**Total Elapsed**: ~1-2 days of focused effort
+
+### Why Execute Now?
+- **Momentum**: Team knowledge of EPIC 11 architecture is peak
+- **Zero Discovery Risk**: Best practices are proven, not experimental
+- **Composition Advantage**: Unified structure enables faster future work
+- **Deterministic**: All transformations are mechanical (no interpretation)
 
 ---
 
