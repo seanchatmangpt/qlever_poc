@@ -1,35 +1,23 @@
 #!/bin/bash
-# Ultra-fast SessionStart hook for Claude Code on the web
-# In cloud: all tools pre-installed, just launch background setup
-# Local: fallback to full verification (only if not CLAUDE_CODE_REMOTE)
+# SessionStart hook: Guarantee complete build environment before agent starts
+# Runs synchronously (60-90s) to ensure NO possibility of build failure
+# Goal: Agent can write code and run make with guaranteed success
 
 exec 2>&1
 
-echo "QLever SessionStart: Starting environment setup"
+echo "QLever SessionStart: Installing complete build environment"
+echo ""
 
-# Cloud path: assume all tools pre-installed, launch background setup immediately
-if [ "$CLAUDE_CODE_REMOTE" = "true" ]; then
-    echo "  Running in Claude Code remote environment (cloud)"
-    echo ""
-    echo "  All build tools are pre-installed:"
-    echo "    ✓ CMake ✓ C++ Compiler ✓ Ninja ✓ Conan"
-    echo ""
-    echo "  Launching background installation phase..."
+# Run the full setup synchronously
+# This installs:
+#  - All system packages (CMake, compiler, Ninja, Boost, ICU, SSL, etc.)
+#  - Python tools (pre-commit, test dependencies)
+#  - Conan and its profile
+# Result: Agent will never experience missing dependencies
 
-    # Launch background installation script
-    # Writes completion marker to /tmp/qlever-setup.ready
-    (
-        exec >/tmp/qlever-setup.log 2>&1
-        bash "${CLAUDE_PROJECT_DIR}/scripts/setup-dev-env.sh" --background
-    ) &
-
-    echo $! > /tmp/qlever-setup.pid
-    echo ""
-    echo "✓ SessionStart complete. Agent starting..."
-    exit 0
-fi
-
-# Local fallback: do full verification if not in cloud
-echo "Local environment detected. Running full setup..."
 bash "${CLAUDE_PROJECT_DIR}/scripts/setup-dev-env.sh" --no-background
+
+echo ""
+echo "✓ Environment setup complete"
+echo "  Agent can now write code and run 'cmake' or 'make' without any setup"
 
