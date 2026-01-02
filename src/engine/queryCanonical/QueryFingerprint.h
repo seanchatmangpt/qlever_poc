@@ -13,6 +13,7 @@
 
 #include "backports/three_way_comparison.h"
 #include "global/Epoch.h"
+#include "global/EpochManifest.h"
 
 namespace queryCanonical {
 
@@ -82,10 +83,10 @@ struct QueryFingerprint {
   std::string epoch_manifest_sha256;  // Hash of complete epoch manifest
 
   // Query identity hashes (SHA256 hex strings, 64 characters each)
-  std::string raw_query_sha256;         // Hash of original query text
-  std::string normalized_text_sha256;   // Hash of normalized query text
-  std::string shape_sha256;             // Hash of operator tree structure
-  std::string params_sha256;            // Hash of parameter values
+  std::string raw_query_sha256;        // Hash of original query text
+  std::string normalized_text_sha256;  // Hash of normalized query text
+  std::string shape_sha256;            // Hash of operator tree structure
+  std::string params_sha256;           // Hash of parameter values
 
   // Query characteristics
   QueryFeatureFlag feature_flags = QueryFeatureFlag::NONE;
@@ -140,12 +141,13 @@ namespace queryCanonical {
 // Used by DeterminismClassifier to report which non-deterministic features
 // are present in a query
 struct DeterminismFeatures {
-  bool hasNow = false;                     // Query contains NOW() function
-  bool hasRand = false;                    // Query contains RAND() function
-  bool hasUuid = false;                    // Query contains UUID() function
-  bool hasBnode = false;                   // Query contains BNODE() function
-  bool hasService = false;                 // Query contains SERVICE clause
-  bool hasNonDeterministicFunction = false;  // Other non-deterministic functions
+  bool hasNow = false;      // Query contains NOW() function
+  bool hasRand = false;     // Query contains RAND() function
+  bool hasUuid = false;     // Query contains UUID() function
+  bool hasBnode = false;    // Query contains BNODE() function
+  bool hasService = false;  // Query contains SERVICE clause
+  bool hasNonDeterministicFunction =
+      false;  // Other non-deterministic functions
 
   // Check if query is deterministic (cacheable)
   [[nodiscard]] bool isDeterministic() const {
@@ -154,11 +156,11 @@ struct DeterminismFeatures {
   }
 
   // Convert to QueryFeatureFlag for QueryFingerprint
-  [[nodiscard]] ad_utility::QueryFeatureFlag toFeatureFlag() const {
+  [[nodiscard]] queryCanonical::QueryFeatureFlag toFeatureFlag() const {
     if (!isDeterministic()) {
-      return ad_utility::QueryFeatureFlag::NONDETERMINISTIC_RESULT;
+      return queryCanonical::QueryFeatureFlag::NONDETERMINISTIC_RESULT;
     }
-    return ad_utility::QueryFeatureFlag::NONE;
+    return queryCanonical::QueryFeatureFlag::NONE;
   }
 
   // Human-readable representation
