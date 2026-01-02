@@ -69,18 +69,16 @@ Comprehensive comparison across N3, Turtle, and NQuad formats.
 ```bash
 # Build
 cd /home/user/qlever
-mkdir -p build && cd build
-cmake -DCMAKE_BUILD_TYPE=Release -GNinja ..
-cmake --build . --target N3BenchmarkTest
+make build
 
 # Run all benchmarks
-./N3BenchmarkTest
+./build/N3BenchmarkTest
 
 # Run specific benchmark
-./N3BenchmarkTest --benchmark=N3TokenizerComparison
+./build/N3BenchmarkTest --benchmark=N3TokenizerComparison
 
 # JSON output
-./N3BenchmarkTest --output-format=json > results.json
+./build/N3BenchmarkTest --output-format=json > results.json
 ```
 
 ## Expected Results Summary

@@ -321,34 +321,25 @@ You want to verify that causation mode implementations work correctly.
 
 ```bash
 cd /home/user/qlever
-mkdir -p build && cd build
-cmake -DCMAKE_BUILD_TYPE=Release -GNinja ..
-cmake --build . --target ConstructCausationModeTest
+make build
 ```
 
-**2. Run specific test fixture:**
+**2. Run all causation mode tests:**
 
 ```bash
-# Run all post-decision system tests
-ctest -R PostDecisionSystemTest --output-on-failure
-
-# Run error-as-data tests
-ctest -R ErrorAsDataTest --output-on-failure
-
-# Run coordination tests
-ctest -R AntiPersuasiveCoordinationTest --output-on-failure
+make test
 ```
 
-**3. Run all causation mode tests:**
+**3. For advanced debugging:**
 
 ```bash
-ctest -R ConstructCausation --output-on-failure
-```
-
-**4. View verbose output:**
-
-```bash
+cd build
 ctest -R ConstructCausation --output-on-failure --verbose
+
+# Run specific test suites
+ctest -R PostDecisionSystemTest --output-on-failure
+ctest -R ErrorAsDataTest --output-on-failure
+ctest -R AntiPersuasiveCoordinationTest --output-on-failure
 ```
 
 ### Common Issues
@@ -418,7 +409,7 @@ TEST_F(PostDecisionSystemTest, MyNewTest) {
 **3. Run the new test:**
 
 ```bash
-ctest -R MyNewTest --output-on-failure
+make test
 ```
 
 **4. Commit your changes:**
@@ -517,7 +508,7 @@ A causation mode query is producing unexpected results.
 
 ```bash
 export LOGLEVEL=DEBUG
-ctest -R YourTest --output-on-failure
+make test
 ```
 
 **2. Extract the query:**
@@ -899,12 +890,17 @@ WHERE {
 - GCC 11.0+ or Clang 16.0+
 - CMake 3.27+
 
-### Build Flags
+### Build
+
+Use the Makefile:
 
 ```bash
-cmake -DCMAKE_BUILD_TYPE=Release \
-      -DCMAKE_CXX_STANDARD=20 \
-      -GNinja ..
+make build
+```
+
+**Full construction (includes testing):**
+```bash
+make
 ```
 
 ---

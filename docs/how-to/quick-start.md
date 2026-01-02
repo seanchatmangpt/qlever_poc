@@ -58,12 +58,19 @@ qlever stop
 ### Setup
 
 ```bash
-# Clone and build
+# Clone repository
 git clone https://github.com/ad-freiburg/qlever
 cd qlever
-mkdir build && cd build
-cmake -DCMAKE_BUILD_TYPE=Release -GNinja ..
-cmake --build .
+
+# Build the project
+make build
+```
+
+**Note:** Always use `make build` for development builds. The Makefile ensures all prerequisites are installed.
+
+**Advanced:** For full deterministic construction (includes testing and verification):
+```bash
+make
 ```
 
 ### Build an Index

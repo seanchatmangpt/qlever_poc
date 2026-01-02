@@ -5,6 +5,7 @@
 .PHONY: universe
 .PHONY: phase-a phase-b phase-c phase-d phase-e phase-f
 .PHONY: clean verify
+.PHONY: build test all
 
 # Toolchain and environment
 SHELL := /bin/bash
@@ -143,6 +144,25 @@ artifact-seal: phase-f
 	@echo "PHASE_SEAL: Artifact integrity finalization" >&2
 	@touch $(PHASE_LOCK)
 	@chmod 444 $(PHASE_LOCK)
+
+# ============================================================================
+# Standard Makefile Targets (Makefile Best Practices)
+# ============================================================================
+
+# build: Compile the project (Phase C - core compilation)
+# Standard Makefile target for development builds
+build: phase-c
+	@echo "Build complete. Artifacts in $(BUILD_DIR)" >&2
+
+# test: Run all tests (Phase E - deterministic benchmarks)
+# Standard Makefile target for testing
+test: phase-e
+	@echo "Tests complete" >&2
+
+# all: Full deterministic construction (Phase A-F with sealing)
+# Equivalent to: make universe
+all: universe
+	@echo "All phases complete" >&2
 
 # ============================================================================
 # Setup and Verification

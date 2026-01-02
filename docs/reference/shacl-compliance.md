@@ -683,16 +683,17 @@ ShaclPlanningStrategy strategy;
 
 ### How to Verify Compliance
 
-Run the W3C test suite:
-
-```bash
-cd /home/user/qlever/build
-ctest -R W3CShaclTestSuite --output-on-failure
-```
-
 Run all SHACL tests:
 
 ```bash
+make test
+```
+
+For specific tests (advanced):
+
+```bash
+cd build
+ctest -R W3CShaclTestSuite --output-on-failure
 ctest -R Shacl --output-on-failure
 ```
 

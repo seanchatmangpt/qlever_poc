@@ -930,10 +930,10 @@ validator.setEnableComplexPaths(true);
 **Step 4: Test Thoroughly**
 ```bash
 # Run comprehensive tests
-ctest -R Shacl --output-on-failure
+make test
 
 # Benchmark performance
-./benchmark/shacl_validation_benchmark
+./build/shacl_validation_benchmark
 ```
 
 ---

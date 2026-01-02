@@ -159,13 +159,14 @@ The SHACL test suite validates QLever's implementation of the Shapes Constraint 
 ### All SHACL Tests
 
 ```bash
-cd build
-ctest -R Shacl --output-on-failure
+make test
 ```
 
-### Specific Test Suites
+### Specific Test Suites (Advanced)
 
 ```bash
+cd build
+
 # W3C compliance tests
 ctest -R ShaclCompliance --output-on-failure
 
@@ -181,19 +182,13 @@ ctest -R ShaclShapeRegistry --output-on-failure
 ctest -R ShaclShapeParser --output-on-failure
 ```
 
-### Individual Test Cases
+### Individual Test Cases (Advanced)
 
 ```bash
+cd build
 # Run specific test cases
 ctest -R ShaclCompliance.W3C_MinCount_Constraint --output-on-failure
 ctest -R W3CShaclTestSuite.W3C_Core_Pattern_001 --output-on-failure
-```
-
-### Verbose Output
-
-```bash
-# Show detailed test output
-ctest -R Shacl --verbose --output-on-failure
 ```
 
 ## Test Organization
