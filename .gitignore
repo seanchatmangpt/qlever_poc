@@ -51,12 +51,14 @@ sourcelist
 /localIndices
 
 # Rust build artifacts
-rust/target/
-wasm/target/
-qlever-verification/target/
-test/fpv/kani/target/
 **/target/
-Cargo.lock
+**/Cargo.lock
+**/.cargo/config.local
+**/*.rlib
+**/*.rmeta
+**/*.so
+**/*.dylib
+**/*.dll
 **/*.lock
 benchmark_optimizations_simple
 
