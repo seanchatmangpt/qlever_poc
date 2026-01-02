@@ -1,0 +1,17 @@
+[package]
+name = "qlever-epoch-verifier"
+version.workspace = true
+edition.workspace = true
+description = "EPIC 11 Subsystem 7: Epoch isolation verification"
+
+[dependencies]
+serde.workspace = true
+blake3.workspace = true
+thiserror.workspace = true
+anyhow.workspace = true
+
+# Internal dependencies
+qlever-artifact-capture = { path = "../qlever-artifact-capture" }
+
+[dev-dependencies]
+proptest.workspace = true
