@@ -1,0 +1,23 @@
+[package]
+name = "qlever-repro"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+# Workspace dependencies
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+chrono = { workspace = true }
+blake3 = { workspace = true }
+ciborium = { workspace = true }
+
+# Internal crates
+qlever-artifact-capture = { path = "../qlever-artifact-capture" }
+qlever-replay-verifier = { path = "../qlever-replay-verifier" }
+
+[dev-dependencies]
+tempfile = { workspace = true }

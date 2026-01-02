@@ -1,0 +1,22 @@
+{
+  "subsystem_id": 10,
+  "subsystem_name": "qlever-verification-harness",
+  "owner_agent_id": "agent-epic11-verification-harness-010",
+  "claim_timestamp": "2026-01-02T00:00:00Z",
+  "shared_invariant": "Rust is the verification plane that makes cache correctness and epoch isolation non-negotiable. All failures are fail-closed with deterministic receipts.",
+  "spec_ref": "EPIC11_SPECIFICATION.md Part V (CI Gates), Part VIII (Subsystem 10)",
+  "acceptance_criteria": [
+    "qlever-verification-harness CLI binary builds",
+    "qlever-verify command available",
+    "qlever-verify contract runs fast checks",
+    "qlever-verify regression runs extended checks",
+    "All receipts written to /tmp/qlever-verification-receipts/"
+  ],
+  "files_to_create": [
+    "src/main.rs",
+    "src/cli.rs",
+    "src/reporter.rs",
+    "tests/integration/mod.rs"
+  ],
+  "status": "claimed"
+}

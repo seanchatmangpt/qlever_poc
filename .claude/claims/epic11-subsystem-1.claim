@@ -1,0 +1,21 @@
+{
+  "subsystem_id": 1,
+  "subsystem_name": "qlever-kernel-runner",
+  "owner_agent_id": "agent-epic11-kernel-runner-001",
+  "claim_timestamp": "2026-01-02T00:00:00Z",
+  "shared_invariant": "Rust is the verification plane that makes cache correctness and epoch isolation non-negotiable. All failures are fail-closed with deterministic receipts.",
+  "spec_ref": "EPIC11_SPECIFICATION.md Part III (Kernel Contract), Part VII (Subsystem 1)",
+  "acceptance_criteria": [
+    "qlever-kernel-runner crate exists and builds",
+    "KernelHandle wraps C FFI calls",
+    "execute_query() function works with real C++ kernel",
+    "FFI bindings auto-generated from C headers",
+    "Memory safety: no use-after-free, no leaks"
+  ],
+  "files_to_create": [
+    "src/lib.rs",
+    "src/ffi.rs",
+    "tests/integration_tests.rs"
+  ],
+  "status": "claimed"
+}

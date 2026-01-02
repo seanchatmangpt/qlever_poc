@@ -1,0 +1,21 @@
+{
+  "subsystem_id": 3,
+  "subsystem_name": "qlever-digest-verifier",
+  "owner_agent_id": "agent-epic11-digest-verifier-003",
+  "claim_timestamp": "2026-01-02T00:00:00Z",
+  "shared_invariant": "Rust is the verification plane that makes cache correctness and epoch isolation non-negotiable. All failures are fail-closed with deterministic receipts.",
+  "spec_ref": "EPIC11_SPECIFICATION.md Part I Invariant B (Determinism)",
+  "acceptance_criteria": [
+    "qlever-digest-verifier crate exists",
+    "BLAKE3 hashing matches reference implementation",
+    "verify_digest() correctly compares expected vs actual",
+    "Test: SameInputProducesSameDigest passes 100/100 runs",
+    "Test: MultipleRunsProduceSameDigest passes with all fixtures"
+  ],
+  "files_to_create": [
+    "src/lib.rs",
+    "src/blake3_hash.rs",
+    "tests/determinism_tests.rs"
+  ],
+  "status": "claimed"
+}

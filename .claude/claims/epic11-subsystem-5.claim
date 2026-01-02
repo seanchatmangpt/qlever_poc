@@ -1,0 +1,21 @@
+{
+  "subsystem_id": 5,
+  "subsystem_name": "qlever-replay-verifier",
+  "owner_agent_id": "agent-epic11-replay-verifier-005",
+  "claim_timestamp": "2026-01-02T00:00:00Z",
+  "shared_invariant": "Rust is the verification plane that makes cache correctness and epoch isolation non-negotiable. All failures are fail-closed with deterministic receipts.",
+  "spec_ref": "EPIC11_SPECIFICATION.md Part I Invariant C (Replay)",
+  "acceptance_criteria": [
+    "qlever-replay-verifier crate exists",
+    "ReplayWorkload CBOR deserialization works",
+    "replay_and_verify() executes workload + compares digests",
+    "All 4 replay failure modes can be classified",
+    "Test: ReplayDeterminismStrict passes"
+  ],
+  "files_to_create": [
+    "src/lib.rs",
+    "src/workload_pack.rs",
+    "tests/replay_tests.rs"
+  ],
+  "status": "claimed"
+}

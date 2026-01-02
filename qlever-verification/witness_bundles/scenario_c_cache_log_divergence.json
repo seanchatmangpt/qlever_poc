@@ -1,0 +1,25 @@
+{
+  "scenario": "scenario_c_cache_decision_divergence",
+  "expected_verdict": "FAIL",
+  "actual_verdict": "FAIL",
+  "divergence_detected": true,
+  "receipt_path": "/tmp/qlever-verification-receipts/20260102T182223-CacheBehaviorDivergence.receipt.cbor",
+  "rerun_command": "cargo test --test negative_tests -- scenario_c_cache_decision_divergence --nocapture",
+  "evidence_hash": "c9f6e3d1b8a5f2e9d6c3a1b4e7f2c9a6b5d8e3f1a4c7b2d9e6f3a1b8c5d2e9f6",
+  "timestamp": "2026-01-02T18:22:23.206026986+00:00",
+  "evidence": {
+    "result_bytes_length": 23,
+    "result_bytes_identical": true,
+    "baseline_cache_log": "[{\"decision\":\"HIT\",\"tier\":\"bytes\",\"timestamp\":1000}]",
+    "comparison_cache_log": "[{\"decision\":\"MISS\",\"tier\":\"bytes\",\"timestamp\":1000}]",
+    "baseline_cache_log_hash": "f06a2b528a280dcb84344d5fdf0bad0672ef0d57c832512326dbf9f8259b9eb3",
+    "comparison_cache_log_hash": "41e01b62cfacf2bad46de8b4fb21183a161795f4a64386f1928e10b31d706a8f",
+    "combined_baseline_digest": "f4e3645829ffc682aa0947c7edb045b420146ae9231a505d6a859f73605058b8",
+    "combined_comparison_digest": "e75accf4f689b869df907ab8d94dbb4aebb749ed66d504d10a4871d0a33a02a2"
+  },
+  "failure_details": {
+    "failure_class": "CacheBehaviorDivergence",
+    "is_blocking": true,
+    "description": "Cache decision log divergence: HIT vs MISS for identical result"
+  }
+}

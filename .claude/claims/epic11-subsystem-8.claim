@@ -1,0 +1,21 @@
+{
+  "subsystem_id": 8,
+  "subsystem_name": "qlever-simd-verifier",
+  "owner_agent_id": "agent-epic11-simd-verifier-008",
+  "claim_timestamp": "2026-01-02T00:00:00Z",
+  "shared_invariant": "Rust is the verification plane that makes cache correctness and epoch isolation non-negotiable. All failures are fail-closed with deterministic receipts.",
+  "spec_ref": "EPIC11_SPECIFICATION.md Part I Invariant D (SIMD Equivalence)",
+  "acceptance_criteria": [
+    "qlever-simd-verifier crate exists",
+    "verify_simd_equivalence() compares x86 vs ARM results",
+    "Test: SimdAvx512VsScalar passes",
+    "Test: CrossArchitectureX86VsArm passes",
+    "SIMD equivalence inherited from EPIC 10.3 validation"
+  ],
+  "files_to_create": [
+    "src/lib.rs",
+    "src/cross_architecture.rs",
+    "tests/simd_tests.rs"
+  ],
+  "status": "claimed"
+}

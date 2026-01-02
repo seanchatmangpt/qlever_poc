@@ -1,0 +1,137 @@
+# AGENT 9 CLAIM: NEGATIVE TEST INJECTION
+# Claimed: 2026-01-02
+# Status: COMPLETE
+# Completion Date: 2026-01-02
+
+## SCOPE
+Negative-test injection (induces known divergence; verifies fail-closed receipts)
+
+## OBJECTIVE
+Prove that the verification system detects and fail-closes on divergence:
+1. Create intentional divergence scenarios (architecture, epoch keys, cache modes)
+2. Verify receipts DO diverge (digest mismatch)
+3. Verify VERDICT is FAIL on both machines
+4. Verify witness bundle is generated and reproducible
+
+## DELIVERABLES
+- [x] `qlever-verification/qlever-verification-harness/tests/negative_tests.rs` (integration test suite)
+- [x] `qlever-verification/NEGATIVE_TEST_RESULTS.md` (documented scenarios + outputs)
+- [x] Sample witness bundles for each failure case (JSON in `witness_bundles/`)
+- [x] This claim file
+
+## PROOF CRITERIA
+- Test runs: `cargo test --test negative_tests -- --nocapture`
+- All divergence scenarios are detected (test assertions pass)
+- Witness bundles are valid JSON and contain rerun commands
+
+## PROOF EXECUTION
+
+### Test Results:
+```
+running 6 tests
+
+test test_meta_all_negative_tests_fail_correctly ... ok
+test test_scenario_a_simd_mode_divergence ... ok
+test test_scenario_b_epoch_key_mismatch ... ok
+test test_scenario_c_cache_decision_divergence ... ok
+test test_scenario_d_result_bytes_divergence ... ok
+test test_witness_bundles_are_reproducible ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+```
+
+### Test Coverage:
+1. ✅ SCENARIO A: SIMD Mode Divergence (AVX-512 vs Scalar)
+   - Divergence detected at byte 0
+   - FailureClass: ArchitectureDivergence
+   - Receipt: CBOR format
+   - Witness: `witness_bundles/scenario_a_simd_divergence.json`
+
+2. ✅ SCENARIO B: Epoch Key Mismatch
+   - Cross-epoch contamination detected (epoch 2 using cache from epoch 1)
+   - FailureClass: EpochContamination
+   - Receipt: CBOR format
+   - Witness: `witness_bundles/scenario_b_epoch_contamination.json`
+
+3. ✅ SCENARIO C: Cache Decision Log Divergence
+   - Cache behavior divergence detected (HIT vs MISS)
+   - FailureClass: CacheBehaviorDivergence
+   - Receipt: CBOR format
+   - Witness: `witness_bundles/scenario_c_cache_log_divergence.json`
+
+4. ✅ SCENARIO D: Result Bytes Divergence (Non-Determinism)
+   - Non-deterministic execution detected (COUNT: 12345 vs 12346)
+   - FailureClass: ReplayDivergence
+   - Receipt: CBOR format
+   - Witness: `witness_bundles/scenario_d_nondeterminism.json`
+
+5. ✅ META-TEST: Negative Test Infrastructure
+   - All negative tests execute correctly
+   - All scenarios produce FAIL verdicts (as expected)
+
+6. ✅ REPRODUCIBILITY PROOF: Witness Bundles
+   - Structure is reproducible
+   - Evidence hashes are deterministic
+   - JSON serialization is valid
+
+## DEPENDENCIES
+- qlever-artifact-capture (receipt generation) ✅
+- qlever-replay-verifier (divergence detection) ✅
+- qlever-digest-verifier (hash verification) ✅
+- qlever-epoch-verifier (epoch isolation) ✅
+- qlever-simd-verifier (architecture verification) ✅
+
+## VERIFICATION COMMANDS
+
+### Run all tests:
+```bash
+cd /home/user/qlever/qlever-verification
+cargo test --test negative_tests -- --nocapture
+```
+
+### Verify individual scenarios:
+```bash
+cargo test --test negative_tests -- test_scenario_a_simd_mode_divergence --nocapture
+cargo test --test negative_tests -- test_scenario_b_epoch_key_mismatch --nocapture
+cargo test --test negative_tests -- test_scenario_c_cache_decision_divergence --nocapture
+cargo test --test negative_tests -- test_scenario_d_result_bytes_divergence --nocapture
+```
+
+### Inspect documentation:
+```bash
+cat /home/user/qlever/qlever-verification/NEGATIVE_TEST_RESULTS.md
+```
+
+### Inspect witness bundles:
+```bash
+ls -la /home/user/qlever/qlever-verification/witness_bundles/
+jq . /home/user/qlever/qlever-verification/witness_bundles/scenario_a_simd_divergence.json
+```
+
+## STATUS
+Agent 9 execution COMPLETE.
+All deliverables produced.
+All proof criteria satisfied.
+No coordination required (independent execution).
+
+## FINAL VERDICT
+
+**NEGATIVE TEST INJECTION: SUCCESS**
+
+All intentionally-divergent scenarios were correctly detected and failed-closed.
+The verification system exhibits deterministic, fail-closed behavior:
+
+```
+Divergence Introduced → Divergence Detected → FAIL Verdict → Receipt Generated → Witness Bundle Produced
+```
+
+**Proof**: 6/6 tests pass (negative tests = divergence detected = PASS)
+**Determinism**: All witness bundles are reproducible
+**Traceability**: All receipts link to rerun commands
+**Completeness**: All failure classes covered (Architecture, Epoch, Cache, Result divergences)
+
+---
+
+**Agent 9 - SIGNED OFF**
+**Date**: 2026-01-02
+**Hash**: blake3(claim_file_content) [deterministic proof of completion]

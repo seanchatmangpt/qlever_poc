@@ -51,15 +51,31 @@ sourcelist
 /localIndices
 
 # Rust build artifacts
-rust/target/
-wasm/target/
-Cargo.lock
+**/target/
+**/Cargo.lock
+**/.cargo/config.local
+**/*.rlib
+**/*.rmeta
+**/*.so
+**/*.dylib
+**/*.dll
 **/*.lock
 benchmark_optimizations_simple
+
+# CMake generated artifacts
+CMakeFiles/
+CMakeCache.txt
+compile_commands.json
+*.cmake
 
 # EPIC 8 runtime artifacts
 .artifacts/
 .config/
+.receipts/
+
+# Verification receipts and ephemeral outputs
+**/*.receipt
+**/.deterministic_proof/
 
 # FetchContent cache directory (CMake dependency downloads)
 build/_fc_cache/

@@ -1,0 +1,72 @@
+# qlever-verification workspace-local .gitignore
+# This supplements the root .gitignore with verification-specific patterns
+
+# Rust build artifacts (workspace-level)
+# Note: target/ already covered by root, but listed here for clarity
+target/
+**/target/
+**/*.rustc_info.json
+
+# Cargo local configuration (user-specific settings)
+.cargo/config.local
+**/.cargo/config.local
+
+# IDE and editor artifacts
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Rust-analyzer cache
+rust-project.json
+
+# Test outputs and temporary files
+*.tmp
+*.temp
+test-results/
+coverage/
+
+# Verification-specific artifacts
+verification-artifacts/
+.verification-cache/
+*.verification-log
+
+# Benchmark outputs
+criterion-results/
+benchmark-outputs/
+
+# Fuzzing corpus and artifacts
+fuzz/corpus/
+fuzz/artifacts/
+
+# Kani verification artifacts
+kani-results/
+*.kani-report
+
+# Local development configuration
+.env.local
+config.local.toml
+
+# Documentation build artifacts
+target/doc/
+docs/_build/
+
+# Lock files (managed at workspace root only)
+# Cargo.lock in root is tracked, but any sub-crate locks should be ignored
+**/Cargo.lock
+
+# macOS specific
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows specific
+Thumbs.db
+Desktop.ini
+
+# Linux specific
+.directory
+*.kate-swp

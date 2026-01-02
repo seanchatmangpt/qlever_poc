@@ -1,0 +1,206 @@
+# AGENT 4 CLAIM - TOOLCHAIN PINNING + ENVIRONMENT FINGERPRINT
+# INTEGRATION PHASE - EPIC 11
+
+**Claimed by**: Agent 4
+**Timestamp**: 2026-01-02T18:21:00Z
+**Status**: COMPLETE
+
+## Slice Ownership
+- Toolchain version pinning rules
+- Environment fingerprint capture
+- Deterministic build environment specification
+
+## Deliverables
+
+### 1. Environment Snapshot Script
+**File**: `/home/user/qlever/qlever-verification/scripts/environment_snapshot.sh`
+**Status**: ✓ COMPLETE
+**Proof**:
+- Script is executable (chmod +x applied)
+- Runs without errors on x86_64 Linux
+- Produces valid JSON output (validated by jq)
+- Idempotent (produces identical output excluding timestamp on repeated runs)
+- Captures all required toolchain versions (rustc, cargo, cmake, llvm, gcc)
+- Captures system info (OS, kernel, arch, glibc)
+- Captures CPU info (model, arch, cores, flags)
+- Captures environment variables (RUSTFLAGS, CARGO_BUILD_TARGET, CFLAGS, CXXFLAGS)
+
+**Test Results**:
+```
+✓ JSON validation passed
+✓ Idempotent (excluding timestamp)
+✓ Runs on x86_64 Linux
+```
+
+### 2. Environment JSON Template
+**File**: `/home/user/qlever/qlever-verification/environment.json.template`
+**Status**: ✓ COMPLETE
+**Proof**:
+- Template includes all required fields
+- Documented placeholder format
+- Usage notes included
+
+### 3. Toolchain Pinning Specification
+**File**: `/home/user/qlever/qlever-verification/TOOLCHAIN_PINNING.md`
+**Status**: ✓ COMPLETE
+**Proof**:
+- Comprehensive documentation of all pinned toolchain versions
+- Rust: 1.91.1 (documented, no rust-toolchain.toml exists - using system default)
+- CMake: 3.27+ minimum (enforced in CMakeLists.txt)
+- GCC: 11.0+ minimum, 13.3.0 current
+- LLVM: 16.0+ minimum, 18.1.3 current
+- ICU: 60.0+ minimum (REQUIRED, no fallback)
+- System dependencies documented per EPIC 10.2 constraints
+- CPU architecture support matrix
+- Environment variable requirements
+- Deterministic build guidelines
+- Change control protocol
+
+### 4. Claim File
+**File**: `/home/user/qlever/.claude/claims/integration-agent-4.claim`
+**Status**: ✓ COMPLETE (this file)
+
+## Toolchain Snapshot (Current Environment)
+
+### Rust Toolchain
+- **rustc**: 1.91.1 (ed61e7d7e 2025-11-07)
+- **cargo**: 1.91.1 (ea2d97820 2025-10-10)
+- **Channel**: stable (inferred, no rust-toolchain.toml)
+
+### C++ Toolchain
+- **CMake**: 3.28.3 (minimum: 3.27.0)
+- **GCC**: 13.3.0 (minimum: 11.0.0)
+- **LLVM**: 18.1.3 (minimum: 16.0.0)
+- **C++ Standard**: C++20
+
+### System
+- **OS**: Linux 4.4.0 x86_64
+- **glibc**: 2.39
+- **Architecture**: x86_64
+- **CPU**: Intel (unknown model), 16 cores
+- **CPU Features**: AVX2, AVX512F/DQ/BW/VL, AES-NI, SHA-NI
+
+### System Libraries (EPIC 10.2 Constraints)
+- **ICU**: REQUIRED (60.0+, enforced in CMakeLists.txt)
+- **Permitted system libs**: libc, libm, libicu only
+- **All other deps**: Vendored via FetchContent or git submodules
+
+## Determinism Verification
+
+### Cache Key Components
+1. rustc version (exact match required)
+2. RUSTFLAGS (exact match required)
+3. Target triple (exact match required)
+4. Cargo.toml dependencies (hash match required)
+5. Source code (hash match required)
+
+### Non-Deterministic Factors (excluded from cache keys)
+- Build timestamps
+- Absolute paths
+- User/hostname
+- CPU features (unless explicitly set in RUSTFLAGS)
+
+### Recommended CI Environment
+```bash
+export CARGO_INCREMENTAL=0
+export RUSTFLAGS="-C target-cpu=x86-64"
+export CARGO_BUILD_TARGET="x86_64-unknown-linux-gnu"
+```
+
+## Integration Points
+
+### Dependencies on Other Agents
+- Agent 1 (Kernel Runner): C++ toolchain requirements
+- Agent 2 (Artifact Capture): Build output fingerprinting
+- Agent 3 (Read Cache Verification): Cache key construction
+- Agent 5+ (TBD): CI/CD pipeline integration
+
+### Provides to Other Agents
+- Toolchain version constraints for all agents
+- Environment fingerprint format for cache verification
+- Deterministic build guidelines
+
+## Proof of Completion
+
+### Test 1: Script Execution
+```bash
+$ ./qlever-verification/scripts/environment_snapshot.sh environment.json
+Environment snapshot written to: environment.json
+✓ JSON validation passed
+```
+
+### Test 2: Idempotency
+```bash
+$ diff <(jq -S 'del(.timestamp)' env1.json) <(jq -S 'del(.timestamp)' env2.json)
+# No differences (excluding timestamp)
+✓ Idempotent (excluding timestamp)
+```
+
+### Test 3: JSON Validity
+```bash
+$ jq empty environment.json
+# No errors
+✓ Valid JSON
+```
+
+### Test 4: Required Fields
+```bash
+$ jq '.toolchain.rustc.version' environment.json
+"rustc 1.91.1 (ed61e7d7e 2025-11-07)"
+$ jq '.system.architecture' environment.json
+"x86_64"
+$ jq '.cpu.cores' environment.json
+"16"
+✓ All required fields present
+```
+
+## Architecture Support
+
+### Tested Platforms
+- ✓ Linux x86_64 (Ubuntu 24.04, glibc 2.39)
+
+### Untested (but supported by design)
+- Linux aarch64
+- macOS x86_64
+- macOS aarch64
+
+### Script Portability
+- Requires: bash, jq (recommended), standard Linux utilities
+- Fallback: If jq unavailable, manual JSON construction (less safe)
+- CPU detection: lscpu (standard on Linux)
+
+## Invariants Enforced
+
+1. **Toolchain Minimum Versions** (enforced by CMakeLists.txt):
+   - CMake 3.27+
+   - GCC 11.0+ or Clang 16.0+
+   - ICU 60.0+
+
+2. **Rust Minimum Version** (documented):
+   - rustc 1.91.0+
+   - cargo 1.91.0+
+
+3. **System Library Constraints** (EPIC 10.2):
+   - Only libc, libm, libicu permitted as system dependencies
+   - All others vendored
+
+4. **Environment Reproducibility**:
+   - Script produces consistent output on same machine (modulo timestamp)
+   - JSON is valid and parseable
+   - All required fields captured
+
+## Collision Detection Readiness
+
+This agent operates independently. Potential collision points with other agents:
+- **Semantic overlap**: Environment fingerprinting may overlap with Agent 2 (artifact capture)
+- **Structural overlap**: Both may produce JSON schemas for environment data
+- **Resolution**: Convergence phase will select most comprehensive format
+
+## Status: COMPLETE
+
+All deliverables produced and verified. Ready for convergence phase.
+
+---
+
+**Agent 4 signing off.**
+**Timestamp**: 2026-01-02T18:22:00Z

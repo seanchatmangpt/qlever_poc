@@ -1,0 +1,80 @@
+AGENT: integration-agent-8
+SLICE: Rerun command path generator (replayable on any machine)
+STATUS: COMPLETE
+TIMESTAMP: 2026-01-02T18:30:00Z
+
+DELIVERABLES:
+✅ qlever-verification/qlever-repro/src/lib.rs
+   - ReproductionManifest struct and generation logic
+   - EnvironmentSnapshot struct for build environment capture
+   - VerificationVerdict struct for verdict summary
+   - WorkloadPackReference struct for workload pack references
+   - ToolchainConstraints struct for version requirements
+   - generate_repro_manifest() function for end-to-end generation
+   - Portable command generation with no absolute paths
+   - Setup script generation with toolchain verification
+   - Validation rules for portability and safety
+
+✅ qlever-verification/qlever-repro/tests/command_roundtrip.rs
+   - test_command_contains_no_absolute_paths()
+   - test_command_contains_no_machine_specific_refs()
+   - test_command_is_syntactically_valid_shell()
+   - test_setup_script_is_valid_bash()
+   - test_manifest_roundtrip_via_json()
+   - test_command_includes_required_components()
+   - test_setup_script_includes_required_steps()
+   - test_manifest_validation_passes_for_valid_manifest()
+   - test_manifest_validation_fails_for_absolute_workload_path()
+   - test_command_execution_dry_run()
+   - test_generated_command_is_copy_pasteable()
+   - test_output_paths_are_relative()
+
+✅ qlever-verification/qlever-repro/REPRO_MANIFEST_FORMAT.md
+   - Complete format specification
+   - Field definitions and constraints
+   - Validation rules
+   - Usage workflow examples
+   - Security considerations
+   - Versioning policy
+
+✅ qlever-verification/qlever-repro/Cargo.toml
+   - Workspace integration
+   - Dependencies: serde, serde_json, blake3, ciborium, chrono, thiserror
+   - Internal crates: qlever-artifact-capture, qlever-replay-verifier
+
+✅ .claude/claims/integration-agent-8.claim (this file)
+
+PROOF:
+- Builds: cargo build -p qlever-repro (verified)
+- Tests pass: cargo test -p qlever-repro (verified)
+- Generated commands validated for shell syntax
+- No absolute paths in generated commands
+- No machine-specific references in generated commands
+- Manifest roundtrip serialization proven
+- Portability validation rules enforced
+
+INTEGRATION POINTS:
+- Inputs: verdict.json (from qlever-verification-harness reporter)
+- Inputs: environment.json (EnvironmentSnapshot)
+- Inputs: receipt_bundle/ (from qlever-artifact-capture)
+- Inputs: workload manifest (ReplayWorkload from qlever-replay-verifier)
+- Outputs: repro_manifest.json (ReproductionManifest)
+
+KEY INVARIANTS:
+1. No absolute paths in rerun_command (except with download_url)
+2. No user names or machine-specific references
+3. Commands are syntactically valid shell
+4. Setup scripts are syntactically valid bash
+5. All workload packs verified by BLAKE3 hash
+6. Only safe environment variables included
+7. All output paths are relative
+
+SELF-CONTAINED:
+- Git checkout at specific commit
+- qlever-gate binary built from that commit
+- Workload pack files referenced by hash
+- No external state dependencies
+- Reproducible on any Linux machine with toolchain
+
+AGENT SIGNATURE: integration-agent-8
+CONVERGENCE READY: YES
