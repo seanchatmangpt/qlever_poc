@@ -1,34 +1,110 @@
-name: sonarcloud-analysis
+name: SonarCloud Code Quality Analysis
 
 on:
   push:
-    branches: [master]
+    branches: [master, main]
   pull_request:
-    branches: [master]
+    branches: [master, main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
 
 jobs:
-  build:
-    strategy:
-      fail-fast: false
+  analyze:
+    name: SonarCloud Analysis
     runs-on: ubuntu-22.04
-    steps:
-    - uses: actions/checkout@v4
-      with:
-        submodules: 'recursive'
+    timeout-minutes: 60
 
-    - name: Save PR number and sonarcloud data in same directory
-      if: github.event_name == 'pull_request'
-      # Note: If you change any of the filenames here, you also have to change them in `upload-sonarcloud.yml`
-      run : |
-        mkdir -p sonarcloud-report
-        echo ${{ github.event.number }} > ./sonarcloud-report/pr
-        echo ${{ github.repository }} > ./sonarcloud-report/github_repository
-        echo ${GITHUB_REF} > ./sonarcloud-report/github_ref
-    - name: Upload sonarcloud artifact
-      if: github.event_name == 'pull_request'
-      uses: actions/upload-artifact@v4
-      with:
-        name: sonarcloud-report
-        path: sonarcloud-report/
-    # Note: for now we do not run the e2e tests for the coverage check
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for analysis
+          submodules: 'recursive'
+
+      - name: Setup build environment
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            cmake \
+            ninja-build \
+            clang-16 \
+            libboost-dev \
+            libicu-dev \
+            libssl-dev \
+            libzstd-dev
+
+      - name: Install SonarCloud build wrapper
+        run: |
+          mkdir -p $HOME/.sonar
+          cd $HOME/.sonar
+          wget -O build-wrapper-linux-x86.zip \
+            https://sonarcloud.io/static/cpp/build-wrapper-linux-x86.zip
+          unzip -o build-wrapper-linux-x86.zip
+          echo "$HOME/.sonar/build-wrapper-linux-x86" >> $GITHUB_PATH
+
+      - name: Install SonarCloud scanner
+        uses: SonarSource/sonarcloud-github-c-cpp@v2
+
+      - name: Configure CMake
+        run: |
+          mkdir -p build
+          cd build
+          cmake -GNinja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DUSE_PARALLEL=false \
+            -DCMAKE_CXX_COMPILER=clang++-16 \
+            ..
+
+      - name: Build with SonarCloud wrapper
+        run: |
+          build-wrapper-linux-x86-64 --out-dir ${{ github.workspace }}/bw-output \
+            cmake --build build -j 2
+
+      - name: Run SonarCloud scanner
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          sonar-scanner \
+            --define sonar.cfamily.build-wrapper-output=bw-output \
+            --define sonar.projectKey=seanchatmangpt_qlever \
+            --define sonar.organization=seanchatmangpt \
+            --define sonar.host.url=https://sonarcloud.io \
+            --define sonar.sources=src \
+            --define sonar.tests=test \
+            --define sonar.cfamily.threads=2 \
+            --define sonar.cfamily.cache.enabled=false
+
+      - name: Save PR metadata (for reporting)
+        if: github.event_name == 'pull_request'
+        run: |
+          mkdir -p sonarcloud-report
+          echo ${{ github.event.number }} > ./sonarcloud-report/pr
+          echo ${{ github.repository }} > ./sonarcloud-report/github_repository
+          echo ${{ github.ref }} > ./sonarcloud-report/github_ref
+
+      - name: Upload metadata artifact
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: sonarcloud-report
+          path: sonarcloud-report/
+          retention-days: 1
+
+      - name: Comment on PR with analysis link
+        if: github.event_name == 'pull_request' && always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const projectKey = 'seanchatmangpt_qlever';
+            const dashboardUrl = `https://sonarcloud.io/project/overview?id=${projectKey}`;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `📊 [View SonarCloud Analysis](${dashboardUrl})`
+            });
 
