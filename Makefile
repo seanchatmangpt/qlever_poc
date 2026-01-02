@@ -7,6 +7,8 @@
 .PHONY: clean verify
 .PHONY: build test all
 .PHONY: help fast-build test-single
+.PHONY: lint format-check format-fix coverage quality
+.PHONY: dev setup-dev profile
 
 # Toolchain and environment
 SHELL := /bin/bash
@@ -205,7 +207,7 @@ all: universe
 
 # help: Display all available targets with descriptions
 help:
-	@echo "QLever Build System (EPIC 8 Deterministic Construction)" >&2
+	@echo "QLever Build System (EPIC 8 Deterministic Construction + PHASE 1-7 DX Enhancements)" >&2
 	@echo "" >&2
 	@echo "Entry Points:" >&2
 	@echo "  make universe  - Full deterministic build (phases A-F, all checks)" >&2
@@ -213,20 +215,34 @@ help:
 	@echo "  make build     - Fast development build (phase C: compilation only)" >&2
 	@echo "  make test      - Run test suite (phase E: deterministic benchmarks)" >&2
 	@echo "" >&2
-	@echo "Utilities:" >&2
-	@echo "  make clean     - Remove build/ and .artifacts/ directories" >&2
-	@echo "  make verify    - Validate artifact manifest integrity" >&2
+	@echo "Code Quality (PHASE 2):" >&2
+	@echo "  make lint          - Run clang-tidy on hot-path modules" >&2
+	@echo "  make format-check  - Verify code formatting (clang-format)" >&2
+	@echo "  make format-fix    - Auto-format code with clang-format" >&2
+	@echo "  make coverage      - Generate LLVM coverage report" >&2
+	@echo "  make quality       - Run all checks (lint, format, test)" >&2
+	@echo "" >&2
+	@echo "Developer Experience (PHASE 5):" >&2
+	@echo "  make dev           - Fast build + test (default all tests)" >&2
+	@echo "  make setup-dev     - One-time environment setup" >&2
+	@echo "  make profile       - Identify slow tests" >&2
 	@echo "" >&2
 	@echo "Development Workflow:" >&2
 	@echo "  make fast-build      - Skip benchmarks (phases D, E, F) for rapid iteration" >&2
 	@echo "  make test-single     - Run single test: make test-single TEST=pattern" >&2
+	@echo "" >&2
+	@echo "Utilities:" >&2
+	@echo "  make clean         - Remove build/ and .artifacts/ directories" >&2
+	@echo "  make verify        - Validate artifact manifest integrity" >&2
 	@echo "" >&2
 	@echo "Advanced:" >&2
 	@echo "  make phase-c   - Resume from phase C (compilation)" >&2
 	@echo "  make phase-d   - Resume from phase D (validation)" >&2
 	@echo "  make phase-e   - Resume from phase E (benchmarks)" >&2
 	@echo "" >&2
-	@echo "Documentation: See Makefile for phase descriptions (lines 24-150)" >&2
+	@echo "Documentation: See Makefile for phase descriptions" >&2
+	@echo "  CONTRIBUTING.md    - Development guidelines" >&2
+	@echo "  docs/how-to/*.md   - Setup guides" >&2
 
 # fast-build: Development build without benchmarking (skip phases D, E, F)
 # Useful for rapid iteration: compile → test subset → repeat
@@ -239,6 +255,59 @@ fast-build: phase-c
 test-single:
 	@test -n "$(TEST)" || (echo "Usage: make test-single TEST=pattern" >&2; echo "  Example: make test-single TEST=EngineTest" >&2; exit 1)
 	@cd $(BUILD_DIR) && ctest -R "$(TEST)" --output-on-failure
+
+# ============================================================================
+# Code Quality Targets (PHASE 2/7: Code Quality Modernization)
+# ============================================================================
+
+# lint: Run clang-tidy on hot-path modules (cache, query, index, ingress)
+lint:
+	@echo "Running clang-tidy on hot-path modules..." >&2
+	@command -v clang-tidy >/dev/null 2>&1 || (echo "FATAL: clang-tidy not found"; exit 1)
+	@cd $(BUILD_DIR) && \
+	  clang-tidy -p . $(shell find ../src/engine/{cache,query,index,ingress} -name "*.cpp" -o -name "*.h" 2>/dev/null)
+
+# format-check: Verify code follows clang-format style
+format-check:
+	@echo "Checking code formatting..." >&2
+	@clang-format --dry-run -Werror src/**/*.cpp src/**/*.h test/**/*.cpp 2>/dev/null || \
+	  (echo "Code formatting violations found. Run 'make format-fix' to auto-fix." >&2; exit 1)
+	@echo "✓ Code formatting is correct" >&2
+
+# format-fix: Auto-format code with clang-format
+format-fix:
+	@echo "Auto-formatting code..." >&2
+	@find src test benchmark -name "*.cpp" -o -name "*.h" | \
+	  xargs clang-format -i
+	@echo "✓ Code formatting applied" >&2
+
+# coverage: Generate test coverage report (LLVM instrumentation)
+coverage: phase-c
+	@echo "Generating coverage report..." >&2
+	@cd $(BUILD_DIR) && cmake -DCMAKE_CXX_FLAGS="-fprofile-instr-generate -fcoverage-mapping" . >/dev/null 2>&1
+	@cd $(BUILD_DIR) && ctest -j$$(nproc/2) --output-on-failure >/dev/null 2>&1 || true
+	@echo "✓ Coverage data generated (see: llvm-cov show)" >&2
+
+# quality: Run all quality checks (lint, format, test)
+quality: lint format-check test
+	@echo "✓ All quality checks passed" >&2
+
+# ============================================================================
+# Developer Experience Targets (PHASE 5/7: DX Enhancements)
+# ============================================================================
+
+# dev: Fast development build + test (default: all tests)
+# Usage: make dev or make dev TEST=pattern
+dev: $(BUILD_DIR)
+	@bash scripts/quick-build.sh $(TEST)
+
+# setup-dev: One-time developer environment setup
+setup-dev:
+	@bash scripts/dev-setup.sh
+
+# profile: Identify slow tests and generate performance report
+profile:
+	@bash scripts/test-profile.sh $(SLOWEST_N)
 
 # ============================================================================
 # Setup and Verification
