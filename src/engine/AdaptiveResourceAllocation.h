@@ -25,17 +25,15 @@ class AdaptiveResourceAllocation {
  public:
   // System characteristics (detected once on startup)
   struct SystemInfo {
-    size_t l1CacheSize = 32 * 1024;           // 32KB typical
-    size_t l2CacheSize = 256 * 1024;          // 256KB typical
-    size_t l3CacheSize = 8 * 1024 * 1024;     // 8MB typical
+    size_t l1CacheSize = 32 * 1024;             // 32KB typical
+    size_t l2CacheSize = 256 * 1024;            // 256KB typical
+    size_t l3CacheSize = 8 * 1024 * 1024;       // 8MB typical
     size_t totalRAM = 16 * 1024 * 1024 * 1024;  // 16GB typical
     size_t pageSize = 4096;
     int numCores = 1;
 
     // Get available memory for query execution (leave 20% for OS)
-    size_t getAvailableMemory() const {
-      return totalRAM * 80 / 100;
-    }
+    size_t getAvailableMemory() const { return totalRAM * 80 / 100; }
   };
 
   /**
@@ -53,9 +51,8 @@ class AdaptiveResourceAllocation {
    * Why: Larger blocks are better for modern CPUs with larger caches,
    * but can cause spills on memory-constrained systems.
    */
-  static size_t calculateGroupByBlockSize(
-      const SystemInfo& info,
-      size_t bytesPerRow = 32) {
+  static size_t calculateGroupByBlockSize(const SystemInfo& info,
+                                          size_t bytesPerRow = 32) {
     // Rule of thumb: block should fit in L3 cache (8-20MB)
     // Leave 4MB for other data structures
     size_t targetSize = 4 * 1024 * 1024;  // 4MB of L3 cache
@@ -90,10 +87,9 @@ class AdaptiveResourceAllocation {
    * - Smaller for streaming (less memory)
    * - Larger for aggregation (better throughput)
    */
-  static size_t calculateLazyEvaluationBufferSize(
-      const SystemInfo& info,
-      size_t numRows = 100000,
-      size_t bytesPerRow = 32) {
+  static size_t calculateLazyEvaluationBufferSize(const SystemInfo& info,
+                                                  size_t numRows = 100000,
+                                                  size_t bytesPerRow = 32) {
     // Available memory for buffers: 10% of available RAM
     size_t bufferBudget = info.getAvailableMemory() / 10;
 
@@ -119,10 +115,9 @@ class AdaptiveResourceAllocation {
    * - Merge sort with more parallel chunks
    * - External merge sort threshold (decide when to spill to disk)
    */
-  static size_t calculateSortBufferSize(
-      const SystemInfo& info,
-      size_t estimatedRowCount = 1000000,
-      size_t bytesPerRow = 32) {
+  static size_t calculateSortBufferSize(const SystemInfo& info,
+                                        size_t estimatedRowCount = 1000000,
+                                        size_t bytesPerRow = 32) {
     // For efficiency, sort buffer should be at least 1MB
     size_t minSize = 1024 * 1024 / bytesPerRow;
 
@@ -142,15 +137,14 @@ class AdaptiveResourceAllocation {
    * For multi-threaded operations, decide how to partition work
    * Affects: Parallel sort, parallel join, parallel aggregation
    */
-  static size_t calculateOptimalChunkCount(
-      const SystemInfo& info,
-      size_t totalRows) {
+  static size_t calculateOptimalChunkCount(const SystemInfo& info,
+                                           size_t totalRows) {
     // Rule: 1 chunk per core, but don't create too many small chunks
     size_t chunkCount = info.numCores;
 
     // But scale down if data is small (overhead not worth it)
     if (totalRows < 100000) {
-      chunkCount = std::max(1, chunkCount / 4);
+      chunkCount = std::max(size_t{1}, chunkCount / 4);
     }
 
     // And scale up if we have lots of data (good parallelism)
@@ -193,8 +187,7 @@ class AdaptiveResourceAllocation {
    * where threshold = available_cache / (lazy_overhead_multiplier)
    */
   static size_t calculateMaterializationThreshold(
-      const SystemInfo& info,
-      double lazyOverheadMultiplier = 1.5) {
+      const SystemInfo& info, double lazyOverheadMultiplier = 1.5) {
     // Use half of L3 cache as threshold
     // Materialization is cheaper if result fits in cache
     size_t threshold = info.l3CacheSize / 2 / lazyOverheadMultiplier;
@@ -210,10 +203,10 @@ class AdaptiveResourceAllocation {
    * Hash table characteristics affect performance significantly
    */
   struct HashTableConfig {
-    double loadFactor = 0.75;      // When to resize (0.75 = default)
-    size_t minTableSize = 16;      // Minimum capacity
-    size_t growthFactor = 2;       // When resizing, multiply by this
-    bool useLinearProbing = false; // Use open addressing vs chaining
+    double loadFactor = 0.75;       // When to resize (0.75 = default)
+    size_t minTableSize = 16;       // Minimum capacity
+    size_t growthFactor = 2;        // When resizing, multiply by this
+    bool useLinearProbing = false;  // Use open addressing vs chaining
 
     // Generate config optimized for system
     static HashTableConfig optimizeForSystem(const SystemInfo& info) {
