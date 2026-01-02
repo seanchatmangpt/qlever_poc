@@ -686,14 +686,13 @@ ShaclPlanningStrategy strategy;
 Run the W3C test suite:
 
 ```bash
-cd /home/user/qlever/build
-ctest -R W3CShaclTestSuite --output-on-failure
+./scripts/run-tests.sh W3CShaclTestSuite
 ```
 
 Run all SHACL tests:
 
 ```bash
-ctest -R Shacl --output-on-failure
+./scripts/run-tests.sh Shacl
 ```
 
 Generate compliance report:
