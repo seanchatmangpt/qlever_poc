@@ -1088,7 +1088,7 @@ UpdateMetadata Server::processUpdateImpl(
     DeltaTriples& deltaTriples, ad_utility::timer::TimeTracer& tracer) {
   // Write barrier: enforce INGEST-only mutations
   // Blocks all UPDATE/INSERT/DELETE operations during SERVE state
-  ad_utility::globalEpochManager.lock()->checkAllowedToMutate();
+  ad_utility::globalEpochManager.rlock()->checkAllowedToMutate();
 
   const auto& qet = plannedUpdate.queryExecutionTree_;
   AD_CORRECTNESS_CHECK(plannedUpdate.parsedQuery_.hasUpdateClause());

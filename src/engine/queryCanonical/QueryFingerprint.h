@@ -8,6 +8,7 @@
 #ifndef QLEVER_SRC_ENGINE_QUERYCANONICAL_QUERYFINGERPRINT_H
 #define QLEVER_SRC_ENGINE_QUERYCANONICAL_QUERYFINGERPRINT_H
 
+#include <chrono>
 #include <cstdint>
 #include <string>
 
@@ -18,6 +19,19 @@
 namespace queryCanonical {
 
 using ad_utility::EpochId;
+
+// Statistics about the fingerprinting process
+struct QueryFingerprintStats {
+  std::chrono::milliseconds totalTime{0};
+  std::chrono::milliseconds iriNormalizationTime{0};
+  std::chrono::microseconds variableRenameTime{0};
+  std::chrono::microseconds constantExtractionTime{0};
+  std::chrono::microseconds serializationTime{0};
+  std::chrono::microseconds featureAnalysisTime{0};
+  size_t numConstants = 0;
+  size_t numVariables = 0;
+  size_t numTriples = 0;
+};
 
 // Feature flags for query characteristics
 // Used to identify queries with special properties that affect caching
@@ -95,8 +109,16 @@ struct QueryFingerprint {
   // Hash of normalized feature vector representing query complexity profile
   std::string shape_feature_vector_hash;
 
+  // Optional statistics about the fingerprinting process
+  std::optional<QueryFingerprintStats> stats_;
+
   // Default constructor
   QueryFingerprint() = default;
+
+  // Get statistics (if available)
+  [[nodiscard]] const std::optional<QueryFingerprintStats>& stats() const {
+    return stats_;
+  }
 
   // Equality comparison
   QL_DEFINE_DEFAULTED_EQUALITY_OPERATOR_LOCAL(
@@ -165,19 +187,6 @@ struct DeterminismFeatures {
 
   // Human-readable representation
   std::string toString() const;
-};
-
-// Statistics about the fingerprinting process
-struct QueryFingerprintStats {
-  std::chrono::milliseconds totalTime{0};
-  std::chrono::milliseconds iriNormalizationTime{0};
-  std::chrono::microseconds variableRenameTime{0};
-  std::chrono::microseconds constantExtractionTime{0};
-  std::chrono::microseconds serializationTime{0};
-  std::chrono::microseconds featureAnalysisTime{0};
-  size_t numConstants = 0;
-  size_t numVariables = 0;
-  size_t numTriples = 0;
 };
 
 }  // namespace queryCanonical

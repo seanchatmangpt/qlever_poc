@@ -12,9 +12,11 @@
 #include <string>
 #include <string_view>
 
-#include "ad_utility/Epoch.h"
-
 namespace ad_utility {
+
+// Forward declaration to break circular dependency
+// (EpochId is defined in Epoch.h as uint64_t)
+using EpochId = uint64_t;
 
 // Complete snapshot of epoch state for reproducibility
 // Enables deterministic cache keys and ETags
