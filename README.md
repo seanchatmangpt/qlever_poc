@@ -238,7 +238,7 @@ ctest -R "SortPerformance" --output-on-failure
 **Proof:** Binary digest equality across 100 independent builds.
 **Guard:** Same input → same `manifest.sha256`.
 **Gate:** `/home/user/qlever/src/engine/regression/RegressionDetector.h:467`.
-**Tests:** `/home/user/qlever/test/engine/regression/RegressionDetectorTest.cpp` (20+ test cases).
+**Tests:** `/home/user/qlever/test/engine/RegressionDetectorTest.cpp` (20+ test cases).
 **Baseline:** `/home/user/qlever/benchmark/regression/baseline_performance.json` (committed).
 
 ### Specification Closure Plane
@@ -283,7 +283,7 @@ ctest -R "SortPerformance" --output-on-failure
 **Guard:** ±10% latency variance, ±5% cache hit rate drift.
 **Gate tool:** `./RegressionGate` (exit: 0=pass, 1=fail, 2=error).
 **Authority:** `/home/user/qlever/benchmark/regression/README.md` (362 lines).
-**Test:** `/home/user/qlever/test/engine/regression/RegressionDetectorTest.cpp` (20+ scenarios).
+**Test:** `/home/user/qlever/test/engine/RegressionDetectorTest.cpp` (20+ scenarios).
 
 ### Variance Bounding Plane (EPIC 10.2)
 **Guard:** Coefficient of Variation (CV) < 5% for P99 latency.
@@ -301,7 +301,7 @@ Consistent schema per node: Path, Role, Primary Files, Contracts/Specs, Tests, B
 - **Role:** Query execution orchestrator. 327 files. Strategy pattern base (Operation.h).
 - **Primary files:** `Operation.h:24KB`, `QueryPlanner.h:34KB`, `Engine.h`, `QueryExecutionTree.h`.
 - **Contracts/specs:** `/home/user/qlever/docs/QLEVEREST_THESIS_DOCUMENTATION.md` (11 invariants).
-- **Tests:** `test/engine/OperationTest.cpp`, `test/engine/QueryPlannerTest.cpp:107 test cases`, `test/engine/GroupByTest.cpp:52 cases`.
+- **Tests:** `test/engine/OperationTest.cpp`, `test/engine/QueryPlannerTest.cpp:107 test cases`, `test/engine/GroupByTest.cpp:52 cases`, `test/engine/RegressionDetectorTest.cpp:20+ cases`.
 - **Benchmarks:** `benchmark/JoinAlgorithmBenchmark.cpp`, `benchmark/ConstructBenchmark.cpp`.
 - **Failure modes:** Join ordering suboptimal (cost estimation error in QueryPlannerTest), filter predicate false positives (FilterTest line 240), aggregation semantic mismatch (GroupByTest line 180).
 
@@ -597,7 +597,7 @@ rg "DivergenceAbort|fail-closed" src/engine/ --type h
 **Highest-value tests and benchmark gates validating invariants.**
 
 ### Determinism Proof (Invariant 1)
-**Test:** `test/engine/regression/RegressionDetectorTest.cpp` (20+ test cases)
+**Test:** `test/engine/RegressionDetectorTest.cpp` (20+ test cases)
 **Gate:** `./RegressionGate --baseline baseline_performance.json --current baseline_performance.json` (exit 0)
 **Baseline:** `/home/user/qlever/benchmark/regression/baseline_performance.json` (committed reference)
 **Proof:** Same input → same digest across 100 builds
