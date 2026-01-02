@@ -1,0 +1,13 @@
+[package]
+name = "qlever-kernel-runner"
+version.workspace = true
+edition.workspace = true
+description = "EPIC 11 Subsystem 1: Kernel execution and capture orchestration"
+
+[dependencies]
+serde.workspace = true
+thiserror.workspace = true
+anyhow.workspace = true
+
+[dev-dependencies]
+proptest.workspace = true

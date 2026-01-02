@@ -1,0 +1,14 @@
+[package]
+name = "qlever-digest-verifier"
+version.workspace = true
+edition.workspace = true
+description = "EPIC 11 Subsystem 2: Digest verification and cryptographic validation"
+
+[dependencies]
+serde.workspace = true
+blake3.workspace = true
+thiserror.workspace = true
+anyhow.workspace = true
+
+[dev-dependencies]
+proptest.workspace = true

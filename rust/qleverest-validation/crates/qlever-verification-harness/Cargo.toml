@@ -1,0 +1,39 @@
+[package]
+name = "qlever-verification-harness"
+version.workspace = true
+edition.workspace = true
+description = "EPIC 11 Subsystem 10: Orchestration CLI + integration"
+
+[[bin]]
+name = "qlever-verify"
+path = "src/main.rs"
+
+[[bin]]
+name = "qlever-gate"
+path = "src/gate.rs"
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+ciborium.workspace = true
+clap.workspace = true
+thiserror.workspace = true
+anyhow.workspace = true
+chrono.workspace = true
+tokio.workspace = true
+blake3.workspace = true
+
+# All verification subsystems
+qlever-artifact-capture = { path = "../qlever-artifact-capture" }
+qlever-kernel-runner = { path = "../qlever-kernel-runner" }
+qlever-digest-verifier = { path = "../qlever-digest-verifier" }
+qlever-cache-verifier = { path = "../qlever-cache-verifier" }
+qlever-replay-verifier = { path = "../qlever-replay-verifier" }
+qlever-regression-verifier = { path = "../qlever-regression-verifier" }
+qlever-epoch-verifier = { path = "../qlever-epoch-verifier" }
+qlever-simd-verifier = { path = "../qlever-simd-verifier" }
+qlever-chaos-verifier = { path = "../qlever-chaos-verifier" }
+
+[dev-dependencies]
+proptest.workspace = true
+tempfile.workspace = true

@@ -1,0 +1,429 @@
+   Compiling qlever-cache-verifier v0.1.0 (/home/user/qlever/rust/qleverest-validation/crates/qlever-cache-verifier)
+warning: unused import: `qlever_kernel_runner::CacheTier`
+ --> qleverest-validation/crates/qlever-cache-verifier/src/decision_classifier.rs:6:5
+  |
+6 | use qlever_kernel_runner::CacheTier;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+   Compiling qlever-verification-harness v0.1.0 (/home/user/qlever/rust/qleverest-validation/crates/qlever-verification-harness)
+warning: `qlever-cache-verifier` (lib) generated 1 warning (run `cargo fix --lib -p qlever-cache-verifier` to apply 1 suggestion)
+warning: unused variable: `gate_name`
+   --> qleverest-validation/crates/qlever-verification-harness/src/reporter.rs:327:9
+    |
+327 |         gate_name: &str,
+    |         ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_gate_name`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: constant `EXIT_PASS` is never used
+  --> qleverest-validation/crates/qlever-verification-harness/src/gate.rs:21:7
+   |
+21 | const EXIT_PASS: i32 = 0;
+   |       ^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: constant `EXIT_FAIL` is never used
+  --> qleverest-validation/crates/qlever-verification-harness/src/gate.rs:22:7
+   |
+22 | const EXIT_FAIL: i32 = 1;
+   |       ^^^^^^^^^
+
+warning: constant `EXIT_DIVERGENCE` is never used
+  --> qleverest-validation/crates/qlever-verification-harness/src/gate.rs:23:7
+   |
+23 | const EXIT_DIVERGENCE: i32 = 2;
+   |       ^^^^^^^^^^^^^^^
+
+warning: struct `EnvironmentConfig` is never constructed
+  --> qleverest-validation/crates/qlever-verification-harness/src/gate.rs:62:8
+   |
+62 | struct EnvironmentConfig {
+   |        ^^^^^^^^^^^^^^^^^
+
+warning: struct `GateVerdict` is never constructed
+  --> qleverest-validation/crates/qlever-verification-harness/src/gate.rs:82:8
+   |
+82 | struct GateVerdict {
+   |        ^^^^^^^^^^^
+
+warning: struct `ReproManifest` is never constructed
+   --> qleverest-validation/crates/qlever-verification-harness/src/gate.rs:107:8
+    |
+107 | struct ReproManifest {
+    |        ^^^^^^^^^^^^^
+
+warning: function `main` is never used
+   --> qleverest-validation/crates/qlever-verification-harness/src/gate.rs:124:4
+    |
+124 | fn main() {
+    |    ^^^^
+
+warning: function `init_logging` is never used
+   --> qleverest-validation/crates/qlever-verification-harness/src/gate.rs:156:4
+    |
+156 | fn init_logging(verbosity: u8) {
+    |    ^^^^^^^^^^^^
+
+warning: function `run_gate` is never used
+   --> qleverest-validation/crates/qlever-verification-harness/src/gate.rs:170:4
+    |
+170 | fn run_gate(args: &GateArgs) -> Result<i32, Box<dyn std::error::Error>> {
+    |    ^^^^^^^^
+
+warning: function `validate_inputs` is never used
+   --> qleverest-validation/crates/qlever-verification-harness/src/gate.rs:263:4
+    |
+263 | fn validate_inputs(args: &GateArgs) -> Result<(), Box<dyn std::error::Error>> {
+    |    ^^^^^^^^^^^^^^^
+
+warning: function `load_workload_manifest` is never used
+   --> qleverest-validation/crates/qlever-verification-harness/src/gate.rs:287:4
+    |
+287 | fn load_workload_manifest(path: &Path) -> Result<ReplayWorkload, Box<dyn std::error::Error>> {
+    |    ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `load_environment_config` is never used
+   --> qleverest-validation/crates/qlever-verification-harness/src/gate.rs:300:4
+    |
+300 | fn load_environment_config(path: &Path) -> Result<EnvironmentConfig, Box<dyn std::error::Error>> {
+    |    ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `prepare_output_directory` is never used
+   --> qleverest-validation/crates/qlever-verification-harness/src/gate.rs:307:4
+    |
+307 | fn prepare_output_directory(path: &Path) -> Result<(), Box<dyn std::error::Error>> {
+    |    ^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_verification` is never used
+   --> qleverest-validation/crates/qlever-verification-harness/src/gate.rs:313:4
+    |
+313 | fn run_verification(
+    |    ^^^^^^^^^^^^^^^^
+
+warning: function `collect_artifacts` is never used
+   --> qleverest-validation/crates/qlever-verification-harness/src/gate.rs:332:4
+    |
+332 | fn collect_artifacts(
+    |    ^^^^^^^^^^^^^^^^^
+
+warning: function `compute_verdict` is never used
+   --> qleverest-validation/crates/qlever-verification-harness/src/gate.rs:396:4
+    |
+396 | fn compute_verdict(receipts: &[VerificationReceipt]) -> (String, i32) {
+    |    ^^^^^^^^^^^^^^^
+
+warning: function `is_divergence_failure` is never used
+   --> qleverest-validation/crates/qlever-verification-harness/src/gate.rs:418:4
+    |
+418 | fn is_divergence_failure(receipt: &VerificationReceipt) -> bool {
+    |    ^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `compute_receipt_id` is never used
+   --> qleverest-validation/crates/qlever-verification-harness/src/gate.rs:436:4
+    |
+436 | fn compute_receipt_id(receipts: &[VerificationReceipt]) -> String {
+    |    ^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for an enum
+  --> qleverest-validation/crates/qlever-verification-harness/src/cli.rs:46:1
+   |
+46 | pub enum VerificationCommand {
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: the lint level is defined here
+  --> qleverest-validation/crates/qlever-verification-harness/src/lib.rs:4:9
+   |
+ 4 | #![warn(missing_docs)]
+   |         ^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> qleverest-validation/crates/qlever-verification-harness/src/reporter.rs:34:5
+   |
+34 |     pub failure_class: String,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> qleverest-validation/crates/qlever-verification-harness/src/reporter.rs:35:5
+   |
+35 |     pub count: usize,
+   |     ^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> qleverest-validation/crates/qlever-verification-harness/src/reporter.rs:36:5
+   |
+36 |     pub is_blocking: bool,
+   |     ^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> qleverest-validation/crates/qlever-verification-harness/src/reporter.rs:37:5
+   |
+37 |     pub sample_receipt: Option<Box<VerificationReceipt>>,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+   --> qleverest-validation/crates/qlever-verification-harness/src/reporter.rs:368:5
+    |
+368 |     IoError(std::io::Error),
+    |     ^^^^^^^
+
+warning: missing documentation for a variant
+   --> qleverest-validation/crates/qlever-verification-harness/src/reporter.rs:371:5
+    |
+371 |     SerializationError(serde_json::Error),
+    |     ^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+   --> qleverest-validation/crates/qlever-verification-harness/src/reporter.rs:374:5
+    |
+374 |     LoadError(String),
+    |     ^^^^^^^^^
+
+warning: struct `GateVerdict` is never constructed
+  --> qleverest-validation/crates/qlever-verification-harness/src/gate.rs:82:8
+   |
+82 | struct GateVerdict {
+   |        ^^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `qlever-verification-harness` (lib) generated 27 warnings
+   Compiling qleverest-validation v0.1.0 (/home/user/qlever/rust/qleverest-validation)
+warning: `qlever-verification-harness` (lib test) generated 19 warnings (18 duplicates)
+    Finished `test` profile [optimized + debuginfo] target(s) in 1.95s
+     Running unittests src/lib.rs (target/debug/deps/qlever_artifact_capture-4d7a8d41bd255346)
+
+running 5 tests
+test receipt_format::tests::test_invalid_schema ... ok
+test receipt_format::tests::test_schema_validation ... ok
+test tests::test_failure_class_is_blocking ... ok
+test tests::test_all_failure_classes_serializable ... ok
+test tests::test_receipt_creation ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/qlever_cache_verifier-867a571fb9758c64)
+
+running 20 tests
+test decision_classifier::tests::test_cache_tier_classification ... ok
+test decision_classifier::tests::test_cache_tier_invalid ... ok
+test decision_classifier::tests::test_cache_tier_numeric ... ok
+test decision_classifier::tests::test_classify_all_decision_types ... ok
+test decision_classifier::tests::test_classify_case_insensitive ... ok
+test decision_classifier::tests::test_classify_hit ... ok
+test decision_classifier::tests::test_classify_invalid_decision ... ok
+test decision_classifier::tests::test_is_get_operation ... ok
+test decision_classifier::tests::test_is_put_operation ... ok
+test decision_classifier::tests::test_is_success ... ok
+test decision_log::tests::test_compute_hash ... ok
+test decision_log::tests::test_decision_log_creation ... ok
+test decision_log::tests::test_get_decisions_for_query ... ok
+test decision_log::tests::test_hit_rate ... ok
+test decision_log::tests::test_json_roundtrip ... ok
+test decision_log::tests::test_record_decision ... ok
+test tests::test_behavior_sequence_verification ... ok
+test tests::test_no_silent_hits ... ok
+test tests::test_silent_cache_behavior_detected ... ok
+test tests::test_verify_transparency_passes ... ok
+
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running unittests src/lib.rs (target/debug/deps/qlever_chaos_verifier-a525ec3a2a64d76e)
+
+running 14 tests
+test fault_injection::tests::test_deterministic_injection ... ok
+test fault_injection::tests::test_executor_with_injection ... ok
+test fault_injection::tests::test_fault_injector_creation ... ok
+test fault_injection::tests::test_partial_results_detection ... ok
+test fault_injection::tests::test_recovery_state_transitions ... ok
+test fault_modes::tests::test_fault_injection_config_default ... ok
+test fault_modes::tests::test_fault_mode_display ... ok
+test fault_modes::tests::test_injection_result_variants ... ok
+test fault_modes::tests::test_recovery_state_variants ... ok
+test tests::test_all_fault_modes ... ok
+test tests::test_execute_with_chaos_injected_fault ... ok
+test tests::test_execute_with_chaos_normal_path ... ok
+test tests::test_inject_fault ... ok
+test tests::test_verify_recovery_no_faults ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running unittests src/lib.rs (target/debug/deps/qlever_digest_verifier-aaee128fb5be1237)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/qlever_epoch_verifier-85827ea23d2ca063)
+
+running 12 tests
+test epoch_key::tests::test_epoch_prefix_extraction ... ok
+test epoch_key::tests::test_generate_cache_key ... ok
+test epoch_key::tests::test_parse_cache_key ... ok
+test epoch_key::tests::test_generate_epoch_key ... ok
+test epoch_key::tests::test_parse_invalid_cache_key ... ok
+test epoch_key::tests::test_verify_epoch_prefix ... ok
+test tests::test_cache_key_epoch_binding ... ok
+test tests::test_epoch_contamination_detected ... ok
+test tests::test_epoch_prefix ... ok
+test tests::test_promotion_boundary_enforced ... ok
+test tests::test_simd_cross_epoch_blocked ... ok
+test tests::test_verify_isolation_passes ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running unittests src/lib.rs (target/debug/deps/qlever_kernel_runner-15d10fc4fbed66dd)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/qlever_regression_verifier-f7422313a21d5f73)
+
+running 28 tests
+test baseline::tests::test_baseline_comparator ... ok
+test baseline::tests::test_baseline_comparison_decrease ... ok
+test baseline::tests::test_baseline_comparator_summary ... ok
+test baseline::tests::test_baseline_comparison_exceeds_threshold ... ok
+test baseline::tests::test_baseline_comparison_increase ... ok
+test baseline::tests::test_baseline_creation ... ok
+test baseline::tests::test_baseline_json_serialization ... ok
+test baseline::tests::test_baseline_with_commit ... ok
+test baseline::tests::test_baseline_with_metrics ... ok
+test baseline::tests::test_baseline_with_multiple_metrics ... ok
+test baseline::tests::test_metric_value_as_f64 ... ok
+test gate_matrix::tests::test_all_gates_created ... ok
+test gate_matrix::tests::test_baseline_source_display ... ok
+test gate_matrix::tests::test_blocking_gates ... ok
+test gate_matrix::tests::test_cache_hit_rate_gate ... ok
+test gate_matrix::tests::test_gate_id_display ... ok
+test gate_matrix::tests::test_gates_in_category ... ok
+test gate_matrix::tests::test_get_gate ... ok
+test gate_matrix::tests::test_memory_gate ... ok
+test gate_matrix::tests::test_p95_latency_gate ... ok
+test gate_matrix::tests::test_p99_latency_gate ... ok
+test gate_matrix::tests::test_qps_gate ... ok
+test gate_matrix::tests::test_simd_equivalence_gate ... ok
+test tests::test_delta_calculation_decrease ... ok
+test tests::test_delta_calculation_increase ... ok
+test tests::test_regression_checker_creation ... ok
+test tests::test_regression_check_results_blocking ... ok
+test tests::test_within_threshold_passes ... ok
+
+test result: ok. 28 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running unittests src/lib.rs (target/debug/deps/qlever_replay_verifier-7d61f6fda2accf32)
+
+running 26 tests
+test failure_modes::tests::test_all_failure_classes_are_blocking ... ok
+test failure_modes::tests::test_failure_class_descriptions ... ok
+test failure_modes::tests::test_failure_class_display ... ok
+test failure_modes::tests::test_replay_failure_creation ... ok
+test failure_modes::tests::test_replay_failure_serialization ... ok
+test failure_modes::tests::test_replay_failure_with_divergence_index ... ok
+test replay_executor::tests::test_query_execution_result_creation ... ok
+test replay_executor::tests::test_query_execution_result_size ... ok
+test replay_executor::tests::test_query_execution_with_cache_behavior ... ok
+test replay_executor::tests::test_replay_execution_stats_hit_rate ... ok
+test replay_executor::tests::test_replay_execution_stats_serialization ... ok
+test replay_executor::tests::test_replay_execution_stats_zero_queries ... ok
+test tests::test_replay_result_failure ... ok
+test tests::test_replay_result_is_success ... ok
+test tests::test_replay_with_empty_workload ... ok
+test tests::test_replay_workload_construction ... ok
+test workload_pack::tests::test_cache_decision_display ... ok
+test workload_pack::tests::test_replay_mode_default ... ok
+test workload_pack::tests::test_replay_query_creation ... ok
+test workload_pack::tests::test_replay_state_default ... ok
+test workload_pack::tests::test_replay_workload_add_queries ... ok
+test workload_pack::tests::test_replay_workload_creation ... ok
+test workload_pack::tests::test_workload_pack_serialization ... ok
+test workload_pack::tests::test_workload_validation_empty_id ... ok
+test workload_pack::tests::test_workload_validation_invalid_digest ... ok
+test workload_pack::tests::test_workload_validation_success ... ok
+
+test result: ok. 26 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running unittests src/lib.rs (target/debug/deps/qlever_repro-2a038dbd1b12caf3)
+
+running 7 tests
+test tests::test_environment_snapshot_default ... ok
+test tests::test_manifest_serialization_roundtrip ... ok
+test tests::test_manifest_validation_reject_absolute_paths ... ok
+test tests::test_manifest_validation_reject_user_paths_in_command ... ok
+test tests::test_repro_manifest_creation ... ok
+test tests::test_safe_env_var ... ok
+test tests::test_toolchain_constraints_default ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/qlever_simd_verifier-4cab477bcda8d32c)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/qlever_verification_harness-ab0c718bdb010c04)
+
+running 16 tests
+test cli::tests::test_cli_parse_contract ... ok
+test cli::tests::test_cli_is_blocking ... ok
+test cli::tests::test_cli_parse_regression_with_baseline ... ok
+test cli::tests::test_cli_time_budget ... ok
+test cli::tests::test_cli_validate_zero_parallel ... ok
+test gate::tests::test_compute_receipt_id ... ok
+test gate::tests::test_compute_verdict_divergence ... ok
+test gate::tests::test_compute_verdict_fail ... ok
+test gate::tests::test_compute_verdict_pass ... ok
+test gate::tests::test_environment_config_serialization ... ok
+test gate::tests::test_is_divergence_failure ... ok
+test reporter::tests::test_report_add_receipt ... ok
+test reporter::tests::test_report_creation ... ok
+test reporter::tests::test_report_human_readable ... ok
+test reporter::tests::test_reporter_combined_result ... ok
+test gate::tests::test_prepare_output_directory ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running unittests src/lib.rs (target/debug/deps/qlever_witness-5342681ec72c5d8d)
+
+running 10 tests
+test minimization::tests::test_binary_search_minimizer_creation ... ok
+test minimization::tests::test_minimization_context ... ok
+test minimization::tests::test_minimization_result_percentages ... ok
+test minimization::tests::test_minimize_witness_reduces_inputs ... ok
+test tests::test_divergence_point_display ... ok
+test tests::test_relevant_inputs_builder ... ok
+test tests::test_rerun_command_builder ... ok
+test tests::test_rerun_command_shell_string ... ok
+test tests::test_witness_bundle_validation ... ok
+test tests::test_witness_bundle_validation_fails_on_same_digest ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/qleverest-d238725c1755873a)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/qleverest_validation-f91fdb1b4fac269d)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/qleverest_wasm-62d208b701537973)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/receipt_comparator-8c937620e502c9db)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
