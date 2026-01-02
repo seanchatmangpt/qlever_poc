@@ -3,6 +3,11 @@
 # This script installs dependencies and configures the environment for agent swarms
 # Optimized for Linux/Ubuntu cloud environments (Claude Code web)
 
+# Merge stderr into stdout to ensure all output is captured properly.
+# When running as a hook via socket (not TTY), stderr becomes fully-buffered
+# and can be lost. This ensures all output flows together.
+exec 2>&1
+
 set -e
 
 # Colors for output
@@ -385,20 +390,35 @@ main() {
         echo "  If the script fails, you may need to run with sudo or configure passwordless sudo"
         echo ""
     fi
-    
-    # Install system dependencies
-    install_system_deps
-    
+
+    # Install system dependencies (tracks failures but continues)
+    if ! install_system_deps; then
+        echo "${YELLOW}Warning: Some system dependencies failed to install${NC}"
+    fi
+
     # Verify build tools
-    verify_cmake_version
-    verify_compiler
-    
+    if ! verify_cmake_version; then
+        echo "${RED}ERROR: CMake verification failed${NC}"
+        return 1
+    fi
+
+    if ! verify_compiler; then
+        echo "${RED}ERROR: Compiler verification failed${NC}"
+        return 1
+    fi
+
     # Setup Conan
-    setup_conan
-    
+    if ! setup_conan; then
+        echo "${RED}ERROR: Conan setup failed${NC}"
+        return 1
+    fi
+
     # Install Python dependencies
-    install_python_deps
-    
+    if ! install_python_deps; then
+        echo "${RED}ERROR: Python dependencies installation failed${NC}"
+        return 1
+    fi
+
     # Final verification
     if verify_environment; then
         echo ""
