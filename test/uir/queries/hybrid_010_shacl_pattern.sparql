@@ -1,0 +1,20 @@
+# UIR Semantic Equivalence Test
+# Query ID: hybrid_010_shacl_pattern
+# Description: Shacl Pattern - test 1
+# Category: hybrid
+# EPIC: 10.3 - Agent 3 Part 4
+
+PREFIX sh: <http://www.w3.org/ns/shacl#>
+PREFIX ex: <http://example.org/>
+
+SELECT ?shape ?targetNode ?property ?pattern
+WHERE {
+  ?shape a sh:NodeShape ;
+         sh:property ?propertyShape .
+  
+  ?propertyShape sh:path ?property ;
+                 sh:pattern ?pattern .
+  
+  ?targetNode sh:targetNode ?shape .
+}
+LIMIT 20

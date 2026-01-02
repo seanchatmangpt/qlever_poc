@@ -1,0 +1,15 @@
+# UIR Semantic Equivalence Test
+# Query ID: golden_082_group_by
+# Description: Group By - test 6
+# Category: golden
+# EPIC: 10.3 - Agent 3 Part 4
+
+PREFIX ex: <http://example.org/>
+
+SELECT ?type (COUNT(?instance) AS ?count)
+WHERE {
+  ?instance a ?type .
+}
+GROUP BY ?type
+ORDER BY DESC(?count)
+LIMIT 10

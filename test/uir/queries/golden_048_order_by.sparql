@@ -1,0 +1,14 @@
+# UIR Semantic Equivalence Test
+# Query ID: golden_048_order_by
+# Description: Order By - test 2
+# Category: golden
+# EPIC: 10.3 - Agent 3 Part 4
+
+PREFIX ex: <http://example.org/>
+
+SELECT ?person ?name
+WHERE {
+  ?person ex:hasName ?name .
+}
+ORDER BY ?name
+LIMIT 10

@@ -1,0 +1,14 @@
+# UIR Semantic Equivalence Test
+# Query ID: golden_104_minus
+# Description: Minus - test 3
+# Category: golden
+# EPIC: 10.3 - Agent 3 Part 4
+
+PREFIX ex: <http://example.org/>
+
+SELECT ?person
+WHERE {
+  ?person a ex:Person .
+  MINUS { ?person ex:hasEmail ?email . }
+}
+LIMIT 10

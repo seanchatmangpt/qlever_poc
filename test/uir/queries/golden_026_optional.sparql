@@ -1,0 +1,14 @@
+# UIR Semantic Equivalence Test
+# Query ID: golden_026_optional
+# Description: Optional - test 1
+# Category: golden
+# EPIC: 10.3 - Agent 3 Part 4
+
+PREFIX ex: <http://example.org/>
+
+SELECT ?person ?name ?email
+WHERE {
+  ?person ex:hasName ?name .
+  OPTIONAL { ?person ex:hasEmail ?email . }
+}
+LIMIT 10

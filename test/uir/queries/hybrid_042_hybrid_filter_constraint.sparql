@@ -1,0 +1,27 @@
+# UIR Semantic Equivalence Test
+# Query ID: hybrid_042_hybrid_filter_constraint
+# Description: Hybrid Filter Constraint - test 1
+# Category: hybrid
+# EPIC: 10.3 - Agent 3 Part 4
+
+PREFIX sh: <http://www.w3.org/ns/shacl#>
+PREFIX ex: <http://example.org/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+# Hybrid: SPARQL FILTER + SHACL constraint
+
+SELECT ?person ?age
+WHERE {
+  ?shape a sh:NodeShape ;
+         sh:property ?ageShape .
+  
+  ?ageShape sh:path ex:hasAge ;
+            sh:datatype xsd:integer ;
+            sh:minInclusive 18 .
+  
+  ?person a ex:Person ;
+          ex:hasAge ?age .
+  
+  FILTER (?age >= 18)
+}
+LIMIT 20

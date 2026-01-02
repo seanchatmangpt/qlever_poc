@@ -20,7 +20,8 @@ add_library(engine
         NeutralOptional.cpp Load.cpp StripColumns.cpp NamedResultCache.cpp
         ExplicitIdTableOperation.cpp StringMapping.cpp MaterializedViews.cpp
         PermutationSelector.cpp RuleExpansion.cpp DatalogQueryPlanner.cpp
-        FixpointComputation.cpp
+        FixpointComputation.cpp UnifiedIRNode.cpp FocusNodeInjection.cpp
+        UnifiedPhysicalOptimizer.cpp
         shacl/ShaclConstraintEvaluator.cpp shacl/ShaclShapeParser.cpp
         shacl/ShaclShapeRegistry.cpp shacl/ShaclValidator.cpp shacl/LogicalShapes.cpp
         shacl/AdvancedConstraints.cpp shacl/ShapeComposition.cpp

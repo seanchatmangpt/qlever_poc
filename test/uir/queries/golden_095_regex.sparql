@@ -1,0 +1,14 @@
+# UIR Semantic Equivalence Test
+# Query ID: golden_095_regex
+# Description: Regex - test 4
+# Category: golden
+# EPIC: 10.3 - Agent 3 Part 4
+
+PREFIX ex: <http://example.org/>
+
+SELECT ?person ?email
+WHERE {
+  ?person ex:hasEmail ?email .
+  FILTER (regex(?email, "@example\.org$"))
+}
+LIMIT 10

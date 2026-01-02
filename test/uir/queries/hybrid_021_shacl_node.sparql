@@ -1,0 +1,20 @@
+# UIR Semantic Equivalence Test
+# Query ID: hybrid_021_shacl_node
+# Description: Shacl Node - test 1
+# Category: hybrid
+# EPIC: 10.3 - Agent 3 Part 4
+
+PREFIX sh: <http://www.w3.org/ns/shacl#>
+PREFIX ex: <http://example.org/>
+
+SELECT ?shape ?nestedShape ?property
+WHERE {
+  ?shape a sh:NodeShape ;
+         sh:property ?propertyShape .
+  
+  ?propertyShape sh:path ?property ;
+                 sh:node ?nestedShape .
+  
+  ?nestedShape a sh:NodeShape .
+}
+LIMIT 20

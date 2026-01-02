@@ -13,8 +13,8 @@
 #endif
 
 #ifdef __aarch64__
-#include <sys/auxv.h>
 #include <asm/hwcap.h>
+#include <sys/auxv.h>
 #endif
 
 namespace qlever::vmath {
@@ -77,7 +77,7 @@ Backend CpuCapabilities::bestBackend() const noexcept {
 }
 
 const CpuCapabilities& getCpuCapabilities() noexcept {
-  // Thread-safe singleton initialization (C++11 magic statics)
+  // Thread-safe singleton initialization (C++11 static storage duration)
   static const CpuCapabilities capabilities = detectCpuCapabilities();
   return capabilities;
 }

@@ -1,0 +1,19 @@
+# UIR Semantic Equivalence Test
+# Query ID: golden_088_subquery
+# Description: Subquery - test 2
+# Category: golden
+# EPIC: 10.3 - Agent 3 Part 4
+
+PREFIX ex: <http://example.org/>
+
+SELECT ?person ?name
+WHERE {
+  ?person ex:hasName ?name .
+  {
+    SELECT ?person
+    WHERE {
+      ?person a ex:Person .
+    }
+    LIMIT 10
+  }
+}

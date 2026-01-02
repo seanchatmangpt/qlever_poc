@@ -1,0 +1,18 @@
+# UIR Semantic Equivalence Test
+# Query ID: hybrid_028_datalog_recursion
+# Description: Datalog Recursion - test 5
+# Category: hybrid
+# EPIC: 10.3 - Agent 3 Part 4
+
+PREFIX ex: <http://example.org/>
+
+# Datalog recursive rule: ancestor(?x, ?y) :- parent(?x, ?y).
+# Datalog recursive rule: ancestor(?x, ?z) :- parent(?x, ?y), ancestor(?y, ?z).
+# UIR should apply semi-naive evaluation
+
+SELECT ?ancestor ?descendant
+WHERE {
+  # Rule predicate that UIR will expand recursively
+  ?ancestor ex:ancestor ?descendant .
+}
+LIMIT 20

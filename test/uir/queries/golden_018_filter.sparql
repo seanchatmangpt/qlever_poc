@@ -1,0 +1,14 @@
+# UIR Semantic Equivalence Test
+# Query ID: golden_018_filter
+# Description: Filter - test 3
+# Category: golden
+# EPIC: 10.3 - Agent 3 Part 4
+
+PREFIX ex: <http://example.org/>
+
+SELECT ?person ?name
+WHERE {
+  ?person ex:hasName ?name .
+  FILTER (regex(?name, "^A"))
+}
+LIMIT 10

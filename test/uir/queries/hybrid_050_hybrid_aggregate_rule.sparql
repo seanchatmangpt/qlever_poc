@@ -1,0 +1,19 @@
+# UIR Semantic Equivalence Test
+# Query ID: hybrid_050_hybrid_aggregate_rule
+# Description: Hybrid Aggregate Rule - test 5
+# Category: hybrid
+# EPIC: 10.3 - Agent 3 Part 4
+
+PREFIX ex: <http://example.org/>
+
+# Hybrid: SPARQL aggregate + Datalog rule
+# Rule: avgSalary(?dept, ?avg) :- employeeCount(?dept, ?cnt), totalSalary(?dept, ?total), ?avg = ?total / ?cnt.
+
+SELECT ?department (AVG(?salary) AS ?avgSalary)
+WHERE {
+  ?employee ex:worksIn ?department ;
+            ex:hasSalary ?salary .
+}
+GROUP BY ?department
+ORDER BY DESC(?avgSalary)
+LIMIT 20

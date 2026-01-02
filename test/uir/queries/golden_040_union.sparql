@@ -1,0 +1,15 @@
+# UIR Semantic Equivalence Test
+# Query ID: golden_040_union
+# Description: Union - test 7
+# Category: golden
+# EPIC: 10.3 - Agent 3 Part 4
+
+PREFIX ex: <http://example.org/>
+
+SELECT ?person ?contact
+WHERE {
+  { ?person ex:hasEmail ?contact . }
+  UNION
+  { ?person ex:hasPhone ?contact . }
+}
+LIMIT 10

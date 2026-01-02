@@ -1,0 +1,15 @@
+# UIR Semantic Equivalence Test
+# Query ID: golden_096_bind
+# Description: Bind - test 1
+# Category: golden
+# EPIC: 10.3 - Agent 3 Part 4
+
+PREFIX ex: <http://example.org/>
+
+SELECT ?person ?fullName
+WHERE {
+  ?person ex:firstName ?first ;
+          ex:lastName ?last .
+  BIND(CONCAT(?first, " ", ?last) AS ?fullName)
+}
+LIMIT 10

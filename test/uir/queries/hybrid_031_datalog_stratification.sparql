@@ -1,0 +1,17 @@
+# UIR Semantic Equivalence Test
+# Query ID: hybrid_031_datalog_stratification
+# Description: Datalog Stratification - test 3
+# Category: hybrid
+# EPIC: 10.3 - Agent 3 Part 4
+
+PREFIX ex: <http://example.org/>
+
+# Datalog stratified negation
+# Rule: nonParent(?x) :- person(?x), NOT parent(?x, ?y).
+
+SELECT ?person
+WHERE {
+  ?person a ex:Person .
+  FILTER NOT EXISTS { ?person ex:hasChild ?child . }
+}
+LIMIT 20
