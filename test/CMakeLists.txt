@@ -520,3 +520,8 @@ addLinkAndDiscoverTest(engine/RegressionDetectorTest engine)
 
 # EPIC 10.2 - Golden Corpus Reference Physics Suite
 addLinkAndDiscoverTest(GoldenCorpusTest engine parser)
+
+# EPIC 10.3 - Chaos Invariance: Entropy Injection & DivergenceAbort
+# Agent 7: Chaos testing with bit-flip injection (120+ scenarios)
+# Proves: ∀ bit_flip: (CorrectResult ∨ DivergenceAbort) ∧ ¬SilentCorruption
+addLinkAndDiscoverTest(chaos/EntropyInjectionHarnessTest engine util)

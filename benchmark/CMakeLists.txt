@@ -66,3 +66,7 @@ addAndLinkBenchmark(query_latency_distribution engine testUtil)
 
 # EPIC 10.2 Variance Gate Test Configuration (AGENT 9)
 include(test_variance_gate.cmake)
+
+# EPIC 10.3 FFI Gatekeeper - performance gate validation < 0.1% (AGENT 8)
+addAndLinkBenchmark(FFIGatekeeperBenchmark)
+include(test_ffi_gate.cmake)
