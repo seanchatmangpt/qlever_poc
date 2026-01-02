@@ -1,0 +1,9 @@
+# W3C SPARQL 1.1 - FILTER
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+SELECT ?s ?label
+WHERE {
+  ?s rdf:type ?type .
+  ?s <http://www.w3.org/2000/01/rdf-schema#label> ?label .
+  FILTER (lang(?label) = "en")
+}
+LIMIT 10

@@ -1,0 +1,8 @@
+# W3C SPARQL 1.1 - ORDER BY
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+SELECT ?name
+WHERE {
+  ?person foaf:name ?name .
+}
+ORDER BY ?name
+LIMIT 10

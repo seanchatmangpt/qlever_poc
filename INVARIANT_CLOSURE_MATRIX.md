@@ -63,7 +63,7 @@
 |-----------|-----------|------------|-------------|-----------------|--------|
 | INV-D1: Build Artifacts Exist | `test -d CMakeFiles AND CMake processed project` | Phase D: `test -d CMakeFiles` | CMake didn't process; invalid build state | `test -d CMakeFiles` returns false | CLOSED: Explicit existence check |
 | INV-D2: Build System Generated | `test -f Makefile OR test -f build.ninja` | Phase D: `test -f Makefile -o -f build.ninja` | Build system not generated; invalid state | Neither Makefile nor build.ninja exists | CLOSED: Explicit existence check |
-| INV-D3: SHACL Shape Validation | `RDF data validates against SHACL shapes` | Phase D: Placeholder comment "(Future) SHACL shape validation" | Validation skipped; constraint violations undetected | SHACL validation not implemented | INCOMPLETE: Feature described in spec but not implemented |
+| INV-D3: SHACL Shape Validation | `RDF data validates against SHACL shapes` | Phase D: `ctest -R "Shacl" --output-on-failure \|\| exit 1` | SHACL test failure → phase failure | ctest SHACL tests exit non-zero | CLOSED: Explicit SHACL validation via CTest suite (ShaclConstraintEvaluator, ShaclValidator, W3C compliance tests) |
 | INV-D4: Datalog Rules Evaluated | `Datalog rules evaluated over ingested data` | Phase D: Placeholder comment "(Future) Datalog rule evaluation" | Rules not evaluated; contradictions undetected | Datalog validation not implemented | INCOMPLETE: Feature described in spec but not implemented |
 | INV-D5: N3 Logic Rules Enforced | `N3 rules checked for consistency` | Phase D: Placeholder comment "(Future) N3 logic rule enforcement" | Inconsistencies undetected | N3 validation not implemented | INCOMPLETE: Feature described in spec but not implemented |
 

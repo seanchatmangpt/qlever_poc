@@ -9,6 +9,7 @@
 #include <unordered_set>
 
 #include "engine/QueryExecutionTree.h"
+#include "engine/datalog/DatalogResourceGuards.h"
 #include "util/Exception.h"
 #include "util/Log.h"
 
@@ -21,10 +22,13 @@ FixpointComputation::FixpointComputation(
       ruleDatabase_(std::move(ruleDatabase)),
       rulePredicate_(std::move(rulePredicate)),
       arguments_(std::move(arguments)),
-      maxIterations_(maxIterations) {
+      maxIterations_(maxIterations),
+      resourceGuards_(datalog::DatalogResourceGuards::fromContext(qec)) {
   AD_CONTRACT_CHECK(ruleDatabase_ != nullptr);
   AD_CONTRACT_CHECK(!rulePredicate_.empty());
   AD_CONTRACT_CHECK(maxIterations_ > 0);
+  // Validate resource guards
+  resourceGuards_.validate();
 }
 
 // _____________________________________________________________________________
@@ -188,11 +192,27 @@ IdTable FixpointComputation::runIterations() {
   IdTable allResults(getResultWidth(), allocator());
   size_t iteration = 0;
 
-  LOG(DEBUG) << "Starting fixpoint iterations..." << std::endl;
+  // EPIC 10.2: Initialize resource guards
+  datalog::RuleExecutionTimer timer(resourceGuards_.maxRuleTime);
+  datalog::FactCountTracker factTracker(resourceGuards_.maxFactCount);
+  datalog::MemoryUsageTracker memoryTracker(resourceGuards_.maxMemoryBytes);
+
+  // Set baseline memory
+  memoryTracker.setBaseline(allocator().amountUsed());
+
+  LOG(DEBUG) << "Starting fixpoint iterations with resource guards:" << std::endl;
+  LOG(DEBUG) << "  - Max iterations: " << maxIterations_ << std::endl;
+  LOG(DEBUG) << "  - Max facts: " << resourceGuards_.maxFactCount << std::endl;
+  LOG(DEBUG) << "  - Max time: " << resourceGuards_.maxRuleTime.count() << "ms" << std::endl;
+  LOG(DEBUG) << "  - Max memory: " << resourceGuards_.maxMemoryBytes << " bytes" << std::endl;
+  LOG(DEBUG) << "  - Epoch ID: " << resourceGuards_.epochId << std::endl;
 
   while (iteration < maxIterations_) {
     // Check for cancellation
     checkCancellation();
+
+    // EPIC 10.2: Check resource guards
+    checkResourceGuards(timer, factTracker, memoryTracker);
 
     LOG(DEBUG) << "Iteration " << iteration << "..." << std::endl;
 
@@ -220,6 +240,10 @@ IdTable FixpointComputation::runIterations() {
     if (iteration == 0) {
       if (newFacts.size() > 0) {
         allResults = newFacts.clone();
+
+        // EPIC 10.2: Track facts
+        factTracker.addFacts(newFacts.size());
+
         logIterationStats(iteration, newFacts.size(), allResults.size());
       } else {
         // No base facts, return empty
@@ -230,6 +254,9 @@ IdTable FixpointComputation::runIterations() {
       // Merge new facts with existing results
       size_t sizeBefore = allResults.size();
       size_t newRowsAdded = mergeAndDeduplicate(allResults, newFacts);
+
+      // EPIC 10.2: Track new facts
+      factTracker.addFacts(newRowsAdded);
 
       logIterationStats(iteration, newRowsAdded, allResults.size());
 
@@ -244,6 +271,10 @@ IdTable FixpointComputation::runIterations() {
     // Check memory constraints
     checkMemoryLimit(allResults.size() * getResultWidth());
 
+    // EPIC 10.2: Track memory usage
+    size_t currentMemory = allocator().amountUsed();
+    memoryTracker.recordAllocation(currentMemory);
+
     ++iteration;
   }
 
@@ -251,6 +282,15 @@ IdTable FixpointComputation::runIterations() {
     LOG(WARNING) << "Reached maximum iteration limit (" << maxIterations_
                  << ") without reaching fixpoint" << std::endl;
   }
+
+  // EPIC 10.2: Log final resource usage
+  LOG(INFO) << "Fixpoint computation completed with resource usage:" << std::endl;
+  LOG(INFO) << "  - Total facts: " << factTracker.count() << " / "
+            << factTracker.limit() << std::endl;
+  LOG(INFO) << "  - Elapsed time: " << timer.elapsed().count() << "ms / "
+            << resourceGuards_.maxRuleTime.count() << "ms" << std::endl;
+  LOG(INFO) << "  - Memory usage: " << memoryTracker.usage() << " / "
+            << memoryTracker.limit() << " bytes" << std::endl;
 
   return allResults;
 }
@@ -357,6 +397,14 @@ std::string FixpointComputation::getCacheKeyImpl() const {
     os << arguments_[i].toRdfLiteral();
   }
   os << ") max_iter=" << maxIterations_;
+
+  // EPIC 10.2: Include epoch ID and manifest hash for epoch isolation
+  // This prevents cache contamination across different epochs
+  os << " epoch=" << resourceGuards_.epochId;
+  if (!resourceGuards_.manifestHash.empty()) {
+    os << " manifest=" << resourceGuards_.manifestHash;
+  }
+
   return os.str();
 }
 
@@ -382,4 +430,18 @@ VariableToColumnMap FixpointComputation::computeVariableToColumnMap() const {
   }
 
   return result;
+}
+
+// _____________________________________________________________________________
+void FixpointComputation::checkResourceGuards(
+    const datalog::RuleExecutionTimer& timer,
+    const datalog::FactCountTracker& factTracker,
+    const datalog::MemoryUsageTracker& memoryTracker) const {
+  // Check time limit
+  timer.check();
+
+  // Fact count and memory are checked during addition (throws on violation)
+  // This is just a periodic check for logging purposes
+  (void)factTracker;  // Suppress unused parameter warning
+  (void)memoryTracker;
 }

@@ -13,6 +13,7 @@
 #include "engine/QueryExecutionContext.h"
 #include "engine/QueryExecutionTree.h"
 #include "engine/RuleExpansion.h"
+#include "engine/datalog/DatalogResourceGuards.h"
 #include "parser/DatalogRule.h"
 #include "parser/RuleDatabase.h"
 
@@ -129,6 +130,14 @@ class FixpointComputation : public Operation {
   void logIterationStats(size_t iteration, size_t newRows,
                          size_t totalRows) const;
 
+  /// EPIC 10.2: Check resource guards (time, fact count, memory)
+  /// @param timer Execution timer
+  /// @param factTracker Fact count tracker
+  /// @param memoryTracker Memory usage tracker
+  void checkResourceGuards(const datalog::RuleExecutionTimer& timer,
+                           const datalog::FactCountTracker& factTracker,
+                           const datalog::MemoryUsageTracker& memoryTracker) const;
+
  private:
   /// Database containing all Datalog rules
   std::shared_ptr<RuleDatabase> ruleDatabase_;
@@ -151,6 +160,9 @@ class FixpointComputation : public Operation {
 
   /// Cache for multiplicities
   std::vector<float> multiplicities_;
+
+  /// EPIC 10.2: Resource guards for epoch-bounded execution
+  datalog::DatalogResourceGuards resourceGuards_;
 };
 
 #endif  // QLEVER_SRC_ENGINE_FIXPOINTCOMPUTATION_H

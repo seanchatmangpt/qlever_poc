@@ -12,6 +12,7 @@
 #include <chrono>
 #include <vector>
 
+#include "DivergenceAbort.h"
 #include "IngressDigest.h"
 #include "global/Epoch.h"
 
@@ -124,8 +125,10 @@ IngressResult JsonLdIngressNormalizer::normalizeForDialect(
 
   // STEP 2: Enforce guard: max input size
   if (json_ld_input.size() > guards.max_input_size_bytes) {
-    result.error = IngressErrorCode::BUFFER_OVERFLOW;
-    return result;
+    // CRITICAL: Guard breach - input exceeds maximum allowed size
+    // Fail-closed: abort to prevent resource exhaustion
+    DIVERGENCE_ABORT_GUARD_BREACH(
+        "Input size exceeds guard limit - potential resource exhaustion");
   }
 
   // STEP 3: Parse JSON-LD with guards enforced
@@ -324,8 +327,16 @@ IngressErrorCode JsonLdIngressNormalizer::canonicalizeJson(
   try {
     canonical_output.clear();
     canonicalize(doc, canonical_output);
+  } catch (const std::exception& e) {
+    // CRITICAL: Canonicalization failure indicates corrupt data or internal error
+    // Fail-closed: abort instead of returning partial results
+    DIVERGENCE_ABORT(AbortCategory::CORRUPT_INDEX_DATA,
+                     "Canonicalization failed - corrupt JSON structure detected");
   } catch (...) {
-    return IngressErrorCode::NORMALIZATION_FAILED;
+    // CRITICAL: Unknown exception during canonicalization
+    // Fail-closed: abort instead of returning partial results
+    DIVERGENCE_ABORT(AbortCategory::INTERNAL_ERROR,
+                     "Unknown exception during JSON canonicalization");
   }
 
   return IngressErrorCode::OK;

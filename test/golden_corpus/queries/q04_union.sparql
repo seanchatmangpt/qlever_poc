@@ -1,0 +1,10 @@
+# W3C SPARQL 1.1 - UNION
+PREFIX dc: <http://purl.org/dc/elements/1.1/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+SELECT ?title
+WHERE {
+  { ?book dc:title ?title }
+  UNION
+  { ?book dcterms:title ?title }
+}
+LIMIT 10

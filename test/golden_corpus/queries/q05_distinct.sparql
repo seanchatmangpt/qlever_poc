@@ -1,0 +1,6 @@
+# W3C SPARQL 1.1 - DISTINCT
+SELECT DISTINCT ?type
+WHERE {
+  ?s <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ?type .
+}
+LIMIT 10

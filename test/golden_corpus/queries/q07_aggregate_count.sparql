@@ -1,0 +1,5 @@
+# W3C SPARQL 1.1 - Aggregate Functions (COUNT)
+SELECT (COUNT(?s) AS ?count)
+WHERE {
+  ?s ?p ?o .
+}

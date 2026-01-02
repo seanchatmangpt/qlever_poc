@@ -1,0 +1,51 @@
+================================================================================
+CMake Integration Instructions for Silence Enforcer CI Gate
+================================================================================
+
+INTEGRATION FILE CREATED:
+  /home/user/qlever/cmake/SilenceEnforcer.cmake
+
+TO INTEGRATE INTO BUILD:
+  Add the following line to /home/user/qlever/CMakeLists.txt:
+
+  include(cmake/SilenceEnforcer.cmake)
+
+  Recommended location: After the "Essential settings" section (around line 100)
+
+USAGE AFTER INTEGRATION:
+
+  1. Run manually as a Make target:
+     $ make silence_enforcer
+
+  2. Run as part of CTest suite:
+     $ ctest -R silence_enforcer
+
+  3. Enable automatic enforcement (uncomment in SilenceEnforcer.cmake):
+     Uncomment the add_custom_command() block to fail builds on violations
+
+CURRENT STATUS:
+  - Script: /home/user/qlever/scripts/ci-silence-enforcer.sh ✓
+  - CMake module: /home/user/qlever/cmake/SilenceEnforcer.cmake ✓
+  - Integration: Manual (requires adding include() to CMakeLists.txt)
+
+ENFORCEMENT OPTIONS:
+
+  Option A: Manual gate (current default)
+    - Developers run: make silence_enforcer
+    - CI runs: ctest -R silence_enforcer
+    - Violations do NOT block compilation
+    - Recommended for initial rollout
+
+  Option B: Pre-build enforcement
+    - Uncomment add_custom_command() in SilenceEnforcer.cmake
+    - Violations BLOCK compilation
+    - Requires all violations to be fixed first
+    - Recommended after cleanup complete
+
+  Option C: CI-only enforcement
+    - Add to .github/workflows or CI config
+    - Violations fail CI pipeline
+    - Does not affect local builds
+    - Recommended for gradual adoption
+
+================================================================================

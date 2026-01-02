@@ -59,3 +59,10 @@ linkBenchmark(ReadCacheBench)
 # Regression Gate - EPIC 10.1 regression detection (AGENT 10)
 add_executable(RegressionGate RegressionGate.cpp)
 linkBenchmark(RegressionGate)
+
+# EPIC 10.2 Performance Seal Benchmarks (AGENT 9)
+addAndLinkBenchmark(ingress_throughput engine testUtil)
+addAndLinkBenchmark(query_latency_distribution engine testUtil)
+
+# EPIC 10.2 Variance Gate Test Configuration (AGENT 9)
+include(test_variance_gate.cmake)

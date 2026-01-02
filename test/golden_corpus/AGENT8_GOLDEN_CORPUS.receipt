@@ -1,0 +1,157 @@
+================================================================================
+AGENT 8 - GOLDEN QUERY HARNESS RECEIPT
+EPIC 10.2 - Reference Physics Suite
+================================================================================
+
+EXECUTION METADATA
+------------------
+Date/Time:          2026-01-02 04:45:17 UTC
+Agent:              Agent 8 (Golden Query Harness)
+Task:               Establish Reference Physics Suite for deterministic validation
+Status:             COMPLETE (Infrastructure Phase)
+
+GOLDEN QUERY SET SOURCE
+-----------------------
+Primary Source:     W3C SPARQL 1.1 Query Language Specification
+                    https://www.w3.org/TR/sparql11-query/
+Secondary Source:   LUBM 100-query stress suite (to be added)
+Version:            1.0.0
+Created:            2026-01-02
+
+CORPUS STATISTICS
+-----------------
+Total Queries:      10
+Query Categories:
+  - Basic patterns:     1 (q01_basic_triple)
+  - FILTER:            1 (q02_filter)
+  - OPTIONAL:          1 (q03_optional)
+  - UNION:             1 (q04_union)
+  - DISTINCT:          1 (q05_distinct)
+  - ORDER BY:          1 (q06_order_by)
+  - Aggregates:        2 (q07_aggregate_count, q08_group_by)
+  - Subqueries:        1 (q09_subquery)
+  - REGEX:             1 (q10_regex)
+
+TEST RESULTS
+------------
+Status:             PENDING_BASELINE_COMPUTATION
+Reason:             Baseline digests require execution against reference QLever
+                    instance with LUBM(1,0) or equivalent RDF test dataset.
+
+Test Infrastructure:
+  ✓ Manifest.json created with query metadata
+  ✓ 10 SPARQL query files created (.sparql format)
+  ✓ Test harness implemented (GoldenCorpusTest.cpp)
+  ✓ CMake integration complete (test target added)
+  ✓ Digest computation infrastructure (SHA256, BLAKE3-ready)
+
+Queries Status:     All queries have "PENDING_BASELINE_COMPUTATION" digest
+Pass Rate:          N/A (awaiting baseline computation)
+
+DIVERGENCE ANALYSIS
+-------------------
+No divergences detected (baseline not yet computed).
+
+NEXT STEPS FOR BASELINE COMPUTATION:
+1. Build QLever with test harness: make build
+2. Load LUBM(1,0) test dataset into QLever instance
+3. Run: ctest -R GoldenCorpusTest -V --gtest_also_run_disabled_tests \
+        --gtest_filter="*.ComputeBaselineDigests"
+4. Update manifest.json with computed digests
+5. Enable ValidateGoldenQueryResults test (remove DISABLED_)
+6. Run validation: make test-golden-corpus
+
+IMPLEMENTATION DETAILS
+----------------------
+Test Harness:       /home/user/qlever/test/GoldenCorpusTest.cpp
+Harness SHA256:     e8ed0fb9313310af868962925c2b3315bdf68cfe9c0dd51839253a23201f0a57
+
+Corpus Directory:   /home/user/qlever/test/golden_corpus/
+Manifest:           /home/user/qlever/test/golden_corpus/manifest.json
+
+Query Files:
+  - q01_basic_triple.sparql
+  - q02_filter.sparql
+  - q03_optional.sparql
+  - q04_union.sparql
+  - q05_distinct.sparql
+  - q06_order_by.sparql
+  - q07_aggregate_count.sparql
+  - q08_group_by.sparql
+  - q09_subquery.sparql
+  - q10_regex.sparql
+
+CMake Integration:  /home/user/qlever/test/CMakeLists.txt (line 520)
+Test Target:        GoldenCorpusTest (via addLinkAndDiscoverTest)
+
+HASH ALGORITHM
+--------------
+Current:            SHA256 (OpenSSL EVP interface)
+Preferred:          BLAKE3 (specification requirement)
+Note:               Infrastructure supports algorithm swap without structural changes.
+                    CryptographicHashUtils.h can be extended with BLAKE3 support.
+
+CANONICAL RESULT FORMAT
+-----------------------
+Format:             TSV (Tab-Separated Values)
+Requirements:       - Deterministic column ordering
+                    - Sorted rows (stable sort)
+                    - Consistent value serialization
+                    - UTF-8 encoding
+                    - LF line endings
+
+INFRASTRUCTURE FEATURES
+-----------------------
+✓ JSON manifest with query metadata
+✓ File-based query corpus (version-controlled)
+✓ Cryptographic hash validation (SHA256)
+✓ GTest integration (parallel test execution)
+✓ CMake build system integration
+✓ Fail-fast on ANY digest mismatch
+✓ Detailed mismatch reporting (expected vs actual)
+✓ Baseline computation helper (DISABLED test)
+
+DETERMINISTIC GUARDS
+--------------------
+1. Query files are immutable once baseline is computed
+2. Manifest.json is authoritative source of truth
+3. Test fails build if ANY query result diverges
+4. Digests must match exactly (no tolerance)
+5. Results must be in canonical form (sorted, deterministic)
+
+MONOIDAL COMPOSITION
+--------------------
+This component composes without rework:
+- Query corpus is additive (new queries can be added independently)
+- Each query validation is independent (parallelizable)
+- Manifest updates are append-only for new queries
+- No circular dependencies with other test infrastructure
+- Clean separation: corpus data / harness code / CMake integration
+
+RECEIPTS & VALIDATION
+---------------------
+This receipt provides:
+- Timestamp of construction
+- Hash of harness implementation (reproducibility)
+- Complete inventory of deliverables
+- Status of baseline computation
+- Clear next steps for activation
+
+Validation method:
+  SHA256(/home/user/qlever/test/GoldenCorpusTest.cpp) =
+    e8ed0fb9313310af868962925c2b3315bdf68cfe9c0dd51839253a23201f0a57
+
+CONVERGENCE NOTES
+-----------------
+Agent 8 operated independently without coordination.
+Deliverables are self-contained and ready for:
+  - Collision detection with other agents
+  - Convergence analysis
+  - Integration into final EPIC 10.2 construction
+
+No dependencies on other agents' work.
+No external state modified beyond test/ directory.
+
+================================================================================
+END OF RECEIPT - AGENT 8
+================================================================================

@@ -1,0 +1,62 @@
+EPIC 10.2 - Agent 6 File Manifest
+Datalog/N3 Guardrails - Epoch-Identity Guards
+
+NEW FILES CREATED
+-----------------
+1. /home/user/qlever/src/engine/datalog/DatalogResourceGuards.h
+   - Resource guard definitions (MaxFactCount, MaxRuleTime, MaxMemory)
+   - Timer, tracker, and exception classes
+   - Epoch ID and manifest hash integration
+
+2. /home/user/qlever/src/engine/datalog/DatalogResourceGuards.cpp
+   - Implementation of DatalogResourceGuards::fromContext()
+   - Factory method for extracting epoch data from QueryExecutionContext
+
+3. /home/user/qlever/test/engine/datalog/DatalogEpochIsolationTest.cpp
+   - Unit tests for resource guards
+   - Tests for epoch cache isolation
+   - Tests for fact count, time, and memory limits
+
+4. /home/user/qlever/EPIC10.2_AGENT6_DATALOG_N3_GUARDRAILS.receipt
+   - Detailed delivery receipt
+   - Epoch ID computation method
+   - Resource guard limits
+   - Cache key structure
+   - Cross-contamination test results
+   - File hashes and verification
+
+5. /home/user/qlever/EPIC10.2_AGENT6_FILE_MANIFEST.txt
+   - This file (file manifest)
+
+MODIFIED FILES
+--------------
+1. /home/user/qlever/src/engine/FixpointComputation.h
+   - Added #include "engine/datalog/DatalogResourceGuards.h"
+   - Added checkResourceGuards() method
+   - Added resourceGuards_ member variable
+
+2. /home/user/qlever/src/engine/FixpointComputation.cpp
+   - Constructor initializes resourceGuards_ from context
+   - getCacheKeyImpl() includes epoch ID and manifest hash
+   - runIterations() initializes and checks resource guards
+   - Added checkResourceGuards() implementation
+   - Tracks facts, time, and memory during iteration
+
+3. /home/user/qlever/src/engine/RuleExpansion.cpp
+   - getCacheKeyImpl() includes epoch ID and manifest hash
+   - Prevents cross-epoch cache contamination
+
+TOTAL FILES
+-----------
+New: 5
+Modified: 3
+Total: 8
+
+KEY CHANGES SUMMARY
+-------------------
+- Epoch ID now included in all Datalog/N3 cache keys
+- Manifest hash included for deterministic cache invalidation
+- Resource guards active: fact count, time, memory
+- Cross-contamination prevented between epochs
+- All changes backward compatible
+- Tests validate resource guards and epoch isolation

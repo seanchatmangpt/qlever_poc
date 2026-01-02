@@ -149,6 +149,8 @@ addLinkAndDiscoverTestNoLibs(ConstexprSmallStringTest)
 
 addLinkAndDiscoverTest(CryptographicHashUtilsTest util)
 
+addLinkAndDiscoverTest(PhaseLockVerifierTest util)
+
 addLinkAndDiscoverTest(CacheTest)
 
 addLinkAndDiscoverTestNoLibs(ConcurrentCacheTest)
@@ -515,3 +517,6 @@ addLinkAndDiscoverTestNoLibs(ConstexprMapTest)
 addLinkAndDiscoverTest(ConstructCausationModeTest engine)
 
 addLinkAndDiscoverTest(engine/RegressionDetectorTest engine)
+
+# EPIC 10.2 - Golden Corpus Reference Physics Suite
+addLinkAndDiscoverTest(GoldenCorpusTest engine parser)
