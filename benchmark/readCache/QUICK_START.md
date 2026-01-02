@@ -12,7 +12,7 @@ cd build
 ./ReadCacheBench > read_cache_results.json
 
 # Run tests
-ctest -R ReadCacheBenchTest --output-on-failure
+./scripts/run-tests.sh ReadCacheBenchTest
 ```
 
 ## What This Benchmark Does
@@ -58,7 +58,7 @@ Tests the EPIC 3 read caching system with three modes:
 
 **Build fails**: Check that you're on branch `claude/epic3-read-caching-7Rja2`
 
-**Test fails**: Run with verbose: `ctest -R ReadCacheBenchTest --verbose`
+**Test fails**: Run tests: `./scripts/run-tests.sh ReadCacheBenchTest`
 
 **Low speedup**: Check cache implementation in Tasks 1-9
 

@@ -159,40 +159,41 @@ The SHACL test suite validates QLever's implementation of the Shapes Constraint 
 ### All SHACL Tests
 
 ```bash
-cd build
-ctest -R Shacl --output-on-failure
+./scripts/run-tests.sh Shacl
 ```
 
 ### Specific Test Suites
 
 ```bash
 # W3C compliance tests
-ctest -R ShaclCompliance --output-on-failure
+./scripts/run-tests.sh ShaclCompliance
 
 # W3C test suite integration
-ctest -R W3CShaclTestSuite --output-on-failure
+./scripts/run-tests.sh W3CShaclTestSuite
 
 # Shapes graph validation
-ctest -R ShapesGraphValidation --output-on-failure
+./scripts/run-tests.sh ShapesGraphValidation
 
 # Core component tests
-ctest -R ShaclConstraintEvaluator --output-on-failure
-ctest -R ShaclShapeRegistry --output-on-failure
-ctest -R ShaclShapeParser --output-on-failure
+./scripts/run-tests.sh ShaclConstraintEvaluator
+./scripts/run-tests.sh ShaclShapeRegistry
+./scripts/run-tests.sh ShaclShapeParser
 ```
 
 ### Individual Test Cases
 
 ```bash
 # Run specific test cases
-ctest -R ShaclCompliance.W3C_MinCount_Constraint --output-on-failure
-ctest -R W3CShaclTestSuite.W3C_Core_Pattern_001 --output-on-failure
+./scripts/run-tests.sh ShaclCompliance.W3C_MinCount_Constraint
+./scripts/run-tests.sh W3CShaclTestSuite.W3C_Core_Pattern_001
 ```
 
-### Verbose Output
+### Advanced: Direct ctest Usage
 
+For advanced testing with custom flags:
 ```bash
-# Show detailed test output
+cd build
+ctest -R Shacl --output-on-failure
 ctest -R Shacl --verbose --output-on-failure
 ```
 

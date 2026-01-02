@@ -128,27 +128,21 @@ conan install . --build=missing
 
 ```bash
 cd /path/to/qlever
-mkdir build
-cd build
 
-# Configure CMake
-cmake -DCMAKE_BUILD_TYPE=Release -GNinja ..
+# Full build (recommended)
+./scripts/build-release.sh
 
-# Build only the CONSTRUCT benchmark
-cmake --build . --target ConstructBenchmark
-
-# Or build all benchmarks
-cmake --build .
-```
-
-### Verify Build Success
-
-```bash
-# Check if executable was created
+# Verify build success
 ls -lh build/ConstructBenchmark
 
 # Run the benchmark
-./ConstructBenchmark
+./build/ConstructBenchmark
+```
+
+**Advanced:** For incremental builds of just the benchmark after code changes:
+```bash
+cd build
+cmake --build . --target ConstructBenchmark
 ```
 
 ## Running the Benchmarks
@@ -382,8 +376,8 @@ sudo apt-get install libssl-dev
 ### Runtime Issues
 
 **Segmentation fault when running benchmarks**
-- Ensure the build directory is clean: `rm -rf build && mkdir build`
-- Rebuild with debug symbols: `cmake -DCMAKE_BUILD_TYPE=Debug`
+- Ensure the build directory is clean: `rm -rf build && ./scripts/build-release.sh`
+- For debug symbols: `mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=Debug -GNinja .. && cmake --build .`
 
 **Out of memory errors**
 - Reduce `ConstructKGSizeImpact` sizes (currently 50-1000)
