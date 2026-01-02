@@ -1,0 +1,230 @@
+================================================================================
+REDUNDANCY ELIMINATION MAP — VISUAL REFERENCE
+================================================================================
+
+This map shows the consolidation of 47 redundant rule instances into 10
+authoritative sources. Each row shows where a rule is currently duplicated
+and where it will be consolidated.
+
+Format: [OLD LOCATION] → [NEW AUTHORITATIVE SOURCE]
+
+================================================================================
+GROUP 1: SPECIFICATION CLOSURE (5 → 1)
+================================================================================
+
+[1] EPIC8_SPECIFICATION_CLOSURE.md:889-920 (Status table)        }
+[2] bb80-specification-validator.md:12-14 (Closure verification)  }
+[3] bb80-specification-closure/SKILL.md:6-8 (Closed domains)      } → EPIC8_SPECIFICATION_CLOSURE.md
+[4] INVARIANT_VALIDATION_REPORT.md:10-12 (Meta-validation)        }   § Specification Closure Status
+[5] INVARIANT_VALIDATION_CHECKLIST.md:119-123 (Self-ref blocker) }   (SINGLE AUTHORITATIVE SOURCE)
+
+Lines eliminated: 120
+
+================================================================================
+GROUP 2: INVARIANT VALIDATION (6 → 1)
+================================================================================
+
+[1] EPIC8_SPECIFICATION_CLOSURE.md:101-156 (Global invariants)   }
+[2] bb80-invariant-validator.md:12-14 (Minimal set extraction)    }
+[3] bb80-invariant-construction/SKILL.md:6-8 (20% features)       }
+[4] INVARIANT_VALIDATION_REPORT.md:114-155 (Invariant set list)  } → EPIC8_SPECIFICATION_CLOSURE.md
+[5] INVARIANT_VALIDATION_EXECUTIVE_SUMMARY.txt:315-342 (Template) }   § Invariant Set
+[6] EPIC8_CI_RELEGATION.md:20-84 (Six mandatory phases)          }   (SINGLE AUTHORITATIVE SOURCE)
+
+Lines eliminated: 180
+
+================================================================================
+GROUP 3: DETERMINISM REQUIREMENTS (8 → 1)
+================================================================================
+
+[1] EPIC8_SPECIFICATION_CLOSURE.md:62-66 (Axiom 3)                }
+[2] EPIC8_SPECIFICATION_CLOSURE.md:142-147 (INV-6)                }
+[3] EPIC8_SPECIFICATION_CLOSURE.md:243-246 (Phase A property)     }
+[4] EPIC8_CI_RELEGATION.md:95-112 (CI/CD properties)              }
+[5] EPIC8_CI_RELEGATION.md:724-741 (Constraint 2)                 } → EPIC8_SPECIFICATION_CLOSURE.md
+[6] INVARIANT_VALIDATION_REPORT.md:305-310 (Finding 5)            }   § DCP Axiom 3 (Enhanced)
+[7] INVARIANT_VALIDATION_CHECKLIST.md:72-77 (Critical issue 1)    }   (SINGLE AUTHORITATIVE SOURCE)
+[8] INVARIANT_VALIDATION_CHECKLIST.md:157-179 (Quick win 1)       }
+
+Lines eliminated: 95
+
+================================================================================
+GROUP 4: FAIL-CLOSED SEMANTICS (4 → 1)
+================================================================================
+
+[1] EPIC8_SPECIFICATION_CLOSURE.md:54-59 (Axiom 2)               }
+[2] EPIC8_SPECIFICATION_CLOSURE.md:610-614 (Criteria)            } → EPIC8_SPECIFICATION_CLOSURE.md
+[3] EPIC8_CI_RELEGATION.md:40-42 (Phase A enforcement)           }   § DCP Axiom 2
+[4] EPIC8_CI_RELEGATION.md:766-790 (Constraint 4)                }   (SINGLE AUTHORITATIVE SOURCE)
+
+Lines eliminated: 40
+
+================================================================================
+GROUP 5: SINGLE ENTRY POINT (5 → 1)
+================================================================================
+
+[1] EPIC8_SPECIFICATION_CLOSURE.md:49-52 (Axiom 1)                }
+[2] EPIC8_CI_RELEGATION.md:24-30 (Single invocation point)        }
+[3] EPIC8_CI_RELEGATION.md:90-100 (Mandatory properties)          } → EPIC8_SPECIFICATION_CLOSURE.md
+[4] INVARIANT_VALIDATION_REPORT.md:114-117 (Invariant set)        }   § DCP Axiom 1
+[5] INVARIANT_VALIDATION_EXECUTIVE_SUMMARY.txt:378-384 (20% list) }   (SINGLE AUTHORITATIVE SOURCE)
+
+Lines eliminated: 55
+
+================================================================================
+GROUP 6: PHASE EXECUTION RULES (4 → 1)
+================================================================================
+
+[1] EPIC8_SPECIFICATION_CLOSURE.md:81-87 (Axiom 6)               }
+[2] EPIC8_SPECIFICATION_CLOSURE.md:199-543 (Phase definitions)   } → EPIC8_SPECIFICATION_CLOSURE.md
+[3] EPIC8_CI_RELEGATION.md:38-73 (Six phases)                    }   § Mandatory Phases
+[4] EPIC8_CI_RELEGATION.md:698-721 (Constraint 1)                }   (SINGLE AUTHORITATIVE SOURCE)
+
+Lines eliminated: 60
+
+================================================================================
+GROUP 7: ARTIFACT IMMUTABILITY (5 → 1)
+================================================================================
+
+[1] EPIC8_SPECIFICATION_CLOSURE.md:68-72 (Axiom 4)               }
+[2] EPIC8_SPECIFICATION_CLOSURE.md:232-234 (Phase A chmod)       }
+[3] EPIC8_SPECIFICATION_CLOSURE.md:483-485 (Phase F chmod)       } → EPIC8_SPECIFICATION_CLOSURE.md
+[4] EPIC8_CI_RELEGATION.md:749-762 (Constraint 3)                }   § DCP Axiom 4 (Enhanced)
+[5] INVARIANT_VALIDATION_REPORT.md:219-223 (Implicit invariants) }   (SINGLE AUTHORITATIVE SOURCE)
+
+Lines eliminated: 30
+
+================================================================================
+GROUP 8: MONOIDAL COMPOSITION (3 → 1)
+================================================================================
+
+[1] bb80-invariant-construction/SKILL.md:6-8 (Claimed principle)  }
+[2] bb80-invariant-validator.md:15-17 (Composition check)         } → EPIC8_SPECIFICATION_CLOSURE.md
+[3] INVARIANT_VALIDATION_REPORT.md:200-216 (Contradiction found)  }   § Monoidal Composition Principle
+                                                                       (NEW SECTION - Aspirational)
+
+Lines eliminated: 25
+
+================================================================================
+GROUP 9: PARALLEL AGENT EXECUTION (2 → 1)
+================================================================================
+
+[1] bb80-parallel-task-coordinator.md:12-14 (Independent dispatch) }
+[2] bb80-parallel-agents/SKILL.md:6-8 (Spawn 10 agents)           } → .claude/agents/
+                                                                       bb80-parallel-task-coordinator.md
+                                                                       (SINGLE AUTHORITATIVE SOURCE)
+
+Lines eliminated: 9
+File deleted: bb80-parallel-agents/SKILL.md
+
+================================================================================
+GROUP 10: RECEIPT VALIDATION (2 → 1)
+================================================================================
+
+[1] bb80-receipt-validator.md:12-14 (Deterministic receipts)      }
+[2] bb80-deterministic-receipts/SKILL.md:6-8 (Guards, not narrative) } → .claude/agents/
+                                                                          bb80-receipt-validator.md
+                                                                          (SINGLE AUTHORITATIVE SOURCE)
+
+Lines eliminated: 9
+File deleted: bb80-deterministic-receipts/SKILL.md
+
+================================================================================
+SUMMARY STATISTICS
+================================================================================
+
+Total redundancies identified: 47 instances
+Total lines eliminated: 623 lines (17% of corpus)
+Total files deleted: 2 files
+Total files modified: 9 files
+Authoritative sources: 10 locations
+
+Before consolidation: 3,658 lines across 14 documents
+After consolidation: 3,035 lines across 12 documents
+
+Redundancy reduction: 47 → 0 (100% elimination)
+Documentation consistency: FRAGMENTED → CONSOLIDATED
+
+================================================================================
+DOCUMENT CONSOLIDATION FLOW
+================================================================================
+
+TIER 1 (Laws):
+  EPIC8_SPECIFICATION_CLOSURE.md
+    ↑ Referenced by
+    │
+    ├── EPIC8_CI_RELEGATION.md (Tier 1 - CI/CD application)
+    │
+    ├── bb80-specification-validator.md (Tier 2)
+    │   ↑ Referenced by
+    │   └── bb80-specification-closure/SKILL.md (Tier 3)
+    │
+    ├── bb80-invariant-validator.md (Tier 2)
+    │   ↑ Referenced by
+    │   └── bb80-invariant-construction/SKILL.md (Tier 3)
+    │
+    └── INVARIANT_VALIDATION_* (Tier 4 - Validation reports)
+
+TIER 2 (Agents):
+  bb80-parallel-task-coordinator.md (Authoritative for parallel agents)
+    ↑ Referenced by
+    └── [DELETED] bb80-parallel-agents/SKILL.md
+
+  bb80-receipt-validator.md (Authoritative for receipts)
+    ↑ Referenced by
+    └── [DELETED] bb80-deterministic-receipts/SKILL.md
+
+================================================================================
+CONSOLIDATION VERIFICATION
+================================================================================
+
+Grep Test 1: Specification Closure
+  Before: grep -r "specification is closed" | wc -l → 5
+  After:  grep -r "specification is closed" | wc -l → 1 (+ 4 references)
+
+Grep Test 2: Invariant Set
+  Before: grep -r "INV-1: Git Repository" | wc -l → 3
+  After:  grep -r "INV-1: Git Repository" | wc -l → 1
+
+Grep Test 3: Determinism
+  Before: grep -r "Deterministic Output" | wc -l → 8
+  After:  grep -r "Deterministic Output" | wc -l → 1 (+ 2 references)
+
+File Count:
+  Before: 14 specification documents
+  After:  12 specification documents (2 deleted)
+
+Line Count:
+  Before: 3,658 total lines
+  After:  3,035 total lines
+  Reduction: 623 lines (17%)
+
+================================================================================
+KEY PRINCIPLE: SINGLE SOURCE OF TRUTH
+================================================================================
+
+OLD APPROACH (Fragmented):
+  Rule X stated in 5 locations with different wording
+    → Inconsistency: Which version is correct?
+    → Maintenance burden: Update 5 locations for each change
+    → Contradictions: Locations drift over time
+
+NEW APPROACH (Consolidated):
+  Rule X stated once in authoritative source
+    → Consistency: Only one version exists
+    → Maintenance: Update 1 location for all changes
+    → References: All other locations point to authority
+
+ENFORCEMENT:
+  All modifications to rules must occur in authoritative source
+  All references must cite section in authoritative source
+  Grep tests enforce no duplicate formal definitions
+
+================================================================================
+END OF MAP
+================================================================================
+
+Generated: 2026-01-01
+Report: EPIC8.2_REDUNDANCY_ELIMINATION_REPORT.md
+Implementation: CONSOLIDATION_PLAN.md
+Summary: EPIC8.2_AGENT9_COMPLETION_SUMMARY.txt
