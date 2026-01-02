@@ -125,6 +125,7 @@ add_subdirectory(rdfTypes)
 add_subdirectory(joinAlgorithms)
 add_subdirectory(libqlever)
 add_subdirectory(integration)
+add_subdirectory(fpv)
 add_subdirectory(qemu)
 
 # Epoch system tests
