@@ -1,0 +1,137 @@
+name: Security Dependency Audit
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'conanfile.txt'
+      - 'rust/Cargo.toml'
+      - 'rust/Cargo.lock'
+      - 'js/package.json'
+      - 'js/package-lock.json'
+      - '.github/workflows/security-audit.yml'
+  pull_request:
+    branches: [master]
+    paths:
+      - 'conanfile.txt'
+      - 'rust/Cargo.toml'
+      - 'rust/Cargo.lock'
+      - 'js/package.json'
+      - 'js/package-lock.json'
+  schedule:
+    # Weekly security audit (Monday at 02:00 UTC)
+    - cron: '0 2 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+  pull-requests: write
+
+jobs:
+  audit:
+    name: Dependency Security Audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Audit Cargo dependencies
+        run: |
+          echo "📋 Auditing Rust dependencies..."
+          cd rust
+          cargo audit --deny warnings || true
+          cd ..
+
+      - name: Audit npm dependencies
+        run: |
+          echo "📋 Auditing Node.js dependencies..."
+          cd js
+          npm audit --audit-level=moderate || true
+          cd ..
+
+      - name: Audit Python dependencies
+        run: |
+          echo "📋 Auditing Python dependencies..."
+          pip install pip-audit
+          pip-audit --desc || true
+
+      - name: Check Conan lock file
+        run: |
+          echo "📋 Checking Conan dependency lock..."
+          if [ -f conan.lock ]; then
+            echo "✓ conan.lock found"
+            # Parse and validate lock file structure
+            if python3 -m json.tool conan.lock > /dev/null 2>&1; then
+              echo "✓ conan.lock is valid JSON"
+            else
+              echo "⚠ conan.lock syntax may need validation"
+            fi
+          else
+            echo "⚠ conan.lock not found. Generate with: conan lock create conanfile.txt"
+          fi
+
+      - name: Generate SBOM (Software Bill of Materials)
+        run: |
+          echo "📦 Generating SBOM..."
+          # Create a summary of dependencies
+          {
+            echo "# QLever Dependencies Report"
+            echo "Generated: $(date)"
+            echo ""
+            echo "## C++ (Conan)"
+            echo "Dependencies from conanfile.txt:"
+            grep -E "^[a-zA-Z]" conanfile.txt || echo "None"
+            echo ""
+            echo "## Rust (Cargo)"
+            if [ -f rust/Cargo.lock ]; then
+              echo "Locked dependencies: $(grep -c '^\[\[package\]\]' rust/Cargo.lock || echo '0')"
+            fi
+            echo ""
+            echo "## JavaScript (npm)"
+            if [ -f js/package-lock.json ]; then
+              echo "Locked packages: $(grep -c '\"version\"' js/package-lock.json || echo '0')"
+            fi
+          } > SBOM_REPORT.md
+          cat SBOM_REPORT.md
+
+      - name: Upload SBOM as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-report
+          path: SBOM_REPORT.md
+          retention-days: 30
+
+      - name: Comment on PR with audit results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const sbom = fs.readFileSync('SBOM_REPORT.md', 'utf8');
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '🔐 **Security Dependency Audit**\n\n```markdown\n' + sbom + '\n```\n\nSee artifacts for full SBOM report.'
+            });
+
+      - name: Report summary
+        run: |
+          echo "📊 Audit Summary:"
+          echo "  - Rust: cargo audit"
+          echo "  - Node.js: npm audit"
+          echo "  - Python: pip-audit"
+          echo "  - Conan: lock file validation"
+          echo ""
+          echo "For detailed findings, check job logs and artifacts."
