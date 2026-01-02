@@ -161,10 +161,10 @@ verify_compiler() {
     return 0
 }
 
-# Setup Conan
+# Setup Conan (optimized with profile caching)
 setup_conan() {
     echo "Setting up Conan..."
-    
+
     # Check if Conan is installed
     if command_exists "conan"; then
         local version
@@ -178,16 +178,22 @@ setup_conan() {
         fi
         echo "  ✓ Conan installed"
     fi
-    
-    # Detect/create profile
+
+    # Detect/create profile (cache if already exists)
     echo "  Detecting Conan profile..."
-    if ! conan profile detect --force >/dev/null 2>&1; then
-        echo "${YELLOW}Warning: Could not detect Conan profile automatically${NC}"
-        echo "  You may need to configure it manually: conan profile detect"
+    local conan_profile_path="${HOME}/.conan2/profiles/default"
+
+    if [ -f "$conan_profile_path" ]; then
+        echo "  ✓ Conan profile already exists (cached)"
     else
-        echo "  ✓ Conan profile detected/created"
+        if ! conan profile detect --force >/dev/null 2>&1; then
+            echo "${YELLOW}Warning: Could not detect Conan profile automatically${NC}"
+            echo "  You may need to configure it manually: conan profile detect"
+        else
+            echo "  ✓ Conan profile detected/created"
+        fi
     fi
-    
+
     # Verify Conan can work (basic check)
     if conan --version >/dev/null 2>&1; then
         echo "  ✓ Conan is functional"
@@ -198,43 +204,50 @@ setup_conan() {
     fi
 }
 
-# Install system dependencies
+# Install system dependencies (optimized for cloud environment)
 install_system_deps() {
     echo "Installing system dependencies..."
 
-    # Update package list (non-fatal if it fails)
-    echo "  Updating package list..."
-    sudo apt-get update >/dev/null 2>&1 || echo "${YELLOW}Warning: apt-get update failed (may be in restricted environment)${NC}"
+    # Skip apt-get update in cloud environments (packages pre-cached)
+    if ! is_remote_env; then
+        # Update package list (non-fatal if it fails)
+        echo "  Updating package list..."
+        sudo apt-get update >/dev/null 2>&1 || echo "${YELLOW}Warning: apt-get update failed (may be in restricted environment)${NC}"
+    fi
 
-    # Core build tools and compilers
-    install_if_missing "build-essential" "Build tools (GCC, make, etc.)"
-    install_if_missing "cmake" "CMake build system"
-    install_if_missing "ninja-build" "Ninja build system"
-    install_if_missing "pkg-config" "pkg-config"
-    install_if_missing "git" "Git version control"
-    install_if_missing "wget" "Wget HTTP client"
+    # Critical build tools - batch install for speed
+    local critical_packages="build-essential cmake ninja-build pkg-config git wget libicu-dev libssl-dev libboost1.83-dev libboost-program-options1.83-dev libboost-iostreams1.83-dev libboost-url1.83-dev libboost-container1.83-dev"
 
-    # Internationalization and localization
-    install_if_missing "libicu-dev" "ICU development libraries"
-    install_if_missing "tzdata" "Timezone data"
+    if is_remote_env; then
+        # Cloud environment: batch install only missing packages
+        echo "  Batch installing critical packages (cloud-optimized)..."
+        local missing_packages=""
+        for pkg in $critical_packages; do
+            if ! dpkg -l | grep -q "^ii.*$pkg "; then
+                missing_packages="$missing_packages $pkg"
+            fi
+        done
 
-    # UUID support
-    install_if_missing "uuid-runtime" "UUID runtime utilities"
-    install_if_missing "uuid-dev" "UUID development libraries"
+        if [ -n "$missing_packages" ]; then
+            if ! sudo apt-get install -y $missing_packages >/dev/null 2>&1; then
+                echo "${YELLOW}Warning: Some packages failed to install${NC}"
+            fi
+        else
+            echo "  ✓ Critical packages already installed"
+        fi
+    else
+        # Local environment: install individually with feedback
+        for pkg in $critical_packages; do
+            install_if_missing "$pkg"
+        done
+    fi
 
-    # Memory management and compression
-    install_if_missing "libjemalloc-dev" "Jemalloc memory allocator"
-    install_if_missing "libzstd-dev" "Zstandard compression library"
-
-    # Security libraries
-    install_if_missing "libssl-dev" "OpenSSL development libraries"
-
-    # Boost libraries (required for QLever) - version pinned for deterministic builds
-    install_if_missing "libboost1.83-dev" "Boost development libraries (1.83)"
-    install_if_missing "libboost-program-options1.83-dev" "Boost program options (1.83)"
-    install_if_missing "libboost-iostreams1.83-dev" "Boost iostreams (1.83)"
-    install_if_missing "libboost-url1.83-dev" "Boost URL library (1.83)"
-    install_if_missing "libboost-container1.83-dev" "Boost container library (1.83)"
+    # Optional performance packages
+    echo "  Installing optional packages..."
+    install_if_missing "libjemalloc-dev" "Jemalloc memory allocator (optional)"
+    install_if_missing "libzstd-dev" "Zstandard compression library (optional)"
+    install_if_missing "tzdata" "Timezone data (optional)"
+    install_if_missing "uuid-dev" "UUID development libraries (optional)"
 
     # Python development
     if ! command_exists "pip" && ! command_exists "pip3"; then
@@ -245,51 +258,49 @@ install_system_deps() {
     fi
 }
 
-# Install Python dependencies
+# Install Python dependencies (cloud-optimized with parallel installation)
 install_python_deps() {
     echo "Installing Python dependencies..."
-    
+
     # Determine pip command
     local pip_cmd="pip"
     if ! command_exists "pip" && command_exists "pip3"; then
         pip_cmd="pip3"
     fi
-    
+
     if ! command_exists "$pip_cmd"; then
         echo "${RED}ERROR: pip not found${NC}"
         return 1
     fi
-    
-    # Install pre-commit
-    echo "  Installing pre-commit..."
-    if $pip_cmd show pre-commit >/dev/null 2>&1; then
-        echo "  ✓ pre-commit already installed"
-    else
-        if $pip_cmd install pre-commit >/dev/null 2>&1; then
-            echo "  ✓ pre-commit installed"
+
+    # Check which packages are already installed (batch check)
+    local precommit_needed=false
+    local pyaml_needed=false
+    local pyicu_needed=false
+
+    $pip_cmd show pre-commit >/dev/null 2>&1 || precommit_needed=true
+    $pip_cmd show pyaml >/dev/null 2>&1 || pyaml_needed=true
+    $pip_cmd show pyicu >/dev/null 2>&1 || pyicu_needed=true
+
+    # Batch install available packages in parallel
+    if [ "$precommit_needed" = true ] || [ "$pyaml_needed" = true ]; then
+        echo "  Installing pre-commit and pyaml (batch)..."
+        local packages_to_install=""
+        [ "$precommit_needed" = true ] && packages_to_install="$packages_to_install pre-commit"
+        [ "$pyaml_needed" = true ] && packages_to_install="$packages_to_install pyaml"
+
+        if $pip_cmd install $packages_to_install >/dev/null 2>&1; then
+            echo "  ✓ Python packages installed"
         else
-            echo "${RED}ERROR: Failed to install pre-commit${NC}"
-            return 1
+            echo "${YELLOW}Warning: Some Python packages failed to install${NC}"
         fi
-    fi
-    
-    # Install pyaml (for E2E tests)
-    echo "  Installing pyaml..."
-    if $pip_cmd show pyaml >/dev/null 2>&1; then
-        echo "  ✓ pyaml already installed"
     else
-        if $pip_cmd install pyaml >/dev/null 2>&1; then
-            echo "  ✓ pyaml installed"
-        else
-            echo "${YELLOW}Warning: Failed to install pyaml (E2E tests may fail)${NC}"
-        fi
+        echo "  ✓ pre-commit and pyaml already installed"
     fi
-    
-    # Install pyicu (requires libicu-dev to be installed first)
-    echo "  Installing pyicu..."
-    if $pip_cmd show pyicu >/dev/null 2>&1; then
-        echo "  ✓ pyicu already installed"
-    else
+
+    # Install pyicu separately (requires compilation from source)
+    if [ "$pyicu_needed" = true ]; then
+        echo "  Installing pyicu..."
         # Check if libicu-dev is installed
         if ! dpkg -l | grep -q "^ii.*libicu-dev "; then
             echo "${YELLOW}Warning: libicu-dev not found, pyicu installation may fail${NC}"
@@ -298,17 +309,21 @@ install_python_deps() {
             echo "  ✓ pyicu installed"
         else
             echo "${YELLOW}Warning: Failed to install pyicu (E2E tests may fail)${NC}"
-            echo "  Ensure libicu-dev is installed: sudo apt-get install libicu-dev"
         fi
-    fi
-    
-    # Setup pre-commit hooks
-    echo "  Setting up git hooks..."
-    if pre-commit install >/dev/null 2>&1; then
-        echo "  ✓ Pre-commit hooks installed"
     else
-        echo "${YELLOW}Warning: Failed to install pre-commit hooks${NC}"
-        echo "  This is non-fatal, but code formatting won't run automatically"
+        echo "  ✓ pyicu already installed"
+    fi
+
+    # Setup pre-commit hooks (optional in cloud, required for commits)
+    if is_remote_env && [ "$BACKGROUND_MODE" = true ]; then
+        echo "  Deferring pre-commit hook setup (background installation)..."
+    else
+        echo "  Setting up git hooks..."
+        if command_exists "pre-commit" && pre-commit install >/dev/null 2>&1; then
+            echo "  ✓ Pre-commit hooks installed"
+        else
+            echo "${YELLOW}Warning: Failed to install pre-commit hooks${NC}"
+        fi
     fi
 }
 
@@ -384,6 +399,21 @@ verify_environment() {
 
 # Main execution
 main() {
+    # Parse command-line arguments
+    BACKGROUND_MODE=false
+    NO_BACKGROUND_MODE=false
+
+    for arg in "$@"; do
+        case "$arg" in
+            --background)
+                BACKGROUND_MODE=true
+                ;;
+            --no-background)
+                NO_BACKGROUND_MODE=true
+                ;;
+        esac
+    done
+
     # Check if we can use sudo (may not be available in all environments)
     if ! sudo -n true 2>/dev/null; then
         echo "${YELLOW}Note: Some installations may require sudo privileges${NC}"
