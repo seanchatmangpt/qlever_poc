@@ -1,0 +1,64 @@
+FPV_WITNESS_V1
+timestamp: 2026-01-02T12:00:00Z
+kani_version: 0.56.0
+rapidcheck_version: 1.0.0
+status: TEMPLATE (for validation once dependencies installed)
+
+[kani_harnesses]
+verify_join_result_width: PENDING (hash: blake3:TBD)
+verify_join_cost_estimate: PENDING (hash: blake3:TBD)
+verify_join_corrected_estimate: PENDING (hash: blake3:TBD)
+verify_join_table_index: PENDING (hash: blake3:TBD)
+verify_join_back_index: PENDING (hash: blake3:TBD)
+verify_filter_interval_bounds: PENDING (hash: blake3:TBD)
+verify_indexscan_loop_bounds: PENDING (hash: blake3:TBD)
+verify_indexscan_result_width: PENDING (hash: blake3:TBD)
+verify_indexscan_midpoint: PENDING (hash: blake3:TBD)
+
+[rapidcheck_properties]
+join_semantic_equivalence: PENDING (tests: TBD, hash: blake3:TBD)
+filter_semantic_equivalence: PENDING (tests: TBD, hash: blake3:TBD)
+indexscan_semantic_equivalence: PENDING (tests: TBD, hash: blake3:TBD)
+
+[mc_dc_coverage]
+Join: PENDING (hash: blake3:TBD)
+Filter: PENDING (hash: blake3:TBD)
+IndexScan: PENDING (hash: blake3:TBD)
+JoinAlgorithms: PENDING (hash: blake3:TBD)
+
+witness_hash: BLAKE3:TBD
+signature: [Signature placeholder - to be generated after validation]
+
+INSTRUCTIONS FOR VALIDATION:
+1. Install dependencies:
+   - RapidCheck: sudo apt-get install librapidcheck-dev OR FetchContent will download
+   - Kani: cargo install --locked kani-verifier && cargo kani setup
+   - b3sum: cargo install b3sum
+   - lcov: sudo apt-get install lcov
+
+2. Build and run FPV tests:
+   cd /home/user/qlever
+   mkdir -p build && cd build
+   cmake .. -G Ninja
+   ninja fpv_rapidcheck_join fpv_rapidcheck_filter fpv_rapidcheck_indexscan
+
+3. Run quick validation:
+   ./test/fpv/fpv_rapidcheck_join --rc-seed=42 --rc-max-success=10000
+   ./test/fpv/fpv_rapidcheck_filter --rc-seed=42 --rc-max-success=10000
+   ./test/fpv/fpv_rapidcheck_indexscan --rc-seed=42 --rc-max-success=10000
+
+4. Run Kani verification:
+   cd ../test/fpv/kani
+   cargo kani --harness verify_all
+
+5. Generate witness:
+   cd ../../..
+   ./test/fpv/generate_witness.sh
+
+6. Verify witness:
+   cat fpv_witness.receipt
+
+7. Commit witness to repository (UNLOCKS AGENTS 1, 3-10):
+   git add fpv_witness.receipt
+   git commit -m "feat(EPIC 10.3 Agent 2): FPV witness - gate released"
+   git push
