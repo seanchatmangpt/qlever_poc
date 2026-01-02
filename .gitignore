@@ -60,3 +60,9 @@ benchmark_optimizations_simple
 # EPIC 8 runtime artifacts
 .artifacts/
 .config/
+
+# FetchContent cache directory (CMake dependency downloads)
+build/_fc_cache/
+
+# CMake user presets (IDE configuration, generated locally)
+CMakeUserPresets.json
