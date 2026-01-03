@@ -1,0 +1,54 @@
+{
+  "$schema": "https://qlever.cs.uni-freiburg.de/schemas/formalism-test-v1.json",
+  "version": "1.0",
+  "formalism": "N3",
+  "source": "N3 80/20 Compliance Test Suite",
+  "sourceUrl": "https://www.w3.org/TeamSubmission/n3/",
+  "tests": [
+    {
+      "testId": "n3-turtle-001",
+      "description": "Basic Turtle-level N3 parsing (no N3-specific features)",
+      "inputFormat": "turtle",
+      "input": "@prefix ex: <http://example.org/> .\n@prefix foaf: <http://xmlns.com/foaf/0.1/> .\n\nex:alice a foaf:Person ;\n  foaf:name \"Alice\" ;\n  foaf:knows ex:bob .",
+      "expectedConforms": true,
+      "expectedViolations": [],
+      "tags": ["n3", "turtle", "basic", "80/20"]
+    },
+    {
+      "testId": "n3-prefix-001",
+      "description": "Multiple prefix declarations",
+      "inputFormat": "turtle",
+      "input": "@prefix ex: <http://example.org/> .\n@prefix foaf: <http://xmlns.com/foaf/0.1/> .\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n\nex:alice a foaf:Person .\nex:bob rdf:type foaf:Person .",
+      "expectedConforms": true,
+      "expectedViolations": [],
+      "tags": ["n3", "turtle", "prefix"]
+    },
+    {
+      "testId": "n3-literal-001",
+      "description": "Literal values with datatypes",
+      "inputFormat": "turtle",
+      "input": "@prefix ex: <http://example.org/> .\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n\nex:alice ex:age \"30\"^^xsd:integer ;\n  ex:height \"1.75\"^^xsd:double ;\n  ex:birthdate \"1994-01-01\"^^xsd:date .",
+      "expectedConforms": true,
+      "expectedViolations": [],
+      "tags": ["n3", "turtle", "literal", "datatype"]
+    },
+    {
+      "testId": "n3-blank-node-001",
+      "description": "Blank nodes in Turtle",
+      "inputFormat": "turtle",
+      "input": "@prefix ex: <http://example.org/> .\n@prefix foaf: <http://xmlns.com/foaf/0.1/> .\n\nex:alice foaf:knows [\n  a foaf:Person ;\n  foaf:name \"Bob\"\n] .",
+      "expectedConforms": true,
+      "expectedViolations": [],
+      "tags": ["n3", "turtle", "blank-node"]
+    },
+    {
+      "testId": "n3-collection-001",
+      "description": "RDF collection (list)",
+      "inputFormat": "turtle",
+      "input": "@prefix ex: <http://example.org/> .\n\nex:list ex:hasItems (1 2 3 4 5) .",
+      "expectedConforms": true,
+      "expectedViolations": [],
+      "tags": ["n3", "turtle", "collection", "list"]
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "$schema": "https://qlever.cs.uni-freiburg.de/schemas/formalism-negative-test-v1.json",
+  "version": "1.0",
+  "formalism": "SHACL",
+  "description": "SHACL negative test corpus - invalid inputs with expected rejections",
+  "tests": [
+    {
+      "testId": "shacl-invalid-syntax-001",
+      "description": "Malformed Turtle syntax in SHACL shape",
+      "inputFormat": "turtle",
+      "invalidInput": "@prefix sh: <http://www.w3.org/ns/shacl#> .\n@prefix ex: <http://example.org/> .\n\nex:PersonShape a sh:NodeShape\n  sh:targetClass ex:Person",
+      "expectedErrorType": "ParseException",
+      "expectedErrorPattern": "Expected.*semicolon|dot|Unexpected end",
+      "tags": ["syntax", "parse-error"]
+    },
+    {
+      "testId": "shacl-invalid-constraint-value-001",
+      "description": "sh:minCount with non-integer value",
+      "inputFormat": "turtle",
+      "invalidInput": "@prefix sh: <http://www.w3.org/ns/shacl#> .\n@prefix ex: <http://example.org/> .\n\nex:PersonShape a sh:NodeShape ;\n  sh:property [\n    sh:path ex:name ;\n    sh:minCount \"not-a-number\"\n  ] .",
+      "expectedErrorType": "ValidationError",
+      "expectedErrorPattern": "minCount.*integer|Invalid constraint value",
+      "tags": ["constraint", "type-error"]
+    },
+    {
+      "testId": "shacl-invalid-nodekind-001",
+      "description": "Invalid sh:nodeKind value",
+      "inputFormat": "turtle",
+      "invalidInput": "@prefix sh: <http://www.w3.org/ns/shacl#> .\n@prefix ex: <http://example.org/> .\n\nex:PersonShape a sh:NodeShape ;\n  sh:property [\n    sh:path ex:name ;\n    sh:nodeKind ex:InvalidNodeKind\n  ] .",
+      "expectedErrorType": "ValidationError",
+      "expectedErrorPattern": "Invalid nodeKind|Unknown nodeKind value",
+      "tags": ["constraint", "nodeKind", "validation-error"]
+    },
+    {
+      "testId": "shacl-invalid-pattern-001",
+      "description": "Invalid regex pattern in sh:pattern",
+      "inputFormat": "turtle",
+      "invalidInput": "@prefix sh: <http://www.w3.org/ns/shacl#> .\n@prefix ex: <http://example.org/> .\n\nex:PersonShape a sh:NodeShape ;\n  sh:property [\n    sh:path ex:email ;\n    sh:pattern \"[invalid-regex(\"\n  ] .",
+      "expectedErrorType": "ValidationError",
+      "expectedErrorPattern": "Invalid regex|Pattern compilation failed",
+      "tags": ["constraint", "pattern", "regex-error"]
+    },
+    {
+      "testId": "shacl-missing-target-001",
+      "description": "Node shape with no target definition",
+      "inputFormat": "turtle",
+      "invalidInput": "@prefix sh: <http://www.w3.org/ns/shacl#> .\n@prefix ex: <http://example.org/> .\n\nex:PersonShape a sh:NodeShape ;\n  sh:property [\n    sh:path ex:name ;\n    sh:minCount 1\n  ] .",
+      "expectedErrorType": "ValidationWarning",
+      "expectedErrorPattern": "No target|Shape has no target definition",
+      "tags": ["target", "warning"]
+    },
+    {
+      "testId": "shacl-circular-reference-001",
+      "description": "Circular shape reference without proper handling",
+      "inputFormat": "turtle",
+      "invalidInput": "@prefix sh: <http://www.w3.org/ns/shacl#> .\n@prefix ex: <http://example.org/> .\n\nex:ShapeA a sh:NodeShape ;\n  sh:property [\n    sh:path ex:relatedTo ;\n    sh:node ex:ShapeB\n  ] .\n\nex:ShapeB a sh:NodeShape ;\n  sh:property [\n    sh:path ex:relatedTo ;\n    sh:node ex:ShapeA\n  ] .",
+      "expectedErrorType": "RecursionError",
+      "expectedErrorPattern": "Circular reference|Infinite recursion detected",
+      "tags": ["recursion", "circular"]
+    }
+  ]
+}

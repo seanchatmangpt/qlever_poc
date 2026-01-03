@@ -1,0 +1,87 @@
+{
+  "$schema": "https://qlever.cs.uni-freiburg.de/schemas/formalism-test-v1.json",
+  "version": "1.0",
+  "formalism": "SHACL",
+  "source": "W3C SHACL 1.0 Core Constraints",
+  "sourceUrl": "https://www.w3.org/TR/shacl/",
+  "tests": [
+    {
+      "testId": "shacl-mincount-001",
+      "description": "sh:minCount with exactly minimum number of values (W3C core/minCount-001)",
+      "inputFormat": "turtle",
+      "input": "@prefix sh: <http://www.w3.org/ns/shacl#> .\n@prefix ex: <http://example.org/> .\n\nex:PersonShape a sh:NodeShape ;\n  sh:targetClass ex:Person ;\n  sh:property [\n    sh:path ex:name ;\n    sh:minCount 1\n  ] .\n\nex:alice a ex:Person ;\n  ex:name \"Alice\" .",
+      "expectedConforms": true,
+      "expectedViolations": [],
+      "tags": ["w3c", "core", "cardinality", "minCount"]
+    },
+    {
+      "testId": "shacl-mincount-002",
+      "description": "sh:minCount violation with fewer than minimum values",
+      "inputFormat": "turtle",
+      "input": "@prefix sh: <http://www.w3.org/ns/shacl#> .\n@prefix ex: <http://example.org/> .\n\nex:PersonShape a sh:NodeShape ;\n  sh:targetClass ex:Person ;\n  sh:property [\n    sh:path ex:name ;\n    sh:minCount 1\n  ] .\n\nex:bob a ex:Person .",
+      "expectedConforms": false,
+      "expectedViolations": [
+        {
+          "focusNode": "ex:bob",
+          "constraintComponent": "sh:MinCountConstraintComponent",
+          "severity": "sh:Violation"
+        }
+      ],
+      "tags": ["w3c", "core", "cardinality", "minCount", "violation"]
+    },
+    {
+      "testId": "shacl-maxcount-001",
+      "description": "sh:maxCount with exactly maximum number of values",
+      "inputFormat": "turtle",
+      "input": "@prefix sh: <http://www.w3.org/ns/shacl#> .\n@prefix ex: <http://example.org/> .\n\nex:PersonShape a sh:NodeShape ;\n  sh:targetClass ex:Person ;\n  sh:property [\n    sh:path ex:email ;\n    sh:maxCount 1\n  ] .\n\nex:alice a ex:Person ;\n  ex:email \"alice@example.com\" .",
+      "expectedConforms": true,
+      "expectedViolations": [],
+      "tags": ["w3c", "core", "cardinality", "maxCount"]
+    },
+    {
+      "testId": "shacl-nodekind-iri-001",
+      "description": "sh:nodeKind sh:IRI with valid IRI",
+      "inputFormat": "turtle",
+      "input": "@prefix sh: <http://www.w3.org/ns/shacl#> .\n@prefix ex: <http://example.org/> .\n\nex:ResourceShape a sh:NodeShape ;\n  sh:targetClass ex:Resource ;\n  sh:property [\n    sh:path ex:relatedTo ;\n    sh:nodeKind sh:IRI\n  ] .\n\nex:resource1 a ex:Resource ;\n  ex:relatedTo ex:resource2 .",
+      "expectedConforms": true,
+      "expectedViolations": [],
+      "tags": ["w3c", "core", "nodeKind", "IRI"]
+    },
+    {
+      "testId": "shacl-pattern-001",
+      "description": "sh:pattern with matching string",
+      "inputFormat": "turtle",
+      "input": "@prefix sh: <http://www.w3.org/ns/shacl#> .\n@prefix ex: <http://example.org/> .\n\nex:PersonShape a sh:NodeShape ;\n  sh:targetClass ex:Person ;\n  sh:property [\n    sh:path ex:name ;\n    sh:pattern \"^[A-Z][a-z]+$\"\n  ] .\n\nex:alice a ex:Person ;\n  ex:name \"Alice\" .",
+      "expectedConforms": true,
+      "expectedViolations": [],
+      "tags": ["w3c", "core", "pattern", "regex"]
+    },
+    {
+      "testId": "shacl-datatype-001",
+      "description": "sh:datatype with valid datatype",
+      "inputFormat": "turtle",
+      "input": "@prefix sh: <http://www.w3.org/ns/shacl#> .\n@prefix ex: <http://example.org/> .\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n\nex:PersonShape a sh:NodeShape ;\n  sh:targetClass ex:Person ;\n  sh:property [\n    sh:path ex:age ;\n    sh:datatype xsd:integer\n  ] .\n\nex:alice a ex:Person ;\n  ex:age 30 .",
+      "expectedConforms": true,
+      "expectedViolations": [],
+      "tags": ["w3c", "core", "datatype", "integer"]
+    },
+    {
+      "testId": "shacl-minlength-001",
+      "description": "sh:minLength with string at minimum length",
+      "inputFormat": "turtle",
+      "input": "@prefix sh: <http://www.w3.org/ns/shacl#> .\n@prefix ex: <http://example.org/> .\n\nex:PersonShape a sh:NodeShape ;\n  sh:targetClass ex:Person ;\n  sh:property [\n    sh:path ex:name ;\n    sh:minLength 2\n  ] .\n\nex:alice a ex:Person ;\n  ex:name \"Al\" .",
+      "expectedConforms": true,
+      "expectedViolations": [],
+      "tags": ["w3c", "core", "minLength", "string"]
+    },
+    {
+      "testId": "shacl-maxlength-001",
+      "description": "sh:maxLength with string at maximum length",
+      "inputFormat": "turtle",
+      "input": "@prefix sh: <http://www.w3.org/ns/shacl#> .\n@prefix ex: <http://example.org/> .\n\nex:PersonShape a sh:NodeShape ;\n  sh:targetClass ex:Person ;\n  sh:property [\n    sh:path ex:name ;\n    sh:maxLength 10\n  ] .\n\nex:alice a ex:Person ;\n  ex:name \"Alice\" .",
+      "expectedConforms": true,
+      "expectedViolations": [],
+      "tags": ["w3c", "core", "maxLength", "string"]
+    }
+  ]
+}

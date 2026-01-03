@@ -1,0 +1,76 @@
+{
+  "$schema": "https://qlever.cs.uni-freiburg.de/schemas/formalism-negative-test-v1.json",
+  "version": "1.0",
+  "formalism": "N3",
+  "description": "N3 negative test corpus - invalid Turtle/N3 inputs (based on existing N3 corpus)",
+  "tests": [
+    {
+      "testId": "n3-invalid-escape-001",
+      "description": "Invalid escape sequence in string literal",
+      "inputFormat": "turtle",
+      "invalidInput": "@prefix ex: <http://example.org/> .\nex:resource ex:value \"invalid \\x escape\" .",
+      "expectedErrorType": "ParseException",
+      "expectedErrorPattern": "Invalid escape sequence|Unknown escape",
+      "expectedErrorLine": 2,
+      "tags": ["syntax", "escape", "literal"]
+    },
+    {
+      "testId": "n3-malformed-iri-001",
+      "description": "Malformed IRI with invalid characters",
+      "inputFormat": "turtle",
+      "invalidInput": "@prefix ex: <http://example.org/> .\nex:resource ex:relatedTo <http://example.org/path with spaces> .",
+      "expectedErrorType": "ParseException",
+      "expectedErrorPattern": "Malformed IRI|Invalid IRI syntax",
+      "expectedErrorLine": 2,
+      "tags": ["syntax", "iri", "malformed"]
+    },
+    {
+      "testId": "n3-unterminated-literal-001",
+      "description": "Unterminated string literal",
+      "inputFormat": "turtle",
+      "invalidInput": "@prefix ex: <http://example.org/> .\nex:resource ex:value \"unterminated string .",
+      "expectedErrorType": "ParseException",
+      "expectedErrorPattern": "Unterminated.*literal|Expected closing quote",
+      "expectedErrorLine": 2,
+      "tags": ["syntax", "literal", "unterminated"]
+    },
+    {
+      "testId": "n3-invalid-prefix-001",
+      "description": "Undefined prefix used in subject",
+      "inputFormat": "turtle",
+      "invalidInput": "@prefix ex: <http://example.org/> .\nundefined:resource ex:property \"value\" .",
+      "expectedErrorType": "ParseException",
+      "expectedErrorPattern": "Undefined prefix|Prefix not declared",
+      "expectedErrorLine": 2,
+      "tags": ["prefix", "undefined"]
+    },
+    {
+      "testId": "n3-invalid-datatype-001",
+      "description": "Invalid datatype IRI in literal",
+      "inputFormat": "turtle",
+      "invalidInput": "@prefix ex: <http://example.org/> .\nex:resource ex:value \"123\"^^ex:InvalidDatatype .",
+      "expectedErrorType": "ValidationWarning",
+      "expectedErrorPattern": "Unknown datatype|Unrecognized datatype",
+      "tags": ["datatype", "validation"]
+    },
+    {
+      "testId": "n3-missing-dot-001",
+      "description": "Missing statement terminator (dot)",
+      "inputFormat": "turtle",
+      "invalidInput": "@prefix ex: <http://example.org/> .\nex:subject ex:predicate ex:object\nex:subject2 ex:predicate2 ex:object2 .",
+      "expectedErrorType": "ParseException",
+      "expectedErrorPattern": "Expected.*dot|Missing statement terminator",
+      "expectedErrorLine": 2,
+      "tags": ["syntax", "terminator"]
+    },
+    {
+      "testId": "n3-base-iri-conflict-001",
+      "description": "Conflicting @base declarations",
+      "inputFormat": "turtle",
+      "invalidInput": "@base <http://example.org/> .\n@base <http://different.org/> .\n<resource> <property> <value> .",
+      "expectedErrorType": "ParseException",
+      "expectedErrorPattern": "Multiple @base|Base already defined",
+      "tags": ["base", "conflict"]
+    }
+  ]
+}
