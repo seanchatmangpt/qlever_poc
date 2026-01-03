@@ -38,9 +38,13 @@ cd qlever
 # Install pre-commit hooks
 pre-commit install
 
+# Configure CMake (one-time or when CMakeLists.txt changes)
+cmake -B build -GNinja -DCMAKE_BUILD_TYPE=Release ..
+
 # Verify setup
 make build
 make test
+make benchmark
 ```
 
 See [Quick Start](docs/how-to/quick-start.md) for detailed instructions.

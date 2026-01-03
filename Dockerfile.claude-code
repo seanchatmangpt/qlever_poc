@@ -1,0 +1,127 @@
+# Dockerfile matching Claude Code on the web universal image
+# Supports C++, Rust, and Python development for QLever
+FROM ubuntu:22.04
+
+LABEL maintainer="QLever Development"
+LABEL description="Development environment matching Claude Code on the web universal image"
+
+ENV LANG=C.UTF-8
+ENV LC_ALL=C.UTF-8
+ENV LC_CTYPE=C.UTF-8
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install system dependencies and build tools (split into steps for better error handling)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    gcc \
+    g++ \
+    clang \
+    clang++ \
+    make \
+    cmake \
+    ninja-build \
+    pkg-config \
+    git \
+    wget \
+    curl \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install QLever C++ dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libicu-dev \
+    libssl-dev \
+    libboost-dev \
+    libboost-program-options-dev \
+    libboost-iostreams-dev \
+    libboost-url-dev \
+    libboost-container-dev \
+    libzstd-dev \
+    uuid-dev \
+    tzdata \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Python and tools (python3-icu installed separately to avoid conflicts)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3 \
+    python3-pip \
+    python3-dev \
+    python3-venv \
+    python3-yaml \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install python3-icu separately (may have dependency conflicts)
+RUN apt-get update && (apt-get install -y --no-install-recommends python3-icu || echo "python3-icu not available") && rm -rf /var/lib/apt/lists/*
+
+# Install additional development tools
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    vim \
+    sudo \
+    bash-completion \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install jemalloc separately (may not be available on all platforms)
+RUN apt-get update && (apt-get install -y --no-install-recommends libjemalloc-dev || echo "jemalloc not available") && rm -rf /var/lib/apt/lists/*
+
+# Install Rust toolchain (matching Claude Code on the web)
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y \
+    && . $HOME/.cargo/env \
+    && rustup default stable \
+    && rustup component add rustfmt clippy \
+    && rm -rf $HOME/.cargo/registry/cache
+
+# Install Python package managers and tools
+RUN pip3 install --no-cache-dir --upgrade pip setuptools wheel \
+    && pip3 install --no-cache-dir \
+    poetry \
+    pre-commit \
+    pyaml \
+    pyicu \
+    conan \
+    pytest \
+    pytest-cov \
+    black \
+    flake8 \
+    mypy
+
+# Install Conan 2.x (if not already installed via pip)
+RUN pip3 install --no-cache-dir conan || true
+
+# Set up environment variables
+ENV PATH="/root/.cargo/bin:$PATH"
+ENV RUSTUP_HOME="/root/.rustup"
+ENV CARGO_HOME="/root/.cargo"
+
+# Verify installations
+RUN gcc --version && \
+    clang++ --version && \
+    cmake --version && \
+    ninja --version && \
+    rustc --version && \
+    cargo --version && \
+    python3 --version && \
+    pip3 --version && \
+    poetry --version || true
+
+# Create workspace directory
+WORKDIR /workspace
+
+# Set up a non-root user for development (optional)
+RUN useradd -m -s /bin/bash developer && \
+    echo "developer ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers && \
+    mkdir -p /workspace && \
+    chown -R developer:developer /workspace
+
+# Default to root for now (can switch to developer user if needed)
+USER root
+
+# Add helpful aliases and environment setup
+RUN echo 'alias ll="ls -l"' >> /etc/bash.bashrc && \
+    echo 'alias la="ls -la"' >> /etc/bash.bashrc && \
+    echo 'export PS1="\u@claude-code:\w\$ "' >> /etc/bash.bashrc
+
+# Expose common development ports (if needed)
+# EXPOSE 3000 7001 8080
+
+CMD ["/bin/bash"]
+

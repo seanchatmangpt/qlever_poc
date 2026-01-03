@@ -154,26 +154,29 @@ Module organization: highest-density modules listed first.
 ./LibQLeverExample
 ```
 
-**Build targets:**
+**Build commands:**
 ```bash
-# Full deterministic build (recommended)
+# One-time setup
+./scripts/setup-dev-env.sh
+
+# Configure CMake (one-time or when CMakeLists.txt changes)
+cmake -B build -GNinja -DCMAKE_BUILD_TYPE=Release ..
+
+# Build
 make build
 
-# Fast incremental build
-make
-
-# Test suite
+# Test
 make test
 
-# Benchmarks
-make benchmark_examples join_algorithm_benchmark construct_benchmark epoch_benchmark
+# Benchmark
+make benchmark
 ```
 
 **CMake direct invocation:**
 ```bash
 mkdir -p build && cd build
-cmake -DCMAKE_BUILD_TYPE=Release ..
-cmake --build . --target ServerMain -- -j$(nproc)
+cmake -DCMAKE_BUILD_TYPE=Release -GNinja ..
+cmake --build . -- -j$(nproc)
 ctest --output-on-failure
 ```
 

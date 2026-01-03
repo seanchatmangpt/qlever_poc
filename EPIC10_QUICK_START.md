@@ -24,7 +24,8 @@ ls -1 scripts/enforce-inv-*.sh | wc -l
 # Skips tests requiring built artifacts
 
 # Run all tests (requires build)
-make universe
+make build
+make test
 ./tests/test-epic10-invariants.sh
 # Answer 'y' to run expensive BLOCKER tests
 ```

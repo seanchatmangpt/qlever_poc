@@ -1,0 +1,35 @@
+# Docker Compose for Claude Code matching development environment
+version: '3.8'
+
+services:
+  claude-code-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.claude-code
+    image: qlever:claude-code-dev
+    container_name: qlever-claude-code-dev
+    volumes:
+      # Mount the entire project (excluding build artifacts)
+      - .:/workspace/qlever
+      # Persist cargo cache
+      - cargo-cache:/root/.cargo/registry
+      # Persist pip cache
+      - pip-cache:/root/.cache/pip
+    working_dir: /workspace/qlever
+    environment:
+      - CLAUDE_CODE_REMOTE=false
+      - DEBIAN_FRONTEND=noninteractive
+      - LANG=C.UTF-8
+      - LC_ALL=C.UTF-8
+    stdin_open: true
+    tty: true
+    # Uncomment to expose ports if needed
+    # ports:
+    #   - "3000:3000"
+    #   - "7001:7001"
+    command: /bin/bash
+
+volumes:
+  cargo-cache:
+  pip-cache:
+
