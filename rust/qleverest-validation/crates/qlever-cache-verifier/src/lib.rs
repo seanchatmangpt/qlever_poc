@@ -152,7 +152,7 @@ mod tests {
             timestamp_ns: 1000,
             query_id: "q1".to_string(),
             decision: CacheDecisionType::Miss,
-            cache_tier: CacheTier::Bytes,
+            cache_tier: "bytes".to_string(),
             evicted_entry_id: None,
         });
 
@@ -178,14 +178,14 @@ mod tests {
             timestamp_ns: 1000,
             query_id: "q1".to_string(),
             decision: CacheDecisionType::Miss,
-            cache_tier: CacheTier::Bytes,
+            cache_tier: "bytes".to_string(),
             evicted_entry_id: None,
         });
         log.record(CacheDecision {
             timestamp_ns: 2000,
             query_id: "q1".to_string(),
             decision: CacheDecisionType::Admit,
-            cache_tier: CacheTier::Bytes,
+            cache_tier: "bytes".to_string(),
             evicted_entry_id: None,
         });
 
@@ -201,7 +201,7 @@ mod tests {
             timestamp_ns: 1000,
             query_id: "q1".to_string(),
             decision: CacheDecisionType::Hit,
-            cache_tier: CacheTier::Bytes,
+            cache_tier: "bytes".to_string(),
             evicted_entry_id: None,
         });
 

@@ -181,10 +181,21 @@ impl QueryPlan {
 mod tests {
     use super::*;
 
+    // SKIP: FFI test - requires C++ QLever installation and libqlever.so
+    // Reason: Store::open calls Qlever::new which requires FFI bindings
+    // Enable when: C++ FFI wrapper is implemented (see cpp/ffi_wrapper.cpp)
+    // Tests: Verifies Store wrapper compiles and links correctly with FFI
     #[test]
-    #[ignore] // Requires QLever C library to be linked
+    #[ignore = "FFI not implemented: requires libqlever.so and working C++ FFI (see cpp/ffi_wrapper.cpp)"]
     fn test_open_index() {
+        // This test validates the Store wrapper API compiles correctly
+        // When FFI is implemented, it will test:
+        // 1. Opening an existing QLever index from disk
+        // 2. Proper error handling for missing/invalid indices
+        // 3. Memory safety across FFI boundary
         let _result = Store::open("/path/to/index");
-        // Will fail without a real index, but tests compilation
+        // Expected behavior when FFI works:
+        // - Returns Err for non-existent path
+        // - Returns Ok(Store) for valid index directory
     }
 }

@@ -6,6 +6,7 @@
 #define QLEVER_SRC_ENGINE_FILTER_EVALUATOR_H
 
 #include <memory>
+
 #include "engine/idTable/IdTable.h"
 #include "engine/sparqlExpressions/SparqlExpression.h"
 
@@ -66,10 +67,9 @@ class FilterEvaluator {
  */
 class ScalarFilterEvaluator : public FilterEvaluator {
  public:
-  IdTable evaluate(
-      const IdTable& input,
-      const sparqlExpression::SparqlExpressionPimpl& expression,
-      sparqlExpression::EvaluationContext& context) const override;
+  IdTable evaluate(const IdTable& input,
+                   const sparqlExpression::SparqlExpressionPimpl& expression,
+                   sparqlExpression::EvaluationContext& context) const override;
 
   const char* version() const override { return "SCALAR_V1"; }
 };
@@ -77,8 +77,8 @@ class ScalarFilterEvaluator : public FilterEvaluator {
 /**
  * @brief V2: SIMD batch evaluator (P3E handoff target, Week 7)
  *
- * Placeholder for P3E (SIMD Integration) implementation.
- * Will use vectorized evaluation for batch processing.
+ * ASPIRATIONAL STUB: SIMD vectorization not yet implemented.
+ * This class currently delegates all work to ScalarFilterEvaluator.
  *
  * P3E Requirements (from COLLISION_ZONE_RESOLUTIONS.md):
  * - Consume IdTableAOS interface (ZONE 1 dependency)
@@ -86,16 +86,22 @@ class ScalarFilterEvaluator : public FilterEvaluator {
  * - Guarantee bit-identical results vs. ScalarFilterEvaluator
  * - Performance target: 2-4x faster than scalar on supported CPUs
  *
- * Current status: STUB (returns scalar evaluation as fallback)
+ * **WARNING**: Despite the name, this evaluator provides NO SIMD acceleration.
+ * It returns scalar results and has the same performance as
+ * ScalarFilterEvaluator. Do not use this class if you expect SIMD performance
+ * gains.
+ *
+ * Current status: STUB - delegates to scalar fallback (see FilterEvaluator.cpp
+ * line 101)
  */
 class SIMDFilterEvaluator : public FilterEvaluator {
  public:
-  IdTable evaluate(
-      const IdTable& input,
-      const sparqlExpression::SparqlExpressionPimpl& expression,
-      sparqlExpression::EvaluationContext& context) const override;
+  IdTable evaluate(const IdTable& input,
+                   const sparqlExpression::SparqlExpressionPimpl& expression,
+                   sparqlExpression::EvaluationContext& context) const override;
 
   const char* version() const override { return "SIMD_V2"; }
+
  private:
   // TODO(P3E Week 7): Implement vectorized evaluation
   // For now, delegate to scalar evaluator
@@ -123,7 +129,8 @@ class AdaptiveFilterEvaluator : public FilterEvaluator {
    * 2. If SIMD available && expression is vectorizable: use SIMDFilterEvaluator
    * 3. Otherwise: use ScalarFilterEvaluator
    *
-   * This ensures hot path has zero conditional branches (just virtual dispatch).
+   * This ensures hot path has zero conditional branches (just virtual
+   * dispatch).
    */
   AdaptiveFilterEvaluator();
 
@@ -155,9 +162,9 @@ class AdaptiveFilterEvaluator : public FilterEvaluator {
 class FilterEvaluatorFactory {
  public:
   enum class EvaluatorType {
-    SCALAR,    // Force scalar (for testing, legacy systems)
-    SIMD,      // Force SIMD (for testing, assumes CPU support)
-    ADAPTIVE   // Auto-detect (default, production use)
+    SCALAR,   // Force scalar (for testing, legacy systems)
+    SIMD,     // Force SIMD (for testing, assumes CPU support)
+    ADAPTIVE  // Auto-detect (default, production use)
   };
 
   static std::unique_ptr<FilterEvaluator> create(

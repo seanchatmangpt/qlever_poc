@@ -94,10 +94,10 @@ impl CacheKeyWithEpoch {
 
     /// Get the full cache key as bytes
     pub fn to_bytes(&self) -> Vec<u8> {
-        let mut bytes = Vec::with_capacity(48 + self.cache_tier.len());
+        let mut bytes = Vec::with_capacity(41);
         bytes.extend_from_slice(&self.epoch_prefix);
         bytes.extend_from_slice(&self.query_hash);
-        bytes.extend_from_slice(self.cache_tier.as_bytes());
+        bytes.push(self.cache_tier.clone() as u8);
         bytes
     }
 }

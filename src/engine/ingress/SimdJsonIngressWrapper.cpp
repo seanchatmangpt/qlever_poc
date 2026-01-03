@@ -17,16 +17,20 @@ IngressResult SimdJsonIngressWrapper::parseJsonLd(
     return result;
   }
 
+  // ASPIRATIONAL STUB: This function is not yet implemented.
   // TODO: Implement simdjson::ondemand parsing
   // - Validate structure
   // - Extract @context, @id, @type
   // - Normalize to canonical form
   // - Compute digest
   // - Return error code (never throw)
+  //
+  // Current status: Returns UNIMPLEMENTED to prevent silent failures.
+  // DO NOT use this function in production until implementation is complete.
 
-  result.error = IngressErrorCode::OK;
-  result.bytes_parsed = json_input.size();
-  result.document_count = 1;
+  result.error = IngressErrorCode::UNIMPLEMENTED;
+  result.bytes_parsed = 0;
+  result.document_count = 0;
   return result;
 }
 
@@ -39,12 +43,15 @@ IngressResult SimdJsonIngressWrapper::validateStructure(
     return result;
   }
 
+  // ASPIRATIONAL STUB: This function is not yet implemented.
   // TODO: Implement structural validation only
   // - Check JSON syntax
   // - Verify nesting depth
   // - No semantic checks
+  //
+  // Current status: Returns UNIMPLEMENTED to prevent silent failures.
 
-  result.error = IngressErrorCode::OK;
+  result.error = IngressErrorCode::UNIMPLEMENTED;
   return result;
 }
 
@@ -57,24 +64,34 @@ IngressResult SimdJsonIngressWrapper::normalizeJsonLd(
     return result;
   }
 
+  // ASPIRATIONAL STUB: This function is not yet implemented.
   // TODO: Implement canonical normalization
   // - Alphabetical field ordering
   // - UTF-8 NFC normalization
   // - Whitespace removal
+  //
+  // Current status: Returns UNIMPLEMENTED to prevent silent failures.
+  // Previously this function just copied input to output and returned OK,
+  // which was a deception.
 
-  normalized_output = std::string(json_input);
-  result.error = IngressErrorCode::OK;
+  normalized_output.clear();  // Don't pretend we normalized anything
+  result.error = IngressErrorCode::UNIMPLEMENTED;
   return result;
 }
 
 std::string SimdJsonIngressWrapper::compute_digest(
     std::string_view normalized_json, uint32_t validation_mask,
     IngressErrorCode error_code) noexcept {
+  // ASPIRATIONAL STUB: This function is not yet implemented.
   // TODO: Implement SHA256 digest computation
   // - Use deterministic serialization
   // - Include validation_mask + error_code
   // - Return hex-encoded digest string
-  return "0000000000000000000000000000000000000000000000000000000000000000";
+  //
+  // Current status: Returns error indicator instead of fake hash.
+  // Previously returned all zeros, which was deceptive.
+  // Return empty string to indicate "NOT IMPLEMENTED"
+  return "";
 }
 
 IngressResult SimdJsonIngressWrapper::fallback_parse(

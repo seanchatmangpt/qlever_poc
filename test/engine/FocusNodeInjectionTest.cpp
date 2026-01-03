@@ -376,12 +376,12 @@ TEST_F(FocusNodeInjectionTest, TranslateConstraintToFilter_Datatype) {
   datatypeConstraint.value =
       std::string("http://www.w3.org/2001/XMLSchema#integer");
 
-  auto filter = FocusNodeInjection::translateConstraintToFilter(
-      "age", datatypeConstraint);
-
-  // Should create a filter (content validation requires SparqlExpression
-  // parser) For now, just verify it doesn't crash
-  SUCCEED();
+  // Verify that translation doesn't crash and returns a valid filter
+  // (Full validation of filter content requires SPARQL expression parsing)
+  EXPECT_NO_THROW({
+    auto filter = FocusNodeInjection::translateConstraintToFilter(
+        "age", datatypeConstraint);
+  }) << "Datatype constraint translation should not crash";
 }
 
 // _____________________________________________________________________________
@@ -389,17 +389,16 @@ TEST_F(FocusNodeInjectionTest, TranslateConstraintToFilter_RangeConstraints) {
   ShaclConstraint minConstraint(ConstraintType::MinInclusive);
   minConstraint.value = 0;
 
-  auto minFilter =
-      FocusNodeInjection::translateConstraintToFilter("age", minConstraint);
-
   ShaclConstraint maxConstraint(ConstraintType::MaxInclusive);
   maxConstraint.value = 150;
 
-  auto maxFilter =
-      FocusNodeInjection::translateConstraintToFilter("age", maxConstraint);
-
-  // Should create filters (content validation requires SparqlExpression parser)
-  SUCCEED();
+  // Verify that both min and max range constraints translate without crashing
+  EXPECT_NO_THROW({
+    auto minFilter =
+        FocusNodeInjection::translateConstraintToFilter("age", minConstraint);
+    auto maxFilter =
+        FocusNodeInjection::translateConstraintToFilter("age", maxConstraint);
+  }) << "Range constraint translation should not crash";
 }
 
 // _____________________________________________________________________________
@@ -408,11 +407,11 @@ TEST_F(FocusNodeInjectionTest, TranslateConstraintToFilter_EnumerationIn) {
   inConstraint.value = std::vector<std::string>{
       "http://example.org/A", "http://example.org/B", "http://example.org/C"};
 
-  auto filter =
-      FocusNodeInjection::translateConstraintToFilter("category", inConstraint);
-
-  // Should create filter for set membership
-  SUCCEED();
+  // Verify that enumeration constraint translates without crashing
+  EXPECT_NO_THROW({
+    auto filter = FocusNodeInjection::translateConstraintToFilter("category",
+                                                                  inConstraint);
+  }) << "Enumeration constraint translation should not crash";
 }
 
 // _____________________________________________________________________________

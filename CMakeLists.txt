@@ -569,3 +569,6 @@ qlever_target_link_libraries(PrintIndexVersionMain util)
 
 add_executable(N3VerifierMain src/util/N3VerifierMain.cpp src/util/N3ComplianceVerifier.cpp)
 qlever_target_link_libraries(N3VerifierMain util)
+
+# FFI Library for Rust bindings (EPIC 13 Phase 4)
+add_subdirectory(cpp)

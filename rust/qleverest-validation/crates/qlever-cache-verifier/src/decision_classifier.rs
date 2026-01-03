@@ -121,21 +121,21 @@ mod tests {
 
     #[test]
     fn test_cache_tier_classification() {
-        assert_eq!(CacheTier::from("bytes"), CacheTier::Bytes);
-        assert_eq!(CacheTier::from("neg"), CacheTier::Neg);
-        assert_eq!(CacheTier::from("plan"), CacheTier::Plan);
+        assert_eq!(CacheTier::try_from("bytes"), Ok(CacheTier::Bytes));
+        assert_eq!(CacheTier::try_from("neg"), Ok(CacheTier::Neg));
+        assert_eq!(CacheTier::try_from("plan"), Ok(CacheTier::Plan));
     }
 
     #[test]
     fn test_cache_tier_numeric() {
-        assert_eq!(CacheTier::from("0"), CacheTier::Bytes);
-        assert_eq!(CacheTier::from("1"), CacheTier::Neg);
-        assert_eq!(CacheTier::from("2"), CacheTier::Plan);
+        assert_eq!(CacheTier::try_from("0"), Ok(CacheTier::Bytes));
+        assert_eq!(CacheTier::try_from("1"), Ok(CacheTier::Neg));
+        assert_eq!(CacheTier::try_from("2"), Ok(CacheTier::Plan));
     }
 
     #[test]
     fn test_cache_tier_invalid() {
-        // Invalid tier defaults to Bytes
-        assert_eq!(CacheTier::from("invalid"), CacheTier::Bytes);
+        let result = CacheTier::try_from("invalid");
+        assert!(result.is_err());
     }
 }

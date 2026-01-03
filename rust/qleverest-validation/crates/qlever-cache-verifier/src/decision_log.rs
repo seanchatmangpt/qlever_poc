@@ -2,7 +2,8 @@
 //!
 //! Implements the decision log format from EPIC 11 Invariant B4.
 
-pub use qlever_kernel_runner::{CacheDecision, CacheDecisionType, CacheTier};
+pub use qlever_kernel_runner::{CacheDecision, CacheDecisionType};
+use serde::{Deserialize, Serialize};
 
 /// Cache decision log - records all cache operations
 #[derive(Debug, Clone, Default)]
@@ -120,7 +121,7 @@ mod tests {
             timestamp_ns: 1000,
             query_id: "q1".to_string(),
             decision: CacheDecisionType::Miss,
-            cache_tier: CacheTier::Bytes,
+            cache_tier: "bytes".to_string(),
             evicted_entry_id: None,
         });
 
@@ -135,21 +136,21 @@ mod tests {
             timestamp_ns: 1000,
             query_id: "q1".to_string(),
             decision: CacheDecisionType::Miss,
-            cache_tier: CacheTier::Bytes,
+            cache_tier: "bytes".to_string(),
             evicted_entry_id: None,
         });
         log.record(CacheDecision {
             timestamp_ns: 2000,
             query_id: "q2".to_string(),
             decision: CacheDecisionType::Hit,
-            cache_tier: CacheTier::Bytes,
+            cache_tier: "bytes".to_string(),
             evicted_entry_id: None,
         });
         log.record(CacheDecision {
             timestamp_ns: 3000,
             query_id: "q1".to_string(),
             decision: CacheDecisionType::Admit,
-            cache_tier: CacheTier::Bytes,
+            cache_tier: "bytes".to_string(),
             evicted_entry_id: None,
         });
 
@@ -164,7 +165,7 @@ mod tests {
             timestamp_ns: 1000,
             query_id: "q1".to_string(),
             decision: CacheDecisionType::Miss,
-            cache_tier: CacheTier::Bytes,
+            cache_tier: "bytes".to_string(),
             evicted_entry_id: None,
         });
 
@@ -182,14 +183,14 @@ mod tests {
             timestamp_ns: 1000,
             query_id: "q1".to_string(),
             decision: CacheDecisionType::Hit,
-            cache_tier: CacheTier::Bytes,
+            cache_tier: "bytes".to_string(),
             evicted_entry_id: None,
         });
         log.record(CacheDecision {
             timestamp_ns: 2000,
             query_id: "q2".to_string(),
             decision: CacheDecisionType::Miss,
-            cache_tier: CacheTier::Bytes,
+            cache_tier: "bytes".to_string(),
             evicted_entry_id: None,
         });
 
@@ -203,7 +204,7 @@ mod tests {
             timestamp_ns: 1000,
             query_id: "q1".to_string(),
             decision: CacheDecisionType::Miss,
-            cache_tier: CacheTier::Bytes,
+            cache_tier: "bytes".to_string(),
             evicted_entry_id: None,
         });
 
