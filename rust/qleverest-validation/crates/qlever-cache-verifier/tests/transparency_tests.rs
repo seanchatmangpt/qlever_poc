@@ -1,3 +1,4 @@
+use qlever_kernel_runner::CacheTier;
 //! Cache transparency tests
 //!
 //! Tests for Invariant B4: Silent cache behavior is forbidden
@@ -20,7 +21,7 @@ fn test_no_silent_cache_behavior() {
         timestamp_ns: 1000,
         query_id: "q1".to_string(),
         decision: CacheDecisionType::Miss,
-        cache_tier: "bytes".to_string(),
+        cache_tier: CacheTier::Bytes,
         evicted_entry_id: None,
     });
 
@@ -28,7 +29,7 @@ fn test_no_silent_cache_behavior() {
         timestamp_ns: 2000,
         query_id: "q2".to_string(),
         decision: CacheDecisionType::Hit,
-        cache_tier: "bytes".to_string(),
+        cache_tier: CacheTier::Bytes,
         evicted_entry_id: None,
     });
 
@@ -66,7 +67,7 @@ fn test_partial_transparency_failure() {
         timestamp_ns: 1000,
         query_id: "q1".to_string(),
         decision: CacheDecisionType::Miss,
-        cache_tier: "bytes".to_string(),
+        cache_tier: CacheTier::Bytes,
         evicted_entry_id: None,
     });
 
@@ -97,7 +98,7 @@ fn test_all_six_decision_types_recorded() {
             timestamp_ns: 1000,
             query_id: query_id.to_string(),
             decision: decision_type.clone(),
-            cache_tier: "bytes".to_string(),
+            cache_tier: CacheTier::Bytes,
             evicted_entry_id: None,
         });
     }
@@ -125,7 +126,7 @@ fn test_cache_behavior_sequence_verification() {
         timestamp_ns: 1000,
         query_id: query_id.to_string(),
         decision: CacheDecisionType::Miss,
-        cache_tier: "bytes".to_string(),
+        cache_tier: CacheTier::Bytes,
         evicted_entry_id: None,
     });
 
@@ -133,7 +134,7 @@ fn test_cache_behavior_sequence_verification() {
         timestamp_ns: 2000,
         query_id: query_id.to_string(),
         decision: CacheDecisionType::Admit,
-        cache_tier: "bytes".to_string(),
+        cache_tier: CacheTier::Bytes,
         evicted_entry_id: None,
     });
 
@@ -141,7 +142,7 @@ fn test_cache_behavior_sequence_verification() {
         timestamp_ns: 3000,
         query_id: query_id.to_string(),
         decision: CacheDecisionType::Hit,
-        cache_tier: "bytes".to_string(),
+        cache_tier: CacheTier::Bytes,
         evicted_entry_id: None,
     });
 
@@ -169,7 +170,7 @@ fn test_behavior_sequence_divergence_detected() {
         timestamp_ns: 1000,
         query_id: query_id.to_string(),
         decision: CacheDecisionType::Miss,
-        cache_tier: "bytes".to_string(),
+        cache_tier: CacheTier::Bytes,
         evicted_entry_id: None,
     });
 
@@ -177,7 +178,7 @@ fn test_behavior_sequence_divergence_detected() {
         timestamp_ns: 2000,
         query_id: query_id.to_string(),
         decision: CacheDecisionType::Evict,
-        cache_tier: "bytes".to_string(),
+        cache_tier: CacheTier::Bytes,
         evicted_entry_id: Some("entry_x".to_string()),
     });
 
@@ -207,7 +208,7 @@ fn test_no_silent_hits_detection() {
         timestamp_ns: 1000,
         query_id: "q1".to_string(),
         decision: CacheDecisionType::Hit,
-        cache_tier: "bytes".to_string(),
+        cache_tier: CacheTier::Bytes,
         evicted_entry_id: None,
     });
 
@@ -228,7 +229,7 @@ fn test_no_silent_hits_passes() {
             timestamp_ns: 1000 + i * 1000,
             query_id: format!("q{}", i),
             decision: CacheDecisionType::Hit,
-            cache_tier: "bytes".to_string(),
+            cache_tier: CacheTier::Bytes,
             evicted_entry_id: None,
         });
     }
@@ -249,7 +250,7 @@ fn test_multi_tier_decision_logging() {
         timestamp_ns: 1000,
         query_id: "q1".to_string(),
         decision: CacheDecisionType::Hit,
-        cache_tier: "bytes".to_string(),
+        cache_tier: CacheTier::Bytes,
         evicted_entry_id: None,
     });
 
@@ -287,7 +288,7 @@ fn test_eviction_records_required() {
         timestamp_ns: 1000,
         query_id: "q1".to_string(),
         decision: CacheDecisionType::Evict,
-        cache_tier: "bytes".to_string(),
+        cache_tier: CacheTier::Bytes,
         evicted_entry_id: Some("entry_123".to_string()),
     });
 

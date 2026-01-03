@@ -1,3 +1,4 @@
+use qlever_kernel_runner::CacheTier;
 //! Decision log parsing and schema validation tests
 //!
 //! Tests JSON serialization/deserialization of cache decision logs
@@ -18,7 +19,7 @@ fn test_decision_log_json_roundtrip() {
         timestamp_ns: 1000,
         query_id: "q1".to_string(),
         decision: CacheDecisionType::Miss,
-        cache_tier: "bytes".to_string(),
+        cache_tier: CacheTier::Bytes,
         evicted_entry_id: None,
     });
 
@@ -26,7 +27,7 @@ fn test_decision_log_json_roundtrip() {
         timestamp_ns: 2000,
         query_id: "q1".to_string(),
         decision: CacheDecisionType::Admit,
-        cache_tier: "bytes".to_string(),
+        cache_tier: CacheTier::Bytes,
         evicted_entry_id: None,
     });
 
@@ -34,7 +35,7 @@ fn test_decision_log_json_roundtrip() {
         timestamp_ns: 3000,
         query_id: "q1".to_string(),
         decision: CacheDecisionType::Hit,
-        cache_tier: "bytes".to_string(),
+        cache_tier: CacheTier::Bytes,
         evicted_entry_id: None,
     });
 
@@ -74,7 +75,7 @@ fn test_json_format_compliance() {
         timestamp_ns: 1234567890,
         query_id: "query_001".to_string(),
         decision: CacheDecisionType::Hit,
-        cache_tier: "bytes".to_string(),
+        cache_tier: CacheTier::Bytes,
         evicted_entry_id: None,
     });
 
@@ -117,7 +118,7 @@ fn test_all_decision_types_json() {
             timestamp_ns: 1000,
             query_id: format!("q_{}", name),
             decision: decision_type.clone(),
-            cache_tier: "bytes".to_string(),
+            cache_tier: CacheTier::Bytes,
             evicted_entry_id: None,
         });
 
@@ -142,7 +143,7 @@ fn test_evicted_entry_id_optional() {
         timestamp_ns: 1000,
         query_id: "q1".to_string(),
         decision: CacheDecisionType::Hit,
-        cache_tier: "bytes".to_string(),
+        cache_tier: CacheTier::Bytes,
         evicted_entry_id: None,
     });
 
@@ -151,7 +152,7 @@ fn test_evicted_entry_id_optional() {
         timestamp_ns: 2000,
         query_id: "q2".to_string(),
         decision: CacheDecisionType::Evict,
-        cache_tier: "bytes".to_string(),
+        cache_tier: CacheTier::Bytes,
         evicted_entry_id: Some("entry_abc".to_string()),
     });
 
@@ -239,7 +240,7 @@ fn test_deterministic_json_hash() {
             timestamp_ns: 1000 + (i as u64) * 100,
             query_id: format!("q_{}", i),
             decision: CacheDecisionType::Hit,
-            cache_tier: "bytes".to_string(),
+            cache_tier: CacheTier::Bytes,
             evicted_entry_id: None,
         });
     }
@@ -271,7 +272,7 @@ fn test_hit_rate_calculation() {
             timestamp_ns: 1000 + (i as u64) * 100,
             query_id: format!("q_{}", i),
             decision: decision.clone(),
-            cache_tier: "bytes".to_string(),
+            cache_tier: CacheTier::Bytes,
             evicted_entry_id: None,
         });
     }
@@ -291,7 +292,7 @@ fn test_eviction_count() {
         timestamp_ns: 1000,
         query_id: "q1".to_string(),
         decision: CacheDecisionType::Hit,
-        cache_tier: "bytes".to_string(),
+        cache_tier: CacheTier::Bytes,
         evicted_entry_id: None,
     });
 
@@ -299,7 +300,7 @@ fn test_eviction_count() {
         timestamp_ns: 2000,
         query_id: "q2".to_string(),
         decision: CacheDecisionType::Evict,
-        cache_tier: "bytes".to_string(),
+        cache_tier: CacheTier::Bytes,
         evicted_entry_id: Some("entry_1".to_string()),
     });
 
@@ -307,7 +308,7 @@ fn test_eviction_count() {
         timestamp_ns: 3000,
         query_id: "q3".to_string(),
         decision: CacheDecisionType::Evict,
-        cache_tier: "bytes".to_string(),
+        cache_tier: CacheTier::Bytes,
         evicted_entry_id: Some("entry_2".to_string()),
     });
 
@@ -315,7 +316,7 @@ fn test_eviction_count() {
         timestamp_ns: 4000,
         query_id: "q4".to_string(),
         decision: CacheDecisionType::Miss,
-        cache_tier: "bytes".to_string(),
+        cache_tier: CacheTier::Bytes,
         evicted_entry_id: None,
     });
 
@@ -323,7 +324,7 @@ fn test_eviction_count() {
         timestamp_ns: 5000,
         query_id: "q5".to_string(),
         decision: CacheDecisionType::Admit,
-        cache_tier: "bytes".to_string(),
+        cache_tier: CacheTier::Bytes,
         evicted_entry_id: None,
     });
 
@@ -348,7 +349,7 @@ fn test_special_characters_in_query_ids() {
             timestamp_ns: 1000,
             query_id: query_id.to_string(),
             decision: CacheDecisionType::Hit,
-            cache_tier: "bytes".to_string(),
+            cache_tier: CacheTier::Bytes,
             evicted_entry_id: None,
         });
 
