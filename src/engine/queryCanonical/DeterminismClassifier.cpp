@@ -21,8 +21,9 @@ DeterminismFeatures DeterminismClassifier::analyze(
   // Analyze the query's graph pattern
   analyzeGraphPattern(query._rootGraphPattern, features);
 
-  // TODO: Analyze SELECT clause for expressions containing NOW/RAND
-  // TODO: Analyze ORDER BY, GROUP BY, HAVING for non-deterministic expressions
+  // Future enhancement: Analyze SELECT clause for expressions containing
+  // NOW/RAND Future enhancement: Analyze ORDER BY, GROUP BY, HAVING for
+  // non-deterministic expressions
 
   return features;
 }
@@ -64,9 +65,7 @@ void DeterminismClassifier::analyzeGraphPatternOperation(
       [&](const parsedQuery::Values&) {
         // VALUES don't affect determinism
       },
-      [&](const parsedQuery::Service&) {
-        features.hasService = true;
-      },
+      [&](const parsedQuery::Service&) { features.hasService = true; },
       [&](const parsedQuery::Subquery& subquery) {
         // Recursively analyze the subquery
         DeterminismClassifier subClassifier;

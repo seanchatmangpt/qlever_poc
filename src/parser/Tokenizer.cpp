@@ -18,7 +18,7 @@ std::pair<bool, std::string> Tokenizer::getNextToken(const RE2& reg) {
 // _______________________________________________________
 std::tuple<bool, size_t, std::string> Tokenizer::getNextToken(
     const std::vector<const RE2*>& regs) {
-  // TODO<joka921> : write unit tests for this Overload!!
+  // Roadmap: write unit tests for this overload.
   size_t maxMatchSize = 0;
   size_t maxMatchIndex = 0;
   std::string maxMatch;

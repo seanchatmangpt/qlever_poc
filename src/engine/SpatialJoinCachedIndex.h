@@ -36,7 +36,7 @@ class SpatialJoinCachedIndex {
  public:
   // Constructor that builds an index from the geometries in the given column in
   // the `IdTable`. Currently only line strings are supported for the
-  // experimental S2 point polyline algorithm.
+  // S2 point polyline algorithm.
   SpatialJoinCachedIndex(const Variable& geometryColumn, ColumnIndex col,
                          const IdTable& restable, const Index& index);
 

@@ -26,7 +26,7 @@ struct EvaluateOnChildOperand {
     // Perform the more efficient calculation on `SetOfInterval`s if it is
     // possible.
     //
-    // TODO: Add a unit test for this case.
+    // Future enhancement: Add a unit test for this case.
     if (isAnySpecializedFunctionPossible(
             aggregateOperation._specializedFunctions, operand)) {
       auto optionalResult = evaluateOnSpecializedFunctionsIfPossible(
@@ -117,8 +117,8 @@ struct EvaluateOnChildOperand {
 
     // If the result is numeric, convert it to an `Id`.
     //
-    // TODO<joka921> Check if this is really necessary, or if we can also use
-    // IDs in the intermediate steps without loss of efficiency.
+    // Future enhancement (joka921): Check if this is really necessary, or if we
+    // can also use IDs in the intermediate steps without loss of efficiency.
     if constexpr (ValueAsNumericId<decltype(result)>) {
       return makeNumericId(result);
     } else {

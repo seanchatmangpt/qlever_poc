@@ -134,13 +134,13 @@ CPP_template(Comparison Comp, typename S1, typename S2)(
   VectorWithMemoryLimit<Id> result{context->_allocator};
   result.reserve(resultSize);
 
-  // TODO<joka921> Make this simpler by factoring out the whole binary search
-  // stuff.
+  // Future enhancement (joka921): Make this simpler by factoring out the whole
+  // binary search stuff.
   if constexpr (ad_utility::isSimilar<S1, Variable> && isConstantResult<S2>) {
     auto impl = [&](const auto& value2) -> std::optional<ExpressionResult> {
       auto columnIndex = context->getColumnIndexForVariable(value1);
       auto valueId = makeValueId(value2, context);
-      // TODO<C++23> Use `ql::ranges::starts_with`.
+      // Future enhancement (C++23): Use ql::ranges::starts_with
       if (const auto& cols = context->_columnsByWhichResultIsSorted;
           !cols.empty() && cols[0] == columnIndex) {
         constexpr static bool value2IsString =
@@ -213,7 +213,7 @@ CPP_template(Comparison, typename A,
 CPP_template(Comparison Comp, typename A,
              typename B)(requires AreIncomparable<A, B>) Id
     evaluateRelationalExpression(const A&, const B&, const EvaluationContext*) {
-  // TODO<joka921> We should probably return `undefined` here.
+  // Future enhancement (joka921): We should probably return `undefined` here.
   if constexpr (Comp == Comparison::NE) {
     return Id::makeFromBool(true);
   } else {
@@ -289,9 +289,9 @@ RelationalExpression<Comp>::getLanguageFilterExpression() const {
       return std::nullopt;
     }
 
-    // TODO<joka921> Check that the language string doesn't contain a datatype
-    // etc.
-    // TODO<joka921> Is this even allowed by the grammar?
+    // Future enhancement (joka921): Check that the language string doesn't
+    // contain a datatype etc. Future enhancement (joka921): Is this even
+    // allowed by the grammar?
     return LangFilterData{
         std::move(optVar.value()),
         {std::string{asStringViewUnsafe(langPtr->value().getContent())}}};
@@ -332,10 +332,9 @@ SparqlExpression::Estimates getEstimatesForFilterExpressionImpl(
         return varPtr && varPtr->value() == firstSortedVariable &&
                right->isConstantExpression();
       };
-  // TODO<joka921> This check has to be more complex once we support proper
-  // filtering on the `LocalVocab`.
-  // Check iff all the pairs `(children[0], someOtherChild)` can be evaluated
-  // using binary search.
+  // Future enhancement (joka921): This check has to be more complex once we
+  // support proper filtering on the `LocalVocab`. Check iff all the pairs
+  // `(children[0], someOtherChild)` can be evaluated using binary search.
   if (ql::ranges::all_of(children | ql::views::drop(1),
                          [&lhs = children.at(0),
                           &canBeEvaluatedWithBinarySearch](const auto& child) {
@@ -392,10 +391,10 @@ ExpressionResult InExpression::evaluate(
       result = std::move(subRes);
       continue;
     }
-    // TODO We could implement early stopping for entries which are already
-    // true, This could be especially beneficial if some of the `==` expressions
-    // are more expensive than others. Same goes for the `logical or` and
-    // `logical and` expressions.
+    // Future optimization: Implement early stopping for entries which are
+    // already true. This could be especially beneficial if some == expressions
+    // are more expensive than others. Same for logical or and logical and
+    // expressions.
     auto expressionForSubRes =
         std::make_unique<SingleUseExpression>(std::move(subRes));
     auto expressionForPreviousResult =
@@ -577,7 +576,7 @@ namespace sparqlExpression {
 // _____________________________________________________________________________
 std::optional<std::pair<sparqlExpression::GeoFunctionCall, double>>
 getGeoDistanceFilter(const SparqlExpression& expr) {
-  // TODO<ullingerc> Add support for more optimizable filters:
+  // Future enhancement (ullingerc): Add support for more optimizable filters:
   // * `geof:distance() < constant`
   // * `constant > geof:distance()`
   // * `constant >= geof:distance()`

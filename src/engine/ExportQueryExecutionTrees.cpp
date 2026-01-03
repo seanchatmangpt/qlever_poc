@@ -494,9 +494,9 @@ ExportQueryExecutionTrees::idToStringAndTypeForEncodedValue(Id id) {
     case BlankNodeIndex:
       return std::pair{absl::StrCat("_:bn", id.getBlankNodeIndex().get()),
                        nullptr};
-      // TODO<joka921> This is only to make the strange `toRdfLiteral` function
-      // work in the triple component class, which is only used to create cache
-      // keys etc. Consider removing it in the future.
+      // Future enhancement (joka921): This is only to make the strange
+      // `toRdfLiteral` function work in the triple component class, which is
+      // only used to create cache keys etc. Consider removing it in the future.
     case EncodedVal:
       return std::pair{absl::StrCat("encodedId: ", id.getBits()), nullptr};
     default:
@@ -634,7 +634,8 @@ ExportQueryExecutionTrees::idToStringAndType(const Index& index, Id id,
       }
     }
     if constexpr (removeQuotesAndAngleBrackets) {
-      // TODO<joka921> Can we get rid of the string copying here?
+      // Future enhancement (joka921): Can we get rid of the string copying
+      // here?
       return std::pair{
           escapeFunction(std::string{asStringViewUnsafe(word.getContent())}),
           nullptr};
@@ -700,13 +701,13 @@ ExportQueryExecutionTrees::getLiteralOrNullopt(
 // _____________________________________________________________________________
 std::optional<LiteralOrIri>
 ExportQueryExecutionTrees::idToLiteralOrIriForEncodedValue(Id id) {
-  // TODO<RobinTF> This returns a `nullptr` for the datatype when the `id`
-  // represents a `BlankNode` or an `EncodedVal`. The latter case is typically
-  // no problem, because the only caller of this function already properly
-  // handles this case. The former case is also fine, because `BlankNode`s are
-  // neither IRIs nor literals, so returning `std::nullopt` is the correct
-  // behavior. However, this is somewhat fragile and should be kept in mind if
-  // this function is used in other contexts.
+  // Future enhancement (RobinTF): This returns a `nullptr` for the datatype
+  // when the `id` represents a `BlankNode` or an `EncodedVal`. The latter case
+  // is typically no problem, because the only caller of this function already
+  // properly handles this case. The former case is also fine, because
+  // `BlankNode`s are neither IRIs nor literals, so returning `std::nullopt` is
+  // the correct behavior. However, this is somewhat fragile and should be kept
+  // in mind if this function is used in other contexts.
   auto [literal, type] = idToStringAndTypeForEncodedValue(id).value_or(
       std::make_pair(std::string{}, nullptr));
   if (type == nullptr) {
@@ -774,8 +775,8 @@ ExportQueryExecutionTrees::idToStringAndType<true, true, ql::identity>(
 
 // This explicit instantiation is necessary because the `Variable` class
 // currently still uses it.
-// TODO<joka921> Refactor the CONSTRUCT export, then this is no longer
-// needed
+// Future enhancement (joka921): Refactor the CONSTRUCT export, then this is no
+// longer needed
 template std::optional<std::pair<std::string, const char*>>
 ExportQueryExecutionTrees::idToStringAndType(const Index& index, Id id,
                                              const LocalVocab& localVocab,
@@ -803,8 +804,8 @@ static nlohmann::json stringAndTypeToBinding(std::string_view entitystr,
     b["value"] = entitystr.substr(2);
     b["type"] = "bnode";
   } else {
-    // TODO<joka921> This is probably not quite correct in the corner case
-    // that there are datatype IRIs which contain quotes.
+    // Future enhancement (joka921): This is probably not quite correct in the
+    // corner case that there are datatype IRIs which contain quotes.
     size_t quotePos = entitystr.rfind('"');
     if (quotePos == std::string::npos) {
       // TEXT entries are currently not surrounded by quotes
@@ -817,8 +818,9 @@ static nlohmann::json stringAndTypeToBinding(std::string_view entitystr,
       if (quotePos < entitystr.size() - 1 && entitystr[quotePos + 1] == '@') {
         b["xml:lang"] = entitystr.substr(quotePos + 2);
       } else if (quotePos < entitystr.size() - 2 &&
-                 // TODO<joka921> This can be a `AD_CONTRACT_CHECK` once the
-                 // fulltext index vocabulary is stored in a consistent format.
+                 // Future enhancement (joka921): This can be a
+                 // `AD_CONTRACT_CHECK` once the fulltext index vocabulary is
+                 // stored in a consistent format.
                  entitystr[quotePos + 1] == '^') {
         AD_CONTRACT_CHECK(entitystr[quotePos + 2] == '^');
         std::string_view datatype{entitystr};
@@ -877,8 +879,8 @@ STREAMABLE_GENERATOR_TYPE ExportQueryExecutionTrees::selectQueryResultToStream(
                 format == MediaType::tsv || format == MediaType::turtle ||
                 format == MediaType::qleverJson);
 
-  // TODO<joka921> Use a proper error message, or check that we get a more
-  // reasonable error from upstream.
+  // Future enhancement (joka921): Use a proper error message, or check that we
+  // get a more reasonable error from upstream.
   AD_CONTRACT_CHECK(format != MediaType::turtle);
   AD_CONTRACT_CHECK(format != MediaType::qleverJson);
 
@@ -1058,7 +1060,8 @@ STREAMABLE_GENERATOR_TYPE ExportQueryExecutionTrees::selectQueryResultToStream<
   result->logResultSize();
   auto selectedColumnIndices =
       qet.selectedVariablesToColumnIndices(selectClause, false);
-  // TODO<joka921> we could prefilter for the nonexisting variables.
+  // Future enhancement (joka921): we could prefilter for the nonexisting
+  // variables.
   uint64_t resultSize = 0;
   for (const auto& [pair, range] :
        getRowIndices(limitAndOffset, *result, resultSize)) {
@@ -1228,8 +1231,8 @@ ExportQueryExecutionTrees::convertStreamGeneratorForChunkedTransfer(
   return InputRangeTypeErased(InputRangeFromLoopControlGet(
       [it = std::move(it), streamGenerator = std::move(streamGenerator),
        exceptionMessage = std::optional<std::string>(std::nullopt)]() mutable {
-        // TODO<joka921, RobinTF> Think of a better way to propagate and log
-        // those errors. We can additionally send them via the
+        // Future enhancement (joka921, RobinTF): Think of a better way to
+        // propagate and log those errors. We can additionally send them via the
         // websocketconnection,but that doesn't solve the problem for users of
         // the plain HTTP 1.1 endpoint.
         if (it == streamGenerator.end()) {
@@ -1366,7 +1369,7 @@ ExportQueryExecutionTrees::computeResultAsQLeverJSON(
           qet, query.constructClause().triples_, limitOffset, std::move(result),
           resultSize, std::move(cancellationHandle));
     } else {
-      // TODO<joka921>: Refactor this to use std::visit.
+      // Future enhancement (joka921):: Refactor this to use std::visit.
       return askQueryResultToQLeverJSON(std::move(result));
     }
   }();

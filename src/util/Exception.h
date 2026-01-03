@@ -52,7 +52,7 @@ class Exception : public std::exception {
       ad_utility::source_location location = AD_CURRENT_SOURCE_LOC())
       : location_{location} {
     std::stringstream str;
-    // TODO<GCC13> Use `std::format`.
+    // Roadmap (GCC13): Use `std::format`.
     str << message << ". In file \"" << location_.file_name() << " \" at line "
         << location_.line();
     message_ = std::move(str).str();

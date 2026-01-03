@@ -143,7 +143,7 @@ class CancellationHandle {
 
   template <typename T>
   using WatchDogOnly = std::conditional_t<WatchDogEnabled, T, detail::Empty>;
-  // TODO<Clang18> Use std::jthread and its builtin stop_token.
+  // Roadmap (Clang18): Use std::jthread and its builtin stop_token.
   [[no_unique_address]] WatchDogOnly<detail::PseudoStopToken> watchDogState_{
       false};
   [[no_unique_address]] WatchDogOnly<ad_utility::JThread> watchDogThread_;

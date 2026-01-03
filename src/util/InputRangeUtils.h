@@ -67,7 +67,7 @@ CPP_class_template(typename View, typename F,
     }
   }
 
-  // TODO<joka921> Make this private again and give explicit access to low-level
+  // Roadmap: Make this private again and give explicit access to low-level
   // tools like the ones below.
  public:
   // The `get` function required by the mixin.

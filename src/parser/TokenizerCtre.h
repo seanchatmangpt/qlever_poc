@@ -26,7 +26,7 @@ using namespace ctre::literals;
  */
 struct TurtleTokenCtre {
   static constexpr auto TurtlePrefix = grp(fixed_string("@prefix"));
-  // TODO: this is actually case-insensitive
+  // Note: this is actually case-insensitive
   static constexpr auto SparqlPrefix = grp(fixed_string("PREFIX"));
   static constexpr auto TurtleBase = grp(fixed_string("@base"));
   static constexpr auto SparqlBase = grp(fixed_string("BASE"));
@@ -76,7 +76,7 @@ struct TurtleTokenCtre {
       fixed_string("\"\"\"((\"\"|\")?([^\"\\\\]|") + EcharString + "|" +
       UcharString + "))*\"\"\"";
 
-  // TODO: fix this!
+  // Note: IRI reference regex may need stricter validation
   static constexpr auto IrirefString =
       R"(<([^\x00-\x20<>"{}\x7c^`\\]|)" + UcharString + ")*>";
 
@@ -86,7 +86,7 @@ struct TurtleTokenCtre {
 
   static constexpr auto PnCharsUString = PnCharsBaseString + "_";
 
-  // TODO<joka921>: Here we have the same issue with UTF-8 in CTRE as above
+  // Roadmap: Here we have the same issue with UTF-8 in CTRE as above
   /*
   static constexpr auto PnCharsString =
             PnCharsUString +
@@ -340,7 +340,7 @@ class TokenizerCtre : public SkipWhitespaceAndCommentsMixin<TokenizerCtre> {
    * <true, matchContent> on success and <false, emptyStringView> on failure
    */
   struct Matcher {
-    // TODO<C++17, joka921>: Template-value feature not available in C++17
+    // Note (C++17): Template-value feature not available in C++17
     template <auto& regex>
     static std::pair<bool, std::string_view> process(
         std::string_view data) noexcept {

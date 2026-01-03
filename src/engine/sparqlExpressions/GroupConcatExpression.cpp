@@ -29,7 +29,7 @@ sparqlExpression::GroupConcatExpression::evaluate(
     std::optional<std::string> langTag;
     auto groupConcatImpl = [this, &result, context, &undefined,
                             &langTag](auto generator) {
-      // TODO<joka921> Make this a configurable constant.
+      // Future enhancement (joka921): Make this a configurable constant.
       result.reserve(20000);
       bool firstIteration = true;
       for (auto& inp : generator) {

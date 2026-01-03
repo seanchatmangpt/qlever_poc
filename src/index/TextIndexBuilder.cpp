@@ -188,7 +188,7 @@ void TextIndexBuilder::processEntityCaseDuringInvertedListProcessing(
     ad_utility::HashMap<Id, Score>& entitiesInContext, size_t& nofLiterals,
     size_t& entityNotFoundErrorMsgCount) const {
   VocabIndex eid;
-  // TODO<joka921> Currently only IRIs and strings from the vocabulary can
+  // Roadmap: Currently only IRIs and strings from the vocabulary can
   // be tagged entities in the text index (no doubles, ints, etc).
   if (getVocab().getId(line.word_, &eid)) {
     // Note that `entitiesInContext` is a HashMap, so the `Id`s don't have
@@ -207,7 +207,7 @@ void TextIndexBuilder::processWordCaseDuringInvertedListProcessing(
     const WordsFileLine& line,
     ad_utility::HashMap<WordIndex, Score>& wordsInContext,
     ScoreData& scoreData) const {
-  // TODO<joka921> Let the `textVocab_` return a `WordIndex` directly.
+  // Roadmap: Let the `textVocab_` return a `WordIndex` directly.
   WordVocabIndex vid;
   bool ret = textVocab_.getId(line.word_, &vid);
   WordIndex wid = vid.get();

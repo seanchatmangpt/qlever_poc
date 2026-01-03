@@ -19,7 +19,7 @@ namespace ad_utility {
 // A lightweight enum for the different implementation strategies of the
 // `PolymorphicVocabulary`. Also includes operations for conversion to and from
 // string.
-// TODO<joka921> Implement a generic mixin that can also be used for other
+// Roadmap: Implement a generic mixin that can also be used for other
 // enums, especially such used in command-line interfaces.
 class VocabularyType {
  public:

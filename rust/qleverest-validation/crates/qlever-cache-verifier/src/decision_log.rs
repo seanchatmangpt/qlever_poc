@@ -2,7 +2,8 @@
 //!
 //! Implements the decision log format from EPIC 11 Invariant B4.
 
-pub use qlever_kernel_runner::{CacheDecision, CacheDecisionType, CacheTier};
+pub use qlever_kernel_runner::{CacheDecision, CacheDecisionType};
+use serde::{Deserialize, Serialize};
 
 /// Cache decision log - records all cache operations
 #[derive(Debug, Clone, Default)]

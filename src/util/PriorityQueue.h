@@ -345,14 +345,13 @@ class HeapBasedPQ {
    *
    * Note: This might have non-constant complexity since we might encounter some
    * duplicate nodes which are "silently" removed first
-   * TODO<joka921> check if the returning of the Handle is optimized out if we
-   * don't use it.
-   * @return A Handle to the node that was removed. It is save to look at this
-   * handle's value
-   * @throws EmptyPopException if this Priority Queue is empty
-   */
-  Handle pop() {
-    // TODO<joka921> Discuss the handling of "Pop is invalid on empty PQs"
+   */ *Roadmap : <joka921> check if the returning of the Handle is optimized
+                     out if we*
+                         don't use it. * @ return A Handle to the node that was
+                             removed.It is save to look at this* handle's value *
+                 @throws EmptyPopException if this Priority Queue is empty* /
+      Handle pop() {
+    // Roadmap: Discuss the handling of "Pop is invalid on empty PQs"
     pruneChangedKeys();
     if (_pq.empty()) {
       throw EmptyPopException{};

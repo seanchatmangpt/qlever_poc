@@ -19,7 +19,6 @@ TEST(TypeTraits, IsSimilar) {
   static_assert(isSimilar<int&, const int&>);
   static_assert(isSimilar<volatile int&, const int>);
   static_assert(!isSimilar<volatile int&, const int*>);
-  ASSERT_TRUE(true);
 }
 
 /*
@@ -62,7 +61,6 @@ TEST(TypeTraits, SimiliarToAnyTypeIn) {
   });
   static_assert(!SimilarToAnyTypeIn<tup, char>);
   static_assert(!SimilarToAnyTypeIn<int, int>);
-  ASSERT_TRUE(true);
 }
 
 TEST(TypeTraits, SameAsAnyTypeIn) {
@@ -106,7 +104,6 @@ TEST(TypeTraits, SameAsAnyTypeIn) {
 
   // Should only works with templated types.
   static_assert(!SameAsAnyTypeIn<int, int>);
-  ASSERT_TRUE(true);
 }
 
 TEST(TypeTraits, IsInstantiation) {
@@ -123,7 +120,6 @@ TEST(TypeTraits, IsInstantiation) {
   static_assert(isVariant<std::variant<int, bool>>);
   static_assert(!isVariant<std::tuple<int, bool>>);
   static_assert(!isVariant<int>);
-  ASSERT_TRUE(true);
 }
 
 template <typename>
@@ -151,7 +147,6 @@ TEST(TypeTraits, Lift) {
       std::is_same_v<
           std::variant<TypeLifter<int>, TypeLifter<bool>, TypeLifter<short>>,
           LVV>);
-  ASSERT_TRUE(true);
 }
 
 TEST(TypeTraits, TupleToVariant) {
@@ -162,7 +157,6 @@ TEST(TypeTraits, TupleToVariant) {
   using TT = std::tuple<int, short, bool>;
   using VV = TupleToVariant<TT>;
   static_assert(std::is_same_v<VV, std::variant<int, short, bool>>);
-  ASSERT_TRUE(true);
 }
 
 TEST(TypeTraits, TupleCat) {
@@ -181,7 +175,6 @@ TEST(TypeTraits, TupleCat) {
                                TupleCat<T1, T2>>);
   static_assert(std::is_same_v<std::tuple<int, short, bool, long, size_t>,
                                TupleCat<T1, T3, T2>>);
-  ASSERT_TRUE(true);
 }
 
 struct BothInvocableWithExactReturnType {

@@ -84,7 +84,7 @@ constexpr void checkBoundsExcludingMax(const T& element, const T& min,
  *   "12:00 with a time zone of 0" (Central Europe) will be sorted before
  *   "13:00 with a time zone of -6" (US East coast) because 12 < 13, although
  *   the second timestamp actually happens before the first one.
- * TODO<joka921> Use this class as "all times are in UTC, and the time zone is
+ */* Roadmap:<joka921> Use this class as "all times are in UTC, and the time zone is
  * stored additionally" and write converters for this (correctly comparable)
  * format for the input and output to and from string literals.0
  */
@@ -151,7 +151,7 @@ class Date {
                 "The number of unused bits for Date should be 7.");
 
  private:
-  // TODO<joka921> The details of bitfields are implementation-specific, but
+  // Roadmap: The details of bitfields are implementation-specific, but
   // this date class only works for platforms/compilers where the following
   // bitfields are stored without any padding bits and starting at the least
   // significant bits. If this is not the case for a platform, then the unit

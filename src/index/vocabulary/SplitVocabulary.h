@@ -157,7 +157,7 @@ class SplitVocabulary {
     return std::visit(
         [&unmarkedIdx](auto& vocab) {
           AD_CORRECTNESS_CHECK(unmarkedIdx < vocab.size());
-          // TODO<ullingerc>: How to handle if the different underlying
+          // Roadmap:: How to handle if the different underlying
           // vocabularies return different types (std::string / std::string_view
           // / ...) on their operator[] implementations? A variant will probably
           // cause trouble in the Vocabulary class.

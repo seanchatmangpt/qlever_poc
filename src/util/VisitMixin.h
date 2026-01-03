@@ -9,7 +9,7 @@
 
 #include "util/Forward.h"
 
-// TODO add requires (BaseVariant is a Variant, Derived derives from
+/* Roadmap: add requires (BaseVariant is a Variant, Derived derives from
 // BaseVariant)
 /*
  * A Mixin for classes that are derived from std::variant that provides a visit
@@ -20,7 +20,7 @@
 template <typename Derived, typename BaseVariant>
 class VisitMixin {
  public:
-  // TODO<C++23> use the `deducing this` feature.
+  // Roadmap (C++23): use the `deducing this` feature.
   template <typename F>
   decltype(auto) visit(F&& f) {
     return std::visit(AD_FWD(f),

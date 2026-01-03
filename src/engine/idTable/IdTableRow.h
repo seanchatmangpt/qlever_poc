@@ -42,9 +42,9 @@ class Row {
   static constexpr bool isDynamic() { return NumColumns == 0; }
   static constexpr int numStaticColumns = NumColumns;
 
-  // TODO<joka921> We could use a vector type with a small buffer optimization
-  // for up to 20 or 30 columns, maybe this increases the performance for the
-  // `isDynamic()` case.
+  // Future enhancement (joka921): We could use a vector type with a small
+  // buffer optimization for up to 20 or 30 columns, maybe this increases the
+  // performance for the `isDynamic()` case.
   using Data = std::conditional_t<
       isDynamic(),
       std::vector<T, ad_utility::default_init_allocator<T, std::allocator<T>>>,
@@ -164,12 +164,12 @@ class RowReferenceImpl {
     // The `Table` (as a pointer) and the row (as an index) to which this
     // reference points.
     //
-    // TODO<joka921> Only storing the row index makes the implementation easy,
-    // but possibly harms the performance because every access to a reference
-    // involves a multiplication. However, this cannot simply be fixed inside
-    // the row reference, but needs iterators/references to single columns and
-    // special algorithms that are aware of the column-based structure of the
-    // `IdTable`.
+    // Future enhancement (joka921): Only storing the row index makes the
+    // implementation easy, but possibly harms the performance because every
+    // access to a reference involves a multiplication. However, this cannot
+    // simply be fixed inside the row reference, but needs iterators/references
+    // to single columns and special algorithms that are aware of the
+    // column-based structure of the `IdTable`.
     TablePtr table_ = nullptr;
     size_t row_ = 0;
 

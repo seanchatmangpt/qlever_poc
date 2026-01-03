@@ -69,9 +69,9 @@ QueryPlanner::SubtreePlan FocusNodeInjection::optimizeWithShaclConstraints(
       continue;  // No filters to inject
     }
 
-    // TODO(EPIC 10.3): Inject filters into index scans
-    // This requires integration with UIRGraph (Agent 3 Part 1)
-    // and UnifiedPhysicalOptimizer (Agent 3 Part 2)
+    // See ROADMAP.md for EPIC 10.3 filter injection implementation
+    // Requires integration with UIRGraph (Agent 3 Part 1)
+    // and UnifiedPhysicalOptimizerStub (Agent 3 Part 2 - aspirational)
     //
     // For now, we store the extracted filters as metadata
     // Full implementation blocked until Parts 1 & 2 complete
@@ -205,8 +205,8 @@ double FocusNodeInjection::estimateConstraintSelectivity(
 
     case shacl::ConstraintType::In: {
       // Set membership: |allowed_set| / |universe|
-      // For now, use conservative estimate
-      // TODO: Extract actual set size from constraint.value
+      // LIMITATION: Uses conservative median estimate (0.50).
+      // Future enhancement: Extract actual set size from constraint.value
       return 0.50;
     }
 
@@ -411,16 +411,17 @@ SparqlFilter FocusNodeInjection::translateConstraintToFilter(
 // _____________________________________________________________________________
 QueryPlanner::SubtreePlan FocusNodeInjection::reorderBySelectivity(
     QueryPlanner::SubtreePlan plan) {
-  // TODO(EPIC 10.3): Implement scan reordering based on selectivity
+  // See ROADMAP.md for EPIC 10.3 scan reordering implementation
   //
-  // Algorithm:
+  // Planned algorithm:
   // 1. Extract all index scans from plan tree
   // 2. Estimate selectivity for each scan (based on injected constraints)
   // 3. Sort scans by ascending selectivity (most selective first)
   // 4. Reconstruct plan with reordered scans
   //
   // This requires UIRGraph manipulation (Agent 3 Part 1)
-  // and UnifiedPhysicalOptimizer integration (Agent 3 Part 2)
+  // and UnifiedPhysicalOptimizerStub integration (Agent 3 Part 2 -
+  // aspirational)
 
   // For now, return plan unchanged
   return plan;

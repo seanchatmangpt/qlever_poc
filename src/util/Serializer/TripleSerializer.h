@@ -136,7 +136,7 @@ CPP_template(typename Range, typename Serializer)(
   }
 }
 
-// TODO<joka921> Comments.
+// Roadmap: Comments.
 inline void remapLocalVocab(ql::span<Id> ids,
                             const absl::flat_hash_map<Id::T, Id>& mapping) {
   for (Id& id : ids) {

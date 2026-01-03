@@ -28,7 +28,7 @@ TextMetaData::getBlockInfoByWordRange(const uint64_t lower,
                                   _blockUpperBoundWordIds.end(), upper);
   // Same as for normal it. This has to be done since the range is [lower,
   // upper] as opposed to `[lower, upper)`.
-  // TODO<joka921, flixtastic> fix this inconsistency with the usual C++
+  // Roadmap: fix this inconsistency with the usual C++
   // conventions.
   if (upperIt == _blockUpperBoundWordIds.end()) {
     --upperIt;
@@ -53,7 +53,7 @@ size_t TextMetaData::getBlockCount() const { return _blocks.size(); }
 
 // _____________________________________________________________________________
 std::string TextMetaData::statistics() const {
-  // TODO: What does totalElementsEntityLists count?
+  // Note: What does totalElementsEntityLists count?
   size_t totalElementsClassicLists = 0;
   // size_t totalElementsEntityLists = 0;
   for (size_t i = 0; i < _blocks.size(); ++i) {

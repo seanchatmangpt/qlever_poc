@@ -38,7 +38,7 @@ namespace ad_utility {
 // `row` may be UNDEF. This function runs in `O(2^C * log(N) + R)` where C
 // is the number of columns, N is the size of the range `[begin, end)` and `R`
 // is the number of matching elements.
-// TODO<joka921> This can be optimized when we also know which columns of
+// Roadmap: This can be optimized when we also know which columns of
 // `[begin, end)` can possibly contain UNDEF values.
 CPP_template(typename R,
              typename It)(requires ql::concepts::random_access_iterator<It>)  //
@@ -53,7 +53,7 @@ CPP_template(typename R,
                              [](Id id) { return id != Id::makeUndefined(); })));
 
   const size_t numJoinColumns = row.size();
-  // TODO<joka921> This can be done without copying.
+  // Roadmap: This can be done without copying.
   // Row rowLower = row;
   const size_t upperBound = 1UL << row.size();
 
@@ -83,7 +83,7 @@ CPP_template(typename R,
 // is the number of  defined columns (`numColumns - numLastUndefined`), N is the
 // size of the range `[begin, end)` and `R` is the number of matching elements.
 
-// TODO<joka921> We could also implement a version that is optimized on the
+// Roadmap: We could also implement a version that is optimized on the
 // [begin, end] range not having UNDEF values in some of the columns
 CPP_template(typename It)(requires ql::concepts::random_access_iterator<It>)  //
     auto findSmallerUndefRangesForRowsWithUndefInLastColumns(

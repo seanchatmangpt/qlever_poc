@@ -244,7 +244,7 @@ constexpr std::array<char, sz + 1> catImpl(
 };
 // Concatenate the `strings` into a single `std::array<char>` with an
 // additional zero byte at the end.
-// TODO<joka921>: C++17 doesn't support template values. This needs some
+// Roadmap:: C++17 doesn't support template values. This needs some
 // refactoring
 template <const std::string_view&... strings>
 constexpr auto constexprStrCatBufferImpl() {
@@ -255,7 +255,7 @@ constexpr auto constexprStrCatBufferImpl() {
 }
 
 // A constexpr variable that stores the concatenation of the `strings`.
-// TODO<C++26> This can be a `static constexpr` variable inside the
+// Roadmap (C++26): This can be a `static constexpr` variable inside the
 // `constexprStrCatBufferImpl()` function above.
 template <const std::string_view&... strings>
 constexpr inline auto constexprStrCatBufferVar =
@@ -293,7 +293,7 @@ std::basic_string<Char> strCatImpl(const std::basic_string_view<Char>& a,
 
 // These overloads of `operator+` between a `string` and a `string_view`  are
 // missing in the STL.
-// TODO they can be constexpr once the compiler completely supports C++20
+/* Roadmap: they can be constexpr once the compiler completely supports C++20
 template <typename Char>
 std::basic_string<Char> operator+(const std::basic_string<Char>& a,
                                   std::basic_string_view<Char> b) {
@@ -312,3 +312,5 @@ std::string operator+(Char c, std::basic_string_view<Char> b) {
 }
 
 #endif  // QLEVER_SRC_UTIL_STRINGUTILS_H
+
+

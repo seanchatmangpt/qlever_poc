@@ -162,9 +162,9 @@ Result ExistsJoin::computeResult(bool requestLaziness) {
   // Compute `isCheap`, which is true iff there are no UNDEF values in the join
   // columns (in which case we can use a simpler and cheaper join algorithm).
   //
-  // TODO<joka921> This is the most common case. There are many other cases
-  // where the generic `zipperJoinWithUndef` can be optimized. This is work for
-  // a future PR.
+  // Future enhancement (joka921): This is the most common case. There are many
+  // other cases where the generic `zipperJoinWithUndef` can be optimized. This
+  // is work for a future PR.
   size_t numJoinColumns = joinColumnsLeft.numColumns();
   AD_CORRECTNESS_CHECK(numJoinColumns == joinColumnsRight.numColumns());
   bool isCheap = ql::ranges::none_of(

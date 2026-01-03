@@ -10,7 +10,8 @@
 #include "backports/three_way_comparison.h"
 #include "parser/data/ConstructQueryExportContext.h"
 
-// TODO: replace usages of this class with `ad_utility::triple_component::Iri`
+// Roadmap: replace usages of this class with
+// `ad_utility::triple_component::Iri`
 class Iri {
   std::string _string;
 

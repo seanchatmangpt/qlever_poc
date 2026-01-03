@@ -8,16 +8,16 @@
 // Enforces per-handle latency < 100ns (p50, p95, p99)
 // Build gate: fails if SLA violated
 
-#include "benchmark/infrastructure/Benchmark.h"
-#include "util/Timer.h"
-#include "util/json.h"
-
 #include <algorithm>
 #include <chrono>
 #include <cstring>
 #include <memory>
 #include <numeric>
 #include <vector>
+
+#include "benchmark/infrastructure/Benchmark.h"
+#include "util/Timer.h"
+#include "util/json.h"
 
 namespace {
 
@@ -49,7 +49,14 @@ inline void* ffi_qlever_new(const char* config_json) {
     handle->config = config_json ? config_json : "";
     handle->created = std::chrono::steady_clock::now();
     return static_cast<void*>(handle);
+  } catch (const std::exception& e) {
+    std::cerr << "FFI benchmark: Failed to allocate Qlever handle: " << e.what()
+              << std::endl;
+    return nullptr;
   } catch (...) {
+    std::cerr
+        << "FFI benchmark: Failed to allocate Qlever handle: unknown exception"
+        << std::endl;
     return nullptr;
   }
 }
@@ -69,7 +76,14 @@ inline void* ffi_plan_new(void* qlever_handle, const char* query) {
     plan->query = query;
     plan->created = std::chrono::steady_clock::now();
     return static_cast<void*>(plan);
+  } catch (const std::exception& e) {
+    std::cerr << "FFI benchmark: Failed to allocate plan handle: " << e.what()
+              << std::endl;
+    return nullptr;
   } catch (...) {
+    std::cerr
+        << "FFI benchmark: Failed to allocate plan handle: unknown exception"
+        << std::endl;
     return nullptr;
   }
 }
@@ -102,7 +116,7 @@ struct LatencyStats {
 
 /// Compute percentile from sorted latency samples
 inline double compute_percentile(const std::vector<double>& sorted_samples,
-                                  double percentile) {
+                                 double percentile) {
   if (sorted_samples.empty()) return 0.0;
   size_t idx =
       static_cast<size_t>((percentile / 100.0) * (sorted_samples.size() - 1));
@@ -149,8 +163,7 @@ class FFIGatekeeperBenchmark : public ad_benchmark::BenchmarkInterface {
     // TEST 1: Qlever Handle Allocation/Deallocation Latency
     // ========================================================================
     auto& table_qlever_handles = results.addTable(
-        "qlever_handle_lifecycle",
-        {"allocation", "deallocation", "full_cycle"},
+        "qlever_handle_lifecycle", {"allocation", "deallocation", "full_cycle"},
         {"p50 (ns)", "p95 (ns)", "p99 (ns)", "mean (ns)", "pass"});
 
     const size_t num_samples = 10000;
@@ -298,8 +311,9 @@ class FFIGatekeeperBenchmark : public ad_benchmark::BenchmarkInterface {
 
       // Simulate query execution time
       auto query_start = std::chrono::steady_clock::now();
-      auto query_end = query_start + std::chrono::nanoseconds(
-                                          static_cast<long long>(simulated_query_time_ns));
+      auto query_end =
+          query_start + std::chrono::nanoseconds(
+                            static_cast<long long>(simulated_query_time_ns));
       while (std::chrono::steady_clock::now() < query_end) {
         // Busy wait to simulate work
       }
@@ -332,8 +346,8 @@ class FFIGatekeeperBenchmark : public ad_benchmark::BenchmarkInterface {
         "total_ffi_overhead_ns", std::to_string(total_ffi_overhead_ns));
     overhead_entry.metadata().addKeyValuePair(
         "total_query_time_ns", std::to_string(total_query_time_ns));
-    overhead_entry.metadata().addKeyValuePair("overhead_percentage",
-                                              std::to_string(overhead_percentage));
+    overhead_entry.metadata().addKeyValuePair(
+        "overhead_percentage", std::to_string(overhead_percentage));
     overhead_entry.metadata().addKeyValuePair(
         "passes_0.1_percent_sla", overhead_percentage < 0.1 ? "true" : "false");
 
@@ -345,8 +359,7 @@ class FFIGatekeeperBenchmark : public ad_benchmark::BenchmarkInterface {
         {"passes"});
 
     bool qlever_passes = alloc_stats.passes_sla() &&
-                         dealloc_stats.passes_sla() &&
-                         cycle_stats.passes_sla();
+                         dealloc_stats.passes_sla() && cycle_stats.passes_sla();
     bool plan_passes = plan_alloc_stats.passes_sla() &&
                        plan_dealloc_stats.passes_sla() &&
                        plan_cycle_stats.passes_sla();

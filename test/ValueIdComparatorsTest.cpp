@@ -225,10 +225,6 @@ auto testGetRangesForEqualIds(It begin, It end, ValueId idBegin, ValueId idEnd,
                               IsMatchingDatatype isMatchingDatatype) {
   // Perform the testing for a single `Comparison`
   auto testImpl = [&](auto comparison) {
-    if (comparison == Comparison::NE &&
-        idBegin.getDatatype() == Datatype::VocabIndex) {
-      EXPECT_TRUE(true);
-    }
     using enum ComparisonResult;
     auto ranges = getRangesForEqualIds(begin, end, idBegin, idEnd, comparison);
     auto it = begin;

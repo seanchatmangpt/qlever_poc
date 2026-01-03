@@ -10,7 +10,7 @@
 #include "rdfTypes/Variable.h"
 #include "util/HashMap.h"
 
-// TODO<joka921> We have a cyclic dependency between `Id.h` and
+// Future enhancement (joka921): We have a cyclic dependency between `Id.h` and
 // `VariableToColumnMap.h`.
 using ColumnIndex = uint64_t;
 

@@ -123,7 +123,7 @@ class LocatedTriplesPerBlock {
   // be very expensive for a `std::set`, which is the underlying data
   // structure.
   //
-  // TODO: Since the average number of located triples per block is usually
+  // Note: Since the average number of located triples per block is usually
   // small, this estimate is usually fine. We could get better estimates in
   // constant time by maintaining a counter for each of these two numbers in
   // `LocatedTriplesPerBlock` and update these counters for each update

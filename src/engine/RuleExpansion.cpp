@@ -171,7 +171,8 @@ Result RuleExpansion::computeResult(bool requestLaziness) {
   expandedTree_ = buildExecutionTree(expandedPatterns, rule);
 
   // Execute the tree and get the result
-  std::shared_ptr<const Result> subRes = expandedTree_->getResult(requestLaziness);
+  std::shared_ptr<const Result> subRes =
+      expandedTree_->getResult(requestLaziness);
 
   // Clone the result to return by value
   // RuleExpansion acts as a transparent pass-through for the expanded tree
@@ -215,7 +216,8 @@ VariableToColumnMap RuleExpansion::computeVariableToColumnMap() const {
   size_t colIdx = 0;
   for (const auto& arg : arguments_) {
     if (arg.isVariable()) {
-      result[arg.getVariable()] = {colIdx, ColumnIndexAndTypeInfo::UndefStatus::AlwaysDefined};
+      result[arg.getVariable()] = {
+          colIdx, ColumnIndexAndTypeInfo::UndefStatus::AlwaysDefined};
       ++colIdx;
     }
   }
@@ -279,7 +281,8 @@ std::map<Variable, TripleComponent> RuleExpansion::createVariableMapping(
       auto var = bodyPattern.s_.getVariable();
       if (headVarSet.find(var) == headVarSet.end() &&
           mapping.find(var) == mapping.end()) {
-        mapping[var] = TripleComponent(generateTempVariable("temp", tempVarCounter_++));
+        mapping[var] =
+            TripleComponent(generateTempVariable("temp", tempVarCounter_++));
       }
     }
 
@@ -288,7 +291,8 @@ std::map<Variable, TripleComponent> RuleExpansion::createVariableMapping(
       auto var = bodyPattern.p_.getVariable();
       if (headVarSet.find(var) == headVarSet.end() &&
           mapping.find(var) == mapping.end()) {
-        mapping[var] = TripleComponent(generateTempVariable("temp", tempVarCounter_++));
+        mapping[var] =
+            TripleComponent(generateTempVariable("temp", tempVarCounter_++));
       }
     }
 
@@ -297,7 +301,8 @@ std::map<Variable, TripleComponent> RuleExpansion::createVariableMapping(
       auto var = bodyPattern.o_.getVariable();
       if (headVarSet.find(var) == headVarSet.end() &&
           mapping.find(var) == mapping.end()) {
-        mapping[var] = TripleComponent(generateTempVariable("temp", tempVarCounter_++));
+        mapping[var] =
+            TripleComponent(generateTempVariable("temp", tempVarCounter_++));
       }
     }
   }
@@ -346,7 +351,7 @@ std::shared_ptr<QueryExecutionTree> RuleExpansion::buildExecutionTree(
     tree = std::make_shared<QueryExecutionTree>(_executionContext, join);
   }
 
-  // TODO: Apply filters from rule.getFilters() if any
+  // Future enhancement: Apply filters from rule.getFilters() if any
 
   return tree;
 }

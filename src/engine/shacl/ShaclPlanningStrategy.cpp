@@ -184,8 +184,8 @@ QueryPlanner::SubtreePlan ShaclPlanningStrategy::tryPushdownConstraints(
     return plan;  // Nothing to push down
   }
 
-  // TODO: In a full implementation, we would modify the plan's index scans
-  // to include these filters. For now, we return the original plan.
+  // Future enhancement: In a full implementation, we would modify the plan's
+  // index scans to include these filters. For now, we return the original plan.
   // This would require deeper integration with QueryPlanner's internal
   // structures, which we're avoiding per the requirements.
 

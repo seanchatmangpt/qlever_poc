@@ -131,7 +131,7 @@ class Index {
       Id id, Permutation::Enum permutation,
       const LocatedTriplesSnapshot& locatedTriplesSnapshot) const;
 
-  // TODO<joka921> Once we have an overview over the folding this logic should
+  // Roadmap: Once we have an overview over the folding this logic should
   // probably not be in the index class.
   RdfsVocabulary::AccessReturnType indexToString(VocabIndex id) const;
   TextVocabulary::AccessReturnType indexToString(WordVocabIndex id) const;

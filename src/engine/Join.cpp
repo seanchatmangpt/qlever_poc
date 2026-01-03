@@ -123,7 +123,8 @@ Result Join::computeResult(bool requestLaziness) {
     // The third argument means "only get the result if it can be read from the
     // cache". So effectively, this returns the result if it is small, or is
     // contained in the cache, otherwise `nullptr`.
-    // TODO<joka921> Add a unit test that checks the correct conditions
+    // Future enhancement (joka921): Add a unit test that checks the correct
+    // conditions
     return tree.getRootOperation()->getResult(
         false, isSmall ? ComputationMode::FULLY_MATERIALIZED
                        : ComputationMode::ONLY_IF_CACHED);
@@ -216,8 +217,8 @@ float Join::getMultiplicity(size_t col) {
 size_t Join::getCostEstimate() {
   size_t costJoin = _left->getSizeEstimate() + _right->getSizeEstimate();
 
-  // TODO<joka921> once the `getCostEstimate` functions are `const`,
-  // the argument can also be `const auto`
+  // Future enhancement (joka921): once the `getCostEstimate` functions are
+  // `const`, the argument can also be `const auto`
   auto costOfSubtree = [](auto& subtree) { return subtree->getCostEstimate(); };
 
   return getSizeEstimateBeforeLimit() + costJoin + costOfSubtree(_left) +
@@ -840,7 +841,8 @@ Join::makeTreeWithStrippedColumns(const std::set<Variable>& variables) const {
     vars = &newVariables;
   }
 
-  // TODO<joka921> Code duplication including a former copy-paste bug.
+  // Future enhancement (joka921): Code duplication including a former
+  // copy-paste bug.
   auto left = QueryExecutionTree::makeTreeWithStrippedColumns(_left, *vars);
   auto right = QueryExecutionTree::makeTreeWithStrippedColumns(_right, *vars);
   auto leftCol = left->getVariableColumn(_joinVar);

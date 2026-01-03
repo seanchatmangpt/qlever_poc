@@ -237,7 +237,7 @@ class [[nodiscard]] generator {
  public:
   using promise_type = detail::generator_promise<T, Details>;
   using iterator = detail::generator_iterator<T, Details, false>;
-  // TODO<joka921> Check if this fixes anything wrt ::ranges
+  // Roadmap: Check if this fixes anything wrt ::ranges
   // using const_iterator = detail::generator_iterator<T, Details, true>;
   using value_type = typename iterator::value_type;
 

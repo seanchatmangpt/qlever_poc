@@ -145,8 +145,9 @@ struct StringValueGetter : Mixin<StringValueGetter> {
   std::optional<std::string> operator()(ValueId,
                                         const EvaluationContext*) const;
 
-  // TODO<joka921> probably we should return a reference or a view here.
-  // TODO<joka921> use a `NormalizedStringView` inside the expressions.
+  // Future enhancement (joka921): probably we should return a reference or a
+  // view here. Future enhancement (joka921): use a `NormalizedStringView`
+  // inside the expressions.
   std::optional<std::string> operator()(const LiteralOrIri& s,
                                         const EvaluationContext*) const {
     return std::string(asStringViewUnsafe(s.getContent()));
@@ -217,8 +218,8 @@ struct IsSomethingValueGetter
   Id operator()(ValueId id, const EvaluationContext* context) const;
 
   Id operator()(const LiteralOrIri& s, const EvaluationContext*) const {
-    // TODO<joka921> Use the `isLiteral` etc. functions directly as soon as the
-    // local vocabulary also stores `LiteralOrIri`.
+    // Future enhancement (joka921): Use the `isLiteral` etc. functions directly
+    // as soon as the local vocabulary also stores `LiteralOrIri`.
     return Id::makeFromBool(ql::starts_with(s.toStringRepresentation(),
                                             isLiteralOrIriSomethingFunction));
   }

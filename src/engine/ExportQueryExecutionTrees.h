@@ -19,8 +19,9 @@
 // Class for computing the result of an already parsed and planned query and
 // exporting it in different formats (TSV, CSV, Turtle, JSON, Binary).
 //
-// TODO<joka921> Also implement a streaming JSON serializer to reduce the RAM
-// consumption of large JSON exports and to make this interface even simpler.
+// Future enhancement (joka921): Also implement a streaming JSON serializer to
+// reduce the RAM consumption of large JSON exports and to make this interface
+// even simpler.
 class ExportQueryExecutionTrees {
  public:
   using MediaType = ad_utility::MediaType;
@@ -71,8 +72,8 @@ class ExportQueryExecutionTrees {
   // Note: This function currently has to be public because the
   // `Variable::evaluate` function calls it for evaluating CONSTRUCT queries.
   //
-  // TODO<joka921> Make it private again as soon as the evaluation of construct
-  // queries is completely performed inside this module.
+  // Future enhancement (joka921): Make it private again as soon as the
+  // evaluation of construct queries is completely performed inside this module.
   template <bool removeQuotesAndAngleBrackets = false,
             bool returnOnlyLiterals = false,
             typename EscapeFunction = ql::identity>

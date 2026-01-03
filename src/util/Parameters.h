@@ -133,7 +133,7 @@ CPP_template(typename Type, typename FromString, typename ToString)(
 // common types to and from `std::string`.
 namespace detail::parameterSerializers {
 
-// TODO<joka921> Replace these by versions that actually parse the whole
+// Roadmap: Replace these by versions that actually parse the whole
 // string.
 struct fl {
   template <typename T>

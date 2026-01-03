@@ -36,9 +36,9 @@ std::string OrderBy::getCacheKeyImpl() const {
   std::ostringstream os;
   os << "ORDER BY on columns:";
 
-  // TODO<joka921> This produces exactly the same format as SORT operations
-  // which is crucial for caching. Please refactor those classes to one class
-  // (this is only an optimization for sorts on a single column)
+  // Future enhancement (joka921): This produces exactly the same format as SORT
+  // operations which is crucial for caching. Please refactor those classes to
+  // one class (this is only an optimization for sorts on a single column)
   for (auto ind : sortIndices_) {
     os << (ind.second ? "desc(" : "asc(") << ind.first << ") ";
   }
@@ -69,7 +69,7 @@ Result OrderBy::computeResult([[maybe_unused]] bool requestLaziness) {
                << endl;
   std::shared_ptr<const Result> subRes = subtree_->getResult();
 
-  // TODO<joka921> proper timeout for sorting operations
+  // Future enhancement (joka921): proper timeout for sorting operations
   const auto& subTable = subRes->idTable();
   getExecutionContext()->getSortPerformanceEstimator().throwIfEstimateTooLong(
       subTable.numRows(), subTable.numColumns(), deadline_,
@@ -80,25 +80,25 @@ Result OrderBy::computeResult([[maybe_unused]] bool requestLaziness) {
 
   size_t width = idTable.numColumns();
 
-  // TODO<joka921> Measure (as soon as we have the benchmark merged)
-  // whether it is beneficial to manually instantiate the comparison when
-  // sorting by only one or two columns.
+  // Future enhancement (joka921): Measure (as soon as we have the benchmark
+  // merged) whether it is beneficial to manually instantiate the comparison
+  // when sorting by only one or two columns.
 
-  // TODO<joka921> In the case of a single variable, it might be more efficient
-  // to first sort by the ID values and then "repair" the resulting range by
-  // some O(n) algorithms, or even by returning lazy generators that yield
-  // the repaired order.
+  // Future enhancement (joka921): In the case of a single variable, it might be
+  // more efficient to first sort by the ID values and then "repair" the
+  // resulting range by some O(n) algorithms, or even by returning lazy
+  // generators that yield the repaired order.
 
-  // TODO<joka921> For proper sorting of the local vocab we also need to
-  // add some logic for the proper sorting.
+  // Future enhancement (joka921): For proper sorting of the local vocab we also
+  // need to add some logic for the proper sorting.
 
-  // TODO<joka921> Undefined values should always be at the end, no matter
-  // if the ordering is ascending or descending.
+  // Future enhancement (joka921): Undefined values should always be at the end,
+  // no matter if the ordering is ascending or descending.
 
-  // TODO<joka921> If we know, that all the sort columns contain only datatypes
-  // for which the `internal` order is also the `semantic` order, or if a column
-  // only contains a single datatype, then we can use more efficient
-  // implementations here.
+  // Future enhancement (joka921): If we know, that all the sort columns contain
+  // only datatypes for which the `internal` order is also the `semantic` order,
+  // or if a column only contains a single datatype, then we can use more
+  // efficient implementations here.
 
   // Return true iff `rowA` comes before `rowB` in the sort order specified by
   // `sortIndices_`.

@@ -188,8 +188,8 @@ class GroupByImpl : public Operation {
   FRIEND_TEST(GroupByTest, doGroupBy);
 
  public:
-  // TODO<joka921> use `FRIEND_TEST` here once we have converged on the set
-  // of tests to write.
+  // Future enhancement (joka921): use `FRIEND_TEST` here once we have converged
+  // on the set of tests to write.
 
   // For certain combinations of `_groupByColumns`, `_aliases` and `_subtree`,
   // it is not necessary to fully materialize the `_subtree`'s result, but the
@@ -568,8 +568,8 @@ class GroupByImpl : public Operation {
 
   // Find all aggregates for expression `expr`. Return `std::nullopt`
   // if an unsupported aggregate is found.
-  // TODO<kcaliban> Remove std::optional as soon as all aggregates are
-  // supported
+  // Future enhancement (kcaliban): Remove std::optional as soon as all
+  // aggregates are supported
   static std::optional<std::vector<HashMapAggregateInformation>> findAggregates(
       sparqlExpression::SparqlExpression* expr);
 
@@ -633,14 +633,15 @@ class GroupByImpl : public Operation {
  public:
   std::unique_ptr<Operation> cloneImpl() const override;
 
-  // TODO<joka921> implement optimization when *additional* Variables are
-  // grouped.
+  // Future enhancement (joka921): implement optimization when *additional*
+  // Variables are grouped.
 
-  // TODO<joka921> implement optimization when there are additional aggregates
-  // that work on the variables that are NOT part of the three-variable-triple.
+  // Future enhancement (joka921): implement optimization when there are
+  // additional aggregates that work on the variables that are NOT part of the
+  // three-variable-triple.
 
-  // TODO<joka921> Also inform the query planner (via the cost estimate)
-  // that the optimization can be done.
+  // Future enhancement (joka921): Also inform the query planner (via the cost
+  // estimate) that the optimization can be done.
 };
 
 // _____________________________________________________________________________

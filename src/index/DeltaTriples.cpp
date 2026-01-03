@@ -295,7 +295,7 @@ void DeltaTriples::modifyTriplesImpl(CancellationHandle cancellationHandle,
   tracer.beginTrace("rewriteLocalVocabEntries");
   rewriteLocalVocabEntriesAndBlankNodes(triples);
   tracer.endTrace("rewriteLocalVocabEntries");
-  // TODO<joka921> Once the migration is finished, check whether we can remove
+  // Roadmap: Once the migration is finished, check whether we can remove
   // the `ifndef` here again.
 #ifndef QLEVER_CPP_17
   AD_EXPENSIVE_CHECK(ql::ranges::is_sorted(triples));
@@ -324,7 +324,7 @@ void DeltaTriples::modifyTriplesImpl(CancellationHandle cancellationHandle,
   tracer.beginTrace("markTriples");
 
   AD_CORRECTNESS_CHECK(triples.size() == handles.size());
-  // TODO<qup42>: replace with ql::views::zip in C++23
+  // Roadmap:: replace with ql::views::zip in C++23
   for (size_t i = 0; i < triples.size(); i++) {
     targetMap.insert({triples[i], handles[i]});
   }
@@ -488,7 +488,7 @@ void DeltaTriples::writeToDisk() const {
   if (!filenameForPersisting_.has_value()) {
     return;
   }
-  // TODO<RobinTF> Currently this only writes non-internal delta triples to
+  // Roadmap: Currently this only writes non-internal delta triples to
   // disk. The internal triples will be regenerated when importing the rest
   // again. In the future we might to also want to explicitly store the internal
   // triples.

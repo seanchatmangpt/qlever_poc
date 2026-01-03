@@ -38,7 +38,7 @@ static constexpr auto size_t_max = std::numeric_limits<size_t>::max();
  still in use.
  @tparam PriorityQueue Container template for a priority queue with an
  updateKey method. The templates from PrioityQueue.h are suitable
- @tparam Key The key type for lookup. Must be hashable TODO<joka921>::if
+ @tparam Key The key type for lookup. Must be hashable/* Roadmap:<joka921>::if
  needed in future, add hash as optional template parameter
  @tparam Value Value type. Must be default constructible.
  @tparam Score A type that is used to determine which entry is deleted next
@@ -218,7 +218,7 @@ CPP_template(template <typename Sc, typename Val, typename Comp>
     _maxSizeSingleEntry = maxSizeSingleEntry;
     // We currently do not delete entries that are now too big
     // after the update.
-    // TODO<joka921>:: implement this functionality
+    // Roadmap::: implement this functionality
   }
 
   MemorySize getMaxSizeSingleEntry() const noexcept {

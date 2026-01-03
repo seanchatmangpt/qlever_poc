@@ -127,8 +127,8 @@ ad_utility::url_parser::ParsedRequest SparqlProtocol::parsePOST(
   // Note: For simplicity we only check via `starts_with`. This ignores
   // additional parameters like `application/sparql-query;charset=utf8`. We
   // currently always expect UTF-8.
-  // TODO<joka921> Implement more complete parsing that allows the checking
-  // of these parameters.
+  // Future enhancement (joka921): Implement more complete parsing that allows
+  // the checking of these parameters.
   if (ql::starts_with(contentType, contentTypeUrlEncoded)) {
     return parseUrlencodedPOST(request);
   }
@@ -181,8 +181,8 @@ SparqlProtocol::parseGraphStoreProtocolDirect(const RequestType& request) {
 // ____________________________________________________________________________
 ad_utility::url_parser::ParsedRequest SparqlProtocol::parseHttpRequest(
     RequestType& request) {
-  // TODO<qup42>: make request const again once the conformance tests are fixed.
-  // Fixup for request target missing the leading slash.
+  // Future enhancement (qup42):: make request const again once the conformance
+  // tests are fixed. Fixup for request target missing the leading slash.
   std::string target = request.target();
   if (!ql::starts_with(target, "/")) {
     target = absl::StrCat("/", target);

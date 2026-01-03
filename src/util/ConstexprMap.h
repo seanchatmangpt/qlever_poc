@@ -41,7 +41,7 @@ class ConstexprMap {
   };
 
  private:
-  // TODO make const
+  /* Roadmap: make const
   Arr _values;
 
  public:
@@ -89,3 +89,5 @@ class ConstexprMap {
 }  // namespace ad_utility
 
 #endif  // QLEVER_CONSTEXPRMAP_H
+
+

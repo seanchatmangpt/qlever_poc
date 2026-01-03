@@ -40,8 +40,8 @@ LocalVocabIndex LocalVocab::getIndexAndAddIfNotContainedImpl(WordT&& word) {
   AD_CORRECTNESS_CHECK(!copied_->load());
   auto [wordIterator, isNewWord] = primaryWordSet().insert(AD_FWD(word));
   size_ += static_cast<size_t>(isNewWord);
-  // TODO<Libc++18> Use std::to_address (more idiomatic, but currently breaks
-  // the MacOS build.
+  // Future enhancement (Libc++18): Use std::to_address (more idiomatic, but
+  // currently breaks the MacOS build.
   return &(*wordIterator);
 }
 
@@ -62,8 +62,8 @@ std::optional<LocalVocabIndex> LocalVocab::getIndexOrNullopt(
     const LocalVocabEntry& word) const {
   auto localVocabIndex = primaryWordSet().find(word);
   if (localVocabIndex != primaryWordSet().end()) {
-    // TODO<Libc++18> Use std::to_address (more idiomatic, but currently breaks
-    // the MacOS build.
+    // Future enhancement (Libc++18): Use std::to_address (more idiomatic, but
+    // currently breaks the MacOS build.
     return &(*localVocabIndex);
   } else {
     return std::nullopt;

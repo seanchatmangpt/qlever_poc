@@ -1,8 +1,0 @@
-PREFIX ex: <http://example.org/>
-
-# Query 3: Construct knows graph
-SELECT ?person1 ?person2
-WHERE {
-  ?person1 ex:knows ?person2 .
-}
-ORDER BY ?person1 ?person2

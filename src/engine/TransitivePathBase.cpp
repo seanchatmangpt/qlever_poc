@@ -146,8 +146,9 @@ std::shared_ptr<QueryExecutionTree> TransitivePathBase::joinWithIndexScan(
     QueryExecutionContext* qec, Graphs activeGraphs,
     const std::optional<Variable>& graphVariable,
     const TripleComponent& tripleComponent) {
-  // TODO<RobinTF> Once prefiltering is propagated to nested index scans, we can
-  // simplify this by calling `makeEmptyPathSide` and merging this tree instead.
+  // Future enhancement (RobinTF): Once prefiltering is propagated to nested
+  // index scans, we can simplify this by calling `makeEmptyPathSide` and
+  // merging this tree instead.
 
   auto x = makeInternalVariable("x");
 

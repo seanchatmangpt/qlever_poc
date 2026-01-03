@@ -190,7 +190,7 @@ template <valueIdComparators::Comparison Comp>
 inline const auto compareIdsOrStrings =
     [](const auto& a, const auto& b,
        const EvaluationContext* ctx) -> IdOrLiteralOrIri {
-  // TODO<joka921> moveTheStrings.
+  // Future enhancement (joka921): moveTheStrings.
   return toBoolNotUndef(
              sparqlExpression::compareIdsOrStrings<
                  Comp, valueIdComparators::ComparisonForIncompatibleTypes::
@@ -211,7 +211,7 @@ struct MinMaxLambdaForAllTypes {
     if constexpr (ad_utility::isSimilar<T, Id>) {
       return std::get<Id>(actualImpl(a, b));
     } else {
-      // TODO<joka921> We should definitely move strings here.
+      // Future enhancement (joka921): We should definitely move strings here.
       return std::visit(actualImpl, a, b);
     }
   }

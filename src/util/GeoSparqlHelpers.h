@@ -31,7 +31,7 @@ namespace detail {
 static constexpr double invalidCoordinate =
     std::numeric_limits<double>::quiet_NaN();
 
-// TODO: Make the SPARQL expressions work for function pointers or
+/* Roadmap:: Make the SPARQL expressions work for function pointers or
 // std::function.
 
 // Extract coordinates from a well-known text literal.
@@ -210,7 +210,7 @@ template <SpatialJoinType Relation>
 class WktGeometricRelation {
  public:
   ValueId operator()(
-      // TODO<ullingerc> For implementation, use a new appropriate value getter
+      // Roadmap: For implementation, use a new appropriate value getter
       // for geometry literals and points.
       [[maybe_unused]] const std::optional<GeoPoint>& geoLeft,
       [[maybe_unused]] const std::optional<GeoPoint>& geoRight) const {
@@ -264,3 +264,5 @@ class WktMetricArea {
 }  // namespace ad_utility
 
 #endif  // QLEVER_GEOSPARQLHELPERS_H
+
+

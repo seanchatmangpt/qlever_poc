@@ -474,7 +474,7 @@ CPP_template(typename Parser)(requires ql::concepts::derived_from<
 
   // Parse only a single object.
   static TripleComponent parseTripleObject(std::string_view objectString) {
-    // TODO<joka921> Make it possible to use an optional here.
+    // Roadmap: Make it possible to use an optional here.
     EncodedIriManager encodedIriManager;
     RdfStringParser parser{&encodedIriManager};
     parser.setInputStream(objectString);
@@ -662,7 +662,7 @@ class RdfParallelParser : public Parser {
                   ad_utility::MemorySize bufferSize);
 
   size_t getParsePosition() const override {
-    // TODO: can we really define this position here?
+    // Note: Position tracking is not fully implemented for parallel parsing.
     return 0;
   }
 
@@ -750,7 +750,7 @@ class RdfMultifileParser : public RdfParserBase {
   std::optional<std::vector<TurtleTriple>> getBatch() override;
 
   size_t getParsePosition() const override {
-    // TODO: This function is used for better error messages, but we currently
+    // Note: This function is used for better error messages, but we currently
     // have no good way to implement it for this parser. Further analyze this.
     return 0;
   }

@@ -177,7 +177,7 @@ class TripleComponent {
     return std::get<std::string>(_variant);
   }
 
-  // Non-const overload. TODO<C++23> Deducing this.
+  // Non-const overload. Roadmap (C++23): Use deducing this.
   std::string& getString() { return std::get<std::string>(_variant); }
 
   [[nodiscard]] const double& getDouble() const {
@@ -202,7 +202,7 @@ class TripleComponent {
   /// Convert to an RDF literal. `std::strings` will be emitted directly,
   /// `int64_t` is converted to a `xsd:integer` literal, and a `double` is
   /// converted to a `xsd:double`.
-  // TODO<joka921> This function is used in only few places and  ignores the
+  // Roadmap: This function is used in only few places and ignores the
   // strong typing of `Literal`s etc. It should be removed and its calls be
   // replaced by calls that work on the strongly typed `TripleComponent`
   // directly.
@@ -295,7 +295,7 @@ class TripleComponent {
   // was also used for variables and literals, which now have their
   // own alternative. This function checks that a stored `std::string` does not
   // store a literal or a variable.
-  // TODO<joka921> In most parts of the code, the `std::string` case only stores
+  // Roadmap: In most parts of the code, the `std::string` case only stores
   // IRIs and blank nodes. It would be desirable to check that we are indeed in
   // one of these cases. However, the `TurtleParser` currently uses a
   // `TripleComponent` to store literals like `true`, `false`, `12.3` etc. in a

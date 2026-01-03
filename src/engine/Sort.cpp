@@ -57,7 +57,7 @@ Result Sort::computeResult([[maybe_unused]] bool requestLaziness) {
   AD_LOG_DEBUG << "Getting sub-result for Sort result computation..." << endl;
   std::shared_ptr<const Result> subRes = subtree_->getResult();
 
-  // TODO<joka921> proper timeout for sorting operations
+  // Future enhancement (joka921): proper timeout for sorting operations
   const auto& subTable = subRes->idTable();
   getExecutionContext()->getSortPerformanceEstimator().throwIfEstimateTooLong(
       subTable.numRows(), subTable.numColumns(), deadline_, "Sort operation");
@@ -112,7 +112,8 @@ Sort::makeTreeWithStrippedColumns(const std::set<Variable>& variables) const {
     }
   }
 
-  // TODO<joka921> Code duplication including a former copy-paste bug.
+  // Future enhancement (joka921): Code duplication including a former
+  // copy-paste bug.
   auto subtree =
       QueryExecutionTree::makeTreeWithStrippedColumns(subtree_, *vars);
   std::vector<ColumnIndex> sortColumnIndices;

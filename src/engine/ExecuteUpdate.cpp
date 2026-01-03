@@ -43,10 +43,11 @@ UpdateMetadata ExecuteUpdate::executeUpdate(
 
 // _____________________________________________________________________________
 //
-// TODO: This code currently makes multiple copies of each `TripleComponent`.
-// This does not seem to impact performance significantly because the lookups
-// on disk are the bottleneck (we looked at the flamegraph for a whole update
-// operation). Still, it would be cleaner to avoid these copies.
+// Future enhancement: This code currently makes multiple copies of each
+// `TripleComponent`. This does not seem to impact performance significantly
+// because the lookups on disk are the bottleneck (we looked at the flamegraph
+// for a whole update operation). Still, it would be cleaner to avoid these
+// copies.
 std::pair<std::vector<ExecuteUpdate::TransformedTriple>, LocalVocab>
 ExecuteUpdate::transformTriplesTemplate(
     const EncodedIriManager& encodedIriManager, const Index::Vocab& vocab,

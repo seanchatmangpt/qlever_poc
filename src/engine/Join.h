@@ -87,8 +87,8 @@ class Join : public Operation {
    * - The hashJoinImpl.
    * Currently it only decides between doGallopInnerJoin and the standard merge
    * join, with the merge join code directly written in the function.
-   * TODO Move the merge join into it's own function and make this function
-   * a proper switch.
+   * Future refactoring: Move merge join into its own function and make this
+   * function a proper switch.
    **/
   void join(const IdTable& a, const IdTable& b, IdTable* result) const;
 

@@ -239,7 +239,8 @@ uint64_t HasPredicateScan::getSizeEstimateBeforeLimit() {
 
 // ___________________________________________________________________________
 size_t HasPredicateScan::getCostEstimate() {
-  // TODO: these size estimates only work if all predicates are functional
+  // Future enhancement: these size estimates only work if all predicates are
+  // functional
   switch (type_) {
     case ScanType::FREE_S:
       return getSizeEstimateBeforeLimit();
@@ -323,9 +324,9 @@ void HasPredicateScan::computeFreeS(
     IdTable* resultTable, Id objectId, HasPattern& hasPattern,
     const CompactVectorOfStrings<Id>& patterns) {
   IdTableStatic<1> result = std::move(*resultTable).toStatic<1>();
-  // TODO<joka921> This can be a much simpler and cheaper implementation that
-  // does a lazy scan on the specified predicate and then simply performs a
-  // DISTINCT on the result.
+  // Future enhancement (joka921): This can be a much simpler and cheaper
+  // implementation that does a lazy scan on the specified predicate and then
+  // simply performs a DISTINCT on the result.
   for (const auto& block : hasPattern) {
     auto patternColumn = block.getColumn(1);
     auto subjects = block.getColumn(0);

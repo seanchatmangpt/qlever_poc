@@ -120,7 +120,8 @@ struct ApplyBaseIfPresent {
     if (baseIri.empty()) {
       return iri;
     }
-    // TODO<RobinTF> Avoid unnecessary string copies because of conversion.
+    // Future enhancement (RobinTF): Avoid unnecessary string copies because of
+    // conversion.
     return LiteralOrIri{Iri::fromIrirefConsiderBase(
         extractIri(iri).toStringRepresentation(), baseIri.getBaseIri(false),
         baseIri.getBaseIri(true))};
@@ -477,7 +478,7 @@ class ConcatExpression : public detail::VariadicExpression {
         // The `result` already is a vector, and the current child also returns
         // multiple results, so we do the `natural` way.
         auto& resultAsVec = std::get<LiteralVec>(result);
-        // TODO<C++23> Use `ql::views::zip` or `enumerate`.
+        // Future enhancement (C++23): Use ql::views::zip or enumerate
         size_t i = 0;
         for (auto& el : gen) {
           auto literal = valueGetter(std::move(el), ctx);

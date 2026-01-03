@@ -928,61 +928,56 @@ TEST(QueryPlanner, SpatialJoinIncorrectConfigValues) {
                 "spatialSearch:left ?y ;"
                 "spatialSearch:maxDistance 5 ;"
                 "spatialSearch:algorithm spatialSearch:s2 ;"
-                "spatialSearch:experimentalRightCacheName \"dummy\" . "
+                "spatialSearch:rightCacheName \"dummy\" . "
                 "}}",
                 ::testing::_),
-      ::testing::HasSubstr(
-          "`<experimentalRightCacheName>` is only supported by the "
-          "`<experimentalPointPolyline>` algorithm"));
+      ::testing::HasSubstr("`<rightCacheName>` is only supported by the "
+                           "`<pointPolyline>` algorithm"));
 
   AD_EXPECT_THROW_WITH_MESSAGE(
-      h::expect(
-          "PREFIX spatialSearch: "
-          "<https://qlever.cs.uni-freiburg.de/spatialSearch/>"
-          "SELECT * WHERE {"
-          "?x <p> ?y ."
-          "SERVICE spatialSearch: {"
-          "_:config spatialSearch:right ?b ;"
-          "spatialSearch:left ?y ;"
-          "spatialSearch:maxDistance 5 ;"
-          "spatialSearch:algorithm spatialSearch:experimentalPointPolyline ;"
-          "spatialSearch:experimentalRightCacheName <http://example.com> . "
-          "}}",
-          ::testing::_),
+      h::expect("PREFIX spatialSearch: "
+                "<https://qlever.cs.uni-freiburg.de/spatialSearch/>"
+                "SELECT * WHERE {"
+                "?x <p> ?y ."
+                "SERVICE spatialSearch: {"
+                "_:config spatialSearch:right ?b ;"
+                "spatialSearch:left ?y ;"
+                "spatialSearch:maxDistance 5 ;"
+                "spatialSearch:algorithm spatialSearch:pointPolyline ;"
+                "spatialSearch:rightCacheName <http://example.com> . "
+                "}}",
+                ::testing::_),
       ::testing::HasSubstr(
           "must be the name of a pinned cache entry as a string literal"));
 
   AD_EXPECT_THROW_WITH_MESSAGE(
-      h::expect(
-          "PREFIX spatialSearch: "
-          "<https://qlever.cs.uni-freiburg.de/spatialSearch/>"
-          "SELECT * WHERE {"
-          "?x <p> ?y ."
-          "SERVICE spatialSearch: {"
-          "_:config spatialSearch:right ?b ;"
-          "spatialSearch:left ?y ;"
-          "spatialSearch:maxDistance 5 ;"
-          "spatialSearch:algorithm spatialSearch:experimentalPointPolyline ."
-          "}}",
-          ::testing::_),
-      ::testing::HasSubstr(
-          "parameter `<experimentalRightCacheName>` is mandatory"));
+      h::expect("PREFIX spatialSearch: "
+                "<https://qlever.cs.uni-freiburg.de/spatialSearch/>"
+                "SELECT * WHERE {"
+                "?x <p> ?y ."
+                "SERVICE spatialSearch: {"
+                "_:config spatialSearch:right ?b ;"
+                "spatialSearch:left ?y ;"
+                "spatialSearch:maxDistance 5 ;"
+                "spatialSearch:algorithm spatialSearch:pointPolyline ."
+                "}}",
+                ::testing::_),
+      ::testing::HasSubstr("parameter `<rightCacheName>` is mandatory"));
 
   AD_EXPECT_THROW_WITH_MESSAGE(
-      h::expect(
-          "PREFIX spatialSearch: "
-          "<https://qlever.cs.uni-freiburg.de/spatialSearch/>"
-          "SELECT * WHERE {"
-          "?x <p> ?y ."
-          "SERVICE spatialSearch: {"
-          "_:config spatialSearch:right ?b ;"
-          "spatialSearch:left ?y ;"
-          "spatialSearch:maxDistance 5 ;"
-          "spatialSearch:algorithm spatialSearch:experimentalPointPolyline ;"
-          "spatialSearch:experimentalRightCacheName \"dummy\" . "
-          " { ?a <p> ?b . }"
-          "}}",
-          ::testing::_),
+      h::expect("PREFIX spatialSearch: "
+                "<https://qlever.cs.uni-freiburg.de/spatialSearch/>"
+                "SELECT * WHERE {"
+                "?x <p> ?y ."
+                "SERVICE spatialSearch: {"
+                "_:config spatialSearch:right ?b ;"
+                "spatialSearch:left ?y ;"
+                "spatialSearch:maxDistance 5 ;"
+                "spatialSearch:algorithm spatialSearch:pointPolyline ;"
+                "spatialSearch:rightCacheName \"dummy\" . "
+                " { ?a <p> ?b . }"
+                "}}",
+                ::testing::_),
       ::testing::HasSubstr(
           "a group graph pattern for the right side may not be specified"));
 }
@@ -1013,8 +1008,8 @@ TEST(QueryPlanner, SpatialJoinS2PointPolylineAndCachedIndex) {
       "_:config qlss:right ?o ;"
       "qlss:left ?y ;"
       "qlss:maxDistance 500 ;"
-      "qlss:algorithm qlss:experimentalPointPolyline ;"
-      "qlss:experimentalRightCacheName \"dummy\" ."
+      "qlss:algorithm qlss:pointPolyline ;"
+      "qlss:rightCacheName \"dummy\" ."
       "} }";
 
   // Requested query for right child not pinned
@@ -1051,8 +1046,8 @@ TEST(QueryPlanner, SpatialJoinS2PointPolylineAndCachedIndex) {
         "_:config qlss:right ?o ;"
         "qlss:left ?y ;"
         "qlss:maxDistance 500 ;"
-        "qlss:algorithm qlss:experimentalPointPolyline ;"
-        "qlss:experimentalRightCacheName \"dummy\" ."
+        "qlss:algorithm qlss:pointPolyline ;"
+        "qlss:rightCacheName \"dummy\" ."
         "} }",
         h::spatialJoin(500, -1, V{"?y"}, V{"?o"}, std::nullopt, PV::all(),
                        S2_POINT_POLYLINE, std::nullopt, scan("?x", "<p>", "?y"),
@@ -1068,8 +1063,8 @@ TEST(QueryPlanner, SpatialJoinS2PointPolylineAndCachedIndex) {
         "_:config qlss:right ?o ;"
         "qlss:left ?y ;"
         "qlss:maxDistance 500 ;"
-        "qlss:algorithm qlss:experimentalPointPolyline ;"
-        "qlss:experimentalRightCacheName \"dummy\" ;"
+        "qlss:algorithm qlss:pointPolyline ;"
+        "qlss:rightCacheName \"dummy\" ;"
         "qlss:payload ?s ."
         "} }",
         h::spatialJoin(500, -1, V{"?y"}, V{"?o"}, std::nullopt, PV::all(),
@@ -1095,8 +1090,8 @@ TEST(QueryPlanner, SpatialJoinS2PointPolylineAndCachedIndex) {
             "_:config qlss:right ?wrongVariableHere ;"
             "qlss:left ?y ;"
             "qlss:maxDistance 500 ;"
-            "qlss:algorithm qlss:experimentalPointPolyline ;"
-            "qlss:experimentalRightCacheName \"dummy\" ."
+            "qlss:algorithm qlss:pointPolyline ;"
+            "qlss:rightCacheName \"dummy\" ."
             "} }",
             ::testing::_, qec),
         ::testing::HasSubstr(

@@ -13,9 +13,9 @@ namespace qlever {
 // (because reality is more complicated than "one type per column"). The class
 // is still needed for the correctness of the code, see `Result.h`.
 //
-// TODO: Properly keep track of result types again. In particular, efficiency
-// should benefit in the common use case where all entries in a column have a
-// certain type or types.
+// Future enhancement: Properly keep track of result types again. In particular,
+// efficiency should benefit in the common use case where all entries in a
+// column have a certain type or types.
 enum class ResultType {
   // An entry that is contained in the vocabulary of the indexed data.
   KB,

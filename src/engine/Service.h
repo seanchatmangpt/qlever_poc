@@ -19,8 +19,8 @@
 // service IRI, gets the result as JSON, parses it, and writes it into a result
 // table.
 //
-// TODO: The current implementation works, but is preliminary in several
-// respects:
+// Future enhancement: The current implementation works, but is preliminary in
+// several respects:
 //
 // 1. There should be a timeout.
 //

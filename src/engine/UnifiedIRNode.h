@@ -19,7 +19,7 @@
 
 namespace qlever::unified {
 
-// Forward declaration
+// Forward declaration (renamed to UnifiedPhysicalOptimizerStub - aspirational)
 class UnifiedPhysicalOptimizer;
 
 /// Discriminated union representing a single node in the Unified Intermediate

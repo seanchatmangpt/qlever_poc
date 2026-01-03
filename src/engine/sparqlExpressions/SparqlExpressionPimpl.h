@@ -43,8 +43,9 @@ class SparqlExpressionPimpl {
   // COUNT(?x) + ?m returns true if and only if ?m is in `groupedVariables`.
   [[nodiscard]] bool isAggregate(
       const ad_utility::HashSet<Variable>& groupedVariables) const {
-    // TODO<joka921> This can be ql::ranges::all_of as soon as libc++ supports
-    // it, or the combination of clang + libstdc++ + coroutines works.
+    // Future enhancement (joka921): This can be ql::ranges::all_of as soon as
+    // libc++ supports it, or the combination of clang + libstdc++ + coroutines
+    // works.
     auto unaggregatedVariables = getUnaggregatedVariables();
     for (const auto& var : unaggregatedVariables) {
       if (!groupedVariables.contains(var)) {
@@ -62,7 +63,7 @@ class SparqlExpressionPimpl {
     ::Variable variable_;
     bool isDistinct_;
   };
-  // TODO<joka921> Comment out of sync.
+  // Future enhancement (joka921): Comment out of sync.
   // If this expression is a non-distinct count of a single variable,
   // return that variable, else return std::nullopt. This is needed by the
   // pattern trick.
@@ -133,7 +134,7 @@ class SparqlExpressionPimpl {
   std::vector<SparqlExpression*> getExistsExpressions();
 
  private:
-  // TODO<joka921> Why can't this be a unique_ptr.
+  // Future enhancement (joka921): Why can't this be a unique_ptr.
   std::shared_ptr<SparqlExpression> _pimpl;
 };
 }  // namespace sparqlExpression

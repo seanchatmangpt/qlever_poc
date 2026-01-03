@@ -370,12 +370,10 @@ VariableToColumnMap GroupByImpl::computeVariableToColumnMap() const {
     colIndex++;
   }
   for (const Alias& a : _aliases) {
-    // TODO<joka921> This currently pessimistically assumes that all (aggregate)
-    // expressions can produce undefined values. This might impact the
-    // performance when the result of this GROUP BY is joined on one or more of
-    // the aggregating columns. Implement an interface in the expressions that
-    // allows to check, whether an expression can never produce an undefined
-    // value.
+    // LIMITATION: Pessimistically assumes all aggregate expressions can produce
+    // undefined values. May impact performance when GROUP BY result is joined
+    // on aggregating columns. Future enhancement: Add expression interface to
+    // check if undefined values are possible.
     result[a._target] = makePossiblyUndefinedColumn(colIndex);
     colIndex++;
   }
@@ -405,9 +403,9 @@ uint64_t GroupByImpl::getSizeEstimateBeforeLimit() {
 }
 
 size_t GroupByImpl::getCostEstimate() {
-  // TODO: add the cost of the actual group by operation to the cost.
-  // Currently group by is only added to the optimizer as a terminal operation
-  // and its cost should not affect the optimizers results.
+  // LIMITATION: Does not include cost of actual group by operation.
+  // GROUP BY is currently added to optimizer as terminal operation,
+  // so its cost does not affect optimizer results.
   return _subtree->getCostEstimate();
 }
 
@@ -670,8 +668,8 @@ size_t GroupByImpl::searchBlockBoundaries(const T& onBlockChange,
   for (size_t pos = 0; pos < idTable.size(); pos++) {
     checkCancellation();
     bool rowMatchesCurrentBlock =
-        // TODO<joka921> ql::ranges has problems with the local lambda, find out
-        // what's wrong.
+        // NOTE: Using std::all_of instead of ql::ranges due to local lambda
+        // compatibility issues
         std::all_of(currentGroupBlock.begin(), currentGroupBlock.end(),
                     [&](const auto& colIdxAndValue) {
                       return idTable(pos, colIdxAndValue.first) ==
@@ -910,9 +908,9 @@ std::optional<IdTable> GroupByImpl::computeGroupByForFullIndexScan() const {
     ql::ranges::fill(table.getColumn(1), Id::makeFromInt(0));
   }
 
-  // TODO<joka921> This optimization should probably also apply if
-  // the query is `SELECT DISTINCT ?s WHERE {?s ?p ?o} ` without a
-  // GROUP BY, but that needs to be implemented in the `DISTINCT` operation.
+  // Future enhancement: This optimization could apply to SELECT DISTINCT
+  // without GROUP BY (e.g., SELECT DISTINCT ?s WHERE {?s ?p ?o}).
+  // Requires implementation in DISTINCT operation.
   return table;
 }
 
@@ -965,7 +963,7 @@ GroupByImpl::checkIfJoinWithFullScan(const Join& join) const {
   auto* child1 = static_cast<const Operation&>(join).getChildren().at(0);
   auto* child2 = static_cast<const Operation&>(join).getChildren().at(1);
 
-  // TODO<joka921, C++23> Use `optional::or_else`
+  // Future enhancement (C++23): Use optional::or_else
   auto permutation = getPermutationForThreeVariableTriple(
       *child1, groupByVariable, countedVariable.value());
   if (!permutation.has_value()) {
@@ -977,11 +975,10 @@ GroupByImpl::checkIfJoinWithFullScan(const Join& join) const {
     return std::nullopt;
   }
 
-  // TODO<joka921> This  is rather implicit. We should have a (soft) check,
-  // that the join column is correct, and a HARD check, that the result is
-  // sorted.
-  // This check fails if we ever decide to not eagerly sort the children of
-  // a JOIN. We can detect this case and change something here then.
+  // LIMITATION: Implicit assumption about join column and sort order.
+  // Future enhancement: Add soft check for join column correctness and hard
+  // check that result is sorted. This will fail if we change JOIN to not
+  // eagerly sort children; detection and handling needed in that case.
   if (child2->getPrimarySortKeyVariable() != groupByVariable) {
     return std::nullopt;
   }
@@ -1020,9 +1017,8 @@ std::optional<IdTable> GroupByImpl::computeGroupByForJoinWithFullScan() const {
   auto idTable = std::move(result).toStatic<2>();
   const auto& index = getExecutionContext()->getIndex();
 
-  // TODO<joka921, C++23> Simplify the following pattern by using
-  // `ql::views::chunk_by` and implement a lazy version of this view for
-  // input iterators.
+  // Future enhancement (C++23): Simplify using ql::views::chunk_by
+  // and implement a lazy version of this view for input iterators.
 
   // Take care of duplicate values in the input.
   Id currentId = subresult->idTable()(0, columnIndex);
@@ -1036,8 +1032,8 @@ std::optional<IdTable> GroupByImpl::computeGroupByForJoinWithFullScan() const {
     // variable triple would have filtered it out and we don't include it in
     // the final result.
     if (currentCount > 0) {
-      // TODO<C++20, as soon as Clang supports it>: use `emplace_back(id1,
-      // id2)` (requires parenthesized initialization of aggregates.
+      // Future enhancement (C++20): use emplace_back(id1, id2)
+      // when Clang supports parenthesized initialization of aggregates
       idTable.push_back({currentId, Id::makeFromInt(currentCount)});
     }
   };
@@ -1047,9 +1043,9 @@ std::optional<IdTable> GroupByImpl::computeGroupByForJoinWithFullScan() const {
       pushRow();
       currentId = id;
       currentCount = 0;
-      // TODO<joka921> This is also not quite correct, we want the cardinality
-      // without the internally added triples, but that is not easy to
-      // retrieve right now.
+      // LIMITATION: Cardinality includes internally added triples.
+      // Future enhancement: Retrieve cardinality without internal triples
+      // (not currently accessible).
       currentCardinality =
           index.getCardinality(id, permutation, locatedTriplesSnapshot());
     }
@@ -1061,7 +1057,7 @@ std::optional<IdTable> GroupByImpl::computeGroupByForJoinWithFullScan() const {
 
 // _____________________________________________________________________________
 std::optional<IdTable> GroupByImpl::computeOptimizedGroupByIfPossible() const {
-  // TODO<C++23> Use `std::optional::or_else`.
+  // Future enhancement (C++23): Use std::optional::or_else
   if (!getRuntimeParameter<
           &RuntimeParameters::groupByDisableIndexScanOptimizations_>()) {
     if (auto result = computeGroupByForSingleIndexScan()) {
@@ -1105,7 +1101,7 @@ GroupByImpl::computeUnsequentialProcessingMetadata(
     // Find all grouped variables occurring in the alias expression
     std::vector<HashMapGroupedVariableInformation> groupedVariables;
     groupedVariables.reserve(groupByVariables.size());
-    // TODO<C++23> use views::enumerate
+    // Future enhancement (C++23): use views::enumerate
     size_t i = 0;
     for (const auto& groupedVariable : groupByVariables) {
       groupedVariables.push_back(
@@ -1168,7 +1164,7 @@ void GroupByImpl::findGroupedVariableImpl(
 
   auto children = expr->children();
 
-  // TODO<C++23> use views::enumerate
+  // Future enhancement (C++23): use views::enumerate
   size_t childIndex = 0;
   for (const auto& child : children) {
     ParentAndChildIndex parentAndChildIndexForChild{expr, childIndex++};
@@ -1245,7 +1241,7 @@ bool GroupByImpl::findAggregatesImpl(
   auto children = expr->children();
 
   bool childrenContainOnlySupportedAggregates = true;
-  // TODO<C++23> use views::enumerate
+  // Future enhancement (C++23): use views::enumerate
   size_t childIndex = 0;
   for (const auto& child : children) {
     ParentAndChildIndex parentAndChildIndexForChild{expr, childIndex++};
@@ -1396,14 +1392,13 @@ GroupByImpl::HashMapAggregationData<NUM_GROUP_COLUMNS>::getHashEntries(
   size_t numberOfEntries = groupByCols.at(0).size();
   hashEntries.reserve(numberOfEntries);
 
-  // TODO: We pass the `Id`s column-wise into this function, and then handle
-  //       them row-wise. Is there any advantage to this, or should we transform
-  //       the data into a row-wise format before passing it?
+  // Future enhancement: Evaluate if row-wise format would be more efficient
+  // than current column-wise to row-wise transformation.
   for (size_t i = 0; i < numberOfEntries; ++i) {
     ArrayOrVector<Id> row;
     resizeIfVector(row, numOfGroupedColumns_);
 
-    // TODO<C++23> use views::enumerate
+    // Future enhancement (C++23): use views::enumerate
     auto idx = 0;
     for (const auto& val : groupByCols) {
       row[idx] = val[i];
@@ -1428,7 +1423,7 @@ GroupByImpl::HashMapAggregationData<NUM_GROUP_COLUMNS>::getHashEntries(
     }
   };
 
-  // TODO<C++23> use views::enumerate
+  // Future enhancement (C++23): use views::enumerate
   auto idx = 0;
   for (auto& aggregation : aggregationData_) {
     const auto& aggregationTypeWithData = aggregateTypeWithData_.at(idx);
@@ -1759,7 +1754,7 @@ Result GroupByImpl::computeGroupByForHashMapOptimization(
       U groupValues;
       resizeIfVector(groupValues, columnIndices.size());
 
-      // TODO<C++23> use views::enumerate
+      // Future enhancement (C++23): use views::enumerate
       size_t j = 0;
       for (auto& idx : columnIndices) {
         groupValues[j] = inputTable.getColumn(idx).subspan(

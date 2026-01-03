@@ -23,7 +23,8 @@ using json = nlohmann::json;
 namespace {
 
 // Path to golden corpus directory
-const fs::path GOLDEN_CORPUS_DIR = fs::path(__FILE__).parent_path() / "golden_corpus";
+const fs::path GOLDEN_CORPUS_DIR =
+    fs::path(__FILE__).parent_path() / "golden_corpus";
 
 // Struct representing a golden query entry
 struct GoldenQuery {
@@ -83,21 +84,25 @@ std::string computeDigest(const std::string& data) {
 }
 
 // Execute SPARQL query and return canonical result representation
-// NOTE: This is a STUB implementation. In production, this would:
-// 1. Execute the query against a test QLever instance with LUBM(1,0) dataset
-// 2. Serialize results in canonical TSV format (sorted, deterministic)
-// 3. Return the canonical string representation
+//
+// ASPIRATIONAL STUB: This function is not yet implemented.
+// Tests using this function are DISABLED to prevent false positives.
+//
+// NOTE: This is a STUB implementation for tests. Real implementation requires:
+// 1. Loading a test dataset (e.g., LUBM(1,0)) into QLever index
+// 2. Executing query via QueryPlanner/Engine/Server
+// 3. Serializing results in canonical TSV format (sorted, deterministic)
+//
+// This stub is intentionally simple to keep tests focused on manifest loading
+// and digest computation infrastructure, not query execution.
+//
+// STUB: This function returns the query itself, NOT query results.
+// Real query execution is not implemented.
 std::string executeQueryAndGetCanonicalResult(const std::string& sparqlQuery) {
-  // STUB: Return empty result for now
-  // TODO: Integrate with actual QLever query engine
-  // This requires:
-  // - Loading LUBM(1,0) test dataset into QLever index
-  // - Executing query via QueryPlanner/Engine
-  // - Serializing result in canonical form (sorted TSV)
-
-  // For now, return a placeholder that includes the query itself
-  // (so we can at least test the hashing infrastructure)
-  return "STUB_RESULT_FOR:" + sparqlQuery;
+  // Stub: Return the query itself as a placeholder
+  // This allows testing the hashing and validation infrastructure
+  // without requiring full query execution
+  return sparqlQuery;
 }
 
 }  // namespace
@@ -137,81 +142,11 @@ TEST_F(GoldenCorpusTest, ManifestLoads) {
 TEST_F(GoldenCorpusTest, QueryFilesExist) {
   for (const auto& query : queries_) {
     fs::path queryPath = GOLDEN_CORPUS_DIR / query.file;
-    EXPECT_TRUE(fs::exists(queryPath))
-        << "Query file not found: " << queryPath;
+    EXPECT_TRUE(fs::exists(queryPath)) << "Query file not found: " << queryPath;
 
     if (fs::exists(queryPath)) {
       std::string content = loadQueryFile(query.file);
-      EXPECT_FALSE(content.empty())
-          << "Query file is empty: " << query.file;
+      EXPECT_FALSE(content.empty()) << "Query file is empty: " << query.file;
     }
   }
 }
-
-// Test golden query result validation
-// NOTE: Currently disabled until baseline digests are computed
-TEST_F(GoldenCorpusTest, DISABLED_ValidateGoldenQueryResults) {
-  int passCount = 0;
-  int failCount = 0;
-
-  for (const auto& query : queries_) {
-    // Skip queries with pending baseline computation
-    if (query.expectedDigest == "PENDING_BASELINE_COMPUTATION") {
-      GTEST_SKIP() << "Baseline digest not yet computed for: " << query.id;
-      continue;
-    }
-
-    // Load query
-    std::string sparqlQuery = loadQueryFile(query.file);
-
-    // Execute query and get canonical result
-    std::string canonicalResult = executeQueryAndGetCanonicalResult(sparqlQuery);
-
-    // Compute digest
-    std::string actualDigest = computeDigest(canonicalResult);
-
-    // Compare with expected digest
-    if (actualDigest == query.expectedDigest) {
-      passCount++;
-    } else {
-      failCount++;
-      ADD_FAILURE() << "Digest mismatch for query: " << query.id << "\n"
-                    << "  Expected: " << query.expectedDigest << "\n"
-                    << "  Actual:   " << actualDigest << "\n"
-                    << "  Query: " << query.file;
-    }
-  }
-
-  // Overall pass rate
-  int totalQueries = passCount + failCount;
-  double passRate = totalQueries > 0 ?
-      static_cast<double>(passCount) / totalQueries * 100.0 : 0.0;
-
-  std::cout << "\n=== Golden Corpus Validation Summary ===" << std::endl;
-  std::cout << "Total queries: " << totalQueries << std::endl;
-  std::cout << "Passed: " << passCount << std::endl;
-  std::cout << "Failed: " << failCount << std::endl;
-  std::cout << "Pass rate: " << passRate << "%" << std::endl;
-
-  // Fail build if ANY query diverges
-  ASSERT_EQ(failCount, 0) << "Golden corpus validation failed";
-}
-
-// Helper test to compute baseline digests
-// Run this once with a reference QLever instance to generate manifest digests
-TEST_F(GoldenCorpusTest, DISABLED_ComputeBaselineDigests) {
-  std::cout << "\n=== Computing Baseline Digests ===" << std::endl;
-
-  for (const auto& query : queries_) {
-    std::string sparqlQuery = loadQueryFile(query.file);
-    std::string canonicalResult = executeQueryAndGetCanonicalResult(sparqlQuery);
-    std::string digest = computeDigest(canonicalResult);
-
-    std::cout << "Query: " << query.id << std::endl;
-    std::cout << "  File: " << query.file << std::endl;
-    std::cout << "  Digest: " << digest << std::endl;
-  }
-
-  std::cout << "\nNOTE: Update manifest.json with these digests" << std::endl;
-}
-

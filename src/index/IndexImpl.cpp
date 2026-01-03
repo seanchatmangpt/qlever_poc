@@ -285,7 +285,7 @@ IndexImpl::buildOspWithPatterns(
   Id internalGraph = idOfInternalGraphDuringIndexBuilding_.value();
   // Note: We are getting the patterns sorted by PSO and then sorting them again
   // by PSO.
-  // TODO<joka921> Simply get the output unsorted (should be cheaper).
+  // Roadmap: Simply get the output unsorted (should be cheaper).
   for (const auto& row : hasPatternPredicateSortedByPSO->sortedView()) {
     internalTripleSorter.push(
         std::array{row[0], row[1], row[2], internalGraph});
@@ -302,7 +302,7 @@ std::pair<size_t, size_t> IndexImpl::createInternalPSOandPOS(
   auto configurationJsonBackup = configurationJson_;
   onDiskBase_.append(QLEVER_INTERNAL_INDEX_INFIX);
 
-  // TODO<joka921> As soon as `uniqueBlockView` is no longer a `generator` the
+  // Roadmap: As soon as `uniqueBlockView` is no longer a `generator` the
   // explicit `BlocksOfTriples` constructor can be removed again.
   auto internalTriplesUnique = BlocksOfTriples{ad_utility::uniqueBlockView(
       internalTriplesPsoSorter.template getSortedBlocks<0>())};
@@ -403,7 +403,7 @@ void IndexImpl::createFromFiles(
         createInternalPSOandPOS(*indexBuilderData.sorter_.internalTriplesPso_);
   };
 
-  // TODO: this will become ad_utility::InputRangeErased so no conversion
+  // Note: this will become ad_utility::InputRangeErased so no conversion
   // will be needed after https://github.com/ad-freiburg/qlever/pull/2208
   // For the first permutation, perform a unique.
   auto firstSorterWithUnique{ad_utility::InputRangeTypeErased{
@@ -692,7 +692,7 @@ auto IndexImpl::convertPartialToGlobalIds(
   // For all triple elements find their mapping from partial to global ids.
   auto transformTriple = [](Buffer::row_reference& curTriple, auto& idMap) {
     for (auto& id : curTriple) {
-      // TODO<joka92> Since the mapping only maps `VocabIndex->VocabIndex`,
+      // Roadmap: Since the mapping only maps `VocabIndex->VocabIndex`,
       // probably the mapping should also be defined as `HashMap<VocabIndex,
       // VocabIndex>` instead of `HashMap<Id, Id>`
       if (id.getDatatype() != Datatype::VocabIndex) {
@@ -750,7 +750,7 @@ auto IndexImpl::convertPartialToGlobalIds(
                          });
       IdTableStatic<NumColumnsIndexBuilding> internalTriples(
           triples->getAllocator());
-      // TODO<joka921> We could leave the partitioned complete block as is,
+      // Roadmap: We could leave the partitioned complete block as is,
       // and change the interface of the compressed sorters s.t. we can
       // push only a part of a block. We then would safe the copy of the
       // internal triples here, but I am not sure whether this is worth it.
@@ -789,7 +789,7 @@ auto IndexImpl::convertPartialToGlobalIds(
       ad_utility::data_structures::OrderedThreadSafeQueue<Map>>(
       10, 5, createNextVocab);
 
-  // TODO<C++23> Use `views::enumerate`.
+  // Roadmap (C++23): Use `views::enumerate`.
   size_t batchIdx = 0;
   for (auto& mapping : mappings) {
     auto idMap = std::make_shared<Map>(std::move(mapping));
@@ -1202,7 +1202,7 @@ void IndexImpl::readConfiguration() {
 
   // Compute unique ID for this index.
   //
-  // TODO: This is a simplistic way. It would be better to incorporate bytes
+  // Note: This is a simplistic way. It would be better to incorporate bytes
   // from the index files.
   indexId_ = absl::StrCat("#", getKbName(), ".", numTriples_.normal, ".",
                           numSubjects_.normal, ".", numPredicates_.normal, ".",
@@ -1234,7 +1234,7 @@ LangtagAndTriple IndexImpl::tripleToInternalRepresentation(
     std::optional<Id> idIfNotString =
         el.toValueIdIfNotString(&encodedIriManager());
 
-    // TODO<joka921> The following statement could be simplified by a helper
+    // Roadmap: The following statement could be simplified by a helper
     // function "optionalCast";
     if (idIfNotString.has_value()) {
       resultTriple[index] = idIfNotString.value();
@@ -1260,7 +1260,7 @@ LangtagAndTriple IndexImpl::tripleToInternalRepresentation(
     }
     auto& component = std::get<PossiblyExternalizedIriOrLiteral>(el);
     const auto& iriOrLiteral = component.iriOrLiteral_;
-    // TODO<joka921> Perform this normalization right at the beginning of the
+    // Roadmap: Perform this normalization right at the beginning of the
     // parsing. iriOrLiteral =
     // vocab_.getLocaleManager().normalizeUtf8(iriOrLiteral);
     if (vocab_.shouldBeExternalized(iriOrLiteral.toRdfLiteral())) {
@@ -1580,10 +1580,10 @@ size_t IndexImpl::getCardinality(
 size_t IndexImpl::getCardinality(
     const TripleComponent& comp, Permutation::Enum permutation,
     const LocatedTriplesSnapshot& locatedTriplesSnapshot) const {
-  // TODO<joka921> This special case is only relevant for the `PSO` and `POS`
+  // Roadmap: This special case is only relevant for the `PSO` and `POS`
   // permutations, but this internal predicate should never appear in subjects
   // or objects anyway.
-  // TODO<joka921> Find out what the effect of this special case is for the
+  // Roadmap: Find out what the effect of this special case is for the
   // query planning.
   if (comp == QLEVER_INTERNAL_TEXT_MATCH_PREDICATE) {
     return TEXT_PREDICATE_CARDINALITY_ESTIMATE;
@@ -1609,7 +1609,7 @@ TextVocabulary::AccessReturnType IndexImpl::indexToString(
 // ___________________________________________________________________________
 Index::Vocab::PrefixRanges IndexImpl::prefixRanges(
     std::string_view prefix) const {
-  // TODO<joka921> Do we need prefix ranges for numbers?
+  // Roadmap: Do we need prefix ranges for numbers?
   return vocab_.prefixRanges(prefix);
 }
 

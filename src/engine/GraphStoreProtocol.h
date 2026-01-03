@@ -148,7 +148,8 @@ class GraphStoreProtocol {
       vector<ParsedQuery> transformPut(const RequestT& rawRequest,
                                        const GraphOrDefault& graph,
                                        const Index& index) {
-    // TODO: The response codes are not conform to the specs. "If new RDF graph
+    // Future enhancement: The response codes are not conform to the specs. "If
+    // new RDF graph
     //  content is created", then the status must be `201 Created`. "If
     //  existing graph content is modified", then the status must be `200 OK`
     //  or `204 No Content`.

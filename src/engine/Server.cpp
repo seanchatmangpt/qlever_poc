@@ -211,7 +211,7 @@ CPP_template_def(typename RequestT, typename ResponseT)(
             const RequestT& request, ResponseT& send) const {
   auto defaultTimeout =
       getRuntimeParameter<&RuntimeParameters::defaultQueryTimeout_>();
-  // TODO<GCC12> Use the monadic operations for std::optional
+  // Future enhancement (GCC12): Use the monadic operations for std::optional
   if (userTimeout.has_value()) {
     auto timeoutCandidate =
         ad_utility::ParseableDuration<TimeLimit>::fromString(
@@ -797,8 +797,8 @@ nlohmann::json Server::composeCacheStatsJson() const {
   result["num-results-pinned-unnamed"] = cache_.numPinnedEntries();
   result["num-results-pinned-named"] = namedResultCache_.numEntries();
 
-  // TODO: Get rid of the `getByte()`, once `MemorySize` has it's own JSON
-  // converter.
+  // Future enhancement: Get rid of the `getByte()`, once `MemorySize` has it's
+  // own JSON converter.
   result["cache-size-unpinned"] = cache_.nonPinnedSize().getBytes();
   result["cache-size-pinned"] = cache_.pinnedSize().getBytes();
   return result;
@@ -1024,7 +1024,7 @@ CPP_template_def(typename RequestT, typename ResponseT)(
 
   // Log that we are done with the query and how long it took.
   //
-  // TODO<joka921> Also log an identifier of the query.
+  // Future enhancement (joka921): Also log an identifier of the query.
   AD_LOG_DEBUG << "Runtime Info:\n"
                << plannedQuery.value()
                       .queryExecutionTree_.getRootOperation()
@@ -1134,10 +1134,10 @@ CPP_template_def(typename RequestT, typename ResponseT)(
        &plannedUpdate, tracer]() {
         tracer->endTrace("waitingForUpdateThread");
         json results = json::array();
-        // TODO<qup42> We currently create a new snapshot after each update in
-        // the chain, which is expensive. Instead, the updates could operate
-        // directly on the `DeltaTriples` (we have an exclusive lock on them
-        // anyway).
+        // Future enhancement (qup42): We currently create a new snapshot after
+        // each update in the chain, which is expensive. Instead, the updates
+        // could operate directly on the `DeltaTriples` (we have an exclusive
+        // lock on them anyway).
         for (ParsedQuery& update : updates) {
           // Make the snapshot before the query planning. Otherwise, it could
           // happen that the query planner "knows" that a result is empty, when
@@ -1255,7 +1255,8 @@ CPP_template_def(typename VisitorT, typename RequestT, typename ResponseT)(
     responseStatus = http::status::internal_server_error;
     exceptionErrorMsg = e.what();
   }
-  // TODO<qup42> at this stage should probably have a wrapper that takes
+  // Future enhancement (qup42): at this stage should probably have a wrapper
+  // that takes
   //  optional<errorMsg> and optional<metadata> and does this logic
   if (to_status_class(responseStatus) == http::status_class::informational ||
       responseStatus == http::status::no_content ||

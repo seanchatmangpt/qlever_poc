@@ -32,7 +32,7 @@ static auto getBeginAndEnd(T& range) {
   return std::pair{ql::ranges::begin(range), ql::ranges::end(range)};
 }
 
-// TODO @realHannes:
+// Note for @realHannes:
 // Create a separate header file CompressedRelationMetadata for all the
 // metadata related helper structs and functions. This should include
 // CompressedRelationMetadata, CompressedBlockMetadata, ScanSpecAndBlocks
@@ -927,7 +927,7 @@ std::pair<size_t, size_t> CompressedRelationReader::getResultSizeImpl(
           deleted += del;
           numResults += block.numRows_;
         } else {
-          // TODO<joka921> We could cache the exact size as soon as we
+          // Roadmap: We could cache the exact size as soon as we
           // have merged the block once since the last update.
           auto b = readAndDecompressBlock(block, config);
           numResults += b.has_value() ? b.value().block_.numRows() : 0u;
@@ -1015,7 +1015,7 @@ CPP_template_def(typename IdGetter)(
   const auto& scanSpec = scanSpecAndBlocks.scanSpec_;
   const auto& blocks = scanSpecAndBlocks.getBlockMetadataView();
 
-  // TODO<joka921> We have to read the other columns for the merging of the
+  // Roadmap: We have to read the other columns for the merging of the
   // located triples. We could skip this for blocks with no updates, but that
   // would require more arguments to the `decompressBlock` function.
   auto scanConfig = getScanConfig(scanSpec, {}, locatedTriplesPerBlock);
@@ -1054,7 +1054,7 @@ CPP_template_def(typename IdGetter)(
         continue;
       }
       const auto& block = optionalBlock.value();
-      // TODO<C++23>: use `ql::views::chunk_by`.
+      // Roadmap (C++23): use `ql::views::chunk_by`.
       for (size_t j = 0; j < block.numRows(); ++j) {
         Id colId = block(j, 0);
         bool abort = processColId(colId, 1);
@@ -1127,7 +1127,7 @@ CompressedBlock CompressedRelationReader::readCompressedBlockFromFile(
     ColumnIndicesRef columnIndices) const {
   CompressedBlock compressedBuffer;
   compressedBuffer.resize(columnIndices.size());
-  // TODO<C++23> Use `ql::views::zip`
+  // Roadmap (C++23): Use `ql::views::zip`
   for (size_t i = 0; i < compressedBuffer.size(); ++i) {
     const auto& offset =
         blockMetaData.offsetsAndCompressedSize_.at(columnIndices[i]);
@@ -1336,7 +1336,7 @@ BlockMetadataRanges CompressedRelationReader::getRelevantBlocks(
     return blockA.lastTriple_ < blockB.firstTriple_;
   };
 
-  // TODO:
+  // Note:
   // Optionally implement a free function like `equal_range(YourRangeType,
   // key, comp)` that implements the equal range correctly. (1) Perform binary
   // search on the inner blocks with respect to the first and

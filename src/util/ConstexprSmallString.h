@@ -64,7 +64,7 @@ struct ConstexprSmallString {
   /// Return the size without counting the '\0' at the end.
   constexpr std::size_t size() const { return _size; }
 
-  // TODO<C++20, joka921> implement operator<=> as soon as it works
+  /* Roadmap:<C++20, joka921> implement operator<=> as soon as it works
   // on std::array.
   constexpr bool operator==(const ConstexprSmallString& rhs) const {
     return ql::ranges::equal(_characters, rhs._characters);
@@ -97,3 +97,5 @@ struct hash<ad_utility::ConstexprSmallString<MaxSize>> {
 }  // namespace std
 
 #endif  // QLEVER_SRC_UTIL_CONSTEXPRSMALLSTRING_H
+
+

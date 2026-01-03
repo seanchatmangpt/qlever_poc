@@ -1,0 +1,58 @@
+# ASPIRATIONAL CLAIM: Unified Physical Optimizer (EPIC 10.3)
+
+**Status**: ASPIRATIONAL STUB
+**Date Marked**: 2026-01-03 (EPIC 13 Agent 8)
+**Original Author**: Claude Code Agent 3 (EPIC 10.3)
+
+## What Exists
+
+- `/home/user/qlever/src/engine/UnifiedPhysicalOptimizerStub.{h,cpp}`
+- `/home/user/qlever/test/engine/UnifiedPhysicalOptimizerStubTest.cpp`
+- 15 comprehensive tests verifying stub architecture
+- UIR (Unified Intermediate Representation) data structures
+- Integration architecture for SHACL/Datalog/SPARQL unification
+
+## What Doesn't Work
+
+**All optimization methods are stubs**:
+- `shouldUseUIRPlanning()` always returns `false` (line 265)
+- `applyFocusNodeInjection()` just logs intent (line 118)
+- `applySemiNaiveEvaluation()` just logs intent (line 136)
+- `compileToUIR()` creates empty plan (lines 86-94)
+- `executeUIRPlan()` returns empty tree (line 160)
+
+**Never used in production**:
+- No code instantiates `UnifiedPhysicalOptimizer` outside tests
+- Compiled into engine library but never constructed
+- All queries fall back to base `QueryPlanner`
+
+## Planned Implementation
+
+Per code comments, this is "Part 2" (integration architecture) with:
+- Part 3: Focus-Node Injection algorithm implementation
+- Part 4: Semantic equivalence validation
+
+## Dependencies
+
+Blocked on:
+- UIRGraph manipulation (Agent 3 Part 1)
+- SHACL constraint extraction
+- Datalog rule stratification analysis
+
+## Recommendation
+
+Keep as aspirational architecture. When implementing:
+1. Rename back to `UnifiedPhysicalOptimizer` (remove Stub suffix)
+2. Implement actual optimization logic in stub methods
+3. Enable `shouldUseUIRPlanning()` for appropriate queries
+4. Add production instantiation point
+
+## Evidence
+
+Search confirms zero production usage:
+```bash
+grep -r "new UnifiedPhysicalOptimizer\|make_unique<UnifiedPhysicalOptimizer" src/
+# No matches outside test/
+```
+
+CMakeLists.txt line 24 confirms it's linked but unused in production binary.

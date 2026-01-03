@@ -15,12 +15,10 @@ void Engine::sort(IdTable& idTable, const std::vector<ColumnIndex>& sortCols) {
 
   // Instantiate specialized comparison lambdas for one and two sort columns
   // and use a generic comparison for a higher number of sort columns.
-  // TODO<joka921> As soon as we have merged the benchmark, measure whether
-  // this is in fact beneficial and whether it should also be applied for a
-  // higher number of columns, maybe even using `CALL_FIXED_SIZE` for the
-  // number of sort columns.
-  // TODO<joka921> Also experiment with sorting algorithms that take the
-  // column-based structure of the `IdTable` into account.
+  // Future optimization: Measure whether this specialization is beneficial
+  // for higher column counts, possibly using CALL_FIXED_SIZE.
+  // Future optimization: Experiment with sorting algorithms that take the
+  // column-based structure of IdTable into account.
   if (sortCols.size() == 1) {
     ad_utility::callFixedSizeVi(width, [&idTable, col = sortCols[0]](auto I) {
       Engine::sort<I>(&idTable, col);

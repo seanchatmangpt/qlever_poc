@@ -125,16 +125,16 @@ class CompressedExternalIdTableWriter {
     AD_CONTRACT_CHECK(blockSize > 0);
     startOfSingleIdTables_.push_back(blocksPerColumn_.at(0).size());
     // The columns are compressed and stored in parallel.
-    // TODO<joka921> Use parallelism per block instead of per column (more
-    // fine-grained) but only once we have a reasonable abstraction for
-    // parallelism.
+    // Future enhancement (joka921): Use parallelism per block instead of per
+    // column (more fine-grained) but only once we have a reasonable abstraction
+    // for parallelism.
     std::vector<std::future<void>> compressColumFutures;
     for (auto i : ql::views::iota(0u, numColumns())) {
       compressColumFutures.push_back(
           std::async(std::launch::async, [this, i, blockSize, &table]() {
             auto& blockMetadata = blocksPerColumn_.at(i);
             decltype(auto) column = table.getColumn(i);
-            // TODO<C++23> Use `ql::views::chunkd`
+            // Future enhancement (C++23): Use ql::views::chunked
             for (size_t lower = 0; lower < column.size(); lower += blockSize) {
               size_t upper = std::min<size_t>(lower + blockSize, column.size());
               auto thisBlockSizeUncompressed = (upper - lower) * sizeof(Id);

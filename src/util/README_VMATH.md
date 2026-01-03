@@ -96,7 +96,7 @@ Percentage: 180,469 / 180,769 = 99.83% neutral
 // If SIMD backend unavailable, fallback to scalar automatically
 void fillRepeated(std::span<int64_t> dest, int64_t value, Backend backend) {
   if (backend != Backend::Scalar) {
-    // TODO: Dispatch to SIMD (AVX2/AVX512/NEON)
+    /* Roadmap:: Dispatch to SIMD (AVX2/AVX512/NEON)
   }
 
   // Scalar baseline (always available)
@@ -167,9 +167,9 @@ src/util/
 ├── qleverest_vmath_abstraction.hpp  (Public interface, 160 lines)
 ├── qleverest_vmath_cpu_detect.cpp   (CPU detection, 98 lines)
 ├── qleverest_vmath_scalar.cpp       (Scalar baseline, 107 lines)
-├── qleverest_vmath_avx2.cpp         (TODO: AVX2 intrinsics)
-├── qleverest_vmath_avx512.cpp       (TODO: AVX-512 intrinsics)
-└── qleverest_vmath_neon.cpp         (TODO: ARM NEON intrinsics)
+├── qleverest_vmath_avx2.cpp         (Roadmap: AVX2 intrinsics)
+├── qleverest_vmath_avx512.cpp       (Roadmap: AVX-512 intrinsics)
+└── qleverest_vmath_neon.cpp         (Roadmap: ARM NEON intrinsics)
 
 cmake/
 └── VmathFlags.cmake                 (Hardware flag isolation, 168 lines)

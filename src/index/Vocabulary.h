@@ -147,7 +147,7 @@ class Vocabulary {
   // Get the index range for the given prefix or `std::nullopt` if no word with
   // the given prefix exists in the vocabulary.
   //
-  // TODO<discovered by joka921>: This is only used for the text index, and
+  // Roadmap: This is only used for the text index, and
   // uses a range, where the last index is still within the range which is
   // against C++ conventions! Consider using the `prefix_range` function.
   //

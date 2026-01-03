@@ -123,13 +123,19 @@ qleverest_error_code_t qleverest_index_get_stats(qleverest_index_handle_t index,
   }
 
   try {
-    // TODO: Implement actual statistics retrieval
-    // For now, return placeholder values
-    if (num_triples) *num_triples = 0;
-    if (num_subjects) *num_subjects = 0;
-    if (num_predicates) *num_predicates = 0;
-    if (num_objects) *num_objects = 0;
-    return QLEVEREST_OK;
+    // ASPIRATIONAL STUB: Statistics retrieval not yet implemented.
+    // TODO: Implement actual statistics retrieval from Index object:
+    //   - index_ptr->numTriples()
+    //   - index_ptr->numDistinctSubjects()
+    //   - index_ptr->numPredicates()
+    //   - index_ptr->numDistinctObjects()
+    //
+    // Current status: Returns UNIMPLEMENTED to prevent silent failures.
+    // Previously returned OK with all stats=0, which was deceptive.
+
+    set_thread_local_error(QLEVEREST_ERR_UNIMPLEMENTED,
+                           "Statistics retrieval not yet implemented");
+    return QLEVEREST_ERR_UNIMPLEMENTED;
   } catch (const std::exception& e) {
     set_thread_local_error(QLEVEREST_ERR_UNKNOWN, e.what());
     return QLEVEREST_ERR_UNKNOWN;

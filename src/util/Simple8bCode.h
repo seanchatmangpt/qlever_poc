@@ -63,7 +63,7 @@ class Simple8bCode {
   template <typename Numeric>
   static size_t encode(Numeric* plaintext, size_t nofElements,
                        uint64_t* encoded) {
-    // TODO<joka921> Hack for the IDs as long as we have no proper textIds.
+    // Roadmap: Hack for the IDs as long as we have no proper textIds.
     auto get = [&plaintext](uint64_t index) {
       if constexpr (CPP_requires_ref(HasGet, Numeric)) {
         return plaintext[index].get();

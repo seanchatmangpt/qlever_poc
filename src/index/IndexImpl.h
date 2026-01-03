@@ -170,7 +170,7 @@ class IndexImpl {
   CompactVectorOfStrings<Id> patterns_;
   ad_utility::AllocatorWithLimit<Id> allocator_;
 
-  // TODO: make those private and allow only const access
+  // Note: make those private and allow only const access
   // instantiations for the six permutations used in QLever.
   // They simplify the creation of permutations in the index class.
   using PermutationPtr = std::shared_ptr<Permutation>;
@@ -393,7 +393,7 @@ class IndexImpl {
    * @note As a cost estimate the estimation is correct. Because we always have
    *       to read the complete blocks and then (if needed) filter by the
    *       actual wordId range.
-   *       TODO: improve size estimate by adding a correction factor.
+   *       Roadmap: improve size estimate by adding a correction factor.
    */
   size_t getSizeOfTextBlocksSum(const std::string& word,
                                 TextScanMode textScanMode) const;
@@ -542,7 +542,7 @@ class IndexImpl {
       TripleVec& data, const std::vector<size_t>& actualLinesPerPartial,
       size_t linesPerPartial, Func isQLeverInternalTriple);
 
-  // TODO<joka921> Get rid of the `numColumns` by including them into the
+  // Roadmap: Get rid of the `numColumns` by including them into the
   // `sortedTriples` argument.
   template <typename T, typename... Callbacks>
   std::tuple<size_t, IndexMetaDataMmapDispatcher::WriteType,
@@ -558,7 +558,7 @@ class IndexImpl {
   // multiplicities and also writes the MetaData to disk. So we end up with
   // fully functional permutations.
   //
-  // TODO: The rest of this comment looks outdated.
+  // Note: The rest of this comment looks outdated.
   //
   // performUnique must be set for the first pair created using vec to enforce
   // RDF standard (no duplicate triples).

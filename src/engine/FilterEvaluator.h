@@ -1,33 +1,32 @@
 // Copyright 2026, QLever EPIC 10 Phase 3B
-// Versioned filter evaluation interface for scalar/SIMD/adaptive strategies
-// BB80/20: Interface abstraction for P3E SIMD handoff (Week 7)
+// Versioned filter evaluation interface for scalar/adaptive strategies
+// EPIC 13: Removed fake SIMD implementation (was just delegating to scalar)
 
 #ifndef QLEVER_SRC_ENGINE_FILTER_EVALUATOR_H
 #define QLEVER_SRC_ENGINE_FILTER_EVALUATOR_H
 
 #include <memory>
+
 #include "engine/idTable/IdTable.h"
 #include "engine/sparqlExpressions/SparqlExpression.h"
 
 /**
- * @brief Versioned filter evaluation interface (ZONE 3 Strategy)
+ * @brief Versioned filter evaluation interface
  *
- * EPIC 10 P3B deliverable: Versioned evaluation with fallback
- * Enables P3E (SIMD Integration) to add vectorized evaluator without
- * modifying existing scalar code.
+ * Provides abstraction for filter evaluation strategies.
  *
  * Versions:
  * - V1: ScalarEvaluator (existing Filter::computeFilterImpl logic)
- * - V2: SIMDEvaluator (batch vectorized, P3E Week 7 handoff target)
- * - V3: AdaptiveFallback (runtime CPU detection, selects V1 or V2)
+ * - V2: AdaptiveEvaluator (currently uses ScalarEvaluator, reserved for future
+ * optimizations)
  *
- * Invariants (AX-1 to AX-6 preserved):
- * - AX-1 (Immutability): Evaluators are stateless (pure evaluation)
- * - AX-2 (Determinism): Scalar == SIMD results (bit-identical validation)
- * - AX-3 (Atomicity): Evaluation completes atomically per row batch
- * - AX-4 (No External State): No side effects, context passed explicitly
- * - AX-5 (RAII): IdTable uses RAII allocators (unchanged)
- * - AX-6 (Backward Compat): Scalar path preserves existing behavior
+ * Invariants preserved:
+ * - Immutability: Evaluators are stateless (pure evaluation)
+ * - Determinism: Output is deterministic given identical inputs
+ * - Atomicity: Evaluation completes atomically per row batch
+ * - No External State: No side effects, context passed explicitly
+ * - RAII: IdTable uses RAII allocators (unchanged)
+ * - Backward Compat: Scalar path preserves existing behavior
  *
  * Selection at initialization (NOT hot path): Branchless property preserved
  */
@@ -44,7 +43,7 @@ class FilterEvaluator {
    * @return Filtered IdTable (rows where expression evaluates to true)
    *
    * Invariant: Output is deterministic given identical inputs
-   * Performance: Scalar O(n), SIMD O(n/vectorWidth) where n = input.size()
+   * Performance: Scalar O(n) where n = input.size()
    */
   virtual IdTable evaluate(
       const IdTable& input,
@@ -53,7 +52,7 @@ class FilterEvaluator {
 
   /**
    * @brief Get evaluator version identifier
-   * @return "SCALAR_V1", "SIMD_V2", or "ADAPTIVE_V3"
+   * @return "SCALAR_V1" or "ADAPTIVE_V2"
    */
   virtual const char* version() const = 0;
 };
@@ -66,49 +65,23 @@ class FilterEvaluator {
  */
 class ScalarFilterEvaluator : public FilterEvaluator {
  public:
-  IdTable evaluate(
-      const IdTable& input,
-      const sparqlExpression::SparqlExpressionPimpl& expression,
-      sparqlExpression::EvaluationContext& context) const override;
+  IdTable evaluate(const IdTable& input,
+                   const sparqlExpression::SparqlExpressionPimpl& expression,
+                   sparqlExpression::EvaluationContext& context) const override;
 
   const char* version() const override { return "SCALAR_V1"; }
 };
 
 /**
- * @brief V2: SIMD batch evaluator (P3E handoff target, Week 7)
+ * @brief V2: Adaptive evaluator (reserved for future optimizations)
  *
- * Placeholder for P3E (SIMD Integration) implementation.
- * Will use vectorized evaluation for batch processing.
+ * Currently always uses ScalarFilterEvaluator.
+ * Reserved for future SIMD or other optimizations when available.
  *
- * P3E Requirements (from COLLISION_ZONE_RESOLUTIONS.md):
- * - Consume IdTableAOS interface (ZONE 1 dependency)
- * - Implement batch evaluation (4-8 rows per SIMD register)
- * - Guarantee bit-identical results vs. ScalarFilterEvaluator
- * - Performance target: 2-4x faster than scalar on supported CPUs
- *
- * Current status: STUB (returns scalar evaluation as fallback)
- */
-class SIMDFilterEvaluator : public FilterEvaluator {
- public:
-  IdTable evaluate(
-      const IdTable& input,
-      const sparqlExpression::SparqlExpressionPimpl& expression,
-      sparqlExpression::EvaluationContext& context) const override;
-
-  const char* version() const override { return "SIMD_V2"; }
- private:
-  // TODO(P3E Week 7): Implement vectorized evaluation
-  // For now, delegate to scalar evaluator
-  ScalarFilterEvaluator scalarFallback_;
-};
-
-/**
- * @brief V3: Adaptive fallback (runtime CPU detection)
- *
- * Selects SIMD or Scalar at construction time based on:
+ * Future capabilities may include:
  * - CPU SIMD capability detection (AVX2, AVX512, ARM NEON)
- * - Filter expression complexity (some patterns don't vectorize well)
- * - Table size (SIMD overhead not worth it for small tables < 1K rows)
+ * - Filter expression complexity analysis
+ * - Automatic selection based on table size
  *
  * Selection is immutable after construction (preserves branchless property).
  * Hot path uses virtual dispatch only (no conditional branches).
@@ -116,14 +89,11 @@ class SIMDFilterEvaluator : public FilterEvaluator {
 class AdaptiveFilterEvaluator : public FilterEvaluator {
  public:
   /**
-   * @brief Construct adaptive evaluator (selection at initialization)
+   * @brief Construct adaptive evaluator
    *
-   * Decision logic (executed once, not in hot path):
-   * 1. Detect CPU SIMD support (cpuid, getauxval, etc.)
-   * 2. If SIMD available && expression is vectorizable: use SIMDFilterEvaluator
-   * 3. Otherwise: use ScalarFilterEvaluator
-   *
-   * This ensures hot path has zero conditional branches (just virtual dispatch).
+   * Currently always selects ScalarFilterEvaluator.
+   * Future versions may detect CPU capabilities and select optimized
+   * implementations when available.
    */
   AdaptiveFilterEvaluator();
 
@@ -135,16 +105,13 @@ class AdaptiveFilterEvaluator : public FilterEvaluator {
     return impl_->evaluate(input, expression, context);
   }
 
-  const char* version() const override { return "ADAPTIVE_V3"; }
+  const char* version() const override { return "ADAPTIVE_V2"; }
 
   // For testing: query which implementation was selected
   const FilterEvaluator* getImplementation() const { return impl_.get(); }
 
  private:
   std::unique_ptr<FilterEvaluator> impl_;
-
-  // SIMD capability detection (compile-time + runtime)
-  static bool detectSIMDSupport();
 };
 
 /**
@@ -155,9 +122,9 @@ class AdaptiveFilterEvaluator : public FilterEvaluator {
 class FilterEvaluatorFactory {
  public:
   enum class EvaluatorType {
-    SCALAR,    // Force scalar (for testing, legacy systems)
-    SIMD,      // Force SIMD (for testing, assumes CPU support)
-    ADAPTIVE   // Auto-detect (default, production use)
+    SCALAR,   // Force scalar (for testing, legacy systems)
+    ADAPTIVE  // Auto-detect (default, production use - currently same as
+              // SCALAR)
   };
 
   static std::unique_ptr<FilterEvaluator> create(

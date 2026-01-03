@@ -148,8 +148,8 @@ class IndexScan final : public Operation {
   Result::LazyResult createPrefilteredIndexScanSide(
       std::shared_ptr<SharedGeneratorState> innerState);
 
-  // TODO<joka921> Make the `getSizeEstimateBeforeLimit()` function `const` for
-  // ALL the `Operations`.
+  // Future enhancement (joka921): Make the `getSizeEstimateBeforeLimit()`
+  // function `const` for ALL the `Operations`.
   uint64_t getSizeEstimateBeforeLimit() override { return sizeEstimate_; }
 
  public:

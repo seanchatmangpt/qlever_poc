@@ -671,10 +671,12 @@ TEST_F(EpochIntegrationTest, AllAcceptanceCriteriaMet) {
 
   // AC3: Mutations only allowed in INGEST
   {
-    EXPECT_THROW(attemptUpdate("INSERT"), std::logic_error);
+    EXPECT_FALSE(attemptUpdate("INSERT"))
+        << "Mutation should fail in SERVE state";
     restartEpoch();
     transitionToIngest();
-    EXPECT_TRUE(true);  // Would succeed if we actually executed
+    EXPECT_TRUE(attemptUpdate("INSERT"))
+        << "Mutation should succeed in INGEST state";
   }
 
   // AC4: Epoch ID monotonically increasing
@@ -712,7 +714,13 @@ TEST_F(EpochIntegrationTest, AllAcceptanceCriteriaMet) {
         try {
           executeQuery("SELECT * WHERE { ?s ?p ?o . }");
           successCount++;
+        } catch (const std::exception& e) {
+          // Silently catch in test - we're checking successCount for
+          // verification
+          (void)e;  // Explicitly mark as intentionally unused
         } catch (...) {
+          // Silently catch in test - we're checking successCount for
+          // verification
         }
       });
     }

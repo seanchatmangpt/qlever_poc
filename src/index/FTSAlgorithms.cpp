@@ -25,13 +25,13 @@ IdTable FTSAlgorithms::filterByRange(const IdRange<WordVocabIndex>& idRange,
   decltype(auto) preFilterCidColumn = idTablePreFilter.getColumn(0);
   decltype(auto) preFilterWidColumn = idTablePreFilter.getColumn(1);
   decltype(auto) preFilterSidColumn = idTablePreFilter.getColumn(2);
-  // TODO<C++23> Use views::zip.
+  // Roadmap (C++23): Use views::zip.
   for (size_t i = 0; i < preFilterWidColumn.size(); ++i) {
-    // TODO<joka921> proper Ids for the text stuff.
+    // Roadmap: proper Ids for the text stuff.
     // The mapping from words that appear in text records to `WordIndex`es is
     // stored in a `Vocabulary` that stores `VocabIndex`es, so we have to
     // convert between those two types.
-    // TODO<joka921> Can we make the returned `IndexType` a template parameter
+    // Roadmap: Can we make the returned `IndexType` a template parameter
     // of the vocabulary, s.t. we have a vocabulary that stores `WordIndex`es
     // directly?
     if (preFilterWidColumn[i].getWordVocabIndex() >= idRange.first() &&

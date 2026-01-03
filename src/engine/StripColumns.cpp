@@ -108,10 +108,10 @@ std::vector<ColumnIndex> StripColumns::resultSortedOn() const {
 Result StripColumns::computeResult(bool requestLaziness) {
   auto res = child_->getResult(requestLaziness);
   if (res->isFullyMaterialized()) {
-    // TODO<joka921> This case currently is inefficient, we should really
-    // implement moving the tables from materialized results that are too big
-    // for the cache or having a `shared_ptr<IdTable+SubsetView>` type in the
-    // result.
+    // Future enhancement (joka921): This case currently is inefficient, we
+    // should really implement moving the tables from materialized results that
+    // are too big for the cache or having a `shared_ptr<IdTable+SubsetView>`
+    // type in the result.
     auto table = res->idTable().asColumnSubsetView(subset_).clone();
     return {std::move(table), resultSortedOn(), res->getSharedLocalVocab()};
   } else {

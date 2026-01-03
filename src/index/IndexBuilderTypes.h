@@ -178,7 +178,7 @@ struct alignas(256) ItemMapManager {
       // We have to first add the string to the buffer, otherwise we don't have
       // a persistent `string_view` to add to the `map`.
       auto keyView = buffer.addString(repr);
-      // TODO<joka921> The LocalVocabIndexAndSplitVal should work on
+      // Roadmap: The LocalVocabIndexAndSplitVal should work on
       // `Literal|Iri|BlankNode` directly.
       map.try_emplace(
           keyView, LocalVocabIndexAndSplitVal{
@@ -253,7 +253,7 @@ auto getIdMapLambdas(
     // created for each batch) much cheaper (see `CachingMemoryResource.h` and
     // `IndexImpl.cpp`).
     itemArray[j]->map_.map_.reserve(5 * maxNumberOfTriples / NumThreads);
-    // The LANGUAGE_PREDICATE gets the first ID in each map. TODO<joka921>
+    // The LANGUAGE_PREDICATE gets the first ID in each map. Note:
     // This is not necessary for the actual QLever code, but certain unit tests
     // currently fail without it.
     itemArray[j]->getId(TripleComponent{
@@ -293,7 +293,7 @@ auto getIdMapLambdas(
         auto langTaggedPredId = map.getId(TripleComponent{
             ad_utility::convertToLanguageTaggedPredicate(iri, lt.langtag_)});
         auto& spoIds = *res[0];  // ids of original triple
-        // TODO replace the std::array by an explicit IdTriple class,
+        // Roadmap: replace the std::array by an explicit IdTriple class,
         //  then the emplace calls don't need the explicit type.
         using Arr = std::array<Id, NumColumnsIndexBuilding>;
         static_assert(NumColumnsIndexBuilding == 4,

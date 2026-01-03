@@ -17,7 +17,7 @@
 // MmapVector<CompressedRelationMetadata>>`; see `index/IndexMetaData.h` at the
 // bottom.
 //
-// TODO: We needed this at some point because we used to have two implementation
+// Note: We needed this at some point because we used to have two implementation
 // of `IndexMetaData`, one using mmaps and one using hash maps, and we wanted to
 // have a common interface for both. We no longer use the hash map
 // implementation and so the wrapper class (and the complexity that goes along
@@ -65,7 +65,7 @@ class MetaDataWrapperDense {
 
   // Templated setup version
   // Arguments are passed through to template argument M.
-  // TODO<joka921>: enable_if  for better error messages
+  // Roadmap: enable_if  for better error messages
   template <typename... Args>
   void setup(Args... args) {
     _vec = M(args...);

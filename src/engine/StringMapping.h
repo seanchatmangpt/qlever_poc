@@ -29,8 +29,8 @@ class StringMapping {
   // Store the actual mapping from an ID to the unique index (wrt the current
   // batch). (The first newly inserted ID will get index 0, the second ID 1, and
   // so on.)
-  // TODO<RobinTF, joka921> consider mapping from `Id::T` instead of `Id` to get
-  // a cheaper lookup.
+  // Future enhancement (RobinTF, joka921): consider mapping from `Id::T`
+  // instead of `Id` to get a cheaper lookup.
   ad_utility::HashMap<Id, uint64_t> stringMapping_;
 
  public:

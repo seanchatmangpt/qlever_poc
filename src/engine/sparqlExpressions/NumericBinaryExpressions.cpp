@@ -13,14 +13,14 @@ NARY_EXPRESSION(MultiplyExpression, 2, FV<Multiply, NumericValueGetter>);
 
 // Division.
 //
-// TODO<joka921> If `b == 0` the the behavior of the division depends on whether
-// the inputs are `xsd:decimal` or `xsd:double` (`double`s have special values
-// like `NaN` or `infinity`, decimals don't). As we currently make no difference
-// between those two types, we have to choose one of the behaviors. We make the
-// result `UNDEF` in this case to pass the sparql conformance tests that rely on
-// this behavior. The old behavior can be reinstated by a RuntimeParameter.
-// Note: The result of a division in SPARQL is always a decimal number, so there
-// is no integer division.
+// Future enhancement (joka921): If `b == 0` the the behavior of the division
+// depends on whether the inputs are `xsd:decimal` or `xsd:double` (`double`s
+// have special values like `NaN` or `infinity`, decimals don't). As we
+// currently make no difference between those two types, we have to choose one
+// of the behaviors. We make the result `UNDEF` in this case to pass the sparql
+// conformance tests that rely on this behavior. The old behavior can be
+// reinstated by a RuntimeParameter. Note: The result of a division in SPARQL is
+// always a decimal number, so there is no integer division.
 struct DivideImpl {
   template <typename T1, typename T2>
   auto operator()(T1 x, T2 y) const {
