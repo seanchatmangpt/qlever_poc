@@ -1,38 +1,106 @@
-[package]
-name = "qlever-rust"
+[workspace]
+resolver = "2"
+
+members = [
+    # Three public packages (first-class products)
+    "qleverest",
+    "qleverest-validation",
+    "qleverest-wasm",
+
+    # Internal verification subsystems (under qleverest-validation)
+    "qleverest-validation/crates/qlever-artifact-capture",
+    "qleverest-validation/crates/qlever-cache-verifier",
+    "qleverest-validation/crates/qlever-digest-verifier",
+    "qleverest-validation/crates/qlever-kernel-runner",
+    "qleverest-validation/crates/qlever-replay-verifier",
+    "qleverest-validation/crates/qlever-regression-verifier",
+    "qleverest-validation/crates/qlever-epoch-verifier",
+    "qleverest-validation/crates/qlever-simd-verifier",
+    "qleverest-validation/crates/qlever-chaos-verifier",
+    "qleverest-validation/crates/qlever-verification-harness",
+    "qleverest-validation/crates/qlever-repro",
+    "qleverest-validation/crates/qlever-witness",
+    "qleverest-validation/crates/receipt_comparator",
+]
+
+[workspace.package]
 version = "0.1.0"
 edition = "2021"
+rust-version = "1.91.1"
+authors = ["QLever Contributors"]
+license = "Apache-2.0"
+repository = "https://github.com/seanchatmangpt/qlever"
 
-[lib]
-name = "qlever"
-path = "src/lib.rs"
+[workspace.dependencies]
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+ciborium = "0.2"
 
-[[example]]
-name = "query"
-path = "examples/query.rs"
+# Hashing
+blake3 = "1.5"
 
-[dependencies]
-# Error handling
+# Error Handling
 thiserror = "1.0"
+anyhow = "1.0"
 
-# High-performance locking for concurrent triple store access
+# Async Runtime
+tokio = { version = "1.0", features = ["full"] }
 parking_lot = "0.12"
 
-# JSON parsing for QLever query results (FFI)
-serde_json = "1.0"
+# CLI
+clap = { version = "4.0", features = ["derive"] }
 
-# UUID generation for namespaced result pinning
+# Time
+chrono = { version = "0.4", features = ["serde"] }
+
+# UUID
 uuid = { version = "1.0", features = ["v4"] }
 
-# WASM support
-wasm-bindgen = { version = "0.2", optional = true }
-serde = { version = "1.0", features = ["derive"], optional = true }
-console_error_panic_hook = { version = "0.1", optional = true }
+# WASM
+wasm-bindgen = "0.2.92"
+wasm-bindgen-futures = "0.4.42"
+web-sys = { version = "0.3", features = [
+    "console", "Document", "Element", "Window", "Request",
+    "Response", "Headers", "MessageEvent", "WebSocket",
+] }
+js-sys = "0.3"
+async-trait = "0.1"
+futures = "0.3"
+log = "0.4"
+wasm-logger = "0.2"
+console_error_panic_hook = "0.1"
 
-[features]
-# WASM support for web deployment
-wasm = ["wasm-bindgen", "serde", "console_error_panic_hook"]
+# FFI
+libc = "0.2"
 
-# Phase 1: Direct C++ integration via FFI (enables libqlever API)
-# Requires: libqlever.so/dylib installed and accessible to linker
-libqlever = ["serde"]
+# Testing
+proptest = "1.0"
+tempfile = "3.0"
+wasm-bindgen-test = "0.3"
+
+[workspace.lints.rust]
+unsafe_code = "deny"
+missing_docs = "warn"
+unused_must_use = "deny"
+
+[workspace.lints.clippy]
+correctness = "deny"
+perf = "warn"
+complexity = "warn"
+unwrap_used = "warn"
+expect_used = "warn"
+panic = "warn"
+
+[profile.dev]
+opt-level = 1
+incremental = true
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 16
+strip = "debuginfo"
+
+[profile.test]
+opt-level = 1

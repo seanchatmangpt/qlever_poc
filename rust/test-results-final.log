@@ -1,0 +1,312 @@
+   Compiling qlever-kernel-runner v0.1.0 (/home/user/qlever/rust/qleverest-validation/crates/qlever-kernel-runner)
+   Compiling qlever-replay-verifier v0.1.0 (/home/user/qlever/rust/qleverest-validation/crates/qlever-replay-verifier)
+   Compiling qlever-chaos-verifier v0.1.0 (/home/user/qlever/rust/qleverest-validation/crates/qlever-chaos-verifier)
+   Compiling qlever-cache-verifier v0.1.0 (/home/user/qlever/rust/qleverest-validation/crates/qlever-cache-verifier)
+   Compiling qlever-epoch-verifier v0.1.0 (/home/user/qlever/rust/qleverest-validation/crates/qlever-epoch-verifier)
+warning: unused imports: `Deserialize` and `Serialize`
+ --> qleverest-validation/crates/qlever-cache-verifier/src/decision_log.rs:6:13
+  |
+6 | use serde::{Deserialize, Serialize};
+  |             ^^^^^^^^^^^  ^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `qlever_kernel_runner::CacheTier`
+ --> qleverest-validation/crates/qlever-cache-verifier/src/decision_classifier.rs:6:5
+  |
+6 | use qlever_kernel_runner::CacheTier;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+   Compiling qlever-verification-harness v0.1.0 (/home/user/qlever/rust/qleverest-validation/crates/qlever-verification-harness)
+   Compiling qlever-repro v0.1.0 (/home/user/qlever/rust/qleverest-validation/crates/qlever-repro)
+error[E0433]: failed to resolve: use of undeclared type `CacheTier`
+   --> qleverest-validation/crates/qlever-cache-verifier/src/decision_log.rs:124:25
+    |
+124 |             cache_tier: CacheTier::Bytes,
+    |                         ^^^^^^^^^ use of undeclared type `CacheTier`
+    |
+help: consider importing one of these enums
+    |
+108 +     use crate::CacheTier;
+    |
+108 +     use qlever_kernel_runner::CacheTier;
+    |
+
+error[E0433]: failed to resolve: use of undeclared type `CacheTier`
+   --> qleverest-validation/crates/qlever-cache-verifier/src/decision_log.rs:139:25
+    |
+139 |             cache_tier: CacheTier::Bytes,
+    |                         ^^^^^^^^^ use of undeclared type `CacheTier`
+    |
+help: consider importing one of these enums
+    |
+108 +     use crate::CacheTier;
+    |
+108 +     use qlever_kernel_runner::CacheTier;
+    |
+
+error[E0433]: failed to resolve: use of undeclared type `CacheTier`
+   --> qleverest-validation/crates/qlever-cache-verifier/src/decision_log.rs:146:25
+    |
+146 |             cache_tier: CacheTier::Bytes,
+    |                         ^^^^^^^^^ use of undeclared type `CacheTier`
+    |
+help: consider importing one of these enums
+    |
+108 +     use crate::CacheTier;
+    |
+108 +     use qlever_kernel_runner::CacheTier;
+    |
+
+error[E0433]: failed to resolve: use of undeclared type `CacheTier`
+   --> qleverest-validation/crates/qlever-cache-verifier/src/decision_log.rs:153:25
+    |
+153 |             cache_tier: CacheTier::Bytes,
+    |                         ^^^^^^^^^ use of undeclared type `CacheTier`
+    |
+help: consider importing one of these enums
+    |
+108 +     use crate::CacheTier;
+    |
+108 +     use qlever_kernel_runner::CacheTier;
+    |
+
+error[E0433]: failed to resolve: use of undeclared type `CacheTier`
+   --> qleverest-validation/crates/qlever-cache-verifier/src/decision_log.rs:168:25
+    |
+168 |             cache_tier: CacheTier::Bytes,
+    |                         ^^^^^^^^^ use of undeclared type `CacheTier`
+    |
+help: consider importing one of these enums
+    |
+108 +     use crate::CacheTier;
+    |
+108 +     use qlever_kernel_runner::CacheTier;
+    |
+
+error[E0433]: failed to resolve: use of undeclared type `CacheTier`
+   --> qleverest-validation/crates/qlever-cache-verifier/src/decision_log.rs:186:25
+    |
+186 |             cache_tier: CacheTier::Bytes,
+    |                         ^^^^^^^^^ use of undeclared type `CacheTier`
+    |
+help: consider importing one of these enums
+    |
+108 +     use crate::CacheTier;
+    |
+108 +     use qlever_kernel_runner::CacheTier;
+    |
+
+error[E0433]: failed to resolve: use of undeclared type `CacheTier`
+   --> qleverest-validation/crates/qlever-cache-verifier/src/decision_log.rs:193:25
+    |
+193 |             cache_tier: CacheTier::Bytes,
+    |                         ^^^^^^^^^ use of undeclared type `CacheTier`
+    |
+help: consider importing one of these enums
+    |
+108 +     use crate::CacheTier;
+    |
+108 +     use qlever_kernel_runner::CacheTier;
+    |
+
+error[E0433]: failed to resolve: use of undeclared type `CacheTier`
+   --> qleverest-validation/crates/qlever-cache-verifier/src/decision_log.rs:207:25
+    |
+207 |             cache_tier: CacheTier::Bytes,
+    |                         ^^^^^^^^^ use of undeclared type `CacheTier`
+    |
+help: consider importing one of these enums
+    |
+108 +     use crate::CacheTier;
+    |
+108 +     use qlever_kernel_runner::CacheTier;
+    |
+
+warning: `qlever-cache-verifier` (lib) generated 2 warnings (run `cargo fix --lib -p qlever-cache-verifier` to apply 2 suggestions)
+For more information about this error, try `rustc --explain E0433`.
+warning: `qlever-cache-verifier` (lib test) generated 1 warning (1 duplicate)
+error: could not compile `qlever-cache-verifier` (lib test) due to 8 previous errors; 1 warning emitted
+warning: build failed, waiting for other jobs to finish...
+warning: unused variable: `gate_name`
+   --> qleverest-validation/crates/qlever-verification-harness/src/reporter.rs:327:9
+    |
+327 |         gate_name: &str,
+    |         ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_gate_name`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: constant `EXIT_PASS` is never used
+  --> qleverest-validation/crates/qlever-verification-harness/src/gate.rs:21:7
+   |
+21 | const EXIT_PASS: i32 = 0;
+   |       ^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: constant `EXIT_FAIL` is never used
+  --> qleverest-validation/crates/qlever-verification-harness/src/gate.rs:22:7
+   |
+22 | const EXIT_FAIL: i32 = 1;
+   |       ^^^^^^^^^
+
+warning: constant `EXIT_DIVERGENCE` is never used
+  --> qleverest-validation/crates/qlever-verification-harness/src/gate.rs:23:7
+   |
+23 | const EXIT_DIVERGENCE: i32 = 2;
+   |       ^^^^^^^^^^^^^^^
+
+warning: struct `EnvironmentConfig` is never constructed
+  --> qleverest-validation/crates/qlever-verification-harness/src/gate.rs:62:8
+   |
+62 | struct EnvironmentConfig {
+   |        ^^^^^^^^^^^^^^^^^
+
+warning: struct `GateVerdict` is never constructed
+  --> qleverest-validation/crates/qlever-verification-harness/src/gate.rs:82:8
+   |
+82 | struct GateVerdict {
+   |        ^^^^^^^^^^^
+
+warning: struct `ReproManifest` is never constructed
+   --> qleverest-validation/crates/qlever-verification-harness/src/gate.rs:107:8
+    |
+107 | struct ReproManifest {
+    |        ^^^^^^^^^^^^^
+
+warning: function `main` is never used
+   --> qleverest-validation/crates/qlever-verification-harness/src/gate.rs:124:4
+    |
+124 | fn main() {
+    |    ^^^^
+
+warning: function `init_logging` is never used
+   --> qleverest-validation/crates/qlever-verification-harness/src/gate.rs:156:4
+    |
+156 | fn init_logging(verbosity: u8) {
+    |    ^^^^^^^^^^^^
+
+warning: function `run_gate` is never used
+   --> qleverest-validation/crates/qlever-verification-harness/src/gate.rs:170:4
+    |
+170 | fn run_gate(args: &GateArgs) -> Result<i32, Box<dyn std::error::Error>> {
+    |    ^^^^^^^^
+
+warning: function `validate_inputs` is never used
+   --> qleverest-validation/crates/qlever-verification-harness/src/gate.rs:263:4
+    |
+263 | fn validate_inputs(args: &GateArgs) -> Result<(), Box<dyn std::error::Error>> {
+    |    ^^^^^^^^^^^^^^^
+
+warning: function `load_workload_manifest` is never used
+   --> qleverest-validation/crates/qlever-verification-harness/src/gate.rs:287:4
+    |
+287 | fn load_workload_manifest(path: &Path) -> Result<ReplayWorkload, Box<dyn std::error::Error>> {
+    |    ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `load_environment_config` is never used
+   --> qleverest-validation/crates/qlever-verification-harness/src/gate.rs:300:4
+    |
+300 | fn load_environment_config(path: &Path) -> Result<EnvironmentConfig, Box<dyn std::error::Error>> {
+    |    ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `prepare_output_directory` is never used
+   --> qleverest-validation/crates/qlever-verification-harness/src/gate.rs:307:4
+    |
+307 | fn prepare_output_directory(path: &Path) -> Result<(), Box<dyn std::error::Error>> {
+    |    ^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `run_verification` is never used
+   --> qleverest-validation/crates/qlever-verification-harness/src/gate.rs:313:4
+    |
+313 | fn run_verification(
+    |    ^^^^^^^^^^^^^^^^
+
+warning: function `collect_artifacts` is never used
+   --> qleverest-validation/crates/qlever-verification-harness/src/gate.rs:332:4
+    |
+332 | fn collect_artifacts(
+    |    ^^^^^^^^^^^^^^^^^
+
+warning: function `compute_verdict` is never used
+   --> qleverest-validation/crates/qlever-verification-harness/src/gate.rs:396:4
+    |
+396 | fn compute_verdict(receipts: &[VerificationReceipt]) -> (String, i32) {
+    |    ^^^^^^^^^^^^^^^
+
+warning: function `is_divergence_failure` is never used
+   --> qleverest-validation/crates/qlever-verification-harness/src/gate.rs:418:4
+    |
+418 | fn is_divergence_failure(receipt: &VerificationReceipt) -> bool {
+    |    ^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `compute_receipt_id` is never used
+   --> qleverest-validation/crates/qlever-verification-harness/src/gate.rs:436:4
+    |
+436 | fn compute_receipt_id(receipts: &[VerificationReceipt]) -> String {
+    |    ^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for an enum
+  --> qleverest-validation/crates/qlever-verification-harness/src/cli.rs:46:1
+   |
+46 | pub enum VerificationCommand {
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: the lint level is defined here
+  --> qleverest-validation/crates/qlever-verification-harness/src/lib.rs:4:9
+   |
+ 4 | #![warn(missing_docs)]
+   |         ^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> qleverest-validation/crates/qlever-verification-harness/src/reporter.rs:34:5
+   |
+34 |     pub failure_class: String,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> qleverest-validation/crates/qlever-verification-harness/src/reporter.rs:35:5
+   |
+35 |     pub count: usize,
+   |     ^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> qleverest-validation/crates/qlever-verification-harness/src/reporter.rs:36:5
+   |
+36 |     pub is_blocking: bool,
+   |     ^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a struct field
+  --> qleverest-validation/crates/qlever-verification-harness/src/reporter.rs:37:5
+   |
+37 |     pub sample_receipt: Option<Box<VerificationReceipt>>,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+   --> qleverest-validation/crates/qlever-verification-harness/src/reporter.rs:368:5
+    |
+368 |     IoError(std::io::Error),
+    |     ^^^^^^^
+
+warning: missing documentation for a variant
+   --> qleverest-validation/crates/qlever-verification-harness/src/reporter.rs:371:5
+    |
+371 |     SerializationError(serde_json::Error),
+    |     ^^^^^^^^^^^^^^^^^^
+
+warning: missing documentation for a variant
+   --> qleverest-validation/crates/qlever-verification-harness/src/reporter.rs:374:5
+    |
+374 |     LoadError(String),
+    |     ^^^^^^^^^
+
+warning: `qlever-verification-harness` (lib) generated 27 warnings
+warning: struct `GateVerdict` is never constructed
+  --> qleverest-validation/crates/qlever-verification-harness/src/gate.rs:82:8
+   |
+82 | struct GateVerdict {
+   |        ^^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `qlever-verification-harness` (lib test) generated 19 warnings (18 duplicates)

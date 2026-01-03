@@ -1,0 +1,37 @@
+[package]
+name = "qleverest-validation"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+description = "QLever proof plane: deterministic verification and receipts"
+
+[lib]
+name = "qleverest_validation"
+path = "src/lib.rs"
+
+[dependencies]
+# Internal validation subsystem crates (all 13)
+qlever-kernel-runner = { path = "crates/qlever-kernel-runner" }
+qlever-artifact-capture = { path = "crates/qlever-artifact-capture" }
+qlever-digest-verifier = { path = "crates/qlever-digest-verifier" }
+qlever-cache-verifier = { path = "crates/qlever-cache-verifier" }
+qlever-replay-verifier = { path = "crates/qlever-replay-verifier" }
+qlever-regression-verifier = { path = "crates/qlever-regression-verifier" }
+qlever-epoch-verifier = { path = "crates/qlever-epoch-verifier" }
+qlever-simd-verifier = { path = "crates/qlever-simd-verifier" }
+qlever-chaos-verifier = { path = "crates/qlever-chaos-verifier" }
+qlever-verification-harness = { path = "crates/qlever-verification-harness" }
+receipt_comparator = { path = "crates/receipt_comparator" }
+qlever-repro = { path = "crates/qlever-repro" }
+qlever-witness = { path = "crates/qlever-witness" }
+
+[dev-dependencies]
+# To be populated
+
+[features]
+default = ["mock"]
+mock = []
+libqlever = []

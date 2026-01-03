@@ -1,0 +1,15 @@
+[package]
+name = "qlever-simd-verifier"
+version.workspace = true
+edition.workspace = true
+description = "EPIC 11 Subsystem 8: SIMD computation verification"
+
+[dependencies]
+serde.workspace = true
+blake3.workspace = true
+thiserror.workspace = true
+anyhow.workspace = true
+
+[dev-dependencies]
+proptest.workspace = true
+blake3.workspace = true

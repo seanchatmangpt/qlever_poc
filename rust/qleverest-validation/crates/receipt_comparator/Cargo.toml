@@ -1,0 +1,25 @@
+[package]
+name = "receipt_comparator"
+version.workspace = true
+edition.workspace = true
+description = "EPIC 11 Integration Agent 2: Receipt bundle normalization + comparator"
+
+[[bin]]
+name = "receipt_comparator"
+path = "src/main.rs"
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+ciborium.workspace = true
+blake3.workspace = true
+thiserror.workspace = true
+anyhow.workspace = true
+chrono.workspace = true
+clap.workspace = true
+
+# Internal dependencies
+qlever-artifact-capture = { path = "../qlever-artifact-capture" }
+
+[dev-dependencies]
+tempfile.workspace = true

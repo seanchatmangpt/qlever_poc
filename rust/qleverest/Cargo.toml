@@ -1,0 +1,22 @@
+[package]
+name = "qleverest"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+description = "QLever in-memory graph database compute kernel"
+
+[lib]
+name = "qleverest"
+path = "src/lib.rs"
+
+[dependencies]
+# To be populated by Agent 2
+
+[dev-dependencies]
+# To be populated
+
+[features]
+default = []
