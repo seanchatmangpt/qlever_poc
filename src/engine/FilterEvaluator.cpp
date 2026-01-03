@@ -10,8 +10,8 @@
 #ifdef __x86_64__
 #include <cpuid.h>
 #elif defined(__aarch64__)
-#include <sys/auxv.h>
 #include <asm/hwcap.h>
+#include <sys/auxv.h>
 #endif
 
 // _____________________________________________________________________________
@@ -23,7 +23,6 @@ IdTable ScalarFilterEvaluator::evaluate(
     const IdTable& input,
     const sparqlExpression::SparqlExpressionPimpl& expression,
     sparqlExpression::EvaluationContext& context) const {
-
   size_t width = input.numColumns();
   IdTable result{width, context._allocator};
 
@@ -37,15 +36,19 @@ IdTable ScalarFilterEvaluator::evaluate(
         expression.getPimpl()->evaluate(&context);
 
     // Filter input by expressionResult and store in resultTable
-    auto computeResult = CPP_template_lambda(
-        &resultTable = resultTable, &input = input.asStaticView<static_cast<size_t>(WIDTH)>(),
-        &context)(typename T)(T && singleResult)(
-        requires sparqlExpression::SingleExpressionResult<T>) {
+    auto computeResult =
+        CPP_template_lambda(&resultTable = resultTable,
+                            &input =
+                                input
+                                    .asStaticView<static_cast<size_t>(WIDTH)>(),
+                            &context)(typename T)(T && singleResult)(
+            requires sparqlExpression::SingleExpressionResult<T>) {
       if constexpr (std::is_same_v<T, ad_utility::SetOfIntervals>) {
         // Binary filter case: copy intervals from input to result
         auto totalSize = std::accumulate(
             singleResult._intervals.begin(), singleResult._intervals.end(),
-            resultTable.size(), [&input](const auto& sum, const auto& interval) {
+            resultTable.size(),
+            [&input](const auto& sum, const auto& interval) {
               size_t intervalBegin = interval.first;
               size_t intervalEnd = std::min(interval.second, input.size());
               return sum + (intervalEnd - intervalBegin);
@@ -67,11 +70,11 @@ IdTable ScalarFilterEvaluator::evaluate(
             AD_FWD(singleResult), input.size(), &context);
         size_t i = 0;
 
-        using ValueGetter = sparqlExpression::detail::EffectiveBooleanValueGetter;
+        using ValueGetter =
+            sparqlExpression::detail::EffectiveBooleanValueGetter;
         ValueGetter valueGetter{};
         for (auto&& resultValue : resultGenerator) {
-          if (valueGetter(resultValue, &context) ==
-              ValueGetter::Result::True) {
+          if (valueGetter(resultValue, &context) == ValueGetter::Result::True) {
             resultTable.push_back(input[i]);
           }
           ++i;
@@ -96,8 +99,8 @@ IdTable SIMDFilterEvaluator::evaluate(
     const IdTable& input,
     const sparqlExpression::SparqlExpressionPimpl& expression,
     sparqlExpression::EvaluationContext& context) const {
-  // TODO(P3E Week 7): Implement SIMD batch evaluation
-  // For now, use scalar fallback (guarantees correctness)
+  // Fallback implementation: SIMD batch evaluation not yet available
+  // See ROADMAP.md for EPIC 10 Phase 3E SIMD integration plan
   return scalarFallback_.evaluate(input, expression, context);
 }
 

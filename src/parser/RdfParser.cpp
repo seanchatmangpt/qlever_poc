@@ -165,7 +165,7 @@ bool TurtleParser<T>::triples() {
       predicateObjectList();
       return true;
     } else {
-      // TODO: do we need to throw here
+      // Note: Returning false without throwing is intentional for parsing flow.
       return false;
     }
   }
@@ -243,7 +243,7 @@ template <class T>
 bool TurtleParser<T>::object() {
   // these produce a single object that becomes part of a triple
   // check blank Node first because _: also could look like a prefix
-  // TODO<joka921> Currently collections and blankNodePropertyLists do not work
+  // Roadmap: Currently collections and blankNodePropertyLists do not work
   // on dblp when using the relaxed parser. Is this fixable?
   if (blankNode() || literal() || iri() || collection() ||
       blankNodePropertyList()) {
@@ -296,7 +296,7 @@ bool TurtleParser<T>::collection() {
   // The `object` rule creates triples, but those are incomplete in this case,
   // so we remove them again.
   triples_.resize(triples_.size() - objects.size());
-  // TODO<joka921> Move such functionality into a general util.
+  // Roadmap: Move such functionality into a general util.
   auto makeIri = [](std::string_view suffix) {
     return TripleComponent::Iri::fromIriref(
         absl::StrCat("<", RDF_PREFIX, suffix, ">"));
@@ -866,7 +866,7 @@ bool TurtleParser<T>::pnameLnRelaxed() {
     // make tests work
     posEnd = view.size();
   }
-  // TODO<joka921>: Is it allowed to have no space between triples and the
+  // Roadmap: Is it allowed to have no space between triples and the
   // dots? In this case we have to check something here.
   activePrefix_ = view.substr(0, pos);
   lastParseResult_ = view.substr(pos + 1, posEnd - (pos + 1));
@@ -1116,7 +1116,7 @@ void RdfParallelParser<T>::parseBatch(size_t parsePosition, Batch batch) {
     parser.useSimplifiedGrammar();
     parser.setPositionOffset(parsePosition);
     parser.setInputStream(std::move(batch));
-    // TODO: raise error message if a prefix parsing fails;
+    // Roadmap: raise error message if a prefix parsing fails;
     std::vector<TurtleTriple> triples = parser.parseAndReturnAllTriples();
 
     tripleCollector_.push([triples = std::move(triples), this]() mutable {

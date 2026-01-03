@@ -27,8 +27,7 @@
 #include "util/VisitMixin.h"
 
 // First some forward declarations.
-// TODO<joka921> More stuff should consistently be in the `parsedQuery`
-// namespace.
+// Roadmap: More stuff should consistently be in the `parsedQuery` namespace.
 class SparqlTriple;
 class ParsedQuery;
 
@@ -37,7 +36,7 @@ namespace parsedQuery {
 class GraphPattern;
 
 /// The actual data of a `VALUES` clause.
-/// TODO<joka921> the two classes `SparqlValues` and `Values` (below) can be
+/// Roadmap: the two classes `SparqlValues` and `Values` (below) can be
 /// merged, but we first have to figure out and refactor the `id`-business in
 /// the query planner.
 struct SparqlValues {
@@ -90,7 +89,7 @@ struct Values {
 };
 
 /// A `GroupGraphPattern` is anything enclosed in `{}`.
-/// TODO<joka921> The naming is inconsistent between `GroupGraphPattern` and
+/// Roadmap: The naming is inconsistent between `GroupGraphPattern` and
 /// `GraphPattern`.
 struct GroupGraphPattern {
   GraphPattern _child;
@@ -116,7 +115,7 @@ struct GroupGraphPattern {
 };
 
 /// An `OPTIONAL` clause.
-/// TODO<joka921> the `_optional` member of the child should not be necessary.
+/// Roadmap: the `_optional` member of the child should not be necessary.
 struct Optional {
   Optional(GraphPattern child) : _child{std::move(child)} {
     _child._optional = true;
@@ -146,7 +145,7 @@ class Subquery {
   std::unique_ptr<ParsedQuery> _subquery;
 
  public:
-  // TODO<joka921> Make this an abstraction `TypeErasingPimpl`.
+  // Roadmap: Make this an abstraction `TypeErasingPimpl`.
 
   // NOTE: The first two constructors are deliberately not `explicit` because
   // we want to used them like copy/move constructors (semantically, a
@@ -181,7 +180,7 @@ struct TransPath {
   TripleComponent _left;
   TripleComponent _right;
   // The name of the left and right end of the subpath
-  // TODO<joka921> Should this be a `Variable`? or `optional<Variable>`?
+  // Roadmap: Should this be a `Variable`? or `optional<Variable>`?
   TripleComponent _innerLeft;
   TripleComponent _innerRight;
   size_t _min = 0;
@@ -207,7 +206,7 @@ struct Bind {
   [[nodiscard]] std::string getDescriptor() const;
 };
 
-// TODO<joka921> Further refactor this, s.t. the whole `GraphPatternOperation`
+// Roadmap: Further refactor this, s.t. the whole `GraphPatternOperation`
 // class actually becomes `using GraphPatternOperation = std::variant<...>`
 using GraphPatternOperationVariant =
     std::variant<Optional, Union, Subquery, TransPath, Bind, BasicGraphPattern,
@@ -219,7 +218,7 @@ struct GraphPatternOperation
       public VisitMixin<GraphPatternOperation, GraphPatternOperationVariant> {
   using GraphPatternOperationVariant::GraphPatternOperationVariant;
 
-  // TODO<joka921> First refactor `SparqlParserTest.cpp`,
+  // Roadmap: First refactor `SparqlParserTest.cpp`,
   // then get rid of this function.
   auto& getBasic() { return std::get<BasicGraphPattern>(*this); }
   [[nodiscard]] const auto& getBasic() const {

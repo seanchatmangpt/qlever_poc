@@ -103,8 +103,8 @@ class SIMDFilterEvaluator : public FilterEvaluator {
   const char* version() const override { return "SIMD_V2"; }
 
  private:
-  // TODO(P3E Week 7): Implement vectorized evaluation
-  // For now, delegate to scalar evaluator
+  // Fallback implementation: SIMD vectorization not yet available
+  // See ROADMAP.md for EPIC 10 Phase 3E SIMD integration plan
   ScalarFilterEvaluator scalarFallback_;
 };
 

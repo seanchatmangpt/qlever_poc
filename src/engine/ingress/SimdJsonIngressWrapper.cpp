@@ -18,12 +18,9 @@ IngressResult SimdJsonIngressWrapper::parseJsonLd(
   }
 
   // ASPIRATIONAL STUB: This function is not yet implemented.
-  // TODO: Implement simdjson::ondemand parsing
-  // - Validate structure
-  // - Extract @context, @id, @type
-  // - Normalize to canonical form
-  // - Compute digest
-  // - Return error code (never throw)
+  // See ROADMAP.md for EPIC 7 JSON-LD ingress implementation plan
+  // Planned features: simdjson parsing, structure validation, @context
+  // extraction, canonical normalization, digest computation
   //
   // Current status: Returns UNIMPLEMENTED to prevent silent failures.
   // DO NOT use this function in production until implementation is complete.
@@ -44,10 +41,8 @@ IngressResult SimdJsonIngressWrapper::validateStructure(
   }
 
   // ASPIRATIONAL STUB: This function is not yet implemented.
-  // TODO: Implement structural validation only
-  // - Check JSON syntax
-  // - Verify nesting depth
-  // - No semantic checks
+  // See ROADMAP.md for EPIC 7 structural validation implementation
+  // Planned features: JSON syntax validation, nesting depth checks
   //
   // Current status: Returns UNIMPLEMENTED to prevent silent failures.
 
@@ -65,10 +60,9 @@ IngressResult SimdJsonIngressWrapper::normalizeJsonLd(
   }
 
   // ASPIRATIONAL STUB: This function is not yet implemented.
-  // TODO: Implement canonical normalization
-  // - Alphabetical field ordering
-  // - UTF-8 NFC normalization
-  // - Whitespace removal
+  // See ROADMAP.md for EPIC 7 canonical normalization implementation
+  // Planned features: alphabetical field ordering, UTF-8 NFC normalization,
+  // whitespace removal
   //
   // Current status: Returns UNIMPLEMENTED to prevent silent failures.
   // Previously this function just copied input to output and returned OK,
@@ -83,14 +77,12 @@ std::string SimdJsonIngressWrapper::compute_digest(
     std::string_view normalized_json, uint32_t validation_mask,
     IngressErrorCode error_code) noexcept {
   // ASPIRATIONAL STUB: This function is not yet implemented.
-  // TODO: Implement SHA256 digest computation
-  // - Use deterministic serialization
-  // - Include validation_mask + error_code
-  // - Return hex-encoded digest string
+  // See ROADMAP.md for EPIC 7 SHA256 digest computation implementation
+  // Planned features: deterministic serialization, validation_mask/error_code
+  // inclusion, hex-encoded digest output
   //
-  // Current status: Returns error indicator instead of fake hash.
+  // Current status: Returns empty string to indicate "NOT IMPLEMENTED"
   // Previously returned all zeros, which was deceptive.
-  // Return empty string to indicate "NOT IMPLEMENTED"
   return "";
 }
 

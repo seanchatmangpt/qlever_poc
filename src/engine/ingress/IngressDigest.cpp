@@ -11,10 +11,9 @@ namespace qlever::ingress {
 Digest IngressDigest::compute(std::string_view normalized_json,
                               uint32_t validation_mask,
                               IngressErrorCode error_code) noexcept {
-  // TODO: Implement SHA256 computation
-  // 1. Serialize: normalized_json + validation_mask + error_code
-  // 2. Apply SHA256 hashing
-  // 3. Return 32-byte digest
+  // See ROADMAP.md for EPIC 7 SHA256 implementation plan
+  // Planned: Serialize normalized_json + validation_mask + error_code,
+  // apply SHA256 hashing, return 32-byte digest
 
   Digest result = {};
   // Placeholder implementation
@@ -33,7 +32,7 @@ std::string IngressDigest::hex_encode(const Digest& binary_digest) noexcept {
 
 Digest IngressDigest::hex_decode(std::string_view hex_string) noexcept {
   Digest result = {};
-  // TODO: Implement hex decoding
+  // See ROADMAP.md for EPIC 7 hex decoding implementation
   return result;
 }
 
@@ -41,7 +40,8 @@ bool IngressDigest::verify_determinism(std::string_view normalized_json,
                                        uint32_t validation_mask,
                                        IngressErrorCode error_code,
                                        int iterations) noexcept {
-  // TODO: Compute digest multiple times and verify all match
+  // Determinism verification: compute digest multiple times and verify all
+  // match
   Digest reference = compute(normalized_json, validation_mask, error_code);
   for (int i = 1; i < iterations; ++i) {
     Digest current = compute(normalized_json, validation_mask, error_code);
@@ -54,9 +54,9 @@ bool IngressDigest::verify_determinism(std::string_view normalized_json,
 
 Digest IngressDigest::sha256(const unsigned char* input,
                              size_t input_len) noexcept {
-  // TODO: Implement SHA256
-  // - Use OpenSSL, mbedTLS, or native implementation
-  // - Ensure platform-independent results
+  // See ROADMAP.md for EPIC 7 SHA256 implementation plan
+  // Planned: Use OpenSSL, mbedTLS, or native implementation
+  // with platform-independent results guarantee
   Digest result = {};
   std::memset(result.data(), 0, result.size());
   return result;

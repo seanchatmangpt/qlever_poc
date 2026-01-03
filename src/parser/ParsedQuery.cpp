@@ -55,9 +55,9 @@ Variable ParsedQuery::addInternalBind(
   // Don't register the targetVariable as visible because it is used
   // internally and should not be selected by SELECT * (this is the `bool`
   // argument to `addBind`).
-  // TODO<qup42, joka921> Implement "internal" variables, that can't be
-  //  selected at all and can never interfere with variables from the
-  //  query.
+  // Roadmap: Implement "internal" variables, that can't be
+  // selected at all and can never interfere with variables from the
+  // query.
   addBind(std::move(expression), targetVariable, false);
   return targetVariable;
 }
@@ -233,7 +233,7 @@ void ParsedQuery::addSolutionModifiers(
       }
     }
   } else {
-    // TODO<joka921> refactor this to use `std::visit`. It is much safer.
+    // Roadmap: refactor this to use `std::visit`. It is much safer.
     AD_CORRECTNESS_CHECK(hasAskClause());
   }
 }
@@ -279,9 +279,9 @@ bool ParsedQuery::GraphPattern::addLanguageFilter(
   // a simple `IRIREF` (neither a variable nor a complex property path).
   // Search in all the basic graph patterns, as filters have the complete
   // graph patterns as their scope.
-  // TODO<joka921> In theory we could also recurse into GroupGraphPatterns,
+  // Roadmap: In theory we could also recurse into GroupGraphPatterns,
   // Subqueries etc.
-  // TODO<joka921> Also support property paths (^rdfs:label,
+  // Roadmap: Also support property paths (^rdfs:label,
   // skos:altLabel|rdfs:label, ...)
   std::vector<SparqlTriple*> matchingTriples;
   using BasicPattern = parsedQuery::BasicGraphPattern;
@@ -299,7 +299,7 @@ bool ParsedQuery::GraphPattern::addLanguageFilter(
               QLEVER_INTERNAL_PREFIX_IRI_WITHOUT_CLOSING_BRACKET)) {
         matchingTriples.push_back(&triple);
       }
-      // TODO<RobinTF> There might be more cases where the variable is matched
+      // Roadmap: There might be more cases where the variable is matched
       // against a pattern.
       if (triple.s_ == variable || triple.o_ == variable ||
           triple.predicateIs(variable)) {
@@ -350,7 +350,7 @@ bool ParsedQuery::GraphPattern::addLanguageFilter(
     }
 
     // Optimization if there already is a `BasicGraphPattern` we can use.
-    // TODO<joka921> It might be beneficial to place this triple not at the
+    // Roadmap: It might be beneficial to place this triple not at the
     // end but close to other occurrences of `variable`.
     if (operations.size() == 1 &&
         std::holds_alternative<BasicGraphPattern>(_graphPatterns.back())) {

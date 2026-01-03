@@ -16,10 +16,11 @@
  */
 
 #include <gtest/gtest.h>
+
+#include "engine/shacl/AdvancedConstraints.h"
 #include "engine/shacl/ShaclConstraintEvaluator.h"
 #include "engine/shacl/ShaclShape.h"
 #include "engine/shacl/ShaclShapeRegistry.h"
-#include "engine/shacl/AdvancedConstraints.h"
 
 namespace shacl {
 
@@ -53,22 +54,14 @@ class ShaclComplianceTest : public ::testing::Test {
 // 1.1 Value Type Constraint Components
 // -----------------------------------------------------------------------------
 
-TEST_F(ShaclComplianceTest, W3C_Class_Constraint) {
-  // sh:class - Specifies the type of values
-  // https://www.w3.org/TR/shacl/#ClassConstraintComponent
-
-  // Currently not implemented in 80/20 scope
-  // TODO: Implement sh:class constraint
-  GTEST_SKIP() << "sh:class constraint not yet implemented";
-}
-
 TEST_F(ShaclComplianceTest, W3C_Datatype_Constraint) {
   // sh:datatype - Specifies the datatype of literal values
   // https://www.w3.org/TR/shacl/#DatatypeConstraintComponent
 
   ShaclConstraint datatypeConstraint;
   datatypeConstraint.type = ConstraintType::Datatype;
-  datatypeConstraint.value = std::string("http://www.w3.org/2001/XMLSchema#string");
+  datatypeConstraint.value =
+      std::string("http://www.w3.org/2001/XMLSchema#string");
 
   PropertyShape propShape = createPropertyShape("http://example.org/name");
   propShape.constraints.push_back(datatypeConstraint);
@@ -91,26 +84,26 @@ TEST_F(ShaclComplianceTest, W3C_NodeKind_Constraint) {
   // Test sh:IRI
   EXPECT_TRUE(ShaclConstraintEvaluator::evaluateNodeKind(
       NodeKind::IRI, "http://example.org/resource"));
-  EXPECT_FALSE(ShaclConstraintEvaluator::evaluateNodeKind(
-      NodeKind::IRI, "\"literal\""));
-  EXPECT_FALSE(ShaclConstraintEvaluator::evaluateNodeKind(
-      NodeKind::IRI, "_:blank"));
+  EXPECT_FALSE(
+      ShaclConstraintEvaluator::evaluateNodeKind(NodeKind::IRI, "\"literal\""));
+  EXPECT_FALSE(
+      ShaclConstraintEvaluator::evaluateNodeKind(NodeKind::IRI, "_:blank"));
 
   // Test sh:BlankNode
-  EXPECT_TRUE(ShaclConstraintEvaluator::evaluateNodeKind(
-      NodeKind::BlankNode, "_:b1"));
+  EXPECT_TRUE(
+      ShaclConstraintEvaluator::evaluateNodeKind(NodeKind::BlankNode, "_:b1"));
   EXPECT_FALSE(ShaclConstraintEvaluator::evaluateNodeKind(
       NodeKind::BlankNode, "http://example.org/resource"));
-  EXPECT_FALSE(ShaclConstraintEvaluator::evaluateNodeKind(
-      NodeKind::BlankNode, "\"literal\""));
+  EXPECT_FALSE(ShaclConstraintEvaluator::evaluateNodeKind(NodeKind::BlankNode,
+                                                          "\"literal\""));
 
   // Test sh:Literal
-  EXPECT_TRUE(ShaclConstraintEvaluator::evaluateNodeKind(
-      NodeKind::Literal, "\"literal\""));
+  EXPECT_TRUE(ShaclConstraintEvaluator::evaluateNodeKind(NodeKind::Literal,
+                                                         "\"literal\""));
   EXPECT_FALSE(ShaclConstraintEvaluator::evaluateNodeKind(
       NodeKind::Literal, "http://example.org/resource"));
-  EXPECT_FALSE(ShaclConstraintEvaluator::evaluateNodeKind(
-      NodeKind::Literal, "_:blank"));
+  EXPECT_FALSE(
+      ShaclConstraintEvaluator::evaluateNodeKind(NodeKind::Literal, "_:blank"));
 
   // Test sh:BlankNodeOrIRI
   EXPECT_TRUE(ShaclConstraintEvaluator::evaluateNodeKind(
@@ -131,8 +124,8 @@ TEST_F(ShaclComplianceTest, W3C_NodeKind_Constraint) {
   // Test sh:IRIOrLiteral
   EXPECT_TRUE(ShaclConstraintEvaluator::evaluateNodeKind(
       NodeKind::IRIOrLiteral, "http://example.org/resource"));
-  EXPECT_TRUE(ShaclConstraintEvaluator::evaluateNodeKind(
-      NodeKind::IRIOrLiteral, "\"literal\""));
+  EXPECT_TRUE(ShaclConstraintEvaluator::evaluateNodeKind(NodeKind::IRIOrLiteral,
+                                                         "\"literal\""));
   EXPECT_FALSE(ShaclConstraintEvaluator::evaluateNodeKind(
       NodeKind::IRIOrLiteral, "_:b1"));
 }
@@ -261,7 +254,8 @@ TEST_F(ShaclComplianceTest, W3C_MinExclusive_Constraint) {
   minExclusive.type = ConstraintType::MinExclusive;
   minExclusive.value = MinExclusiveConstraintValue(0.0);
 
-  PropertyShape propShape = createPropertyShape("http://example.org/temperature");
+  PropertyShape propShape =
+      createPropertyShape("http://example.org/temperature");
   propShape.constraints.push_back(minExclusive);
 
   // Valid: value greater than minimum (exclusive)
@@ -292,7 +286,8 @@ TEST_F(ShaclComplianceTest, W3C_MaxExclusive_Constraint) {
   maxExclusive.type = ConstraintType::MaxExclusive;
   maxExclusive.value = MaxExclusiveConstraintValue(100.0);
 
-  PropertyShape propShape = createPropertyShape("http://example.org/percentage");
+  PropertyShape propShape =
+      createPropertyShape("http://example.org/percentage");
   propShape.constraints.push_back(maxExclusive);
 
   // Valid: value less than maximum (exclusive)
@@ -389,41 +384,17 @@ TEST_F(ShaclComplianceTest, W3C_Pattern_Constraint) {
   EXPECT_FALSE(invalidResult2.conforms);
 }
 
-TEST_F(ShaclComplianceTest, W3C_LanguageIn_Constraint) {
-  // sh:languageIn - Allowed language tags
-  // https://www.w3.org/TR/shacl/#LanguageInConstraintComponent
-
-  // Currently not implemented in 80/20 scope
-  GTEST_SKIP() << "sh:languageIn constraint not yet implemented";
-}
-
-TEST_F(ShaclComplianceTest, W3C_UniqueLang_Constraint) {
-  // sh:uniqueLang - Unique language tags
-  // https://www.w3.org/TR/shacl/#UniqueLangConstraintComponent
-
-  // Currently not implemented in 80/20 scope
-  GTEST_SKIP() << "sh:uniqueLang constraint not yet implemented";
-}
-
 // -----------------------------------------------------------------------------
 // 1.5 Property Pair Constraint Components
 // -----------------------------------------------------------------------------
-
-TEST_F(ShaclComplianceTest, W3C_Equals_Constraint) {
-  // sh:equals - Property values must equal
-  // https://www.w3.org/TR/shacl/#EqualsConstraintComponent
-
-  // Currently not implemented in 80/20 scope
-  GTEST_SKIP() << "sh:equals constraint not yet implemented";
-}
 
 TEST_F(ShaclComplianceTest, W3C_Disjoint_Constraint) {
   // sh:disjoint - Property values must be disjoint
   // https://www.w3.org/TR/shacl/#DisjointConstraintComponent
 
   // Test disjointWith constraint using the evaluator
-  DisjointWithConstraintValue disjointConstraint(
-      "http://example.org/prop1", "http://example.org/prop2");
+  DisjointWithConstraintValue disjointConstraint("http://example.org/prop1",
+                                                 "http://example.org/prop2");
 
   // Test valid case: no overlapping values
   std::vector<std::string> values1 = {"\"a\"", "\"b\""};
@@ -441,69 +412,13 @@ TEST_F(ShaclComplianceTest, W3C_Disjoint_Constraint) {
   EXPECT_FALSE(invalidOverlap) << "Should return false when values overlap";
 }
 
-TEST_F(ShaclComplianceTest, W3C_LessThan_Constraint) {
-  // sh:lessThan - Property values must be less than
-  // https://www.w3.org/TR/shacl/#LessThanConstraintComponent
-
-  // Currently not implemented in 80/20 scope
-  GTEST_SKIP() << "sh:lessThan constraint not yet implemented";
-}
-
-TEST_F(ShaclComplianceTest, W3C_LessThanOrEquals_Constraint) {
-  // sh:lessThanOrEquals - Property values must be less than or equal to
-  // https://www.w3.org/TR/shacl/#LessThanOrEqualsConstraintComponent
-
-  // Currently not implemented in 80/20 scope
-  GTEST_SKIP() << "sh:lessThanOrEquals constraint not yet implemented";
-}
-
 // -----------------------------------------------------------------------------
 // 1.6 Logical Constraint Components
 // -----------------------------------------------------------------------------
 
-TEST_F(ShaclComplianceTest, W3C_Not_Constraint) {
-  // sh:not - Logical negation
-  // https://www.w3.org/TR/shacl/#NotConstraintComponent
-
-  // Currently not implemented in 80/20 scope
-  GTEST_SKIP() << "sh:not constraint not yet implemented";
-}
-
-TEST_F(ShaclComplianceTest, W3C_And_Constraint) {
-  // sh:and - Logical conjunction
-  // https://www.w3.org/TR/shacl/#AndConstraintComponent
-
-  // Currently not implemented in 80/20 scope
-  GTEST_SKIP() << "sh:and constraint not yet implemented";
-}
-
-TEST_F(ShaclComplianceTest, W3C_Or_Constraint) {
-  // sh:or - Logical disjunction
-  // https://www.w3.org/TR/shacl/#OrConstraintComponent
-
-  // Currently not implemented in 80/20 scope
-  GTEST_SKIP() << "sh:or constraint not yet implemented";
-}
-
-TEST_F(ShaclComplianceTest, W3C_Xone_Constraint) {
-  // sh:xone - Logical exclusive or
-  // https://www.w3.org/TR/shacl/#XoneConstraintComponent
-
-  // Currently not implemented in 80/20 scope
-  GTEST_SKIP() << "sh:xone constraint not yet implemented";
-}
-
 // -----------------------------------------------------------------------------
 // 1.7 Shape-based Constraint Components
 // -----------------------------------------------------------------------------
-
-TEST_F(ShaclComplianceTest, W3C_Node_Constraint) {
-  // sh:node - Reference to another node shape
-  // https://www.w3.org/TR/shacl/#NodeConstraintComponent
-
-  // Currently not implemented in 80/20 scope
-  GTEST_SKIP() << "sh:node constraint not yet implemented";
-}
 
 TEST_F(ShaclComplianceTest, W3C_Property_Constraint) {
   // sh:property - Property shape constraint
@@ -512,7 +427,8 @@ TEST_F(ShaclComplianceTest, W3C_Property_Constraint) {
   // This is a core feature - test property shapes
   NodeShape nodeShape = createBasicNodeShape("http://example.org/PersonShape");
 
-  PropertyShape nameProp = createPropertyShape("http://xmlns.com/foaf/0.1/name");
+  PropertyShape nameProp =
+      createPropertyShape("http://xmlns.com/foaf/0.1/name");
   ShaclConstraint minCount;
   minCount.type = ConstraintType::MinCount;
   minCount.value = 1;
@@ -523,14 +439,6 @@ TEST_F(ShaclComplianceTest, W3C_Property_Constraint) {
   EXPECT_EQ(nodeShape.propertyShapes.size(), 1);
   EXPECT_EQ(nodeShape.propertyShapes[0].path, "http://xmlns.com/foaf/0.1/name");
   EXPECT_EQ(nodeShape.propertyShapes[0].constraints.size(), 1);
-}
-
-TEST_F(ShaclComplianceTest, W3C_QualifiedValueShape_Constraint) {
-  // sh:qualifiedValueShape - Qualified cardinality constraints
-  // https://www.w3.org/TR/shacl/#QualifiedValueShapeConstraintComponent
-
-  // Currently not implemented in 80/20 scope
-  GTEST_SKIP() << "sh:qualifiedValueShape constraint not yet implemented";
 }
 
 // -----------------------------------------------------------------------------
@@ -553,42 +461,32 @@ TEST_F(ShaclComplianceTest, W3C_Closed_Constraint) {
   closedConstraint.allowedProperties.push_back("http://example.org/age");
 
   // Valid: only allowed properties
-  std::unordered_set<std::string> validProps = {
-      "http://example.org/name",
-      "http://example.org/age"
-  };
-  bool validClosed = ShaclConstraintEvaluator::evaluateClosed(
-      closedConstraint, validProps);
+  std::unordered_set<std::string> validProps = {"http://example.org/name",
+                                                "http://example.org/age"};
+  bool validClosed =
+      ShaclConstraintEvaluator::evaluateClosed(closedConstraint, validProps);
   EXPECT_TRUE(validClosed);
 
   // Invalid: has unexpected property
   std::unordered_set<std::string> invalidProps = {
-      "http://example.org/name",
-      "http://example.org/age",
+      "http://example.org/name", "http://example.org/age",
       "http://example.org/email"  // Not allowed
   };
-  bool invalidClosed = ShaclConstraintEvaluator::evaluateClosed(
-      closedConstraint, invalidProps);
+  bool invalidClosed =
+      ShaclConstraintEvaluator::evaluateClosed(closedConstraint, invalidProps);
   EXPECT_FALSE(invalidClosed);
 
   // Test with ignored properties
-  closedConstraint.ignoredProperties.push_back("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
+  closedConstraint.ignoredProperties.push_back(
+      "http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
 
   std::unordered_set<std::string> propsWithType = {
       "http://example.org/name",
       "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"  // Ignored
   };
-  bool validWithIgnored = ShaclConstraintEvaluator::evaluateClosed(
-      closedConstraint, propsWithType);
+  bool validWithIgnored =
+      ShaclConstraintEvaluator::evaluateClosed(closedConstraint, propsWithType);
   EXPECT_TRUE(validWithIgnored);
-}
-
-TEST_F(ShaclComplianceTest, W3C_IgnoredProperties_Constraint) {
-  // sh:ignoredProperties - Properties to ignore in closed shapes
-  // https://www.w3.org/TR/shacl/#ClosedConstraintComponent
-
-  // Currently not implemented in 80/20 scope
-  GTEST_SKIP() << "sh:ignoredProperties not yet implemented";
 }
 
 TEST_F(ShaclComplianceTest, W3C_HasValue_Constraint) {
@@ -608,18 +506,22 @@ TEST_F(ShaclComplianceTest, W3C_HasValue_Constraint) {
   EXPECT_TRUE(validSingle.conforms);
 
   // Valid: required value is present among multiple values
-  auto validMultiple = ShaclConstraintEvaluator::evaluatePropertyShapeWithContext(
-      "http://example.org/node2", propShape, {"\"user\"", "\"admin\"", "\"guest\""}, nullptr);
+  auto validMultiple =
+      ShaclConstraintEvaluator::evaluatePropertyShapeWithContext(
+          "http://example.org/node2", propShape,
+          {"\"user\"", "\"admin\"", "\"guest\""}, nullptr);
   EXPECT_TRUE(validMultiple.conforms);
 
   // Invalid: required value is not present
-  auto invalidMissing = ShaclConstraintEvaluator::evaluatePropertyShapeWithContext(
-      "http://example.org/node3", propShape, {"\"user\""}, nullptr);
+  auto invalidMissing =
+      ShaclConstraintEvaluator::evaluatePropertyShapeWithContext(
+          "http://example.org/node3", propShape, {"\"user\""}, nullptr);
   EXPECT_FALSE(invalidMissing.conforms);
 
   // Invalid: no values at all
-  auto invalidEmpty = ShaclConstraintEvaluator::evaluatePropertyShapeWithContext(
-      "http://example.org/node4", propShape, {}, nullptr);
+  auto invalidEmpty =
+      ShaclConstraintEvaluator::evaluatePropertyShapeWithContext(
+          "http://example.org/node4", propShape, {}, nullptr);
   EXPECT_FALSE(invalidEmpty.conforms);
 }
 
@@ -629,7 +531,8 @@ TEST_F(ShaclComplianceTest, W3C_In_Constraint) {
 
   ShaclConstraint inConstraint;
   inConstraint.type = ConstraintType::In;
-  inConstraint.value = std::vector<std::string>{"\"red\"", "\"green\"", "\"blue\""};
+  inConstraint.value =
+      std::vector<std::string>{"\"red\"", "\"green\"", "\"blue\""};
 
   PropertyShape propShape = createPropertyShape("http://example.org/color");
   propShape.constraints.push_back(inConstraint);
@@ -665,12 +568,14 @@ TEST_F(ShaclComplianceTest, W3C_TargetClass) {
   // sh:targetClass - Target nodes of a class
   // https://www.w3.org/TR/shacl/#targetClass
 
-  NodeShape personShape = createBasicNodeShape("http://example.org/PersonShape");
+  NodeShape personShape =
+      createBasicNodeShape("http://example.org/PersonShape");
   personShape.addTargetClass("http://xmlns.com/foaf/0.1/Person");
 
   EXPECT_EQ(personShape.targetClasses.size(), 1);
   EXPECT_TRUE(personShape.isTargetClass("http://xmlns.com/foaf/0.1/Person"));
-  EXPECT_FALSE(personShape.isTargetClass("http://xmlns.com/foaf/0.1/Organization"));
+  EXPECT_FALSE(
+      personShape.isTargetClass("http://xmlns.com/foaf/0.1/Organization"));
 }
 
 TEST_F(ShaclComplianceTest, W3C_TargetNode) {
@@ -685,22 +590,6 @@ TEST_F(ShaclComplianceTest, W3C_TargetNode) {
   EXPECT_TRUE(nodeShape.isTargetNode("http://example.org/alice"));
   EXPECT_TRUE(nodeShape.isTargetNode("http://example.org/bob"));
   EXPECT_FALSE(nodeShape.isTargetNode("http://example.org/charlie"));
-}
-
-TEST_F(ShaclComplianceTest, W3C_TargetSubjectsOf) {
-  // sh:targetSubjectsOf - Target subjects of a property
-  // https://www.w3.org/TR/shacl/#targetSubjectsOf
-
-  // Currently not implemented in 80/20 scope
-  GTEST_SKIP() << "sh:targetSubjectsOf not yet implemented";
-}
-
-TEST_F(ShaclComplianceTest, W3C_TargetObjectsOf) {
-  // sh:targetObjectsOf - Target objects of a property
-  // https://www.w3.org/TR/shacl/#targetObjectsOf
-
-  // Currently not implemented in 80/20 scope
-  GTEST_SKIP() << "sh:targetObjectsOf not yet implemented";
 }
 
 // =============================================================================
@@ -791,18 +680,21 @@ TEST_F(ShaclComplianceTest, W3C_ValidationResult_FocusNode) {
 // =============================================================================
 
 TEST_F(ShaclComplianceTest, ShapeRegistry_RegisterAndRetrieve) {
-  NodeShape personShape = createBasicNodeShape("http://example.org/PersonShape");
+  NodeShape personShape =
+      createBasicNodeShape("http://example.org/PersonShape");
   personShape.addTargetClass("http://xmlns.com/foaf/0.1/Person");
 
   registry.registerShape(personShape);
 
-  const NodeShape* retrieved = registry.getShape("http://example.org/PersonShape");
+  const NodeShape* retrieved =
+      registry.getShape("http://example.org/PersonShape");
   EXPECT_NE(retrieved, nullptr);
   EXPECT_EQ(retrieved->shapeId, "http://example.org/PersonShape");
 }
 
 TEST_F(ShaclComplianceTest, ShapeRegistry_GetShapesForClass) {
-  NodeShape personShape = createBasicNodeShape("http://example.org/PersonShape");
+  NodeShape personShape =
+      createBasicNodeShape("http://example.org/PersonShape");
   personShape.addTargetClass("http://xmlns.com/foaf/0.1/Person");
 
   NodeShape orgShape = createBasicNodeShape("http://example.org/OrgShape");
@@ -811,7 +703,8 @@ TEST_F(ShaclComplianceTest, ShapeRegistry_GetShapesForClass) {
   registry.registerShape(personShape);
   registry.registerShape(orgShape);
 
-  auto personShapes = registry.getShapesForClass("http://xmlns.com/foaf/0.1/Person");
+  auto personShapes =
+      registry.getShapesForClass("http://xmlns.com/foaf/0.1/Person");
   EXPECT_EQ(personShapes.size(), 1);
   EXPECT_EQ(personShapes[0]->shapeId, "http://example.org/PersonShape");
 }
@@ -833,7 +726,8 @@ TEST_F(ShaclComplianceTest, ShapeRegistry_GetShapesForNode) {
 
 TEST_F(ShaclComplianceTest, ComplexValidation_MultipleConstraints) {
   // Test a property with multiple constraints
-  PropertyShape nameShape = createPropertyShape("http://xmlns.com/foaf/0.1/name");
+  PropertyShape nameShape =
+      createPropertyShape("http://xmlns.com/foaf/0.1/name");
 
   ShaclConstraint minCount;
   minCount.type = ConstraintType::MinCount;
@@ -873,11 +767,13 @@ TEST_F(ShaclComplianceTest, ComplexValidation_MultipleConstraints) {
 
 TEST_F(ShaclComplianceTest, ComplexValidation_NodeShapeWithProperties) {
   // Test a complete node shape with multiple property shapes
-  NodeShape personShape = createBasicNodeShape("http://example.org/PersonShape");
+  NodeShape personShape =
+      createBasicNodeShape("http://example.org/PersonShape");
   personShape.addTargetClass("http://xmlns.com/foaf/0.1/Person");
 
   // Name property: required, single-valued, string
-  PropertyShape nameShape = createPropertyShape("http://xmlns.com/foaf/0.1/name");
+  PropertyShape nameShape =
+      createPropertyShape("http://xmlns.com/foaf/0.1/name");
   ShaclConstraint nameMinCount;
   nameMinCount.type = ConstraintType::MinCount;
   nameMinCount.value = 1;
@@ -950,9 +846,11 @@ TEST_F(ShaclComplianceTest, EdgeCase_PatternWithSpecialCharacters) {
   // Test pattern matching with special regex characters
   ShaclConstraint emailPattern;
   emailPattern.type = ConstraintType::Pattern;
-  emailPattern.value = std::string("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+  emailPattern.value =
+      std::string("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
 
-  PropertyShape emailProp = createPropertyShape("http://xmlns.com/foaf/0.1/mbox");
+  PropertyShape emailProp =
+      createPropertyShape("http://xmlns.com/foaf/0.1/mbox");
   emailProp.constraints.push_back(emailPattern);
 
   auto validEmail = ShaclConstraintEvaluator::evaluatePropertyShape(
@@ -972,11 +870,13 @@ TEST_F(ShaclComplianceTest, Integration_PersonValidation) {
   // Complete integration test for person validation
 
   // Create Person shape
-  NodeShape personShape = createBasicNodeShape("http://example.org/PersonShape");
+  NodeShape personShape =
+      createBasicNodeShape("http://example.org/PersonShape");
   personShape.addTargetClass("http://xmlns.com/foaf/0.1/Person");
 
   // Required name property
-  PropertyShape nameShape = createPropertyShape("http://xmlns.com/foaf/0.1/name");
+  PropertyShape nameShape =
+      createPropertyShape("http://xmlns.com/foaf/0.1/name");
   ShaclConstraint nameMinCount;
   nameMinCount.type = ConstraintType::MinCount;
   nameMinCount.value = 1;
@@ -985,10 +885,12 @@ TEST_F(ShaclComplianceTest, Integration_PersonValidation) {
   personShape.addPropertyShape(nameShape);
 
   // Optional email with pattern
-  PropertyShape emailShape = createPropertyShape("http://xmlns.com/foaf/0.1/mbox");
+  PropertyShape emailShape =
+      createPropertyShape("http://xmlns.com/foaf/0.1/mbox");
   ShaclConstraint emailPattern;
   emailPattern.type = ConstraintType::Pattern;
-  emailPattern.value = std::string("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+  emailPattern.value =
+      std::string("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
   emailPattern.severity = SeverityLevel::Warning;
   emailShape.constraints.push_back(emailPattern);
   personShape.addPropertyShape(emailShape);
@@ -997,7 +899,8 @@ TEST_F(ShaclComplianceTest, Integration_PersonValidation) {
   registry.registerShape(personShape);
 
   // Verify registration
-  const NodeShape* retrieved = registry.getShape("http://example.org/PersonShape");
+  const NodeShape* retrieved =
+      registry.getShape("http://example.org/PersonShape");
   EXPECT_NE(retrieved, nullptr);
   EXPECT_EQ(retrieved->propertyShapes.size(), 2);
 }

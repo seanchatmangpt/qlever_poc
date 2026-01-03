@@ -11,12 +11,12 @@
 
 #include <gtest/gtest.h>
 
-#include "util/qleverest_vmath_abstraction.hpp"
-
 #include <algorithm>
 #include <numeric>
 #include <random>
 #include <vector>
+
+#include "util/qleverest_vmath_abstraction.hpp"
 
 namespace qlever::vmath {
 
@@ -119,9 +119,9 @@ TEST(VmathCorrectnessTest, FillRepeatedBaseline) {
   fillRepeated(std::span(vec), 99, Backend::Scalar);
 
   // Verify: All elements are 99
-  EXPECT_TRUE(std::all_of(vec.begin(), vec.end(),
-                          [](int64_t v) { return v == 99; }))
-      << "fillRepeated did not fill all elements correctly";
+  EXPECT_TRUE(std::all_of(vec.begin(), vec.end(), [](int64_t v) {
+    return v == 99;
+  })) << "fillRepeated did not fill all elements correctly";
 }
 
 TEST(VmathCorrectnessTest, VectorCopyBaseline) {
@@ -236,29 +236,6 @@ TEST(VmathArchitectureNeutralityTest, NoHardwareIntrinsicsOutsideVmath) {
   // runs at configuration time and aborts if hardware flags detected.
 
   SUCCEED() << "Architecture-neutrality enforced by CMake (compile-time check)";
-}
-
-// =============================================================================
-// PERFORMANCE BASELINE (Not a test, just measurement)
-// =============================================================================
-
-TEST(VmathPerformanceTest, DISABLED_ScalarBaseline) {
-  // Disabled by default (enable manually for benchmarking)
-  constexpr size_t SIZE = 10'000'000;
-  std::vector<int64_t> vec(SIZE);
-  std::iota(vec.begin(), vec.end(), 0);
-
-  auto start = std::chrono::high_resolution_clock::now();
-  int64_t sum = vectorSum(std::span(vec), Backend::Scalar);
-  auto end = std::chrono::high_resolution_clock::now();
-
-  auto duration =
-      std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-
-  std::cout << "Scalar vectorSum(" << SIZE << " elements): " << duration.count()
-            << " microseconds\n";
-  std::cout << "Sum: " << sum << " (verify: " << (SIZE - 1) * SIZE / 2
-            << ")\n";
 }
 
 }  // namespace qlever::vmath

@@ -49,29 +49,7 @@ TEST(DivergenceAbortTest, AbortCategoryEnum) {
 }
 
 // ============================================================================
-// MANUAL TEST: Simulated hash mismatch triggers abort
-// NOTE: This test is commented out because it would abort the test process
-// To test manually, uncomment and run in isolated process
-// ============================================================================
-
-/*
-TEST(DivergenceAbortTest, DISABLED_HashMismatchTriggersAbort) {
-  // This test MUST be run in a separate process
-  // Expected: process exits with code 42
-
-  uint64_t expected = 0x1111111111111111;
-  uint64_t actual = 0x2222222222222222;
-
-  DIVERGENCE_ABORT_HASH_MISMATCH(expected, actual,
-                                 "Simulated hash mismatch for testing");
-
-  // UNREACHABLE - if we get here, abort failed
-  FAIL() << "DivergenceAbort() returned instead of aborting!";
-}
-*/
-
-// ============================================================================
-// INTEGRATION TEST: Check macro expansions compile correctly
+// TEST: Check macro expansions compile correctly
 // ============================================================================
 
 TEST(DivergenceAbortTest, MacroCompilation) {
@@ -101,30 +79,23 @@ TEST(DivergenceAbortDeathTest, HashMismatchExitsWithCode42) {
   // Death test: verify process exits with code 42
   EXPECT_EXIT(
       {
-        DIVERGENCE_ABORT_HASH_MISMATCH(
-            0x1111111111111111, 0x2222222222222222,
-            "Simulated hash mismatch");
+        DIVERGENCE_ABORT_HASH_MISMATCH(0x1111111111111111, 0x2222222222222222,
+                                       "Simulated hash mismatch");
       },
       ::testing::ExitedWithCode(42),
       "DIVERGENCE ABORT - FAIL-CLOSED SHUTDOWN.*HASH_MISMATCH");
 }
 
 TEST(DivergenceAbortDeathTest, GuardBreachExitsWithCode42) {
-  EXPECT_EXIT(
-      {
-        DIVERGENCE_ABORT_GUARD_BREACH("Simulated guard breach");
-      },
-      ::testing::ExitedWithCode(42),
-      "DIVERGENCE ABORT - FAIL-CLOSED SHUTDOWN.*GUARD_BREACH");
+  EXPECT_EXIT({ DIVERGENCE_ABORT_GUARD_BREACH("Simulated guard breach"); },
+              ::testing::ExitedWithCode(42),
+              "DIVERGENCE ABORT - FAIL-CLOSED SHUTDOWN.*GUARD_BREACH");
 }
 
 TEST(DivergenceAbortDeathTest, OOMExitsWithCode42) {
-  EXPECT_EXIT(
-      {
-        DIVERGENCE_ABORT_OOM(1000000000, 1000, "Simulated OOM");
-      },
-      ::testing::ExitedWithCode(42),
-      "DIVERGENCE ABORT - FAIL-CLOSED SHUTDOWN.*OUT_OF_MEMORY");
+  EXPECT_EXIT({ DIVERGENCE_ABORT_OOM(1000000000, 1000, "Simulated OOM"); },
+              ::testing::ExitedWithCode(42),
+              "DIVERGENCE ABORT - FAIL-CLOSED SHUTDOWN.*OUT_OF_MEMORY");
 }
 
 TEST(DivergenceAbortDeathTest, DivergenceCheckFailureAborts) {

@@ -306,15 +306,17 @@ TEST(BehaviorEquivalence, HotPathNoLogging) {
   ScalarFilterEvaluator eval;
 
   // Run 1000 invocations - no logging should accumulate
+  size_t totalRowsProcessed = 0;
   for (int i = 0; i < 1000; ++i) {
     auto context = makeContext(input, varMap);
     IdTable result = eval.evaluate(input, {expr, "?x < 10"}, context);
-    // If logging were happening, this would show in stderr/stdout
-    // This test passes if no output is generated
+    totalRowsProcessed += result.numRows();
   }
 
-  // AC-4: No side effects from repeated invocations
-  EXPECT_TRUE(true) << "AC-4.1 FAILED: Hot path logging detected";
+  // AC-4: No side effects from repeated invocations (verified by consistent
+  // results)
+  EXPECT_EQ(totalRowsProcessed, 3000u)
+      << "All invocations should produce identical results";
 }
 
 // =============================================================================

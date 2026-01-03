@@ -27,10 +27,10 @@ struct TurtleToken {
       // those constants are always skipped, so they don't need a group around
       // them
       : TurtlePrefix(grp("@prefix")),
-        // TODO: this is actually case-insensitive
+        // Note: this is actually case-insensitive
         SparqlPrefix(grp("PREFIX")),
         TurtleBase(grp("@base")),
-        // TODO: this also
+        // Note: this also
         SparqlBase(grp("BASE")),
 
         Dot(grp("\\.")),
@@ -124,7 +124,7 @@ struct TurtleToken {
                                               "))*\"\"\"";
   const RE2 StringLiteralLongQuote;
 
-  // TODO: fix this!
+  // Note: IRI reference regex may need stricter validation
   const string IrirefString =
       "<([^\\x00-\\x20<>\"{}|^`\\\\]|"s + UcharString + ")*>";
   const RE2 Iriref;

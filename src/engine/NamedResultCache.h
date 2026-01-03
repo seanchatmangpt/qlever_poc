@@ -35,10 +35,10 @@ class NamedResultCache {
     std::optional<SpatialJoinCachedIndex> cachedGeoIndex_;
   };
 
-  // The size of a cached result, which currently is just a dummy value of 1,
-  //
-  // TODO: Return the actual size of the cached result, or an approximation,
-  // and have a limit on the total memory used by the cache.
+  // The size of a cached result.
+  // LIMITATION: Currently returns dummy value of 1 byte per entry.
+  // Actual memory usage tracking not yet implemented.
+  // Cache eviction uses LRU policy only, not memory pressure.
   struct ValueSizeGetter {
     ad_utility::MemorySize operator()(const Value&) const {
       return ad_utility::MemorySize::bytes(1);

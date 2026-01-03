@@ -1,9 +1,13 @@
 //  Copyright 2026, University of Freiburg,
 //  Chair of Algorithms and Data Structures.
 //  Author: Claude Code Agent 3 (Unified Physical Optimizer - EPIC 10.3)
+//
+//  ASPIRATIONAL STUB: This is architecture for future EPIC 10.3 implementation.
+//  All optimization methods are stubs that delegate to base QueryPlanner.
+//  See EPIC13_TRUTH_AUDIT.md for aspirational vs actual capabilities.
 
-#ifndef QLEVER_SRC_ENGINE_UNIFIEDPHYSICALOPTIMIZER_H
-#define QLEVER_SRC_ENGINE_UNIFIEDPHYSICALOPTIMIZER_H
+#ifndef QLEVER_SRC_ENGINE_UNIFIEDPHYSICALOPTIMIZERSTUB_H
+#define QLEVER_SRC_ENGINE_UNIFIEDPHYSICALOPTIMIZERSTUB_H
 
 #include <memory>
 #include <optional>
@@ -296,4 +300,4 @@ class UnifiedPhysicalOptimizer : public QueryPlanner {
   bool shouldUseUIRPlanning(const ParsedQuery& pq) const;
 };
 
-#endif  // QLEVER_SRC_ENGINE_UNIFIEDPHYSICALOPTIMIZER_H
+#endif  // QLEVER_SRC_ENGINE_UNIFIEDPHYSICALOPTIMIZERSTUB_H

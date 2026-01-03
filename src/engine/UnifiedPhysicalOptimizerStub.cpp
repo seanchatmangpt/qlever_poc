@@ -1,8 +1,12 @@
 //  Copyright 2026, University of Freiburg,
 //  Chair of Algorithms and Data Structures.
 //  Author: Claude Code Agent 3 (Unified Physical Optimizer - EPIC 10.3)
+//
+//  ASPIRATIONAL STUB: This is architecture for future EPIC 10.3 implementation.
+//  All optimization methods are stubs that delegate to base QueryPlanner.
+//  See EPIC13_TRUTH_AUDIT.md for aspirational vs actual capabilities.
 
-#include "engine/UnifiedPhysicalOptimizer.h"
+#include "engine/UnifiedPhysicalOptimizerStub.h"
 
 #include <memory>
 #include <optional>

@@ -965,7 +965,7 @@ GroupByImpl::checkIfJoinWithFullScan(const Join& join) const {
   auto* child1 = static_cast<const Operation&>(join).getChildren().at(0);
   auto* child2 = static_cast<const Operation&>(join).getChildren().at(1);
 
-  // TODO<joka921, C++23> Use `optional::or_else`
+  // Future enhancement (C++23): Use optional::or_else
   auto permutation = getPermutationForThreeVariableTriple(
       *child1, groupByVariable, countedVariable.value());
   if (!permutation.has_value()) {
@@ -1020,9 +1020,8 @@ std::optional<IdTable> GroupByImpl::computeGroupByForJoinWithFullScan() const {
   auto idTable = std::move(result).toStatic<2>();
   const auto& index = getExecutionContext()->getIndex();
 
-  // TODO<joka921, C++23> Simplify the following pattern by using
-  // `ql::views::chunk_by` and implement a lazy version of this view for
-  // input iterators.
+  // Future enhancement (C++23): Simplify using ql::views::chunk_by
+  // and implement a lazy version of this view for input iterators.
 
   // Take care of duplicate values in the input.
   Id currentId = subresult->idTable()(0, columnIndex);
@@ -1036,8 +1035,8 @@ std::optional<IdTable> GroupByImpl::computeGroupByForJoinWithFullScan() const {
     // variable triple would have filtered it out and we don't include it in
     // the final result.
     if (currentCount > 0) {
-      // TODO<C++20, as soon as Clang supports it>: use `emplace_back(id1,
-      // id2)` (requires parenthesized initialization of aggregates.
+      // Future enhancement (C++20): use emplace_back(id1, id2)
+      // when Clang supports parenthesized initialization of aggregates
       idTable.push_back({currentId, Id::makeFromInt(currentCount)});
     }
   };
@@ -1061,7 +1060,7 @@ std::optional<IdTable> GroupByImpl::computeGroupByForJoinWithFullScan() const {
 
 // _____________________________________________________________________________
 std::optional<IdTable> GroupByImpl::computeOptimizedGroupByIfPossible() const {
-  // TODO<C++23> Use `std::optional::or_else`.
+  // Future enhancement (C++23): Use std::optional::or_else
   if (!getRuntimeParameter<
           &RuntimeParameters::groupByDisableIndexScanOptimizations_>()) {
     if (auto result = computeGroupByForSingleIndexScan()) {
@@ -1105,7 +1104,7 @@ GroupByImpl::computeUnsequentialProcessingMetadata(
     // Find all grouped variables occurring in the alias expression
     std::vector<HashMapGroupedVariableInformation> groupedVariables;
     groupedVariables.reserve(groupByVariables.size());
-    // TODO<C++23> use views::enumerate
+    // Future enhancement (C++23): use views::enumerate
     size_t i = 0;
     for (const auto& groupedVariable : groupByVariables) {
       groupedVariables.push_back(

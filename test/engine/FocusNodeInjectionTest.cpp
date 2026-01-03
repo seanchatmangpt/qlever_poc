@@ -413,31 +413,3 @@ TEST_F(FocusNodeInjectionTest, TranslateConstraintToFilter_EnumerationIn) {
                                                                   inConstraint);
   }) << "Enumeration constraint translation should not crash";
 }
-
-// _____________________________________________________________________________
-// Integration test placeholder
-// Full integration testing requires UIRGraph and UnifiedPhysicalOptimizer
-TEST_F(FocusNodeInjectionTest, DISABLED_Integration_CardinalityReduction) {
-  // TODO(EPIC 10.3): Enable this test after Parts 1 & 2 complete
-  //
-  // Test plan:
-  // 1. Create query with index scans matching SHACL target classes
-  // 2. Apply Focus-Node Injection optimization
-  // 3. Measure cardinality reduction
-  // 4. Verify >= 20% reduction (specification requirement)
-  GTEST_SKIP()
-      << "Blocked on UIRGraph (Part 1) and UnifiedPhysicalOptimizer (Part 2)";
-}
-
-// _____________________________________________________________________________
-// Idempotence test (monoidal composition requirement)
-TEST_F(FocusNodeInjectionTest, DISABLED_MomoidalComposition_Idempotence) {
-  // TODO(EPIC 10.3): Enable this test after Parts 1 & 2 complete
-  //
-  // Test plan:
-  // 1. Create base plan
-  // 2. Apply optimization once -> plan1
-  // 3. Apply optimization again on plan1 -> plan2
-  // 4. Verify plan1.getCacheKey() == plan2.getCacheKey()
-  GTEST_SKIP() << "Blocked on full implementation";
-}

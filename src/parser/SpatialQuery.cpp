@@ -111,9 +111,9 @@ void SpatialQuery::addParameter(const SparqlTriple& triple) {
           "to be selected or `<all>`");
     }
 
-  } else if (predString == "experimentalRightCacheName") {
+  } else if (predString == "rightCacheName") {
     throwIf(!object.isLiteral(),
-            "The argument to the `<experimentalRightCacheName>` parameter must "
+            "The argument to the `<rightCacheName>` parameter must "
             "be the name of a pinned cache entry as a string literal.");
     rightCacheName_ = asStringViewUnsafe(object.getLiteral().getContent());
   } else {
@@ -160,21 +160,19 @@ SpatialJoinConfiguration SpatialQuery::toSpatialJoinConfiguration() const {
   throwIf(!right_.has_value(),
           "Missing parameter `<right>` in spatial search.");
 
-  throwIf(
-      rightCacheName_.has_value() &&
-          algo != SpatialJoinAlgorithm::S2_POINT_POLYLINE,
-      "The parameter `<experimentalRightCacheName>` is only supported by the "
-      "`<experimentalPointPolyline>` algorithm.");
+  throwIf(rightCacheName_.has_value() &&
+              algo != SpatialJoinAlgorithm::S2_POINT_POLYLINE,
+          "The parameter `<rightCacheName>` is only supported by the "
+          "`<pointPolyline>` algorithm.");
 
   if (algo == SpatialJoinAlgorithm::S2_POINT_POLYLINE) {
     throwIf(!rightCacheName_.has_value(),
-            "The parameter `<experimentalRightCacheName>` is mandatory for the "
-            "`<experimentalPointPolyline>` algorithm.");
-    throwIf(
-        childGraphPattern_.has_value(),
-        "The parameter `<experimentalPointPolyline>` algorithm uses a cached "
-        "query result as its right child. Therefore a group graph pattern "
-        "for the right side may not be specified in the `SERVICE`.");
+            "The parameter `<rightCacheName>` is mandatory for the "
+            "`<pointPolyline>` algorithm.");
+    throwIf(childGraphPattern_.has_value(),
+            "The `<pointPolyline>` algorithm uses a cached "
+            "query result as its right child. Therefore a group graph pattern "
+            "for the right side may not be specified in the `SERVICE`.");
   }
 
   // Only if the number of results is limited, it is mandatory that the right
@@ -301,7 +299,7 @@ SpatialJoinAlgorithm spatialJoinAlgorithmFromString(
           {"s2", S2_GEOMETRY},
           {"boundingBox", BOUNDING_BOX},
           {"libspatialjoin", LIBSPATIALJOIN},
-          {"experimentalPointPolyline", S2_POINT_POLYLINE},
+          {"pointPolyline", S2_POINT_POLYLINE},
       };
   if (nameToAlgorithmMap.contains(identifier)) {
     return nameToAlgorithmMap.at(identifier);
@@ -310,7 +308,7 @@ SpatialJoinAlgorithm spatialJoinAlgorithmFromString(
         "The IRI given for the parameter `<algorithm>` does not refer to a "
         "supported spatial search algorithm. Please select either "
         "`<baseline>`, `<s2>`, `<libspatialjoin>`, "
-        "`<experimentalPointPolyline>` or `<boundingBox>`");
+        "`<pointPolyline>` or `<boundingBox>`");
   }
 }
 }  // namespace detail
