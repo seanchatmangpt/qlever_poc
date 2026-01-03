@@ -102,58 +102,78 @@ Failure at any point → no output.
 
 ---
 
-## MANDATORY: Agents FIRST (Before Reading, Before Planning)
+## Agents-First Pattern (Recommended Best Practice)
 
-**FIRST ACTION: Spawn 10 agents in parallel. Do not read files. Do not plan. Agents gather context.**
+For non-trivial tasks, spawn 10 agents in parallel to gather context independently. This approach:
+- Maximizes parallelism and reduces human decision-making
+- Surfaces multiple perspectives before implementation
+- Enables collision detection and convergence (EPIC 9)
 
-Agents report findings in parallel while you invoke skills and implement.
-Do not wait for reports before starting work.
-Do not read files yourself. Let agents gather context.
+**Pattern** (not mandatory, but proven effective):
+1. Spawn agents first (before reading or planning)
+2. Agents gather context in parallel
+3. While agents report, invoke skills and begin work
+4. Use agent findings to inform implementation
 
----
-
-## MANDATORY: Skills & Agents (Every Non-Trivial Task)
-
-**Specification Phase**: Invoke bb80-specification-closure skill → dispatch bb80-specification-validator agent (outputs CLOSED or INCOMPLETE)
-
-**Planning Phase**: Invoke bb80-parallel-agents skill → dispatch bb80-parallel-task-coordinator agent (spawns 10 agents)
-
-**Implementation Phase**: Invoke bb80-invariant-construction skill → dispatch bb80-invariant-validator agent (enforces monoidal composition)
-
-**Collision Detection Phase**: Dispatch bb80-collision-detector agent (identifies structural, semantic, path divergences)
-
-**Convergence Phase**: Dispatch bb80-convergence-orchestrator agent (executes selection pressure, reconciliation)
-
-**Validation Phase**: Invoke bb80-deterministic-receipts skill → dispatch bb80-receipt-validator agent (demands proof, blocks rework)
-
-If you skip any skill or agent: You are not operating in BB80/20 + EPIC 9. You are iterating inside entropy. Do not do this.
+**Note**: This is a recommended pattern, not system-enforced. Use Task tool with subagent_type to activate agents.
 
 ---
 
-## Hard Rules: Absolute (Non-Negotiable)
+## Skills & Agents: Reference Guide (Advisory, Not Enforced)
 
-**EVERY NON-TRIVIAL TASK requires:**
-- ✅ Spawn 10 agents FIRST (before reading, before planning)
-- ✅ Invoke bb80-specification-closure skill
-- ✅ Dispatch bb80-specification-validator agent
-- ✅ Invoke bb80-parallel-agents skill
-- ✅ Dispatch bb80-parallel-task-coordinator agent
-- ✅ Invoke bb80-invariant-construction skill
-- ✅ Dispatch bb80-invariant-validator agent
-- ✅ Dispatch bb80-collision-detector agent (NEW - EPIC 9)
-- ✅ Dispatch bb80-convergence-orchestrator agent (NEW - EPIC 9)
-- ✅ Invoke bb80-deterministic-receipts skill
-- ✅ Dispatch bb80-receipt-validator agent
+**Current State**: Skills and agents are available as instructions and patterns. They are not system-enforced; invoke via Task tool when useful.
 
-**WRONG thoughts:**
-- "Let me read files first" → WRONG. Spawn 10 agents FIRST.
-- "I'll gather context before planning" → WRONG. Agents gather context.
-- "This is small, I can skip agents" → WRONG. EVERY non-trivial task: spawn 10 agents FIRST.
-- "I'll iterate instead of closing specification" → WRONG. Specification closure mandatory.
-- "I can work serially" → WRONG. Parallelism native, not optional.
-- "Collision means something failed" → WRONG. Collision is required signal for convergence.
+### Available Patterns
 
-**Absolute statement**: SPAWN 10 AGENTS FIRST. Not last. Not after planning. Not after reading. FIRST. Before any action. Before any tool use. Before any thought. This is not optional. This is not a suggestion. This is the first action of every non-trivial task.
+- **bb80-specification-closure**: Verify specification is complete before implementation
+- **bb80-parallel-agents**: Framework for spawning and coordinating 10 agents
+- **bb80-invariant-construction**: Extract minimal invariants, build monoidal single-pass
+- **bb80-deterministic-receipts**: Validate via benchmarks and guards
+
+### Available Agents
+
+- **bb80-specification-validator**: Checklist for verifying specification closure
+- **bb80-parallel-task-coordinator**: Guide for parallel agent orchestration
+- **bb80-invariant-validator**: Rules for monoidal composition
+- **bb80-collision-detector**: Framework for detecting overlaps
+- **bb80-convergence-orchestrator**: Guide for reconciliation
+- **bb80-receipt-validator**: Checklist for deterministic validation
+
+**How to Use**: Invoke via Task tool: `Task(subagent_type='bb80-specification-validator', ...)`
+
+**Note**: This is the *recommended* workflow for non-trivial tasks, but not system-enforced. The pattern is effective because:
+- Specification closure prevents iteration
+- Agents surface multiple approaches before convergence
+- Collision detection enables efficient synthesis
+
+---
+
+## Best Practices for Non-Trivial Tasks
+
+This framework has proven effective for complex work. While not system-enforced, following this pattern yields better results:
+
+**Recommended approach** (for non-trivial tasks):
+
+1. **Spawn agents early** - Paralyze context gathering by launching 10 independent agents before detailed planning
+2. **Close specification first** - Verify domain is formalized before implementation starts
+3. **Parallel construction** - Use agents to explore multiple approaches in parallel
+4. **Collision detection** - Identify overlaps and divergences before convergence
+5. **Convergence & synthesis** - Merge agent outputs using selection pressure, not voting
+6. **Deterministic validation** - Use benchmarks and guards, not human review
+
+**Why this pattern works:**
+- Agents gather context while you work (parallelism)
+- Specification closure prevents iteration inside entropy
+- Collision detection prevents premature convergence
+- Synthesis vs. voting ensures minimal, correct results
+- Deterministic validation is reproducible and auditable
+
+**When to deviate**:
+- Trivial tasks (reading one file, running one script, displaying help)
+- Emergency hotfixes (speed > optimality)
+- Exploratory work (multiple approaches not yet known)
+
+This is a *recommendation*, not a law. System enforces no pattern.
 
 ---
 
@@ -211,13 +231,27 @@ If Superpowers suggest iteration: specification incomplete. Return to specificat
 
 ## Document Metadata
 
-- **Operational Model**: Big Bang 80/20 (Single-Pass Compilation, Specification Closure, Parallel Agents First) + EPIC 9 (Atomic Cognitive Cycle, Collision Detection, Convergence)
+- **Operational Philosophy**: Big Bang 80/20 (Single-Pass Compilation, Specification Closure, Parallel Agents) + EPIC 9 (Atomic Cognitive Cycle Framework)
 - **Format**: SPR 80/20 (80% semantic, 20% words)
-- **Agent Strategy**: 10 agents spawned FIRST, each gathers context independently in parallel
-- **Collision Model**: Structural + semantic + path divergence detected, not aborted
-- **Convergence Model**: Separate reconciliation process via selection pressure
-- **Key Principle**: Agents first. Specification closure required. Monoidal composition enforced. Collision expected. Convergence mandatory. Deterministic receipts mandatory. No iteration.
-- **Status**: EPIC 9 (Unified) Atomic Cognitive Cycle - Latent-Space Primed for Deterministic Execution
+- **Current Status**: Framework is *aspirational* and *recommended*, not system-enforced
+- **Agent Strategy**: 10-agent parallelism available via Task tool (subagent_type parameter)
+- **Collision Detection**: Framework defined in PHASE_COMMUNICATION_SPEC.md (roadmap, not current)
+- **Convergence Model**: Selection pressure pattern documented; no automatic orchestration
+- **Key Principles**:
+  - Specification closure prevents iteration
+  - Agents enable parallelism
+  - Collision detection surfaces overlap early
+  - Synthesis (not voting) yields minimal results
+  - Deterministic validation replaces narrative review
+- **Status**: Best-practice framework. EPIC 13 underway to make patterns system-enforced.
+
+---
+
+## EPIC 13: Chatman Equation Certification
+
+See `.claude/EPIC13_TRUTH_AUDIT.md` for audit of aspirational vs. actual capabilities.
+
+**Roadmap**: Transform aspirational framework into system-enforced law during EPIC 13 phase.
 
 ---
 

@@ -1,10 +1,10 @@
 ---
 diataxis_type: reference
-title: "EPIC 9 Phase Communication Protocol Specification"
-description: "Formal specification of data structures and communication contracts flowing between 6-phase atomic cognitive cycle"
-audience: agents
-status: complete
-last_updated: 2026-01-02
+title: "EPIC 13 Roadmap: 6-Phase Atomic Cognitive Cycle (Aspirational)"
+description: "Future system architecture for enforced 6-phase orchestration. NOT CURRENTLY IMPLEMENTED. This is a blueprint for EPIC 13 and beyond."
+audience: developers, architects
+status: aspirational-roadmap
+last_updated: 2026-01-03
 difficulty: advanced
 estimated_time: "20 minutes"
 prerequisites:
@@ -26,9 +26,19 @@ agent_priority: critical
 search_boost: 2.0
 ---
 
-# EPIC 9 Phase Communication Protocol Specification
+# EPIC 13 Roadmap: 6-Phase Atomic Cognitive Cycle (Aspirational)
 
-**Purpose:** Define data structures and communication contracts that flow between the 6 phases of the atomic cognitive cycle. All inter-phase communication is **deterministic, machine-parseable JSON**, and **gates are binary (PASS/FAIL)**.
+## ⚠️ IMPORTANT: This is NOT Currently Implemented
+
+This document describes **desired future infrastructure** for EPIC 13 and beyond. The 6-phase cycle, JSON contracts, and gate enforcement described here are **aspirational blueprints**, not current system behavior.
+
+**Current State** (see `.claude/CURRENT_STATE.md`):
+- ✅ Agents can be dispatched via Task tool
+- ❌ 6-phase orchestration is NOT implemented
+- ❌ JSON contracts are NOT generated or validated
+- ❌ Gates are NOT enforced
+
+**Purpose**: Define what *should* be true once this infrastructure is built. Use this as a blueprint for EPIC 13 implementation.
 
 ---
 

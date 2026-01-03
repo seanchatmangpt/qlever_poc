@@ -94,3 +94,8 @@ deactivate_conanrun.sh
 
 # Build logs
 build_output.log
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
