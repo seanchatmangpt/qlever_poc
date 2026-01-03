@@ -181,7 +181,7 @@ MaterializedViewWriter::getBlocksForUnsortedResult(
   if (result->isFullyMaterialized()) {
     // If we have a fully materialized result, this is const, so we need to
     // copy it for the necessary modifications (permuting columns).
-    // TODO<ullingerc> This could be avoided if
+    // Future enhancement (ullingerc): This could be avoided if
     // `CompressedExternalIdTableSorter::pushBlock` would also accept
     // `IdTableView`.
     IdTable idTableCopyForPermutation = result->idTable().clone();

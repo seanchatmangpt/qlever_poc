@@ -67,8 +67,8 @@ VariableToColumnMap Service::computeVariableToColumnMap() const {
   for (size_t i = 0; i < visibleVariables.size(); i++) {
     // We do not know which of the columns in the subresult contain undefined
     // VALUES.
-    // TODO<joka921> We could parse the contained graph pattern to extract this
-    // information.
+    // Future enhancement (joka921): We could parse the contained graph pattern
+    // to extract this information.
     map[visibleVariables[i]] = makePossiblyUndefinedColumn(i);
   }
   return map;
@@ -76,22 +76,23 @@ VariableToColumnMap Service::computeVariableToColumnMap() const {
 
 // ____________________________________________________________________________
 float Service::getMultiplicity([[maybe_unused]] size_t col) {
-  // TODO: For now, we don't have any information about the multiplicities at
-  // query planning time, so we just return `1` for each column.
+  // Future enhancement: For now, we don't have any information about the
+  // multiplicities at query planning time, so we just return `1` for each
+  // column.
   return 1;
 }
 
 // ____________________________________________________________________________
 uint64_t Service::getSizeEstimateBeforeLimit() {
-  // TODO: For now, we don't have any information about the result size at
-  // query planning time, so we just return `100'000`.
+  // Future enhancement: For now, we don't have any information about the result
+  // size at query planning time, so we just return `100'000`.
   return 100'000;
 }
 
 // ____________________________________________________________________________
 size_t Service::getCostEstimate() {
-  // TODO: For now, we don't have any information about the cost at query
-  // planning time, so we just return ten times the estimated size.
+  // Future enhancement: For now, we don't have any information about the cost
+  // at query planning time, so we just return ten times the estimated size.
   return 10 * getSizeEstimateBeforeLimit();
 }
 
@@ -216,8 +217,8 @@ void Service::writeJsonResult(const std::vector<std::string>& vars,
   IdTableStatic<I> idTable = std::move(*idTablePtr).toStatic<I>();
   checkCancellation();
   std::vector<size_t> numLocalVocabPerColumn(idTable.numColumns());
-  // TODO<joka921> We should include a memory limit, as soon as we can do proper
-  // memory-limited HashMaps.
+  // Future enhancement (joka921): We should include a memory limit, as soon as
+  // we can do proper memory-limited HashMaps.
   ad_utility::HashMap<std::string, Id> blankNodeMap;
 
   auto writeBindings = [&](const nlohmann::json& bindings, size_t& rowIdx) {

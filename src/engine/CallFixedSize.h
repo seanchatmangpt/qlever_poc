@@ -26,7 +26,7 @@
 // Note that it is relatively easy to customize this behavior such that for
 // example integers that are > MAX lead to a runtime-error. This would make it
 // possible to use these facilities also for a "static switch"
-// TODO<joka921> Also implement such a behavior.
+// Future enhancement (joka921): Also implement such a behavior.
 
 // There are currently two possibilities to use this interface:
 // 1. Using the macros CALL_FIXED_SIZE_1, CALL_FIXED_SIZE_2 and
@@ -154,7 +154,7 @@ CPP_variadic_template(int MaxValue = DEFAULT_MAX_NUM_COLUMNS_STATIC_ID_TABLE,
     callFixedSize(std::array<Int, NumIntegers> ints, F&& functor,
                   Args&&... args) {
   static_assert(NumIntegers > 0);
-  // TODO<joka921, C++23> Use `std::bind_back`
+  // Future enhancement (C++23): Use std::bind_back
   auto p = [](int i) { return detail::mapToZeroIfTooLarge(i, MaxValue); };
   ql::ranges::transform(ints, ints.begin(), p);
 

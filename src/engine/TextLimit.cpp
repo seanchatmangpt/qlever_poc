@@ -31,8 +31,8 @@ Result TextLimit::computeResult([[maybe_unused]] bool requestLaziness) {
 
   IdTable idTable = childRes->idTable().clone();
 
-  // TODO<joka921> Let the SORT class handle this. This requires descending
-  // sorting for positive integers though.
+  // Future enhancement (joka921): Let the SORT class handle this. This requires
+  // descending sorting for positive integers though.
   auto compareScores = [this](const auto& lhs, const auto& rhs) {
     size_t lhsScore = 0;
     size_t rhsScore = 0;

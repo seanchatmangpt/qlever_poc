@@ -153,8 +153,8 @@ Result Operation::runComputation(const ad_utility::Timer& timer,
     // Compute the datatypes that occur in each column of the result.
     // Also assert, that if a column contains UNDEF values, then the
     // `mightContainUndef` flag for that columns is set.
-    // TODO<joka921> It is cheaper to move this calculation into the
-    // individual results, but that requires changes in each individual
+    // Future enhancement (joka921): It is cheaper to move this calculation into
+    // the individual results, but that requires changes in each individual
     // operation, therefore we currently only perform this expensive
     // change in the DEBUG builds.
     result.checkDefinedness(getExternallyVisibleVariableColumns());
@@ -209,7 +209,8 @@ Result Operation::runComputation(const ad_utility::Timer& timer,
           signalQueryUpdate(RuntimeInformation::SendPriority::IfDue);
         },
         [this](bool failed) {
-          // TODO<RobinTF> Distinguish between failed and cancelled.
+          // Future enhancement (RobinTF): Distinguish between failed and
+          // cancelled.
           runtimeInfo().status_ =
               failed ? RuntimeInformation::failed
                      : RuntimeInformation::lazilyMaterializedCompleted;
@@ -448,8 +449,8 @@ void Operation::storeToNamedResultCache(const Result& result) {
                                   _executionContext->getIndex()};
   };
 
-  // TODO<joka921> The explicit `clone` here is unfortunate, but addressing
-  // it would require a major refactoring of the `Result` class.
+  // Future enhancement (joka921): The explicit `clone` here is unfortunate, but
+  // addressing it would require a major refactoring of the `Result` class.
   auto valueForNamedResultCache = NamedResultCache::Value{
       std::make_shared<const IdTable>(result.idTable().clone()),
       getExternallyVisibleVariableColumns(),
@@ -618,10 +619,10 @@ void Operation::createRuntimeInfoFromEstimates(
 // ___________________________________________________________________________
 const VariableToColumnMap& Operation::getInternallyVisibleVariableColumns()
     const {
-  // TODO<joka921> Once the operation class is based on a variant rather than
-  // on inheritance, we can get rid of the locking here because we can enforce
-  // that `computeVariableToColumnMap` is always called in the constructor of
-  // each `Operation`.
+  // Future enhancement (joka921): Once the operation class is based on a
+  // variant rather than on inheritance, we can get rid of the locking here
+  // because we can enforce that `computeVariableToColumnMap` is always called
+  // in the constructor of each `Operation`.
   std::lock_guard l{variableToColumnMapMutex_};
   if (!variableToColumnMap_.has_value()) {
     variableToColumnMap_ = computeVariableToColumnMap();
@@ -632,10 +633,10 @@ const VariableToColumnMap& Operation::getInternallyVisibleVariableColumns()
 // ___________________________________________________________________________
 const VariableToColumnMap& Operation::getExternallyVisibleVariableColumns()
     const {
-  // TODO<joka921> Once the operation class is based on a variant rather than
-  // on inheritance, we can get rid of the locking here because we can enforce
-  // that `computeVariableToColumnMap` is always called in the constructor of
-  // each `Operation`.
+  // Future enhancement (joka921): Once the operation class is based on a
+  // variant rather than on inheritance, we can get rid of the locking here
+  // because we can enforce that `computeVariableToColumnMap` is always called
+  // in the constructor of each `Operation`.
   std::lock_guard l{variableToColumnMapMutex_};
   if (!externallyVisibleVariableToColumnMap_.has_value()) {
     externallyVisibleVariableToColumnMap_ = computeVariableToColumnMap();
@@ -676,8 +677,8 @@ std::optional<Variable> Operation::getPrimarySortKeyVariable() const {
 
 // ___________________________________________________________________________
 const std::vector<ColumnIndex>& Operation::getResultSortedOn() const {
-  // TODO<joka921> refactor this without a mutex (for details see the
-  // `getVariableColumns` method for details.
+  // Future enhancement (joka921): refactor this without a mutex (for details
+  // see the `getVariableColumns` method for details.
   std::lock_guard l{_resultSortedColumnsMutex};
   if (!_resultSortedColumns.has_value()) {
     _resultSortedColumns = resultSortedOn();

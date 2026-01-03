@@ -25,8 +25,9 @@ class CartesianProductJoin : public Operation {
   bool forbiddenToRecompute_ = false;
 
   // Access to the actual operations of the children.
-  // TODO<joka921> We can move this whole children management into a base class
-  // and clean up the implementation of several other children.
+  // Future enhancement (joka921): We can move this whole children management
+  // into a base class and clean up the implementation of several other
+  // children.
   auto childView() {
     return ql::views::transform(children_, [](auto& child) -> Operation& {
       return *child->getRootOperation();
@@ -82,10 +83,10 @@ class CartesianProductJoin : public Operation {
 
  protected:
   // Don't promise any sorting of the result.
-  // TODO<joka921> Depending on the implementation we could propagate sorted
-  // columns from either the first or the last input, but it is questionable if
-  // there would be any real benefit from this and it would only increase the
-  // complexity of the query planning and required testing.
+  // Future enhancement (joka921): Depending on the implementation we could
+  // propagate sorted columns from either the first or the last input, but it is
+  // questionable if there would be any real benefit from this and it would only
+  // increase the complexity of the query planning and required testing.
   std::vector<ColumnIndex> resultSortedOn() const override { return {}; }
 
  private:

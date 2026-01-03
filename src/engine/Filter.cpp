@@ -141,7 +141,7 @@ CPP_template_def(int WIDTH, typename Table)(
       getExecutionContext()->getAllocator(), dummyLocalVocab,
       cancellationHandle_, deadline_);
 
-  // TODO<joka921> This should be a mandatory argument to the
+  // Future enhancement (joka921): This should be a mandatory argument to the
   // EvaluationContext constructor.
   evaluationContext._columnsByWhichResultIsSorted = std::move(sortedBy);
   const auto input =
@@ -195,9 +195,9 @@ CPP_template_def(int WIDTH, typename Table)(
       // UNDEF, and empty strings are converted to `false` and hence the
       // corresponding rows from `input` are filtered out.
       //
-      // TODO<joka921> Check whether it is feasible to precompute the
-      // number of `true` values and use that to reserve the right
-      // amount of space for `resultTable`, like we do it for the set of
+      // Future enhancement (joka921): Check whether it is feasible to
+      // precompute the number of `true` values and use that to reserve the
+      // right amount of space for `resultTable`, like we do it for the set of
       // intervals above. This depends on how expensive the evaluation with
       // the `EffectiveBooleanValueGetter` is.
       auto resultGenerator = sparqlExpression::detail::makeGenerator(

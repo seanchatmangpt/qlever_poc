@@ -233,8 +233,8 @@ inline auto applyFunction = [](auto function, [[maybe_unused]] size_t numItems,
                // return a plain value instead (obtained by moving the
                // reference) otherwise we get dangling references, but only
                // in Release builds.
-               // TODO<joka921> I don't fully understand yet WHERE the
-               // dangling reference comes from.
+               // Future enhancement (joka921): I don't fully understand yet
+               // WHERE the dangling reference comes from.
                using T = decltype(std::apply(f, AD_MOVE(tuple)));
                using R = std::conditional_t<std::is_rvalue_reference_v<T>,
                                             std::decay_t<T>, T>;

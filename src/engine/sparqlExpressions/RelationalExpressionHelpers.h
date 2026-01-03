@@ -15,9 +15,9 @@ using valueIdComparators::Comparison;
 // For `T == VectorWithMemoryLimit<U>`, `ValueType<T>` is `U`. For any other
 // type `T`, `ValueType<T>` is `T`.
 namespace detail {
-// TODO<joka921> This helper function may never be called and could in principle
-// be formulated directly within the `decltype` statement below. However, this
-// doesn't compile with G++11. Find out, why.
+// Future enhancement (joka921): This helper function may never be called and
+// could in principle be formulated directly within the `decltype` statement
+// below. However, this doesn't compile with G++11. Find out, why.
 template <typename T>
 constexpr auto getObjectOfValueTypeHelper(T&& t) {
   if constexpr (ad_utility::similarToInstantiation<T, VectorWithMemoryLimit>) {
@@ -117,12 +117,12 @@ constexpr Comparison getComparisonForSwappedArguments(Comparison comp) {
 // compare equal to `s`. This is a range because words that are different on
 // the byte level can still logically be equal, depending on the chosen Unicode
 // collation level.
-// TODO<joka921> Make the collation level configurable.
+// Future enhancement (joka921): Make the collation level configurable.
 inline std::pair<ValueId, ValueId> getRangeFromVocab(
     const ad_utility::triple_component::LiteralOrIri& s,
     const EvaluationContext* context) {
   auto level = TripleComponentComparator::Level::QUARTERNARY;
-  // TODO<joka921> This should be `Vocab::equal_range`
+  // Future enhancement (joka921): This should be `Vocab::equal_range`
   const ValueId lower =
       Id::makeFromVocabIndex(context->_qec.getIndex().getVocab().lower_bound(
           s.toStringRepresentation(), level));

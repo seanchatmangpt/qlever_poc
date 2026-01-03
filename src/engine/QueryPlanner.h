@@ -105,8 +105,8 @@ class QueryPlanner {
         for (const auto& s : n._variables) {
           out << s.name() << ", ";
         }
-        // TODO<joka921> Should the `cvar` and the `wordPart` be stored
-        // together?
+        // Future enhancement (joka921): Should the `cvar` and the `wordPart` be
+        // stored together?
         if (n.cvar_.has_value()) {
           out << " cvar " << n.cvar_.value().name() << " wordPart "
               << n.wordPart_.value();
@@ -346,10 +346,9 @@ class QueryPlanner {
   virtual FiltersAndOptionalSubstitutes seedFilterSubstitutes(
       const std::vector<SparqlFilter>& filters) const;
 
-  // TODO<RobinTF> Extract to dedicated module, this has little to do with
-  // actual query planning.
-  // Turn a generic `PropertyPath` into a `GraphPattern` that can be used for
-  // further planning.
+  // Future enhancement (RobinTF): Extract to dedicated module, this has little
+  // to do with actual query planning. Turn a generic `PropertyPath` into a
+  // `GraphPattern` that can be used for further planning.
   ParsedQuery::GraphPattern seedFromPropertyPath(const TripleComponent& left,
                                                  const PropertyPath& path,
                                                  const TripleComponent& right);
@@ -654,8 +653,8 @@ class QueryPlanner {
 
     // The variables that have been bound by the children of the `rootPattern_`
     // which we have dealt with so far.
-    // TODO<joka921> verify that we get no false positives with plans that
-    // create no single binding for a variable "by accident".
+    // Future enhancement (joka921): verify that we get no false positives with
+    // plans that create no single binding for a variable "by accident".
     ad_utility::HashSet<Variable> boundVariables_{};
 
     // We remember the potential filter substitutions so we can avoid

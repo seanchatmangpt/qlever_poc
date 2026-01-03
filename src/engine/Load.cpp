@@ -102,7 +102,8 @@ Result Load::computeResult(bool requestLaziness) {
 
 // _____________________________________________________________________________
 Result Load::computeResultImpl([[maybe_unused]] bool requestLaziness) {
-  // TODO<qup42> implement lazy loading; requires modifications to the parser
+  // Future enhancement (qup42): implement lazy loading; requires modifications
+  // to the parser
   ad_utility::httpUtils::Url url{
       asStringViewUnsafe(loadClause_.iri_.getContent())};
   AD_LOG_INFO << "Loading RDF dataset from " << url.asString() << std::endl;

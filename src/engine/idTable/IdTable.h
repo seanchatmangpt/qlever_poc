@@ -105,8 +105,8 @@ namespace columnBasedIdTable {
 //            `IdTable`. Such views are cheap to copy as they just store
 //            a const pointer to another `IdTable`.
 //
-// TODO<joka921> The NumColumns should be `size_t` but that requires several
-// additional changes in the rest of the code.
+// Future enhancement (joka921): The NumColumns should be `size_t` but that
+// requires several additional changes in the rest of the code.
 //
 template <typename T = Id, int NumColumns = 0,
           typename ColumnStorage = std::vector<
@@ -242,8 +242,9 @@ class IdTable {
   // are most likely bugs. To explicitly copy an `IdTable`, the `clone()` member
   // function (see below) can be used.
   // Note: We currently only disable the copy operations in C++20 mode.
-  // TODO<joka921> implement a facility (probably via inheritance) where we can
-  // also implement the deleted copy operations for C++17
+  // Future enhancement (joka921): implement a facility (probably via
+  // inheritance) where we can also implement the deleted copy operations for
+  // C++17
 #ifndef QLEVER_CPP_17
   IdTable(const IdTable&) requires(!isView) = delete;
   IdTable& operator=(const IdTable&) requires(!isView) = delete;
@@ -330,8 +331,9 @@ class IdTable {
   // Note: Since this class has a column-based layout, the usage of the
   // column-based interface (`getColumn` and `getColumns`) should be preferred
   // for performance reason whenever possible.
-  // TODO<joka921, C++23> Use the multidimensional subscript operator.
-  // TODO<joka921, C++23> Use explicit object parameters ("deducing this").
+  // Future enhancement (C++23): Use multidimensional subscript operator.
+  // Future enhancement (C++23): Use explicit object parameters ("deducing
+  // this").
   CPP_template(typename = void)(requires(!isView)) T& operator()(
       size_t row, size_t column) {
     AD_EXPENSIVE_CHECK(column < data().size(), [&]() {
@@ -352,7 +354,8 @@ class IdTable {
                                                          size_t column) {
     return data().at(column).at(row);
   }
-  // TODO<C++26> Remove overload for `isView` and drop requires clause.
+  // Future enhancement (C++26): Remove overload for isView and drop requires
+  // clause.
   CPP_template(typename = void)(requires(!isView)) const T& at(
       size_t row, size_t column) const {
     return data().at(column).at(row);
@@ -390,7 +393,8 @@ class IdTable {
 
   // The usual `front` and `back` functions to make the interface similar to
   // `std::vector` and other containers.
-  // TODO<C++23, joka921> Remove the duplicates via explicit object parameters
+  // Future enhancement (C++23): Remove duplicates via explicit object
+  // parameters
   // ("deducing this").
   CPP_template(typename = void)(requires(!isView)) row_reference_restricted
       front() {
@@ -677,8 +681,8 @@ class IdTable {
   // those types incorrectly. For more detailed information see the
   // documentation of the `row_reference` and `row_reference_restricted` types.
 
-  // TODO<joka921> We should probably change the names of all those
-  // typedefs (`iterator` as well as `row_type` etc.) to `PascalCase` for
+  // Future enhancement (joka921): We should probably change the names of all
+  // those typedefs (`iterator` as well as `row_type` etc.) to `PascalCase` for
   // consistency.
   using const_iterator = ad_utility::IteratorForAccessOperator<
       IdTable, IteratorHelper<const_row_reference_restricted>,
@@ -740,7 +744,8 @@ class IdTable {
   // the columns are inserted in the order they appear in the input table. If
   // the permutation contains an index that is out of bounds for the input
   // table, the corresponding column is filled with the `defaultValue`.
-  // TODO<joka921> Can/should we constraint this functions by a concept?
+  // Future enhancement (joka921): Can/should we constraint this functions by a
+  // concept?
   template <typename Table>
   void insertAtEnd(
       const Table& table, std::optional<size_t> beginIdx = std::nullopt,
@@ -808,7 +813,7 @@ class IdTable {
       return false;
     }
 
-    // TODO<joka921, C++23> This can be implemented using `zip_view` and
+    // Future enhancement (C++23): Implement using zip_view and
     // `ql::ranges::all_of`. The iteration over the columns is cache-friendly.
     const auto& cols = getColumns();
     const auto& otherCols = other.getColumns();
@@ -846,8 +851,8 @@ class IdTable {
   static auto getColumnsImpl(Self&& self) {
     using Column = decltype(self.getColumn(0));
     if constexpr (isDynamic) {
-      // TODO<joka921, for the dynamic case we could maybe use a vector with
-      // a small buffer optimization or a fixed maximal size from folly etc.
+      // Future optimization: For dynamic case, consider using vector with small
+      // buffer optimization or fixed maximal size from folly etc.
       std::vector<Column> columns;
       columns.reserve(self.numColumns());
       for (size_t i = 0; i < self.numColumns(); ++i) {

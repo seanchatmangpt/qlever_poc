@@ -238,9 +238,9 @@ void MultiColumnJoin::computeMultiColumnJoin(
   // Compute `isCheap`, which is true iff there are no UNDEF values in the join
   // columns (in which case we can use a simpler and cheaper join algorithm).
   //
-  // TODO<joka921> This is the most common case. There are many other cases
-  // where the generic `zipperJoinWithUndef` can be optimized. We will those
-  // for a later PR.
+  // Future enhancement (joka921): This is the most common case. There are many
+  // other cases where the generic `zipperJoinWithUndef` can be optimized. We
+  // will those for a later PR.
   bool isCheap = ql::ranges::none_of(joinColumns, [&](const auto& jcs) {
     auto [leftCol, rightCol] = jcs;
     return (ql::ranges::any_of(right.getColumn(rightCol), &Id::isUndefined)) ||
@@ -268,8 +268,8 @@ void MultiColumnJoin::computeMultiColumnJoin(
   // If there were UNDEF values in the input, the result might be out of
   // order. Sort it, because this operation promises a sorted result in its
   // `resultSortedOn()` member function.
-  // TODO<joka921> We only have to do this if the sorting is required (merge the
-  // other PR first).
+  // Future enhancement (joka921): We only have to do this if the sorting is
+  // required (merge the other PR first).
   if (numOutOfOrder > 0) {
     std::vector<ColumnIndex> cols;
     for (size_t i = 0; i < joinColumns.size(); ++i) {

@@ -83,7 +83,8 @@ void RuntimeInformation::writeToStream(std::ostream& out, size_t indent) const {
       << "cache_status: " << ad_utility::toString(cacheStatus_) << '\n';
   if (cacheStatus_ != ad_utility::CacheStatus::computed) {
     out << indentStr(indent)
-        // TODO<g++12, Clang 17> use `<< originalTotalTime_` directly
+        // Future enhancement (g++12, Clang 17): use `<< originalTotalTime_`
+        // directly
         << "original_total_time: " << toMs(originalTotalTime_) << " ms" << '\n';
     out << indentStr(indent)
         << "original_operation_time: " << toMs(originalOperationTime_) << " ms"

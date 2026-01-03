@@ -184,8 +184,8 @@ std::optional<PatternTrickTuple> checkUsePatternTrick(
   }
 
   // We currently accept the pattern trick triple anywhere in the query.
-  // TODO<joka921> This loop can be made much easier using ranges and view once
-  // they are supported by clang.
+  // Future enhancement (joka921): This loop can be made much easier using
+  // ranges and view once they are supported by clang.
   for (auto& pattern : parsedQuery->children()) {
     auto* curPattern = std::get_if<p::BasicGraphPattern>(&pattern);
     if (!curPattern) {
@@ -212,8 +212,8 @@ std::optional<PatternTrickTuple> isTripleSuitableForPatternTrick(
     Variable predicateVariable_;
     Variable allowedCountVariable_;
     std::vector<Variable> variablesNotAllowedInRestOfQuery_;
-    // TODO<joka921> implement CountAvailablePredicates for the nonDistinct
-    // case.
+    // Future enhancement (joka921): implement CountAvailablePredicates for the
+    // nonDistinct case.
     bool countMustBeDistinct_;
   };
 

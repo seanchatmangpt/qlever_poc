@@ -158,8 +158,8 @@ class CoalesceExpression : public VariadicExpression {
         break;
       }
     }
-    // TODO<joka921> The result is wrong in the case when all children are
-    // constants (see the implementation of `CONCAT`).
+    // Future enhancement (joka921): The result is wrong in the case when all
+    // children are constants (see the implementation of `CONCAT`).
     return result;
   }
 };

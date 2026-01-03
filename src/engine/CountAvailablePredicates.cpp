@@ -113,9 +113,9 @@ Result CountAvailablePredicates::computeResult(
   // Determine whether we can perform the full scan optimization. It can be
   // applied if the `subtree_` is a single index scan of a triple
   // `?s ql:has-pattern ?p`.
-  // TODO<joka921> As soon as we have a lazy implementation for all index scans
-  // or even all operations Then the special case for all entities can be
-  // removed.
+  // Future enhancement (joka921): As soon as we have a lazy implementation for
+  // all index scans or even all operations Then the special case for all
+  // entities can be removed.
   bool isPatternTrickForAllEntities = [&]() {
     auto indexScan =
         dynamic_cast<const IndexScan*>(subtree_->getRootOperation().get());
@@ -287,14 +287,15 @@ void CountAvailablePredicates::computePatternTrick(
     reduction(+ : numEntitiesWithPatterns) reduction(+ : numPatternPredicates) \
     reduction(+ : numListPredicates) shared(patternVec, patterns)              \
     reduction(|| : illegalPatternIndexFound)
-    // TODO<joka921> When we use iterators (`patternVec.begin()`) for the loop,
-    // there is a strange warning on clang15 when OpenMP is activated. Find out
-    // whether this is a known issue and whether this will be fixed in later
-    // versions of clang.
+    // Future enhancement (joka921): When we use iterators
+    // (`patternVec.begin()`) for the loop, there is a strange warning on
+    // clang15 when OpenMP is activated. Find out whether this is a known issue
+    // and whether this will be fixed in later versions of clang.
     for (size_t i = 0; i != patternVec.size(); ++i) {
       auto [patternIndex, patternCount] = patternVec[i];
-      // TODO<joka921> As soon as we have a better way of handling the
-      // parallelism, the following block can become a simple AD_CONTRACT_CHECK.
+      // Future enhancement (joka921): As soon as we have a better way of
+      // handling the parallelism, the following block can become a simple
+      // AD_CONTRACT_CHECK.
       if (patternIndex >= patterns.size()) {
         if (patternIndex != Pattern::NoPattern) {
           illegalPatternIndexFound = true;

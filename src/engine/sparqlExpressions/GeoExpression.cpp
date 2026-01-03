@@ -226,7 +226,8 @@ std::optional<GeoFunctionCall> getGeoFunctionExpressionParameters(
   std::optional<GeoFunctionCall> res;
   using enum SpatialJoinType;
 
-  // TODO<C++26 reflection> get all values of `SpatialJoinType` enum
+  // Future enhancement (C++26 reflection): get all values of SpatialJoinType
+  // enum
   if ((res = getGeoRelationExpressionParameters<INTERSECTS>(expr))) {
     return res;
   } else if ((res = getGeoRelationExpressionParameters<CONTAINS>(expr))) {

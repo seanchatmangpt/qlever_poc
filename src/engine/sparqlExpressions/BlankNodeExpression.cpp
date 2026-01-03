@@ -41,10 +41,10 @@ std::string escapeStringForBlankNode(std::string_view input) {
 // this is implemented by creating special IRIs with a specific prefix and
 // encoding the blank node within. This prefix is then stripped when converting
 // back to a string.
-// TODO<RobinTF> Using a counter during value generation assumes that
-// the row index won't change after the value is generated. This is
-// not guaranteed and could lead to inconsistencies, but fixing this
-// behaviour would require a larger refactoring.
+// Future enhancement (RobinTF): Using a counter during value generation assumes
+// that the row index won't change after the value is generated. This is not
+// guaranteed and could lead to inconsistencies, but fixing this behaviour would
+// require a larger refactoring.
 class BlankNodeExpression : public SparqlExpression {
   std::optional<Ptr> label_;
   // Counter that is incremented for each blank node created to ensure its
@@ -101,7 +101,7 @@ class BlankNodeExpression : public SparqlExpression {
         0, numElements,
         [this, &result, &blankNodePrefix, &getNextLabel](size_t) {
           const auto& label = getNextLabel();
-          // TODO<RobinTF> Encoding blank nodes as IRIs is very
+          // Future enhancement (RobinTF): Encoding blank nodes as IRIs is very
           // memory-inefficient given that we only need to ensure distinctness.
           // But for now this is the easiest way to implement it without
           // changing large parts of the code.

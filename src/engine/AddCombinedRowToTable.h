@@ -196,10 +196,10 @@ class AddCombinedRowToIdTable {
     } else if (resultTable_.empty()) {
       // Clear local vocab when no rows were written.
       //
-      // TODO<joka921, robinTF> This is a conservative approach. We could
-      // optimize this case (clear the local vocab more often, but still
-      // correctly) by considering the situation after all the relevant inputs
-      // have been processed.
+      // Future enhancement (joka921, robinTF): This is a conservative approach.
+      // We could optimize this case (clear the local vocab more often, but
+      // still correctly) by considering the situation after all the relevant
+      // inputs have been processed.
       mergedVocab_ = LocalVocab{};
     }
   }
@@ -310,7 +310,7 @@ class AddCombinedRowToIdTable {
                                size_t colIdx, size_t resultColIdx) {
       const auto& colLeft = inputLeft().getColumn(colIdx);
       const auto& colRight = inputRight().getColumn(colIdx);
-      // TODO<joka921> Implement prefetching.
+      // Future enhancement (joka921): Implement prefetching.
       decltype(auto) resultCol = result.getColumn(resultColIdx);
       size_t& numUndef = numUndefinedPerColumn_.at(resultColIdx);
 
@@ -342,7 +342,7 @@ class AddCombinedRowToIdTable {
                                  size_t resultColIdx) {
           decltype(auto) col = isColFromLeft ? inputLeft().getColumn(colIdx)
                                              : inputRight().getColumn(colIdx);
-          // TODO<joka921> Implement prefetching.
+          // Future enhancement (joka921): Implement prefetching.
           decltype(auto) resultCol = result.getColumn(resultColIdx);
           size_t& numUndef = numUndefinedPerColumn_.at(resultColIdx);
 

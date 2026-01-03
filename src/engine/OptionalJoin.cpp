@@ -429,12 +429,11 @@ void OptionalJoin::optionalJoin(
   // order.
   *result = std::move(rowAdder).resultTable();
 
-  // TODO<joka921> We have two sorted ranges, a simple merge would suffice
-  // (possibly even in-place), or we could even lazily pass them on to the
-  // upstream operation.
-  // Note: the merging only works if we don't have the arbitrary out of order
-  // case.
-  // TODO<joka921> We only have to do this if the sorting is required.
+  // Future enhancement (joka921): We have two sorted ranges, a simple merge
+  // would suffice (possibly even in-place), or we could even lazily pass them
+  // on to the upstream operation. Note: the merging only works if we don't have
+  // the arbitrary out of order case. Future enhancement (joka921): We only have
+  // to do this if the sorting is required.
   if (numOutOfOrder > 0 && keepJoinColumns_) {
     std::vector<ColumnIndex> cols;
     for (size_t i = 0; i < joinColumns.size(); ++i) {
@@ -563,8 +562,8 @@ OptionalJoin::makeTreeWithStrippedColumns(
   auto left = QueryExecutionTree::makeTreeWithStrippedColumns(_left, *vars);
   auto right = QueryExecutionTree::makeTreeWithStrippedColumns(_right, *vars);
 
-  // TODO<joka921> The following could be done more efficiently in a constructor
-  // (like this it is done twice).
+  // Future enhancement (joka921): The following could be done more efficiently
+  // in a constructor (like this it is done twice).
   auto jcls = QueryExecutionTree::getJoinColumns(*_left, *_right);
   bool keepJoinColumns = ql::ranges::any_of(jcls, [&](const auto& jcl) {
     const auto& var = _left->getVariableAndInfoByColumnIndex(jcl[0]).first;

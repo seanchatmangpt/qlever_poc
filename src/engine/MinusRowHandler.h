@@ -84,10 +84,10 @@ class MinusRowHandler {
     } else if (resultTable_.empty()) {
       // Clear local vocab when no rows were written.
       //
-      // TODO<joka921, RobinTF> This is a conservative approach. We could
-      // optimize this case (clear the local vocab more often, but still
-      // correctly) by considering the situation after all the relevant inputs
-      // have been processed.
+      // Future enhancement (joka921, RobinTF): This is a conservative approach.
+      // We could optimize this case (clear the local vocab more often, but
+      // still correctly) by considering the situation after all the relevant
+      // inputs have been processed.
       mergedVocab_ = LocalVocab{};
     }
   }

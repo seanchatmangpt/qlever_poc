@@ -27,7 +27,7 @@ struct ExtractYear {
 //______________________________________________________________________________
 struct ExtractMonth {
   Id operator()(std::optional<DateYearOrDuration> d) const {
-    // TODO<C++23> Use the monadic operations for std::optional
+    // Future enhancement (C++23): Use monadic operations for std::optional
     if (!d.has_value()) {
       return Id::makeUndefined();
     }
@@ -42,7 +42,7 @@ struct ExtractMonth {
 //______________________________________________________________________________
 struct ExtractDay {
   Id operator()(std::optional<DateYearOrDuration> d) const {
-    // TODO<C++23> Use the monadic operations for `std::optional`.
+    // Future enhancement (C++23): Use monadic operations for std::optional
     if (!d.has_value()) {
       return Id::makeUndefined();
     }
@@ -57,7 +57,7 @@ struct ExtractDay {
 //______________________________________________________________________________
 struct ExtractStrTimezone {
   IdOrLiteralOrIri operator()(std::optional<DateYearOrDuration> d) const {
-    // TODO<C++23> Use the monadic operations for std::optional
+    // Future enhancement (C++23): Use monadic operations for std::optional
     if (!d.has_value()) {
       return Id::makeUndefined();
     }
@@ -70,7 +70,7 @@ struct ExtractStrTimezone {
 //______________________________________________________________________________
 struct ExtractTimezoneDurationFormat {
   Id operator()(std::optional<DateYearOrDuration> d) const {
-    // TODO<C++23> Use the monadic operations for std::optional
+    // Future enhancement (C++23): Use monadic operations for std::optional
     if (!d.has_value()) {
       return Id::makeUndefined();
     }

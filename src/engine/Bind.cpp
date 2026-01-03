@@ -50,8 +50,8 @@ void Bind::onLimitOffsetChanged(const LimitOffsetClause& limitOffset) const {
 float Bind::getMultiplicity(size_t col) {
   // this is the newly added column
   if (col == getResultWidth() - 1) {
-    // TODO<joka921> get a better multiplicity estimate for BINDs which are
-    // variable renames or constants.
+    // Future enhancement (joka921): get a better multiplicity estimate for
+    // BINDs which are variable renames or constants.
     return 1;
   }
 
@@ -86,10 +86,10 @@ std::string Bind::getCacheKeyImpl() const {
 VariableToColumnMap Bind::computeVariableToColumnMap() const {
   auto res = _subtree->getVariableColumns();
   // The new variable is always appended at the end.
-  // TODO<joka921> This currently pessimistically assumes that all (aggregate)
-  // expressions can produce undefined values. This might impact the
-  // performance when the result of this GROUP BY is joined on one or more of
-  // the aggregating columns. Implement an interface in the expressions that
+  // Future enhancement (joka921): This currently pessimistically assumes that
+  // all (aggregate) expressions can produce undefined values. This might impact
+  // the performance when the result of this GROUP BY is joined on one or more
+  // of the aggregating columns. Implement an interface in the expressions that
   // allows to check, whether an expression can never produce an undefined
   // value.
   res[_bind._target] = makePossiblyUndefinedColumn(getResultWidth() - 1);

@@ -176,13 +176,13 @@ size_t PathSearch::getResultWidth() const { return resultWidth_; };
 
 // _____________________________________________________________________________
 size_t PathSearch::getCostEstimate() {
-  // TODO: Figure out a smart way to estimate cost
+  // Future enhancement: Figure out a smart way to estimate cost
   return 1000;
 };
 
 // _____________________________________________________________________________
 uint64_t PathSearch::getSizeEstimateBeforeLimit() {
-  // TODO: Figure out a smart way to estimate size
+  // Future enhancement: Figure out a smart way to estimate size
   return 1000;
 };
 

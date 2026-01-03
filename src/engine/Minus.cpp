@@ -337,9 +337,9 @@ Minus::makeTreeWithStrippedColumns(const std::set<Variable>& variables) const {
   auto left = QueryExecutionTree::makeTreeWithStrippedColumns(_left, *vars);
   auto right = QueryExecutionTree::makeTreeWithStrippedColumns(_right, *vars);
 
-  // TODO<joka921> The following could be done more efficiently in a constructor
-  // (like this it is done twice).
-  // TODO<joka921> apply the `keepJoinColumn` optimization.
+  // Future enhancement (joka921): The following could be done more efficiently
+  // in a constructor (like this it is done twice). Future enhancement
+  // (joka921): apply the `keepJoinColumn` optimization.
   auto jcls = QueryExecutionTree::getJoinColumns(*_left, *_right);
   [[maybe_unused]] bool keepJoinColumns =
       ql::ranges::any_of(jcls, [&](const auto& jcl) {

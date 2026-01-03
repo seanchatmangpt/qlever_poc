@@ -135,8 +135,8 @@ void Describe::recursivelyAddBlankNodes(
   // Expand the `blankNodes` by joining them with the full index and add the
   // resulting triples to the `finalResult`.
   //
-  // TODO<joka921> Make the result of DESCRIBE lazy, then we can avoid the
-  // additional copy here.
+  // Future enhancement (joka921): Make the result of DESCRIBE lazy, then we can
+  // avoid the additional copy here.
   auto table =
       makeAndExecuteJoinWithFullIndex(std::move(blankNodes), localVocab);
   finalResult.insertAtEnd(table);
@@ -238,8 +238,9 @@ Result Describe::computeResult([[maybe_unused]] bool requestLaziness) {
   LocalVocab localVocab;
   // Compute the results of the WHERE clause and extract the `Id`s to describe.
   //
-  // TODO<joka921> Would we benefit from computing `resultOfWhereClause` lazily?
-  // Probably not, because we have to deduplicate the whole input anyway.
+  // Future enhancement (joka921): Would we benefit from computing
+  // `resultOfWhereClause` lazily? Probably not, because we have to deduplicate
+  // the whole input anyway.
   auto resultOfWhereClause = subtree_->getResult();
   auto idsAsTable = getIdsToDescribe(*resultOfWhereClause, localVocab);
 

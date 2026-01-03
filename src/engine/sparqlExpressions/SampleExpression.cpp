@@ -25,7 +25,8 @@ ExpressionResult SampleExpression::evaluate(EvaluationContext* context) const {
       AD_CORRECTNESS_CHECK(!childResult.empty());
       return childResult[0];
     } else if constexpr (std::is_same_v<T, ::Variable>) {
-      // TODO<joka921> Can't this be a simpler function (getIdAt)
+      // Future enhancement (joka921): Can't this be a simpler function
+      // (getIdAt)
       AD_CORRECTNESS_CHECK(context->_endIndex > context->_beginIndex);
       ql::span<const ValueId> idOfFirstAsVector = detail::getIdsFromVariable(
           childResult, context, context->_beginIndex, context->_endIndex);

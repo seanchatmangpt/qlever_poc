@@ -28,9 +28,9 @@ NumericValue NumericValueGetter::operator()(
     case Datatype::Int:
       return id.getInt();
     case Datatype::Bool:
-      // TODO<joka921> Check in the specification what the correct behavior is
-      // here. They probably should be UNDEF as soon as we have conversion
-      // functions.
+      // Future enhancement (joka921): Check in the specification what the
+      // correct behavior is here. They probably should be UNDEF as soon as we
+      // have conversion functions.
       return static_cast<int64_t>(id.getBool());
     case Datatype::Undefined:
     case Datatype::EncodedVal:
@@ -67,8 +67,8 @@ auto EffectiveBooleanValueGetter::operator()(
       return True;
     case Datatype::VocabIndex: {
       auto index = id.getVocabIndex();
-      // TODO<joka921> We could precompute whether the empty literal or empty
-      // iri are contained in the KB.
+      // Future enhancement (joka921): We could precompute whether the empty
+      // literal or empty iri are contained in the KB.
       return context->_qec.getIndex().indexToString(index).empty() ? False
                                                                    : True;
     }
@@ -251,8 +251,8 @@ std::optional<std::string> LiteralFromIdGetter::operator()(
 bool IsValidValueGetter::operator()(
     ValueId id, [[maybe_unused]] const EvaluationContext* context) const {
   // Every knowledge base value that is bound converts to "True"
-  // TODO<joka921> check for the correct semantics of the error handling and
-  // implement it in a further version.
+  // Future enhancement (joka921): check for the correct semantics of the error
+  // handling and implement it in a further version.
   return id != ValueId::makeUndefined();
 }
 

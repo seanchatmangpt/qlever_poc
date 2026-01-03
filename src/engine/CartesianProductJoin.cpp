@@ -199,8 +199,8 @@ CPP_template_def(typename R)(requires ql::ranges::random_access_range<R>)
         R idTables, size_t offset, size_t limit, size_t lastTableOffset) const {
   AD_CORRECTNESS_CHECK(offset >= lastTableOffset);
   IdTable result{getResultWidth(), getExecutionContext()->getAllocator()};
-  // TODO<joka921> Find a solution to cheaply handle the case, that only a
-  // single result is left. This can probably be done by using the
+  // Future enhancement (joka921): Find a solution to cheaply handle the case,
+  // that only a single result is left. This can probably be done by using the
   // `Result`.
 
   auto sizesView = ql::views::transform(idTables, &IdTable::size);
@@ -256,9 +256,9 @@ CartesianProductJoin::calculateSubResults(bool requestLaziness) {
   std::vector<std::shared_ptr<const Result>> subResults;
   // We don't need to fully materialize the child results if we have a LIMIT
   // specified and an OFFSET of 0.
-  // TODO<joka921> We could in theory also apply this optimization if a
-  // non-zero OFFSET is specified, but this would make the algorithm more
-  // complicated.
+  // Future enhancement (joka921): We could in theory also apply this
+  // optimization if a non-zero OFFSET is specified, but this would make the
+  // algorithm more complicated.
   std::optional<LimitOffsetClause> limitIfPresent = getLimitOffset();
   if (!getLimitOffset()._limit.has_value() || getLimitOffset()._offset != 0) {
     limitIfPresent = std::nullopt;

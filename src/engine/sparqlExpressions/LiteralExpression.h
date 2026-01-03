@@ -22,8 +22,8 @@ class LiteralExpression : public SparqlExpression {
   // For string literals, cache the result of the evaluation as it doesn't
   // change when `evaluate` is called multiple times. It is a `std::atomic` to
   // make the `const` evaluate function threadsafe and lock-free.
-  // TODO<joka921> Make this unnecessary by completing multiple small groups at
-  // once during the GROUP BY.
+  // Future enhancement (joka921): Make this unnecessary by completing multiple
+  // small groups at once during the GROUP BY.
   mutable std::atomic<IdOrLiteralOrIri*> cachedResult_ = nullptr;
 
  public:
@@ -71,7 +71,8 @@ class LiteralExpression : public SparqlExpression {
     } else if constexpr (std::is_same_v<Variable, T>) {
       return evaluateIfVariable(context, _value);
     } else if constexpr (std::is_same_v<VectorWithMemoryLimit<ValueId>, T>) {
-      // TODO<kcaliban> Change ExpressionResult such that it might point or
+      // Future enhancement (kcaliban): Change ExpressionResult such that it
+      // might point or
       //                refer to this vector instead of having to clone it.
       return _value.clone();
     } else {

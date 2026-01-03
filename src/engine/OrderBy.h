@@ -22,8 +22,8 @@
 // processing directly before exporting the result.
 class OrderBy : public Operation {
  public:
-  // TODO<joka921> This should be `pair<ColumnIndex, IsAscending>`
-  // The bool means "isDescending"
+  // Future enhancement (joka921): This should be `pair<ColumnIndex,
+  // IsAscending>` The bool means "isDescending"
   using SortIndices = std::vector<std::pair<ColumnIndex, bool>>;
 
  private:

@@ -175,13 +175,14 @@ ExpressionResult PrefixRegexExpression::evaluate(
   // If the expression is enclosed in `STR()`, we have two ranges: for the
   // prefix with and without leading "<".
   //
-  // TODO<joka921> prefix filters currently have false negatives when the prefix
-  // is not in the vocabulary, and there exist local vocab entries in the input
-  // that are between the prefix and the next local vocab entry. This is
-  // non-trivial to fix as it involves fiddling with Unicode prefix encodings.
+  // Future enhancement (joka921): prefix filters currently have false negatives
+  // when the prefix is not in the vocabulary, and there exist local vocab
+  // entries in the input that are between the prefix and the next local vocab
+  // entry. This is non-trivial to fix as it involves fiddling with Unicode
+  // prefix encodings.
   //
-  // TODO<joka921> prefix filters currently never find numbers or other
-  // datatypes that are encoded directly inside the IDs.
+  // Future enhancement (joka921): prefix filters currently never find numbers
+  // or other datatypes that are encoded directly inside the IDs.
   std::vector<std::string> actualPrefixes;
   actualPrefixes.push_back("\"" + prefixRegex_);
   if (childIsStrExpression_) {
