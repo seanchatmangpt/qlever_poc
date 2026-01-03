@@ -1,0 +1,126 @@
+{
+  "$schema": "https://qlever.cs.uni-freiburg.de/schemas/formalism-equivalence-test-v1.json",
+  "version": "1.0",
+  "description": "Cross-formalism equivalence tests - verify semantically equivalent behavior",
+  "tests": [
+    {
+      "testId": "equiv-transitive-001",
+      "description": "Transitive closure: SHACL property path vs. Datalog recursion",
+      "equivalenceType": "semantic",
+      "inputs": [
+        {
+          "formalism": "SHACL",
+          "inputFormat": "turtle",
+          "input": "@prefix sh: <http://www.w3.org/ns/shacl#> .\n@prefix ex: <http://example.org/> .\n\nex:TransitiveShape a sh:NodeShape ;\n  sh:targetNode ex:a ;\n  sh:property [\n    sh:path ex:edge+ ;\n    sh:minCount 1\n  ] ."
+        },
+        {
+          "formalism": "Datalog",
+          "inputFormat": "datalog-text",
+          "input": "reachable(?x, ?y) :- edge(?x, ?y) .\nreachable(?x, ?z) :- reachable(?x, ?y), edge(?y, ?z) ."
+        }
+      ],
+      "dataGraph": "@prefix ex: <http://example.org/> .\nex:a ex:edge ex:b .\nex:b ex:edge ex:c .\nex:c ex:edge ex:d .",
+      "canonicalResult": {
+        "description": "Both should identify all transitive edges from ex:a",
+        "reachableNodes": ["ex:b", "ex:c", "ex:d"]
+      },
+      "tags": ["transitive", "property-path", "recursion"]
+    },
+    {
+      "testId": "equiv-cardinality-001",
+      "description": "Cardinality validation: SHACL sh:minCount vs. Datalog count aggregation",
+      "equivalenceType": "semantic",
+      "inputs": [
+        {
+          "formalism": "SHACL",
+          "inputFormat": "turtle",
+          "input": "@prefix sh: <http://www.w3.org/ns/shacl#> .\n@prefix ex: <http://example.org/> .\n\nex:PersonShape a sh:NodeShape ;\n  sh:targetClass ex:Person ;\n  sh:property [\n    sh:path ex:name ;\n    sh:minCount 1\n  ] ."
+        },
+        {
+          "formalism": "SPARQL",
+          "inputFormat": "sparql",
+          "input": "SELECT ?person WHERE {\n  ?person a ex:Person .\n  FILTER NOT EXISTS { ?person ex:name ?name }\n}"
+        }
+      ],
+      "dataGraph": "@prefix ex: <http://example.org/> .\nex:alice a ex:Person ; ex:name \"Alice\" .\nex:bob a ex:Person .",
+      "canonicalResult": {
+        "description": "Both should identify ex:bob as violating (missing name)",
+        "violations": ["ex:bob"]
+      },
+      "tags": ["cardinality", "validation", "minCount"]
+    },
+    {
+      "testId": "equiv-filter-001",
+      "description": "Numeric filtering: Datalog FILTER vs. SPARQL FILTER",
+      "equivalenceType": "output",
+      "inputs": [
+        {
+          "formalism": "Datalog",
+          "inputFormat": "datalog-text",
+          "input": "adult(?x) :- person(?x, ?age), FILTER(?age >= 18) ."
+        },
+        {
+          "formalism": "SPARQL",
+          "inputFormat": "sparql",
+          "input": "SELECT ?x WHERE {\n  ?x ex:person ?age .\n  FILTER(?age >= 18)\n}"
+        }
+      ],
+      "dataGraph": "@prefix ex: <http://example.org/> .\nex:alice ex:person 25 .\nex:bob ex:person 15 .\nex:charlie ex:person 30 .",
+      "canonicalResult": {
+        "type": "IdTable",
+        "columns": ["?x"],
+        "rows": [
+          ["ex:alice"],
+          ["ex:charlie"]
+        ]
+      },
+      "tags": ["filter", "numeric", "equivalence"]
+    },
+    {
+      "testId": "equiv-pattern-001",
+      "description": "Pattern matching: SHACL sh:pattern vs. SPARQL REGEX",
+      "equivalenceType": "semantic",
+      "inputs": [
+        {
+          "formalism": "SHACL",
+          "inputFormat": "turtle",
+          "input": "@prefix sh: <http://www.w3.org/ns/shacl#> .\n@prefix ex: <http://example.org/> .\n\nex:PersonShape a sh:NodeShape ;\n  sh:targetClass ex:Person ;\n  sh:property [\n    sh:path ex:email ;\n    sh:pattern \"^[a-z]+@[a-z]+\\\\.[a-z]+$\"\n  ] ."
+        },
+        {
+          "formalism": "SPARQL",
+          "inputFormat": "sparql",
+          "input": "SELECT ?person ?email WHERE {\n  ?person a ex:Person ; ex:email ?email .\n  FILTER(!REGEX(?email, \"^[a-z]+@[a-z]+\\\\.[a-z]+$\"))\n}"
+        }
+      ],
+      "dataGraph": "@prefix ex: <http://example.org/> .\nex:alice a ex:Person ; ex:email \"alice@example.com\" .\nex:bob a ex:Person ; ex:email \"BOB@EXAMPLE.COM\" .",
+      "canonicalResult": {
+        "description": "Both should identify ex:bob as violating (uppercase email)",
+        "violations": ["ex:bob"]
+      },
+      "tags": ["pattern", "regex", "validation"]
+    },
+    {
+      "testId": "equiv-nodekind-001",
+      "description": "Node type validation: SHACL sh:nodeKind vs. SPARQL isIRI()",
+      "equivalenceType": "semantic",
+      "inputs": [
+        {
+          "formalism": "SHACL",
+          "inputFormat": "turtle",
+          "input": "@prefix sh: <http://www.w3.org/ns/shacl#> .\n@prefix ex: <http://example.org/> .\n\nex:ResourceShape a sh:NodeShape ;\n  sh:targetClass ex:Resource ;\n  sh:property [\n    sh:path ex:relatedTo ;\n    sh:nodeKind sh:IRI\n  ] ."
+        },
+        {
+          "formalism": "SPARQL",
+          "inputFormat": "sparql",
+          "input": "SELECT ?resource ?value WHERE {\n  ?resource a ex:Resource ; ex:relatedTo ?value .\n  FILTER(!isIRI(?value))\n}"
+        }
+      ],
+      "dataGraph": "@prefix ex: <http://example.org/> .\nex:resource1 a ex:Resource ; ex:relatedTo ex:resource2 .\nex:resource3 a ex:Resource ; ex:relatedTo \"literal\" .",
+      "canonicalResult": {
+        "description": "Both should identify ex:resource3 as violating (literal instead of IRI)",
+        "violations": ["ex:resource3"]
+      },
+      "tags": ["nodeKind", "type-checking", "IRI"]
+    }
+  ]
+}

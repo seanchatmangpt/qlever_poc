@@ -1,0 +1,344 @@
+================================================================================
+UNIFIED INGRESS PIPELINE FLOW DIAGRAM
+EPIC 14.0 — Formalism Delta Convergence
+Agent 2 — Unified Ingress Architecture
+================================================================================
+
+OVERVIEW: JSON-LD → simdjson → Normalization → Digest
+================================================================================
+
+                              JSON-LD INPUT
+                         (SHACL / ShEx / N3 / Datalog)
+                                     │
+                                     ↓
+┌────────────────────────────────────────────────────────────────────────────┐
+│  STAGE 1: FORMAT DETECTION & REJECTION                                    │
+│  ────────────────────────────────────────────────────────────────────────  │
+│                                                                            │
+│  Component: JsonLdIngressNormalizer::detectDialect()                      │
+│  Purpose:   Reject non-JSON-LD formats at ingress boundary                │
+│                                                                            │
+│  Input:     Raw string (unknown format)                                   │
+│                                                                            │
+│  Detection Logic:                                                          │
+│    • Turtle:     starts with "@prefix" or "@base"       → REJECT          │
+│    • RDF/XML:    starts with "<?xml" or "<rdf:RDF"      → REJECT          │
+│    • N-Triples:  matches pattern "<...> <...> <...> ."  → REJECT          │
+│    • JSON-LD:    starts with "{" or "["                 → ACCEPT           │
+│                                                                            │
+│  Output:    DialectDetectionResult                                         │
+│             - is_json_ld = true                                            │
+│             - error = OK                                                   │
+│                                                                            │
+└────────────────────────────────────────────────────────────────────────────┘
+                                     │
+                                     ↓
+┌────────────────────────────────────────────────────────────────────────────┐
+│  STAGE 2: GUARD PRE-CHECK                                                 │
+│  ────────────────────────────────────────────────────────────────────────  │
+│                                                                            │
+│  Component: IngressGuardConfig                                             │
+│  Purpose:   Reject oversized input before parsing (O(1) check)            │
+│                                                                            │
+│  Guards Checked:                                                           │
+│    • max_input_size_bytes:  input.size() <= max  → BUFFER_OVERFLOW        │
+│                                                                            │
+│  Optimization: Early rejection (no parsing cost for oversized input)      │
+│                                                                            │
+└────────────────────────────────────────────────────────────────────────────┘
+                                     │
+                                     ↓
+┌────────────────────────────────────────────────────────────────────────────┐
+│  STAGE 3: SIMD-ACCELERATED JSON PARSING                                   │
+│  ────────────────────────────────────────────────────────────────────────  │
+│                                                                            │
+│  Component: SimdJsonIngressWrapper                                         │
+│  Purpose:   Parse JSON-LD using simdjson (SIMD-accelerated)               │
+│                                                                            │
+│  SIMD Techniques Applied:                                                  │
+│  ┌──────────────────────────────────────────────────────────────────────┐ │
+│  │ 1. SIMD Byte Classification                                          │ │
+│  │    - Vectorized character class detection (16 bytes/instruction)     │ │
+│  │    - Speedup: 8-16x vs scalar byte-by-byte scanning                  │ │
+│  │    - Output: Bitmask of structural characters: [ { } : , " ]         │ │
+│  ├──────────────────────────────────────────────────────────────────────┤ │
+│  │ 2. Quote Pairing Detection                                           │ │
+│  │    - Vectorized quote pairing (no backtracking)                      │ │
+│  │    - Speedup: 4-8x vs state machine quote scanning                   │ │
+│  │    - Output: Quote pairs (start, end) positions                      │ │
+│  ├──────────────────────────────────────────────────────────────────────┤ │
+│  │ 3. Number Validation                                                 │ │
+│  │    - SIMD digit classification (branchless)                          │ │
+│  │    - Speedup: 2-4x vs scalar atoi/strtod                             │ │
+│  │    - Output: Canonical number representation                         │ │
+│  ├──────────────────────────────────────────────────────────────────────┤ │
+│  │ 4. Branchless Brace Pairing                                          │ │
+│  │    - Bitmask-based bracket matching                                  │ │
+│  │    - Speedup: Eliminates branch mispredictions                       │ │
+│  │    - Output: Nesting depth (checked against max_nesting_depth)       │ │
+│  ├──────────────────────────────────────────────────────────────────────┤ │
+│  │ 5. Error Classification                                              │ │
+│  │    - Bitmask error classification (no exceptions)                    │ │
+│  │    - Output: IngressErrorCode (PARSE_ERROR_* codes)                  │ │
+│  └──────────────────────────────────────────────────────────────────────┘ │
+│                                                                            │
+│  Input:     JSON-LD string                                                 │
+│  Output:    Parsed JSON structure + SIMD validation bitmask               │
+│                                                                            │
+│  Guards Enforced:                                                          │
+│    • max_nesting_depth:  depth <= max  → PARSE_ERROR_NESTED_DEPTH         │
+│                                                                            │
+└────────────────────────────────────────────────────────────────────────────┘
+                                     │
+                                     ↓
+┌────────────────────────────────────────────────────────────────────────────┐
+│  STAGE 4: DIALECT-SPECIFIC NORMALIZATION                                  │
+│  ────────────────────────────────────────────────────────────────────────  │
+│                                                                            │
+│  Component: JsonLdIngressNormalizer::normalizeForDialect()                │
+│  Purpose:   Normalize to canonical form (deterministic)                   │
+│                                                                            │
+│  Normalization Steps:                                                      │
+│  ┌──────────────────────────────────────────────────────────────────────┐ │
+│  │ 1. Alphabetical Key Ordering                                         │ │
+│  │    - All JSON object keys sorted (locale-independent byte order)     │ │
+│  │    - Recursive (all nesting levels)                                  │ │
+│  │    - Example: {"z": 1, "a": 2} → {"a": 2, "z": 1}                    │ │
+│  ├──────────────────────────────────────────────────────────────────────┤ │
+│  │ 2. UTF-8 NFC Normalization                                           │ │
+│  │    - All strings normalized to NFC form                              │ │
+│  │    - Eliminates Unicode equivalence ambiguity                        │ │
+│  │    - Example: "café" (U+00E9) vs "café" (U+0065 U+0301) → same NFC  │ │
+│  ├──────────────────────────────────────────────────────────────────────┤ │
+│  │ 3. Whitespace Removal                                                │ │
+│  │    - Compact form (no pretty-printing)                               │ │
+│  │    - Example: { "a" : 1 } → {"a":1}                                  │ │
+│  ├──────────────────────────────────────────────────────────────────────┤ │
+│  │ 4. Number Canonicalization                                           │ │
+│  │    - No trailing zeros: 1.0 → 1                                      │ │
+│  │    - Scientific notation for large numbers: 1000000 → 1e6            │ │
+│  │    - Consistent precision (no floating-point drift)                  │ │
+│  ├──────────────────────────────────────────────────────────────────────┤ │
+│  │ 5. Escape Sequence Normalization                                     │ │
+│  │    - \uXXXX to minimal form                                          │ │
+│  │    - Example: "\u0041" → "A"                                         │ │
+│  └──────────────────────────────────────────────────────────────────────┘ │
+│                                                                            │
+│  Input:     Parsed JSON + RuleLanguageDialect + EpochToken                │
+│  Output:    Canonical JSON-LD string (deterministic)                      │
+│                                                                            │
+│  Guards Enforced:                                                          │
+│    • max_object_keys:        keys/object <= max  → RESOURCE_EXHAUSTED     │
+│    • max_string_length_bytes: string.size() <= max  → VALIDATION_LENGTH   │
+│                                                                            │
+│  Dialect-Specific Validation:                                              │
+│    • SHACL:   Requires "sh:targetClass" or "sh:targetNode"                │
+│    • ShEx:    Requires "shapes" array or single shape object              │
+│    • N3:      Requires "rules" array or single rule object                │
+│    • Datalog: Requires "rules" array with head/body structure             │
+│                                                                            │
+└────────────────────────────────────────────────────────────────────────────┘
+                                     │
+                                     ↓
+┌────────────────────────────────────────────────────────────────────────────┐
+│  STAGE 5: DIGEST COMPUTATION (EPOCH-BOUND)                                │
+│  ────────────────────────────────────────────────────────────────────────  │
+│                                                                            │
+│  Component: IngressDigest::compute()                                       │
+│  Purpose:   Compute deterministic SHA256 digest with epoch binding        │
+│                                                                            │
+│  Digest Formula:                                                           │
+│  ┌──────────────────────────────────────────────────────────────────────┐ │
+│  │                                                                        │ │
+│  │  digest = SHA256(canonical_json ||                                    │ │
+│  │                  epoch_id ||                                           │ │
+│  │                  guard_identity_hash ||                                │ │
+│  │                  validation_mask)                                      │ │
+│  │                                                                        │ │
+│  │  Where:                                                                │ │
+│  │    • canonical_json:       Normalized JSON-LD (from Stage 4)          │ │
+│  │    • epoch_id:             Current epoch (from EpochToken)            │ │
+│  │    • guard_identity_hash:  Guard config version hash                  │ │
+│  │    • validation_mask:      SIMD validation bitmask (from Stage 3)     │ │
+│  │                                                                        │ │
+│  └──────────────────────────────────────────────────────────────────────┘ │
+│                                                                            │
+│  Determinism Guarantee:                                                    │
+│    Same input + Same epoch + Same guards → Same digest                    │
+│                                                                            │
+│  Output:    64-character hex-encoded SHA256 digest                         │
+│                                                                            │
+└────────────────────────────────────────────────────────────────────────────┘
+                                     │
+                                     ↓
+┌────────────────────────────────────────────────────────────────────────────┐
+│  STAGE 6: GUARD POST-CHECK                                                │
+│  ────────────────────────────────────────────────────────────────────────  │
+│                                                                            │
+│  Component: IngressGuardConfig                                             │
+│  Purpose:   Verify timeout and resource limits after parsing              │
+│                                                                            │
+│  Guards Checked:                                                           │
+│    • timeout_ms:  elapsed_time <= max  → TIMEOUT                           │
+│                                                                            │
+│  Metrics Collected:                                                        │
+│    • json_parse_time_ns:       Time spent in Stage 3 (SIMD parsing)       │
+│    • normalization_time_ns:    Time spent in Stage 4 (normalization)      │
+│    • digest_compute_time_ns:   Time spent in Stage 5 (digest)             │
+│    • total_ingress_time_ns:    Total time (all stages)                    │
+│    • simd_techniques_applied:  Bitmask of SIMD techniques used            │
+│                                                                            │
+└────────────────────────────────────────────────────────────────────────────┘
+                                     │
+                                     ↓
+                         UNIFIED INGRESS RESULT
+                  ┌─────────────────────────────────────┐
+                  │ • error:              OK            │
+                  │ • digest_sha256:      64-char hex   │
+                  │ • normalized_json_ld: canonical     │
+                  │ • metrics:            timing data   │
+                  │ • dialect:            SHACL/ShEx/   │
+                  │                       N3/Datalog    │
+                  └─────────────────────────────────────┘
+
+
+================================================================================
+OPTIMIZATION FLOW: SIMD ACCELERATION DETAILS
+================================================================================
+
+INPUT: "[{\"@context\": \"http://www.w3.org/ns/shacl#\", \"@type\": \"NodeShape\"}]"
+                                     │
+                                     ↓
+┌────────────────────────────────────────────────────────────────────────────┐
+│  SIMD BYTE CLASSIFICATION (AVX2 / 16 bytes per instruction)               │
+│  ────────────────────────────────────────────────────────────────────────  │
+│                                                                            │
+│  Chunk 1: "[{\"@context\": \"h"                                            │
+│            ││││││││││││││││                                                │
+│  Classes:  ╞╡╡╞╞╞╞╞╞╞╡╡╡╞╞                                                │
+│            │││││││││││││││└─ structural: "                                 │
+│            ││││││││││││││└── structural: :                                 │
+│            │││││││││││││└─── whitespace: space                             │
+│            ││││││││││││└──── structural: "                                 │
+│            └─────────────────  structural: [ { "                           │
+│                                                                            │
+│  Bitmask:  0xA0B4  (structural chars at positions 0,1,2,11,13,15)         │
+│                                                                            │
+└────────────────────────────────────────────────────────────────────────────┘
+                                     │
+                                     ↓
+┌────────────────────────────────────────────────────────────────────────────┐
+│  QUOTE PAIRING (XOR mask for escaped quotes)                              │
+│  ────────────────────────────────────────────────────────────────────────  │
+│                                                                            │
+│  Quotes found: positions [2, 13], [15, ...]                                │
+│                         ↑    ↑                                             │
+│                         │    └─ closing quote (before :)                   │
+│                         └────── opening quote (after {)                    │
+│                                                                            │
+│  Quote pairs: [(2, 13), (15, ...)]                                         │
+│                                                                            │
+└────────────────────────────────────────────────────────────────────────────┘
+                                     │
+                                     ↓
+┌────────────────────────────────────────────────────────────────────────────┐
+│  BRACE PAIRING (branchless depth tracking)                                │
+│  ────────────────────────────────────────────────────────────────────────  │
+│                                                                            │
+│  Structural index: [ { } ]                                                 │
+│                    ↑ ↑ ↑ ↑                                                 │
+│  Depth:            0 1 2 1 0                                               │
+│                                                                            │
+│  Max depth: 2 (within guard limit)                                         │
+│                                                                            │
+└────────────────────────────────────────────────────────────────────────────┘
+                                     │
+                                     ↓
+                      PARSED JSON STRUCTURE (valid)
+                      SIMD validation bitmask: 0x1F
+                      (all techniques applied)
+
+
+================================================================================
+DIALECT-SPECIFIC PATHS (FORMAT-SPECIFIC NORMALIZATION)
+================================================================================
+
+                         CANONICAL JSON-LD
+                                │
+            ┌───────────────────┼───────────────────┐
+            │                   │                   │
+            ↓                   ↓                   ↓
+    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐
+    │   SHACL      │    │   ShEx       │    │   N3         │
+    │   Validator  │    │   Validator  │    │   Validator  │
+    └──────────────┘    └──────────────┘    └──────────────┘
+            │                   │                   │
+            ↓                   ↓                   ↓
+    Requires:           Requires:           Requires:
+    sh:targetClass      shapes array        rules array
+    or                  or                  or
+    sh:targetNode       single shape        single rule
+                                │
+                                ↓
+                         ┌──────────────┐
+                         │   Datalog    │
+                         │   Validator  │
+                         └──────────────┘
+                                │
+                                ↓
+                         Requires:
+                         rules array
+                         with head/body
+
+
+================================================================================
+ERROR FLOW (FAIL-CLOSED SEMANTICS)
+================================================================================
+
+ANY STAGE FAILURE
+       │
+       ↓
+┌────────────────────────────────────────────────────────────────────────────┐
+│  IMMEDIATE ERROR RETURN                                                    │
+│  ────────────────────────────────────────────────────────────────────────  │
+│                                                                            │
+│  No partial results                                                        │
+│  No "best effort" parsing                                                 │
+│  No fallback to unsafe modes                                              │
+│                                                                            │
+│  UnifiedIngressResult:                                                     │
+│    • error:              BUFFER_OVERFLOW / PARSE_ERROR_* / TIMEOUT / ...  │
+│    • normalized_json_ld: "" (empty)                                        │
+│    • digest_sha256:      "" (empty)                                        │
+│    • metrics:            partial (up to failure point)                    │
+│                                                                            │
+└────────────────────────────────────────────────────────────────────────────┘
+
+
+================================================================================
+COMPONENT COMPOSITION (FACADE PATTERN)
+================================================================================
+
+UnifiedIngressPipeline (Facade - Stateless)
+    │
+    ├─ SimdJsonIngressWrapper
+    │    │
+    │    └─ simdjson::ondemand parser (external library)
+    │
+    ├─ JsonLdIngressNormalizer
+    │    │
+    │    ├─ detectDialect()
+    │    ├─ normalizeForDialect()
+    │    ├─ validateShaclJsonLd()
+    │    ├─ validateShExJsonLd()
+    │    ├─ validateN3JsonLd()
+    │    └─ validateDatalogJsonLd()
+    │
+    └─ IngressDigest
+         │
+         └─ SHA256 computation (deterministic)
+
+
+================================================================================
+END OF FLOW DIAGRAM
+================================================================================

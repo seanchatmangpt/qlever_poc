@@ -1,0 +1,94 @@
+{
+  "$schema": "https://qlever.cs.uni-freiburg.de/schemas/formalism-test-v1.json",
+  "version": "1.0",
+  "formalism": "Datalog",
+  "source": "Custom Datalog Golden Test Suite",
+  "sourceUrl": "https://github.com/seanchatmangpt/qlever/docs/datalog",
+  "tests": [
+    {
+      "testId": "datalog-transitive-001",
+      "description": "Simple transitive closure computation",
+      "inputFormat": "datalog-text",
+      "input": "reachable(?x, ?y) :- edge(?x, ?y) .\nreachable(?x, ?z) :- reachable(?x, ?y), edge(?y, ?z) .",
+      "dataGraph": "@prefix ex: <http://example.org/> .\nex:a ex:edge ex:b .\nex:b ex:edge ex:c .\nex:c ex:edge ex:d .",
+      "expectedResult": {
+        "type": "IdTable",
+        "columns": ["?x", "?y"],
+        "rows": [
+          ["ex:a", "ex:b"],
+          ["ex:a", "ex:c"],
+          ["ex:a", "ex:d"],
+          ["ex:b", "ex:c"],
+          ["ex:b", "ex:d"],
+          ["ex:c", "ex:d"]
+        ]
+      },
+      "tags": ["datalog", "transitive", "fixpoint", "basic"]
+    },
+    {
+      "testId": "datalog-ancestor-001",
+      "description": "Ancestor relationship computation",
+      "inputFormat": "datalog-text",
+      "input": "ancestor(?x, ?y) :- parent(?x, ?y) .\nancestor(?x, ?z) :- parent(?x, ?y), ancestor(?y, ?z) .",
+      "dataGraph": "@prefix ex: <http://example.org/> .\nex:alice ex:parent ex:bob .\nex:bob ex:parent ex:charlie .\nex:charlie ex:parent ex:dave .",
+      "expectedResult": {
+        "type": "IdTable",
+        "columns": ["?x", "?y"],
+        "rows": [
+          ["ex:alice", "ex:bob"],
+          ["ex:alice", "ex:charlie"],
+          ["ex:alice", "ex:dave"],
+          ["ex:bob", "ex:charlie"],
+          ["ex:bob", "ex:dave"],
+          ["ex:charlie", "ex:dave"]
+        ]
+      },
+      "tags": ["datalog", "recursive", "ancestor", "family"]
+    },
+    {
+      "testId": "datalog-filter-001",
+      "description": "Datalog rule with SPARQL filter",
+      "inputFormat": "datalog-text",
+      "input": "adult(?x) :- person(?x, ?age), FILTER(?age >= 18) .",
+      "dataGraph": "@prefix ex: <http://example.org/> .\nex:alice ex:person 25 .\nex:bob ex:person 15 .\nex:charlie ex:person 30 .",
+      "expectedResult": {
+        "type": "IdTable",
+        "columns": ["?x"],
+        "rows": [
+          ["ex:alice"],
+          ["ex:charlie"]
+        ]
+      },
+      "tags": ["datalog", "filter", "numeric"]
+    },
+    {
+      "testId": "datalog-join-001",
+      "description": "Datalog rule with multiple body predicates (join)",
+      "inputFormat": "datalog-text",
+      "input": "colleague(?x, ?y) :- worksAt(?x, ?company), worksAt(?y, ?company), FILTER(?x != ?y) .",
+      "dataGraph": "@prefix ex: <http://example.org/> .\nex:alice ex:worksAt ex:CompanyA .\nex:bob ex:worksAt ex:CompanyA .\nex:charlie ex:worksAt ex:CompanyB .",
+      "expectedResult": {
+        "type": "IdTable",
+        "columns": ["?x", "?y"],
+        "rows": [
+          ["ex:alice", "ex:bob"],
+          ["ex:bob", "ex:alice"]
+        ]
+      },
+      "tags": ["datalog", "join", "filter"]
+    },
+    {
+      "testId": "datalog-empty-result-001",
+      "description": "Datalog rule with no matching data",
+      "inputFormat": "datalog-text",
+      "input": "nonExistent(?x) :- edge(?x, ?y), FILTER(?x = ex:z) .",
+      "dataGraph": "@prefix ex: <http://example.org/> .\nex:a ex:edge ex:b .",
+      "expectedResult": {
+        "type": "IdTable",
+        "columns": ["?x"],
+        "rows": []
+      },
+      "tags": ["datalog", "empty", "edge-case"]
+    }
+  ]
+}

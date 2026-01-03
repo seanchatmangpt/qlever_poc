@@ -1,0 +1,71 @@
+{
+  "$schema": "https://qlever.cs.uni-freiburg.de/schemas/formalism-negative-test-v1.json",
+  "version": "1.0",
+  "formalism": "Datalog",
+  "description": "Datalog negative test corpus - invalid inputs with expected rejections",
+  "tests": [
+    {
+      "testId": "datalog-invalid-syntax-001",
+      "description": "Missing body separator (comma)",
+      "inputFormat": "datalog-text",
+      "invalidInput": "ancestor(?x, ?y) :- parent(?x, ?z) ancestor(?z, ?y) .",
+      "expectedErrorType": "ParseException",
+      "expectedErrorPattern": "Expected comma|Missing separator",
+      "tags": ["syntax", "parse-error"]
+    },
+    {
+      "testId": "datalog-invalid-head-001",
+      "description": "Rule head with multiple predicates (invalid in Datalog)",
+      "inputFormat": "datalog-text",
+      "invalidInput": "ancestor(?x, ?y), descendant(?y, ?x) :- parent(?x, ?y) .",
+      "expectedErrorType": "ParseException",
+      "expectedErrorPattern": "Single predicate required in head|Invalid rule head",
+      "tags": ["syntax", "head", "parse-error"]
+    },
+    {
+      "testId": "datalog-unsafe-variable-001",
+      "description": "Unsafe variable in head (not in body)",
+      "inputFormat": "datalog-text",
+      "invalidInput": "unsafe(?x, ?y) :- edge(?x, ?z) .",
+      "expectedErrorType": "ValidationError",
+      "expectedErrorPattern": "Unsafe variable|Variable.*not in body",
+      "tags": ["safety", "variable", "validation-error"]
+    },
+    {
+      "testId": "datalog-negation-unsafe-001",
+      "description": "Unsafe negation (variable only in negated literal)",
+      "inputFormat": "datalog-text",
+      "invalidInput": "unsafe(?x) :- NOT edge(?x, ?y) .",
+      "expectedErrorType": "ValidationError",
+      "expectedErrorPattern": "Unsafe negation|Variable in negation only",
+      "tags": ["safety", "negation", "validation-error"]
+    },
+    {
+      "testId": "datalog-infinite-recursion-001",
+      "description": "Unbounded recursion without base case",
+      "inputFormat": "datalog-text",
+      "invalidInput": "infinite(?x) :- infinite(?x) .",
+      "expectedErrorType": "RecursionError",
+      "expectedErrorPattern": "Infinite recursion|No base case|Iteration limit exceeded",
+      "tags": ["recursion", "infinite-loop"]
+    },
+    {
+      "testId": "datalog-filter-syntax-001",
+      "description": "Invalid FILTER syntax in rule body",
+      "inputFormat": "datalog-text",
+      "invalidInput": "filtered(?x) :- edge(?x, ?y), FILTER ?x > ?y .",
+      "expectedErrorType": "ParseException",
+      "expectedErrorPattern": "Expected.*parentheses|Invalid FILTER syntax",
+      "tags": ["filter", "syntax", "parse-error"]
+    },
+    {
+      "testId": "datalog-empty-body-001",
+      "description": "Rule with empty body (fact in rule syntax)",
+      "inputFormat": "datalog-text",
+      "invalidInput": "fact(?x) :- .",
+      "expectedErrorType": "ParseException",
+      "expectedErrorPattern": "Empty body|Expected predicate",
+      "tags": ["syntax", "empty-body"]
+    }
+  ]
+}
