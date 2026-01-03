@@ -96,9 +96,8 @@ std::string computeDigest(const std::string& data) {
 // This stub is intentionally simple to keep tests focused on manifest loading
 // and digest computation infrastructure, not query execution.
 //
-// WARNING: This function returns the query itself, NOT query results.
-// All tests using this function (e.g., DISABLED_ValidateGoldenQueryResults)
-// must remain DISABLED until real query execution is implemented.
+// STUB: This function returns the query itself, NOT query results.
+// Real query execution is not implemented.
 std::string executeQueryAndGetCanonicalResult(const std::string& sparqlQuery) {
   // Stub: Return the query itself as a placeholder
   // This allows testing the hashing and validation infrastructure
