@@ -51,7 +51,7 @@ class LocaleManager {
    * another string. The actual storage can be a `std::string` or a
    * `std::string_view`.
    */
-  // TODO<GCC12> As soon as we have constexpr std::string, this class can
+  // Roadmap (GCC12): As soon as we have constexpr std::string, this class can
   //  become constexpr.
   using U8String = std::basic_string<uint8_t>;
   using U8StringView = std::basic_string_view<uint8_t>;
@@ -188,7 +188,7 @@ class LocaleManager {
       // clang-format on
       void getSortKey(std::string_view s, const Level level,
                       F resultFunction) const {
-    // TODO<joka921> This function is one of the bottlenecks of the first pass
+    // Roadmap: This function is one of the bottlenecks of the first pass
     // of the IndexBuilder One possible improvement is to reuse the memory
     // allocations for the `sortKeyBuffer`.
     auto utf16 = icu::UnicodeString::fromUTF8(toStringPiece(s));
@@ -457,7 +457,7 @@ class SimpleStringComparator {
    * level for this function to avoid mistakes
    * The Level argument is therefore ignored but left in as a dummy to make the
    * getLowerBoundLambda api of the Vocabulary easier.
-   * @TODO<joka921> Allow prefix ranges on different levels.
+   * Roadmap: Allow prefix ranges on different levels.
    * @param a A UTF-8 encoded string
    * @param b This Weight string has to be obtained by a previous call to
    * transformToFirstPossibleBiggerValue
@@ -489,7 +489,7 @@ class SimpleStringComparator {
    *
    * This is needed for calculating whether one string is a prefix of another
    * CAVEAT: This currently only supports the primary collation Level!!!
-   * <TODO<joka921>: Implement this on every level, either by fixing ICU or by
+   * Roadmap: Implement this on every level, either by fixing ICU or by
    * hacking the collation strings
    *
    * @param s A UTF-8 encoded string
@@ -718,7 +718,7 @@ class TripleComponentComparator {
    *
    * This is needed for calculating whether one string is a prefix of another
    * CAVEAT: This currently only supports the primary collation Level!!!
-   * <TODO<joka921>: Implement this on every level, either by fixing ICU or by
+   * Roadmap: Implement this on every level, either by fixing ICU or by
    * hacking the collation strings
    *
    * @param s A UTF-8 encoded string that contains an element of an RDF triple
@@ -781,7 +781,7 @@ class TripleComponentComparator {
     std::string_view langtag;
     if (ql::starts_with(res, '"')) {
       // only remove the first character in case of literals that always start
-      // with a quotation mark. For all other types we need this. <TODO> rework
+      // with a quotation mark. For all other types we need this. Roadmap: rework
       // the vocabulary's data type to remove ALL of those hacks
       res.remove_prefix(1);
       // In the case of prefix filters we might also have

@@ -1,9 +1,0 @@
-{
-  "git_commit": "abc123def456",
-  "build_timestamp": "2026-01-02T18:00:00Z",
-  "architecture": "x86_64",
-  "simd_features": ["AVX2", "AVX512"],
-  "os": "Linux",
-  "kernel_version": "6.5.0",
-  "compiler": "rustc 1.74.0"
-}

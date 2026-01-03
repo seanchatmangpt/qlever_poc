@@ -153,7 +153,7 @@ class AllocatorWithLimit {
  private:
   detail::AllocationMemoryLeftThreadsafe
       memoryLeft_;                       // shared number of free bytes
-  ClearOnAllocation clearOnAllocation_;  // TODO<joka921> comment
+  ClearOnAllocation clearOnAllocation_;  // Roadmap: comment
   std::allocator<T> allocator_;
 
  public:
@@ -217,7 +217,7 @@ class AllocatorWithLimit {
   }
 
   // An allocator must have a function "allocate" with exactly this signature.
-  // TODO<C++20> : the exact signature of allocate changes
+  // Roadmap (C++20): : the exact signature of allocate changes
   T* allocate(std::size_t n) {
     // Subtract the amount of memory we want to allocate from the amount of
     // memory left. This will throw an exception if not enough memory is left.

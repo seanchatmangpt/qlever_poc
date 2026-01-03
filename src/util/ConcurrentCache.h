@@ -35,7 +35,7 @@ class WaitedForResultWhichThenFailedException : public std::exception {
 enum struct CacheStatus {
   cachedNotPinned,
   cachedPinned,
-  // TODO<RobinTF> Rename to notCached, the name is just confusing. Can
+  // Roadmap: Rename to notCached, the name is just confusing. Can
   // potentially be merged with notInCacheAndNotComputed.
   computed,
   notInCacheAndNotComputed

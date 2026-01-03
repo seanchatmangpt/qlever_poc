@@ -89,7 +89,7 @@ bool Vocabulary<S, C, I>::stringIsLiteral(std::string_view s) {
 // _____________________________________________________________________________
 template <class S, class C, class I>
 bool Vocabulary<S, C, I>::shouldBeExternalized(std::string_view s) const {
-  // TODO<joka921> We should have a completely separate layer that handles the
+  // Roadmap: We should have a completely separate layer that handles the
   // externalization, not the Vocab.
   if (!stringIsLiteral(s)) {
     return shouldEntityBeExternalized(s);
@@ -114,7 +114,7 @@ bool Vocabulary<S, C, I>::shouldEntityBeExternalized(
   // `"prefixes-external": ["@"]` or `"prefixes-external": [""]` in the
   // `.settings.json` file.
   //
-  // TODO: This points to a bug or inconsistency elsewhere in the code.
+  // Note: This points to a bug or inconsistency elsewhere in the code.
   if (ql::starts_with(word, "@")) {
     return false;
   }

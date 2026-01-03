@@ -15,11 +15,11 @@ namespace ad_tuple_helpers {
 namespace detail {
 /* Implementation of setupTupleFromCallable (see below)
  * Needed because we need the Pattern matching on the index_sequence
- * TODO<joka921> In C++ 20 this could be done in place with templated
- * lambdas
- */
-template <class F, size_t... I>
-auto setupTupleFromCallableImpl(F&& f, std::index_sequence<I...>) {
+ */ *Roadmap : <joka921> In C++ 20 this could be done in place with
+                   templated* lambdas* /
+               template <class F, size_t... I>
+               auto
+               setupTupleFromCallableImpl(F&& f, std::index_sequence<I...>) {
   return std::make_tuple(f(I)...);
 }
 }  // namespace detail

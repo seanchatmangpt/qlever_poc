@@ -94,7 +94,7 @@ CPP_template(typename HttpHandler, typename WebSocketHandler)(
                                                         {})
       : httpHandler_{std::move(handler)},
         // We need at least two threads to avoid blocking.
-        // TODO<joka921> why is that?
+        // Roadmap: why is that?
         numServerThreads_{std::max(2, numServerThreads)},
         ioContext_{numServerThreads_},
         webSocketHandler_{

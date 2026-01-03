@@ -12,7 +12,7 @@
 // first. Otherwise, there will be "redefinition" warnings when compiling and
 // possible segmentation faults at runtime.
 //
-// TODO: It goes without saying that we should try to get rid of this anomaly as
+/* Roadmap:: It goes without saying that we should try to get rid of this anomaly as
 // soon as possible. We should avoid redefining variables in the beast code, the
 // order of the includes should not matter, and it should certainly not cause
 // segmentation faults.
@@ -125,3 +125,5 @@ HttpOrHttpsResponse sendHttpOrHttpsRequest(
 
 #endif
 #endif  // QLEVER_SRC_UTIL_HTTP_HTTPCLIENT_H
+
+

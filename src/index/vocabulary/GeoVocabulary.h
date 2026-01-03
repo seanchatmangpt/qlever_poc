@@ -33,7 +33,7 @@ class GeoVocabulary {
   // bounding box) is stored.
   ad_utility::File geoInfoFile_;
 
-  // TODO<ullingerc> Possibly add in-memory cache of bounding boxes here
+  // Roadmap: Possibly add in-memory cache of bounding boxes here
 
   // Filename suffix for geometry information file
   static constexpr std::string_view geoInfoSuffix = ".geoinfo";

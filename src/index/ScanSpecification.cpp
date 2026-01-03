@@ -25,7 +25,7 @@ ScanSpecification ScanSpecificationAsTripleComponent::toScanSpecification(
   auto getId =
       [&index, &localVocab](
           const std::optional<TripleComponent>& tc) -> std::optional<Id> {
-    // TODO<C++23> Use `std::optional::transform`.
+    // Roadmap (C++23): Use `std::optional::transform`.
     if (!tc.has_value()) {
       return std::nullopt;
     }

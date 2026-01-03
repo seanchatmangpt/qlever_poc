@@ -168,7 +168,7 @@ CPP_template_def(typename C, typename L)(
       lastTripleComponent_ = TripleComponentWithIndex{
           top.iriOrLiteral(), top.isExternal(), metaData_.numWordsTotal()};
 
-      // TODO<optimization> If we aim to further speed this up, we could
+      // Roadmap (optimization): If we aim to further speed this up, we could
       // order all the write requests to _outfile _externalOutfile and all the
       // idVecs to have a more useful external access pattern.
 

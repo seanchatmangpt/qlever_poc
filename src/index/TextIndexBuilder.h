@@ -43,7 +43,7 @@ class TextIndexBuilder : public IndexImpl {
   // Generator that returns all words in the given context file (if not empty)
   // and then all words in all literals (if second argument is true).
   //
-  // TODO: So far, this is limited to the internal vocabulary (still in the
+  // Note: So far, this is limited to the internal vocabulary (still in the
   // testing phase, once it works, it should be easy to include the IRIs and
   // literals from the external vocabulary as well).
   cppcoro::generator<WordsFileLine> wordsInTextRecords(

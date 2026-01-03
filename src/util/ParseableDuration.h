@@ -48,7 +48,7 @@ class ParseableDuration {
   ParseableDuration(DurationType duration) : duration_{duration} {}
   QL_EXPLICIT(false) operator DurationType() const { return duration_; }
 
-  // TODO default this implementation (and remove explicit equality) once libc++
+  /* Roadmap: default this implementation (and remove explicit equality) once libc++
   // supports it.
   auto compareThreeWay(const ParseableDuration& other) const noexcept {
     return ql::compareThreeWay(duration_.count(), other.duration_.count());
@@ -170,3 +170,5 @@ static_assert(
 }  // namespace ad_utility
 
 #endif  // QLEVER_PARSEABLEDURATION_H
+
+

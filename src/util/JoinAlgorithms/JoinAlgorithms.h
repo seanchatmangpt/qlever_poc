@@ -105,7 +105,7 @@ CPP_concept HasAddRows = CPP_requires_ref(HasAddRowsRequires, F, It1, It2);
  * means that all the calls to `compatibleRowAction` were ordered wrt
  * `lessThan`. A result being out of order can happen if two rows with UNDEF
  * values in different places are merged, or when performing OPTIONAL or MINUS
- * with UNDEF values in the left input. TODO<joka921> The second of the
+ * with UNDEF values in the left input./* Roadmap:<joka921> The second of the
  * described cases leads to two sorted ranges in the output, this can possibly
  * be exploited to fix the result in a cheaper way than a full sort.
  * The `CoverUndefRanges` parameter is used to disable coverage checks for
@@ -268,7 +268,7 @@ CPP_template(typename Range1, typename Range2, typename LessThan,
 
       // Find the following ranges in `left` and `right` where the elements are
       // equal.
-      // TODO <joka921> Maybe we can pass in the equality operator for increased
+      /* Roadmap: <joka921> Maybe we can pass in the equality operator for increased
       // performance. We can also use `lessThan` directly, but then the order of
       // the two loops above is important.
       auto eq = [&lessThan](const auto& el1, const auto& el2) {
@@ -288,7 +288,7 @@ CPP_template(typename Range1, typename Range2, typename LessThan,
       }
 
       // Add all the matching rows to the result.
-      // TODO<joka921> We should at some point enforce that all the
+      // Roadmap: We should at some point enforce that all the
       // `CompatibleRowAction`s support adding multiple rows at once.
       if constexpr (joinAlgorithms::detail::HasAddRows<
                         CompatibleRowAction, decltype(it1), decltype(it2)>) {
@@ -592,7 +592,7 @@ CPP_template(typename CompatibleActionT, typename NotFoundActionT,
                                 lastColumnRight.begin() + end};
 
     // Set up the generator for the UNDEF values.
-    // TODO<joka921> We could probably also apply this optimization if both
+    // Roadmap: We could probably also apply this optimization if both
     // inputs contain UNDEF values only in the last column, and possibly
     // also not only for `OPTIONAL` joins.
     auto endOfUndef = ql::ranges::find_if_not(leftSub, &Id::isUndefined);
@@ -825,7 +825,7 @@ static constexpr size_t FETCH_BLOCKS = 3;
 // blocks on the right side, it suffices to have the 5 blocks from the left side
 // plus 1 block from the right side in the buffers at the same time.
 //
-// TODO<joka921> When an element appears in very many blocks on both sides we
+// Roadmap: When an element appears in very many blocks on both sides we
 // currently have a very high memory consumption. To fix this, one would need to
 // have the possibility to revisit blocks that were seen earlier.
 //
@@ -849,7 +849,6 @@ CPP_template(typename LeftSide, typename RightSide, typename LessThan,
 
   using LeftBlocks = typename LeftSide::CurrentBlocks;
   using RightBlocks = typename RightSide::CurrentBlocks;
-
 // We can't define aliases for these concepts, so we use macros instead.
 #if defined(Side) || defined(Blocks)
 #error Side or Blocks are already defined
@@ -965,7 +964,7 @@ CPP_template(typename LeftSide, typename RightSide, typename LessThan,
                      const ProjectedEl& currentEl) {
     AD_CORRECTNESS_CHECK(!currentBlocks.empty());
     const auto& first = currentBlocks.at(0);
-    // TODO<joka921> ql::ranges::lower_bound doesn't work here.
+    // Roadmap: ql::ranges::lower_bound doesn't work here.
     auto it = std::lower_bound(first.subrange().begin(), first.subrange().end(),
                                currentEl, lessThan_);
     // Note: `std::make_tuple` will convert the `reference_wrapper` returned by
@@ -985,7 +984,7 @@ CPP_template(typename LeftSide, typename RightSide, typename LessThan,
   // blocks on the right and add them to the result.
   void addCartesianProduct(const LeftBlocks& blocksLeft,
                            const RightBlocks& blocksRight) {
-    // TODO<C++23> use `ql::views::cartesian_product`.
+    // Roadmap (C++23): use `ql::views::cartesian_product`.
     for (const auto& lBlock : blocksLeft) {
       for (const auto& rBlock : blocksRight) {
         compatibleRowAction_.setInput(lBlock.fullBlock(), rBlock.fullBlock());
@@ -1037,7 +1036,7 @@ CPP_template(typename LeftSide, typename RightSide, typename LessThan,
       return result;
     }
     auto& last = result.back();
-    // TODO<joka921> `ql::ranges::equal_range` doesn't work here for some
+    // Roadmap: `ql::ranges::equal_range` doesn't work here for some
     // reason.
     auto [begin, end] = std::equal_range(
         last.subrange().begin(), last.subrange().end(), currentEl, lessThan_);
@@ -1074,9 +1073,9 @@ CPP_template(typename LeftSide, typename RightSide, typename LessThan,
       compatibleRowAction_.setInput(fullBlockLeft, fullBlockRight);
     };
 
-    // TODO<joka921> improve the `CachingTransformInputRange` to make it movable
+    // Roadmap: improve the `CachingTransformInputRange` to make it movable
     // without having to specify `makeAssignableLambda`.
-    // TODO<joka921> Down with `OwningView`.
+    // Roadmap: Down with `OwningView`.
     return ad_utility::CallbackOnEndView{
         ql::views::join(
             ad_utility::OwningView{ad_utility::CachingTransformInputRange(
@@ -1402,7 +1401,7 @@ CPP_template(typename LeftSide, typename RightSide, typename LessThan,
       if (!endIsUndefined) {
         auto& lastUndefinedBlock = side.undefBlocks_.back();
         side.currentBlocks_.push_back(lastUndefinedBlock);
-        // TODO<joka921> ql::ranges::equal_range doesn't work for some reason.
+        // Roadmap: ql::ranges::equal_range doesn't work for some reason.
         decltype(auto) subrange = lastUndefinedBlock.subrange();
         auto [begin, end] = std::equal_range(subrange.begin(), subrange.end(),
                                              subrange.front(), lessThan_);
@@ -1497,7 +1496,7 @@ CPP_template(typename LeftSide, typename RightSide, typename LessThan,
       joinBuffers<isOptionalOrMinus, ProjectedEl>(blockStatus);
     }
   }
-  // Don't clutter other compilation units with these aliases.
+        // Don't clutter other compilation units with these aliases.
 #undef Side
 #undef Blocks
 };

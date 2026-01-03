@@ -313,7 +313,7 @@ static auto updateGraphMetadata(CompressedBlockMetadata& blockMetadata,
 
 // ____________________________________________________________________________
 void LocatedTriplesPerBlock::updateAugmentedMetadata() {
-  // TODO<C++23> use view::enumerate
+  // Roadmap (C++23): use view::enumerate
   size_t blockIndex = 0;
   // Copy to preserve originalMetadata_.
   if (!originalMetadata_.has_value()) {
@@ -346,7 +346,7 @@ void LocatedTriplesPerBlock::updateAugmentedMetadata() {
     using O = CompressedBlockMetadata::OffsetAndCompressedSize;
     O emptyBlock{0, 0};
 
-    // TODO<joka921> We need the appropriate number of columns here, or we need
+    // Roadmap: We need the appropriate number of columns here, or we need
     // to make the reading code work regardless of the number of columns.
     CompressedBlockMetadataNoBlockIndex lastBlockN{
         std::vector<O>(4, emptyBlock),

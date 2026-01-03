@@ -114,7 +114,7 @@ struct CompressedRelationWriter::PermutationWriter {
   ad_utility::AllocatorWithLimit<ValueId> alloc_{
       ad_utility::makeUnlimitedAllocator<Id>()};
 
-  // TODO<joka921> Use call_fixed_size if there is benefit to it.
+  // Roadmap: Use call_fixed_size if there is benefit to it.
   IdTableStatic<0> relation_{numColumns_, alloc_};
   size_t numBlocksCurrentRel_ = 0;
 
@@ -317,8 +317,8 @@ struct CompressedRelationWriter::PermutationWriter {
         col0IdCurrentRelation_ = firstCol[0];
       }
 
-      // TODO<C++23> Use `views::zip` (some compilers currently have trouble
-      // with `::ranges::views::zip`).
+      // Roadmap (C++23): Use `views::zip` (some compilers currently have
+      // trouble with `::ranges::views::zip`).
       for (size_t idx : ad_utility::integerRange(block.numRows())) {
         Id col0Id = firstCol[idx];
         decltype(auto) curRemainingCols = permutedCols[idx];

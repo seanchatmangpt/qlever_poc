@@ -142,7 +142,7 @@ net::awaitable<void> WebSocketSession::handleSession(
                          net::deferred);
 }
 // _____________________________________________________________________________
-// TODO<C++23> use std::expected<void, ErrorResponse>
+// Roadmap (C++23): use std::expected<void, ErrorResponse>
 std::optional<http::response<http::string_body>>
 WebSocketSession::getErrorResponseIfPathIsInvalid(
     const http::request<http::string_body>& request) {

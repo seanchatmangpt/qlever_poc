@@ -1149,7 +1149,7 @@ Visitor::OperationsAndFilters Visitor::visit(
     std::visit(ad_utility::OverloadCallOperator{filter, op},
                std::move(graphPattern));
 
-    // TODO<C++23>: use `optional.transform` for this pattern.
+    // Roadmap (C++23): use `optional.transform` for this pattern.
     if (!triples.has_value()) {
       continue;
     }
@@ -1261,7 +1261,7 @@ GraphPatternOperation Visitor::visit(Parser::ServiceGraphPatternContext* ctx) {
   // `std::variant<Variable, GraphTerm>`, where `GraphTerm` is a
   // `std::variant<Literal, BlankNode, Iri>`, hence the `AD_CONTRACT_CHECK`.
   //
-  // TODO: Also support variables. The semantics is to make a connection for
+  // Roadmap: Also support variables. The semantics is to make a connection for
   // each IRI matching the variable and take the union of the results.
   VarOrIri varOrIri = visit(ctx->varOrIri());
   using Iri = TripleComponent::Iri;
@@ -1441,7 +1441,7 @@ std::string Visitor::visit(Parser::IrirefContext* ctx) const {
   if (baseIri_.empty()) {
     return ctx->getText();
   }
-  // TODO<RobinTF> Avoid unnecessary string copies because of conversion.
+  // Roadmap: Avoid unnecessary string copies because of conversion.
   // Handle IRIs with base IRI.
   return ad_utility::triple_component::Iri::fromIrirefConsiderBase(
              ctx->getText(), baseIri_.getBaseIri(false),
@@ -1461,7 +1461,7 @@ std::string Visitor::visit(Parser::PnameLnContext* ctx) {
   auto pnameNS = text.substr(0, pos);
   auto pnLocal = text.substr(pos + 1);
   if (!prefixMap_.contains(pnameNS)) {
-    // TODO<joka921> : proper name
+    // Roadmap: proper name
     reportError(ctx, "Prefix " + pnameNS +
                          " was not registered using a PREFIX declaration");
   }
@@ -1476,7 +1476,7 @@ std::string Visitor::visit(Parser::PnameNsContext* ctx) {
   auto text = ctx->getText();
   auto prefix = text.substr(0, text.length() - 1);
   if (!prefixMap_.contains(prefix)) {
-    // TODO<joka921> : proper name
+    // Roadmap: proper name
     reportError(ctx, "Prefix " + prefix +
                          " was not registered using a PREFIX declaration");
   }
@@ -1709,7 +1709,7 @@ GraphPatternOperation Visitor::visit(
       return GraphPatternOperation{
           parsedQuery::Union{wrap(std::move(op1)), std::move(op2)}};
     };
-    // TODO<joka921> QLever should support Nary UNIONs directly.
+    // Roadmap: QLever should support Nary UNIONs directly.
     return std::accumulate(std::next(children.begin(), 2), children.end(),
                            GraphPatternOperation{parsedQuery::Union{
                                std::move(children[0]), std::move(children[1])}},
@@ -1841,7 +1841,7 @@ PredicateObjectPairsAndTriples Visitor::visit(
   auto verbs = ctx->verb();
   auto objectLists = ctx->objectList();
   for (size_t i = 0; i < verbs.size(); i++) {
-    // TODO use zip-style approach once C++ supports ranges
+    // Roadmap (C++23): use zip-style approach once C++ supports ranges
     auto objectList = visit(objectLists.at(i));
     auto verb = visit(verbs.at(i));
     for (auto& object : objectList.first) {
@@ -2199,7 +2199,7 @@ uint64_t Visitor::visit(Parser::IntegerContext* ctx) {
   try {
     // unsigned long long int might be larger than 8 bytes as per the standard.
     // If that were the case this could lead to overflows.
-    // TODO<joka921> Use `std::from_chars` but first check for the compiler
+    // Roadmap: Use `std::from_chars` but first check for the compiler
     //  support.
     static_assert(sizeof(unsigned long long int) == sizeof(uint64_t));
     return std::stoull(ctx->getText());
@@ -2323,7 +2323,7 @@ GraphTerm Visitor::visit(Parser::GraphTermContext* ctx) {
   if (ctx->blankNode()) {
     return visit(ctx->blankNode());
   } else if (ctx->iri()) {
-    // TODO<joka921> Unify.
+    // Roadmap: Unify.
     return Iri{std::string{visit(ctx->iri()).toStringRepresentation()}};
   } else if (ctx->NIL()) {
     return Iri{"<http://www.w3.org/1999/02/22-rdf-syntax-ns#nil>"};
@@ -2903,7 +2903,7 @@ ExpressionPtr Visitor::visit(Parser::AggregateContext* ctx) {
 
     std::string separator;
     if (ctx->string()) {
-      // TODO: The string rule also allow triple quoted strings with different
+      // Note: The string rule also allow triple quoted strings with different
       //  escaping rules. These are currently not handled. They should be
       //  parsed into a typesafe format with a unique representation.
       separator = visit(ctx->string()).get();
@@ -2935,13 +2935,13 @@ ExpressionPtr Visitor::visit(Parser::IriOrFunctionContext* ctx) {
 
 // ____________________________________________________________________________________
 std::string Visitor::visit(Parser::RdfLiteralContext* ctx) {
-  // TODO: This should really be an RdfLiteral class that stores a unified
+  // Roadmap: This should really be an RdfLiteral class that stores a unified
   //  version of the string, and the langtag/datatype separately.
   std::string ret = ctx->string()->getText();
   if (ctx->LANGTAG()) {
     ret += ctx->LANGTAG()->getText();
   } else if (ctx->iri()) {
-    // TODO<joka921> Also unify the two Literal classes...
+    // Roadmap: Also unify the two Literal classes...
     ret += "^^" + visit(ctx->iri()).toStringRepresentation();
   }
   return ret;

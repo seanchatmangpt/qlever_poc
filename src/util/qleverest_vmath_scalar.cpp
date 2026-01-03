@@ -5,12 +5,13 @@
 //
 // CRITICAL: This file compiles WITHOUT hardware-specific flags.
 // Provides 100% portable fallback for all vector operations.
-// All SIMD backends must produce bit-identical results to these implementations.
-
-#include "util/qleverest_vmath_abstraction.hpp"
+// All SIMD backends must produce bit-identical results to these
+// implementations.
 
 #include <algorithm>
 #include <numeric>
+
+#include "util/qleverest_vmath_abstraction.hpp"
 
 namespace qlever::vmath {
 
@@ -21,7 +22,7 @@ namespace qlever::vmath {
 void fillRepeated(std::span<int64_t> dest, int64_t value,
                   Backend backend) noexcept {
   if (backend != Backend::Scalar) {
-    // TODO: Dispatch to SIMD backends when implemented
+  /* Roadmap:: Dispatch to SIMD backends when implemented
     // For now, fallback to scalar
   }
 
@@ -32,7 +33,7 @@ void fillRepeated(std::span<int64_t> dest, int64_t value,
 void vectorCopy(std::span<const int64_t> src, std::span<int64_t> dest,
                 Backend backend) noexcept {
   if (backend != Backend::Scalar) {
-    // TODO: Dispatch to SIMD backends when implemented
+    /* Roadmap:: Dispatch to SIMD backends when implemented
     // For now, fallback to scalar
   }
 
@@ -44,7 +45,7 @@ void vectorCopy(std::span<const int64_t> src, std::span<int64_t> dest,
 
 int64_t vectorSum(std::span<const int64_t> src, Backend backend) noexcept {
   if (backend != Backend::Scalar) {
-    // TODO: Dispatch to SIMD backends when implemented
+    /* Roadmap:: Dispatch to SIMD backends when implemented
     // For now, fallback to scalar
   }
 
@@ -55,7 +56,7 @@ int64_t vectorSum(std::span<const int64_t> src, Backend backend) noexcept {
 
 int64_t vectorMin(std::span<const int64_t> src, Backend backend) noexcept {
   if (backend != Backend::Scalar) {
-    // TODO: Dispatch to SIMD backends when implemented
+    /* Roadmap:: Dispatch to SIMD backends when implemented
     // For now, fallback to scalar
   }
 
@@ -69,7 +70,7 @@ int64_t vectorMin(std::span<const int64_t> src, Backend backend) noexcept {
 
 int64_t vectorMax(std::span<const int64_t> src, Backend backend) noexcept {
   if (backend != Backend::Scalar) {
-    // TODO: Dispatch to SIMD backends when implemented
+    /* Roadmap:: Dispatch to SIMD backends when implemented
     // For now, fallback to scalar
   }
 
@@ -85,7 +86,7 @@ void vectorCompare(std::span<const int64_t> src, int64_t compareValue,
                    CompareOp op, std::span<bool> result,
                    Backend backend) noexcept {
   if (backend != Backend::Scalar) {
-    // TODO: Dispatch to SIMD backends when implemented
+    /* Roadmap:: Dispatch to SIMD backends when implemented
     // For now, fallback to scalar
   }
 
@@ -117,3 +118,5 @@ void vectorCompare(std::span<const int64_t> src, int64_t compareValue,
 }
 
 }  // namespace qlever::vmath
+
+

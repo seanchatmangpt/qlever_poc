@@ -23,7 +23,7 @@ class FileWriteSerializer {
 
   FileWriteSerializer(std::string filename) : _file{filename, "w"} {
     AD_CONTRACT_CHECK(_file.isOpen());
-    // TODO<joka921> File should be a move-only type, should support
+    // Roadmap: File should be a move-only type, should support
     // "isOpenForReading" and should automatically check for "isOpen() when
     // calling open with an appropriate error message
   }

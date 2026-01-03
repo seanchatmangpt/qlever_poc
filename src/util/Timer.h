@@ -40,7 +40,7 @@ class Timer {
   // immediately started or not.
   enum class InitialStatus { Started, Stopped };
   // Allow the usage of `Timer::Started` and `Timer::Stopped`.
-  // TODO<joka921, GCC 12.3> This could be `using enum InitialStatus`,
+  /* Roadmap:<joka921, GCC 12.3> This could be `using enum InitialStatus`,
   // but that leads to an internal compiler error in GCC. I suspect that it is
   // this bug: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=103081
   static constexpr InitialStatus Started = InitialStatus::Started;
@@ -55,7 +55,7 @@ class Timer {
   }
 
   // Convert a `Duration` to seconds (as a plain `double`).
-  // TODO<joka921> As soon as we have `std::format` or something similar that
+  // Roadmap: As soon as we have `std::format` or something similar that
   // allows for simple formatting of `std::chrono` types, these functions
   // also should return `std::chrono::duration` for more typesafety.
   static double toSeconds(Duration d) {
@@ -228,3 +228,5 @@ using timer::Timer;
 }  // namespace ad_utility
 
 #endif  // QLEVER_SRC_UTIL_TIMER_H
+
+

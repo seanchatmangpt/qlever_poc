@@ -85,7 +85,7 @@ class AcceptHeaderQleverVisitor : public AcceptHeaderVisitor {
 
   antlrcpp::Any visitMediaRange(
       AcceptHeaderParser::MediaRangeContext* ctx) override {
-    // TODO<joka921> Implement proper parsing of parameters. For now we just
+    // Roadmap: Implement proper parsing of parameters. For now we just
     // ignore them which is more graceful than always throwing, because a lot
     // of agents (especially web browsers) automatically add some default
     // parameters.

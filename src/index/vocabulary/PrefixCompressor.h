@@ -17,7 +17,7 @@
 #include "util/Serializer/SerializeVector.h"
 #include "util/StringUtils.h"
 
-// TODO<joka921> Include the relevant constants directly here.
+// Roadmap: Include the relevant constants directly here.
 
 /// Compression and decompression of words given a codebook of common prefixes.
 /// The maximum number of prefixes is `NUM_COMPRESSION_PREFIXES` (currently
@@ -78,7 +78,7 @@ class PrefixCompressor {
   // efficient lookup. The prefixes do not have to be in any specific order. The
   // type of `prefixes` can be any type for which `for (const string& el :
   // prefixes) {...}` works.
-  // TODO<joka921> Make this a part of the constructor, as soon as we have
+  // Roadmap: Make this a part of the constructor, as soon as we have
   // integrated this code into qlever.
   template <typename StringRange>
   void buildCodebook(const StringRange& prefixes) {

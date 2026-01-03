@@ -198,10 +198,10 @@ class BatchedPipeline {
   std::future<Batch<ResT>> fut_;
 
  public:
-  /* TODO<joka921>: Currently the Transformers have to be copy-constructible.
-   * could be changed to some kind of perfect forwarding should this ever become
-   * an issue, but copying is pretty much the default for Function objects in
-   * C++
+  /*/* Roadmap:<joka921>: Currently the Transformers have to be
+   * copy-constructible. could be changed to some kind of perfect forwarding
+   * should this ever become an issue, but copying is pretty much the default
+   * for Function objects in C++
    */
   BatchedPipeline(PreviousStage&& p, FirstTransformer t, Transformers... ts)
       : transformers_(toUniquePtrTuple(t, ts...)),
@@ -526,7 +526,7 @@ class BatchExtractor {
 
   /**
    * @brief for all steps in the pipeline, report how long their calls to
-   * pickupBatch were blocking. TODO<joka921>: how useful is this measure?
+   * pickupBatch were blocking./* Roadmap:<joka921>: how useful is this measure?
    */
   [[nodiscard]] std::vector<Timer::Duration> getWaitingTime() const {
     auto res = pipeline_->getWaitingTime();

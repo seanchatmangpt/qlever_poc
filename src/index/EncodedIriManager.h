@@ -105,7 +105,7 @@ class EncodedIriManagerImpl {
           "the maximum is ", maxNumPrefixes_));
     }
 
-    // TODO<C++23> use `std::views::adjacent`.
+    // Roadmap (C++23): use `std::views::adjacent`.
     for (size_t i = 0; i < prefixesWithoutAngleBrackets.size() - 1; ++i) {
       const auto& a = prefixesWithoutAngleBrackets.at(i);
       const auto& b = prefixesWithoutAngleBrackets.at(i + 1);

@@ -55,8 +55,8 @@ constexpr uint64_t V_CURRENT = V_SERIALIZATION_LIBRARY;
 
 // The meta data for an index permutation.
 //
-// TODO<C++20>: The datatype wrappers defined in MetaDataHandler.h all meet the
-// requirements of MapType. Write this down using a C++20 concept.
+// Roadmap (C++20):: The datatype wrappers defined in MetaDataHandler.h all meet
+// the requirements of MapType. Write this down using a C++20 concept.
 template <class M>
 class IndexMetaData {
   // Type definitions.
@@ -74,7 +74,7 @@ class IndexMetaData {
   std::string name_;
   std::string filename_;
 
-  // TODO: For each of the following two (data_ and blockData_), both the type
+  // Note: For each of the following two (data_ and blockData_), both the type
   // name and the variable name are terrible.
 
   // For each relation, its meta data.

@@ -221,7 +221,7 @@ using BlockMetadataRanges = std::vector<BlockMetadataRange>;
 // permutation).
 struct CompressedRelationMetadata {
   Id col0Id_;
-  // TODO: Is this still needed? Same for `offsetInBlock_`.
+  // Note: Is this still needed? Same for `offsetInBlock_`.
   size_t numRows_;
   float multiplicityCol1_;  // E.g., in PSO this is the multiplicity of "S".
   float multiplicityCol2_;  // E.g., in PSO this is the multiplicity of "O".
@@ -931,7 +931,7 @@ class CompressedRelationReader {
           const LimitOffsetClause& limitOffset) const;
 };
 
-// TODO<joka921>
+// Roadmap:
 /*
  * 1. Also let the compressedRelationReader know about the number of columns
  * that the given permutation has.

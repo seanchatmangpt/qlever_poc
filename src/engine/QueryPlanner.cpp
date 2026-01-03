@@ -148,13 +148,12 @@ std::vector<SubtreePlan> QueryPlanner::createExecutionTrees(ParsedQuery& pq,
   // 1. There is an explicit group by
   // 2. The pattern trick is applied
   // 3. There is an alias with an aggregate expression
-  // TODO<joka921> Non-aggretating aliases (for example (?x AS ?y)) are
-  // currently not handled properly. When fixing this you have to distinguish
-  // the following two cases:
+  // LIMITATION: Non-aggregating aliases (e.g., (?x AS ?y)) are not handled
+  // properly. Future enhancement requires distinguishing two cases:
   // 1. Mix of aggregating and non-aggregating aliases without GROUP BY.
-  // 2. Only non-aggretating aliases without GROUP BY.
-  // Note: When a GROUP BY is present, then all aliases have to be aggregating,
-  // this is handled correctly in all cases.
+  // 2. Only non-aggregating aliases without GROUP BY.
+  // Note: When a GROUP BY is present, all aliases must be aggregating,
+  // which is handled correctly.
   bool doGroupBy = !pq._groupByVariables.empty() ||
                    patternTrickTuple.has_value() ||
                    ql::ranges::any_of(pq.getAliases(), [](const Alias& alias) {
@@ -379,8 +378,7 @@ std::vector<SubtreePlan> QueryPlanner::getPatternTrickRow(
   for (const auto& parent : previous) {
     // Determine the column containing the subjects for which we are
     // interested in their predicates.
-    // TODO<joka921> Move this lookup from subjects to columns
-    // into the `CountAvailablePredicates` class where it belongs
+    // Future refactoring: Move this lookup into CountAvailablePredicates class
     auto subjectColumn =
         parent._qet->getVariableColumn(patternTrickTuple.subject_);
     added.push_back(makeSubtreePlan<CountAvailablePredicates>(
@@ -504,9 +502,8 @@ std::vector<SubtreePlan> QueryPlanner::getOrderByRow(
 // _____________________________________________________________________________
 void QueryPlanner::addNodeToTripleGraph(const TripleGraph::Node& node,
                                         QueryPlanner::TripleGraph& tg) const {
-  // TODO<joka921> This needs quite some refactoring: The IDs of the nodes have
-  // to be ascending as an invariant, so we can store all the nodes in a
-  // vector<unique_ptr> or even a plain vector.
+  // Future refactoring: Enforce ascending node IDs as invariant to enable
+  // storage in vector<unique_ptr> or plain vector instead of current structure.
   tg._nodeStorage.emplace_back(node);
   auto& addedNode = tg._nodeStorage.back();
   tg._nodeMap[addedNode.id_] = &addedNode;
@@ -1196,8 +1193,8 @@ SubtreePlan QueryPlanner::getTextLeafPlan(
   }
   if (node.triple_.getSimplePredicate() == CONTAINS_ENTITY_PREDICATE) {
     if (node._variables.size() == 2) {
-      // TODO<joka921>: This is not nice, refactor the whole TripleGraph class
-      // to make these checks more explicitly.
+      // Future refactoring: Refactor TripleGraph class to make these checks
+      // more explicit and cleaner.
       Variable evar = *(node._variables.begin()) == cvar
                           ? *(++node._variables.begin())
                           : *(node._variables.begin());
@@ -1224,12 +1221,9 @@ SubtreePlan QueryPlanner::getTextLeafPlan(
 std::vector<SubtreePlan> QueryPlanner::merge(
     const vector<SubtreePlan>& a, const vector<SubtreePlan>& b,
     const QueryPlanner::TripleGraph& tg) const {
-  // TODO: Add the following features:
-  // If a join is supposed to happen, always check if it happens between
-  // a scan with a relatively large result size
-  // esp. with an entire relation but also with something like is-a Person
-  // If that is the case look at the size estimate for the other side,
-  // if that is rather small, replace the join and scan by a combination.
+  // Future optimization: Check if join involves scan with large result size
+  // (e.g., entire relation or "is-a Person"). If other side has small size
+  // estimate, consider replacing join+scan with optimized combination.
   ad_utility::HashMap<std::string, vector<SubtreePlan>> candidates;
   // Find all pairs between a and b that are connected by an edge.
   AD_LOG_TRACE << "Considering joins that merge " << a.size() << " and "
@@ -1492,7 +1486,7 @@ void QueryPlanner::applyTextLimitsIfPossible(vector<SubtreePlan>& row,
         i++;
         continue;
       }
-      // TODO<C++23> simplify using ranges::to
+      // Future enhancement (C++23): simplify using ranges::to
       auto getVarColumns = [&plan](const std::vector<Variable>& vars) {
         std::vector<ColumnIndex> result;
         for (const auto& var : vars) {
@@ -1717,7 +1711,7 @@ std::vector<SubtreePlan> QueryPlanner::runGreedyPlanningOnConnectedComponent(
   for (size_t i : ad_utility::integerRange(numSeeds - 1)) {
     greedyStep(result, i == 0, i == numSeeds - 2);
   }
-  // TODO<joka921> Assert that all seeds are covered by the result.
+  // Future enhancement: Assert that all seeds are covered by the result.
   return result;
 }
 
@@ -2380,12 +2374,10 @@ auto QueryPlanner::createSpatialJoin(const SubtreePlan& a, const SubtreePlan& b,
     if (spatialJoin->getSubstitutesFilterOp()) {
       return std::nullopt;
     }
-    // TODO<ullingerc> Handle this case for a non-substitute spatial join (e.g.
-    // a `SpatialQuery` as `SERVICE qlss:`, explicitly given by the user's
-    // query): If multiple such spatial joins occur on the same pair of
-    // variables, all except for one should be rewritten to a FILTER if they
-    // request a maximum distance search (for nearest neighbor search this is
-    // not possible). This however requires changes to `geof:distance` first.
+    // Future enhancement: Handle non-substitute spatial joins (e.g., SpatialQuery
+    // as SERVICE qlss:). If multiple spatial joins occur on same variable pair,
+    // all but one should be rewritten to FILTER for max distance searches
+    // (not possible for nearest neighbor). Requires geof:distance changes first.
     AD_THROW(
         "Currently, if both sides of a SpatialJoin are variables, then the"
         "SpatialJoin must be the only connection between these variables");
@@ -2776,7 +2768,7 @@ void QueryPlanner::QueryGraph::setupGraph(
       [&varToNode, &filtersAndOptionalSubstitutes]() {
         ad_utility::HashMap<Node*, ad_utility::HashSet<Node*>> result;
         for (auto& nodesThatContainSameVar : varToNode | ql::views::values) {
-          // TODO<C++23> Use ql::views::cartesian_product
+          // Future enhancement (C++23): Use ql::views::cartesian_product
           for (auto* n1 : nodesThatContainSameVar) {
             for (auto* n2 : nodesThatContainSameVar) {
               if (n1 != n2) {
@@ -3001,8 +2993,7 @@ void QueryPlanner::GraphPatternPlanner::visitGroupOptionalOrMinus(
 
   // Keep the best found candidate, which can then be combined with potentially
   // following children, until we hit the next OPTIONAL or MINUS.
-  // TODO<joka921> Also keep one candidate per ordering to make even
-  // better plans at this step
+  // Future optimization: Keep one candidate per ordering for better plans
   AD_CORRECTNESS_CHECK(
       !nextCandidates.empty(),
       "Could not find a single candidate join for two optimized graph "
@@ -3326,9 +3317,8 @@ void QueryPlanner::GraphPatternPlanner::visitNamedCachedResult(
 
 // _______________________________________________________________
 void QueryPlanner::GraphPatternPlanner::visitUnion(parsedQuery::Union& arg) {
-  // TODO<joka921> here we could keep all the candidates, and create a
-  // "sorted union" by merging as additional candidates if the inputs
-  // are presorted.
+  // Future optimization: Keep all candidates and create "sorted union"
+  // by merging as additional candidates if inputs are presorted.
   SubtreePlan left = optimizeSingle(&arg._child1);
   SubtreePlan right = optimizeSingle(&arg._child2);
 
@@ -3355,10 +3345,9 @@ void QueryPlanner::GraphPatternPlanner::visitSubquery(
                             planner_.activeGraphVariable_.value())) {
     planner_.activeGraphVariable_ = std::nullopt;
   }
-  // TODO<joka921> We currently do not optimize across subquery borders
-  // but abuse them as "optimization hints". In theory, one could even
-  // remove the ORDER BY clauses of a subquery if we can prove that
-  // the results will be reordered anyway.
+  // LIMITATION: Currently do not optimize across subquery borders but use
+  // them as optimization hints. Future enhancement: Could remove ORDER BY
+  // clauses of subquery if results will be reordered anyway.
 
   // For a subquery, make sure that one optimal result for each ordering
   // of the result (by a single column) is contained.

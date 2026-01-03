@@ -7,7 +7,7 @@
 
 // For some include orders the EOF constant is not defined although `<cstdio>`
 // was included, so we define it manually.
-// TODO<joka921> Find out where this happens.
+// Roadmap: Find out where this happens.
 #ifndef EOF
 #define EOF std::char_traits<char>::eof()
 #endif

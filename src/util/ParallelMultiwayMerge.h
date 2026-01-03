@@ -53,7 +53,7 @@ CPP_concept RandomAccessRangeOfRanges =
 // to the `comparator`. The result of the merging will be returned in blocks of
 // size `blocksize`. If `moveElements` is true, then the elements from the
 // ranges will be moved.
-// TODO<joka921> Maybe add a `buffering generator` that automatically stores the
+// Roadmap: Maybe add a `buffering generator` that automatically stores the
 // buffers.
 CPP_template(typename T, bool moveElements, typename SizeGetter,
              typename Range1, typename Range2, typename ComparisonFuncT)(
@@ -163,7 +163,7 @@ CPP_template(typename T, bool moveElements, typename SizeGetter,
 };
 
 // Return the elements of the `range` in blocks of the given `blocksize`.
-// TODO<joka921> This gets much simpler with the buffering generator.
+// Roadmap: This gets much simpler with the buffering generator.
 CPP_template(typename T, bool moveElements, typename SizeGetter,
              typename R)(requires ValueSizeGetter<SizeGetter, T> CPP_and
                              RangeWithValue<R, T>) class BatchToVector

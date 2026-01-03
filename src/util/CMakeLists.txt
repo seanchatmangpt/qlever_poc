@@ -26,7 +26,7 @@ target_include_directories(qleverest_vmath_scalar PUBLIC ${CMAKE_SOURCE_DIR}/src
 # EPIC 10 WIP - source file not yet implemented
 # if(COMPILER_SUPPORTS_AVX2)
 #   add_library(qleverest_vmath_avx2 OBJECT
-#     # TODO: qleverest_vmath_avx2.cpp (SIMD implementation)
+#     # Roadmap: qleverest_vmath_avx2.cpp (SIMD implementation)
 #   )
 #   apply_vmath_flags(qleverest_vmath_avx2 AVX2)
 #   target_include_directories(qleverest_vmath_avx2 PUBLIC ${CMAKE_SOURCE_DIR}/src)
@@ -36,7 +36,7 @@ target_include_directories(qleverest_vmath_scalar PUBLIC ${CMAKE_SOURCE_DIR}/src
 # EPIC 10 WIP - source file not yet implemented
 # if(COMPILER_SUPPORTS_AVX512)
 #   add_library(qleverest_vmath_avx512 OBJECT
-#     # TODO: qleverest_vmath_avx512.cpp (SIMD implementation)
+#     # Roadmap: qleverest_vmath_avx512.cpp (SIMD implementation)
 #   )
 #   apply_vmath_flags(qleverest_vmath_avx512 AVX512)
 #   target_include_directories(qleverest_vmath_avx512 PUBLIC ${CMAKE_SOURCE_DIR}/src)
@@ -46,7 +46,7 @@ target_include_directories(qleverest_vmath_scalar PUBLIC ${CMAKE_SOURCE_DIR}/src
 # EPIC 10 WIP - source file not yet implemented
 # if(COMPILER_SUPPORTS_NEON)
 #   add_library(qleverest_vmath_neon OBJECT
-#     # TODO: qleverest_vmath_neon.cpp (SIMD implementation)
+#     # Roadmap: qleverest_vmath_neon.cpp (SIMD implementation)
 #   )
 #   apply_vmath_flags(qleverest_vmath_neon NEON)
 #   target_include_directories(qleverest_vmath_neon PUBLIC ${CMAKE_SOURCE_DIR}/src)

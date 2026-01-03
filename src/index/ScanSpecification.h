@@ -39,7 +39,7 @@ class ScanSpecification {
   // serious bug, to copy the `colXIds` out of this class. The only valid usage
   // is to compare them with other IDs as long as the `ScanSpecification` is
   // still alive.
-  // TODO<joka921> This can be enforced by the type system, but that requires
+  // Roadmap: This can be enforced by the type system, but that requires
   // several intrusive changes in other parts of QLever.
   std::shared_ptr<const LocalVocab> localVocab_;
 

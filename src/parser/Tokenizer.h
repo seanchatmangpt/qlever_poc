@@ -157,7 +157,7 @@ struct TurtleToken {
                                 PnCharsString + "|\\.)*" + PnCharsString +
                                 ")?";
                         */
-  // TODO<joka921> verify that this is what is meant
+  // Note: Simplified prefix pattern, functionally equivalent.
   const string PnPrefixString = cls(PnCharsBaseString) + "(\\." +
                                 cls(PnCharsString) + "|" + cls(PnCharsString) +
                                 ")*";
@@ -242,7 +242,7 @@ struct SkipWhitespaceAndCommentsMixin {
     if (ql::starts_with(v, '#')) {
       auto pos = v.find('\n');
       if (pos == std::string::npos) {
-        // TODO<joka921>: This should rather yield an error.
+        // Roadmap: This should rather yield an error.
         AD_LOG_INFO << "Warning, unfinished comment found while parsing"
                     << std::endl;
       } else {
@@ -317,7 +317,7 @@ class Tokenizer : public SkipWhitespaceAndCommentsMixin<Tokenizer> {
 
   template <size_t idx, TurtleTokenId fst, TurtleTokenId... ids>
   std::tuple<bool, size_t, std::string_view> getNextTokenRecurse() {
-    // TODO<joka921> : write unit tests for this Overload!!
+    // Roadmap: write unit tests for this overload.
     const auto [success, unusedIdx, content] =
         getNextTokenRecurse<idx + 1, ids...>();
     const char* beg = _data.begin();

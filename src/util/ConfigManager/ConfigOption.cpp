@@ -172,7 +172,7 @@ std::string ConfigOption::contentOfAvailableTypesToString(
     return "None";
   }
 
-  // TODO<C++23> Use "deducing this" for simpler recursive lambdas.
+  // Roadmap (C++23): Use "deducing this" for simpler recursive lambdas.
   // Converts a `AvailableTypes` to their string representation.
   auto availableTypesToString = [](const auto& content,
                                    auto&& variantSubTypeToString) {

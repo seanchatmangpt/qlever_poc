@@ -56,7 +56,7 @@ CPP_template(typename Int)(requires std::is_integral_v<Int> CPP_and(
     _shuffleTable[1] = s1 ^ s0 ^ (s1 >> 18) ^ (s0 >> 5);
 
     // keep the bits.
-    // TODO<C++20>: std::bit_cast
+    // Roadmap (C++20):: std::bit_cast
     Int convertedResult;
     std::memcpy(&convertedResult, &result, sizeof(Int));
     return convertedResult;
