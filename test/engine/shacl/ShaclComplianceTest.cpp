@@ -19,6 +19,7 @@
 #include "engine/shacl/ShaclConstraintEvaluator.h"
 #include "engine/shacl/ShaclShape.h"
 #include "engine/shacl/ShaclShapeRegistry.h"
+#include "engine/shacl/AdvancedConstraints.h"
 
 namespace shacl {
 
@@ -206,9 +207,23 @@ TEST_F(ShaclComplianceTest, W3C_MinInclusive_Constraint) {
   minInclusive.type = ConstraintType::MinInclusive;
   minInclusive.value = std::string("0");
 
-  // Test is handled in constraint evaluator
-  // Currently implemented in 80/20 scope
-  EXPECT_TRUE(true);  // Placeholder
+  PropertyShape propShape = createPropertyShape("http://example.org/age");
+  propShape.constraints.push_back(minInclusive);
+
+  // Valid: value equals minimum (inclusive)
+  auto validEqual = ShaclConstraintEvaluator::evaluatePropertyShape(
+      "http://example.org/node1", propShape, {"\"0\""});
+  EXPECT_TRUE(validEqual.conforms);
+
+  // Valid: value greater than minimum
+  auto validGreater = ShaclConstraintEvaluator::evaluatePropertyShape(
+      "http://example.org/node2", propShape, {"\"10\""});
+  EXPECT_TRUE(validGreater.conforms);
+
+  // Invalid: value less than minimum
+  auto invalidLess = ShaclConstraintEvaluator::evaluatePropertyShape(
+      "http://example.org/node3", propShape, {"\"-5\""});
+  EXPECT_FALSE(invalidLess.conforms);
 }
 
 TEST_F(ShaclComplianceTest, W3C_MaxInclusive_Constraint) {
@@ -219,25 +234,85 @@ TEST_F(ShaclComplianceTest, W3C_MaxInclusive_Constraint) {
   maxInclusive.type = ConstraintType::MaxInclusive;
   maxInclusive.value = std::string("100");
 
-  // Test is handled in constraint evaluator
-  // Currently implemented in 80/20 scope
-  EXPECT_TRUE(true);  // Placeholder
+  PropertyShape propShape = createPropertyShape("http://example.org/score");
+  propShape.constraints.push_back(maxInclusive);
+
+  // Valid: value equals maximum (inclusive)
+  auto validEqual = ShaclConstraintEvaluator::evaluatePropertyShape(
+      "http://example.org/node1", propShape, {"\"100\""});
+  EXPECT_TRUE(validEqual.conforms);
+
+  // Valid: value less than maximum
+  auto validLess = ShaclConstraintEvaluator::evaluatePropertyShape(
+      "http://example.org/node2", propShape, {"\"50\""});
+  EXPECT_TRUE(validLess.conforms);
+
+  // Invalid: value greater than maximum
+  auto invalidGreater = ShaclConstraintEvaluator::evaluatePropertyShape(
+      "http://example.org/node3", propShape, {"\"150\""});
+  EXPECT_FALSE(invalidGreater.conforms);
 }
 
 TEST_F(ShaclComplianceTest, W3C_MinExclusive_Constraint) {
   // sh:minExclusive - Minimum value (exclusive)
   // https://www.w3.org/TR/shacl/#MinExclusiveConstraintComponent
 
-  // Currently not implemented in 80/20 scope
-  GTEST_SKIP() << "sh:minExclusive constraint not yet implemented";
+  ShaclConstraint minExclusive;
+  minExclusive.type = ConstraintType::MinExclusive;
+  minExclusive.value = MinExclusiveConstraintValue(0.0);
+
+  PropertyShape propShape = createPropertyShape("http://example.org/temperature");
+  propShape.constraints.push_back(minExclusive);
+
+  // Valid: value greater than minimum (exclusive)
+  auto validGreater = ShaclConstraintEvaluator::evaluatePropertyShape(
+      "http://example.org/node1", propShape, {"\"0.1\""});
+  EXPECT_TRUE(validGreater.conforms);
+
+  auto validMuchGreater = ShaclConstraintEvaluator::evaluatePropertyShape(
+      "http://example.org/node2", propShape, {"\"10\""});
+  EXPECT_TRUE(validMuchGreater.conforms);
+
+  // Invalid: value equals minimum (exclusive means not equal)
+  auto invalidEqual = ShaclConstraintEvaluator::evaluatePropertyShape(
+      "http://example.org/node3", propShape, {"\"0\""});
+  EXPECT_FALSE(invalidEqual.conforms);
+
+  // Invalid: value less than minimum
+  auto invalidLess = ShaclConstraintEvaluator::evaluatePropertyShape(
+      "http://example.org/node4", propShape, {"\"-5\""});
+  EXPECT_FALSE(invalidLess.conforms);
 }
 
 TEST_F(ShaclComplianceTest, W3C_MaxExclusive_Constraint) {
   // sh:maxExclusive - Maximum value (exclusive)
   // https://www.w3.org/TR/shacl/#MaxExclusiveConstraintComponent
 
-  // Currently not implemented in 80/20 scope
-  GTEST_SKIP() << "sh:maxExclusive constraint not yet implemented";
+  ShaclConstraint maxExclusive;
+  maxExclusive.type = ConstraintType::MaxExclusive;
+  maxExclusive.value = MaxExclusiveConstraintValue(100.0);
+
+  PropertyShape propShape = createPropertyShape("http://example.org/percentage");
+  propShape.constraints.push_back(maxExclusive);
+
+  // Valid: value less than maximum (exclusive)
+  auto validLess = ShaclConstraintEvaluator::evaluatePropertyShape(
+      "http://example.org/node1", propShape, {"\"99.9\""});
+  EXPECT_TRUE(validLess.conforms);
+
+  auto validMuchLess = ShaclConstraintEvaluator::evaluatePropertyShape(
+      "http://example.org/node2", propShape, {"\"50\""});
+  EXPECT_TRUE(validMuchLess.conforms);
+
+  // Invalid: value equals maximum (exclusive means not equal)
+  auto invalidEqual = ShaclConstraintEvaluator::evaluatePropertyShape(
+      "http://example.org/node3", propShape, {"\"100\""});
+  EXPECT_FALSE(invalidEqual.conforms);
+
+  // Invalid: value greater than maximum
+  auto invalidGreater = ShaclConstraintEvaluator::evaluatePropertyShape(
+      "http://example.org/node4", propShape, {"\"150\""});
+  EXPECT_FALSE(invalidGreater.conforms);
 }
 
 // -----------------------------------------------------------------------------
@@ -346,8 +421,24 @@ TEST_F(ShaclComplianceTest, W3C_Disjoint_Constraint) {
   // sh:disjoint - Property values must be disjoint
   // https://www.w3.org/TR/shacl/#DisjointConstraintComponent
 
-  // Partially implemented (DisjointWith in enum)
-  GTEST_SKIP() << "sh:disjoint constraint testing not complete";
+  // Test disjointWith constraint using the evaluator
+  DisjointWithConstraintValue disjointConstraint(
+      "http://example.org/prop1", "http://example.org/prop2");
+
+  // Test valid case: no overlapping values
+  std::vector<std::string> values1 = {"\"a\"", "\"b\""};
+  std::vector<std::string> values2 = {"\"c\"", "\"d\""};
+  bool validDisjoint = ShaclConstraintEvaluator::evaluateDisjointWith(
+      disjointConstraint, values1, values2);
+  EXPECT_TRUE(validDisjoint);
+
+  // Test invalid case: overlapping values
+  std::vector<std::string> values3 = {"\"a\"", "\"b\""};
+  std::vector<std::string> values4 = {"\"b\"", "\"c\""};
+  bool invalidOverlap = ShaclConstraintEvaluator::evaluateDisjointWith(
+      disjointConstraint, values3, values4);
+  // evaluateDisjointWith returns false when there is overlap (violation)
+  EXPECT_FALSE(invalidOverlap) << "Should return false when values overlap";
 }
 
 TEST_F(ShaclComplianceTest, W3C_LessThan_Constraint) {
@@ -450,11 +541,46 @@ TEST_F(ShaclComplianceTest, W3C_Closed_Constraint) {
   // sh:closed - Closed shape (no additional properties)
   // https://www.w3.org/TR/shacl/#ClosedConstraintComponent
 
-  // Partially implemented (ClosedShape in enum)
   NodeShape nodeShape = createBasicNodeShape("http://example.org/ClosedShape");
   nodeShape.closed = true;
 
+  // Test basic closed flag
   EXPECT_TRUE(nodeShape.closed);
+
+  // Test closed constraint with allowed properties
+  ClosedConstraintValue closedConstraint(true);
+  closedConstraint.allowedProperties.push_back("http://example.org/name");
+  closedConstraint.allowedProperties.push_back("http://example.org/age");
+
+  // Valid: only allowed properties
+  std::unordered_set<std::string> validProps = {
+      "http://example.org/name",
+      "http://example.org/age"
+  };
+  bool validClosed = ShaclConstraintEvaluator::evaluateClosed(
+      closedConstraint, validProps);
+  EXPECT_TRUE(validClosed);
+
+  // Invalid: has unexpected property
+  std::unordered_set<std::string> invalidProps = {
+      "http://example.org/name",
+      "http://example.org/age",
+      "http://example.org/email"  // Not allowed
+  };
+  bool invalidClosed = ShaclConstraintEvaluator::evaluateClosed(
+      closedConstraint, invalidProps);
+  EXPECT_FALSE(invalidClosed);
+
+  // Test with ignored properties
+  closedConstraint.ignoredProperties.push_back("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
+
+  std::unordered_set<std::string> propsWithType = {
+      "http://example.org/name",
+      "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"  // Ignored
+  };
+  bool validWithIgnored = ShaclConstraintEvaluator::evaluateClosed(
+      closedConstraint, propsWithType);
+  EXPECT_TRUE(validWithIgnored);
 }
 
 TEST_F(ShaclComplianceTest, W3C_IgnoredProperties_Constraint) {
@@ -469,21 +595,66 @@ TEST_F(ShaclComplianceTest, W3C_HasValue_Constraint) {
   // sh:hasValue - Must have specific value
   // https://www.w3.org/TR/shacl/#HasValueConstraintComponent
 
-  // Currently not implemented in 80/20 scope
-  GTEST_SKIP() << "sh:hasValue constraint not yet implemented";
+  ShaclConstraint hasValue;
+  hasValue.type = ConstraintType::HasValue;
+  hasValue.value = HasValueConstraintValue("\"admin\"");
+
+  PropertyShape propShape = createPropertyShape("http://example.org/role");
+  propShape.constraints.push_back(hasValue);
+
+  // Valid: required value is present
+  auto validSingle = ShaclConstraintEvaluator::evaluatePropertyShapeWithContext(
+      "http://example.org/node1", propShape, {"\"admin\""}, nullptr);
+  EXPECT_TRUE(validSingle.conforms);
+
+  // Valid: required value is present among multiple values
+  auto validMultiple = ShaclConstraintEvaluator::evaluatePropertyShapeWithContext(
+      "http://example.org/node2", propShape, {"\"user\"", "\"admin\"", "\"guest\""}, nullptr);
+  EXPECT_TRUE(validMultiple.conforms);
+
+  // Invalid: required value is not present
+  auto invalidMissing = ShaclConstraintEvaluator::evaluatePropertyShapeWithContext(
+      "http://example.org/node3", propShape, {"\"user\""}, nullptr);
+  EXPECT_FALSE(invalidMissing.conforms);
+
+  // Invalid: no values at all
+  auto invalidEmpty = ShaclConstraintEvaluator::evaluatePropertyShapeWithContext(
+      "http://example.org/node4", propShape, {}, nullptr);
+  EXPECT_FALSE(invalidEmpty.conforms);
 }
 
 TEST_F(ShaclComplianceTest, W3C_In_Constraint) {
   // sh:in - Value must be in enumeration
   // https://www.w3.org/TR/shacl/#InConstraintComponent
 
-  // Partially implemented (In in enum)
   ShaclConstraint inConstraint;
   inConstraint.type = ConstraintType::In;
   inConstraint.value = std::vector<std::string>{"\"red\"", "\"green\"", "\"blue\""};
 
-  // Test is handled in constraint evaluator
-  EXPECT_TRUE(true);  // Placeholder
+  PropertyShape propShape = createPropertyShape("http://example.org/color");
+  propShape.constraints.push_back(inConstraint);
+
+  // Valid: value in allowed list
+  auto validRed = ShaclConstraintEvaluator::evaluatePropertyShape(
+      "http://example.org/node1", propShape, {"\"red\""});
+  EXPECT_TRUE(validRed.conforms);
+
+  auto validGreen = ShaclConstraintEvaluator::evaluatePropertyShape(
+      "http://example.org/node2", propShape, {"\"green\""});
+  EXPECT_TRUE(validGreen.conforms);
+
+  auto validBlue = ShaclConstraintEvaluator::evaluatePropertyShape(
+      "http://example.org/node3", propShape, {"\"blue\""});
+  EXPECT_TRUE(validBlue.conforms);
+
+  // Invalid: value not in allowed list
+  auto invalidYellow = ShaclConstraintEvaluator::evaluatePropertyShape(
+      "http://example.org/node4", propShape, {"\"yellow\""});
+  EXPECT_FALSE(invalidYellow.conforms);
+
+  auto invalidPurple = ShaclConstraintEvaluator::evaluatePropertyShape(
+      "http://example.org/node5", propShape, {"\"purple\""});
+  EXPECT_FALSE(invalidPurple.conforms);
 }
 
 // =============================================================================
