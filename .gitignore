@@ -99,3 +99,15 @@ build_output.log
 __pycache__/
 *.pyc
 *.pyo
+
+# LaTeX build artifacts
+*.aux
+*.bbl
+*.blg
+*.lof
+*.lot
+*.log
+*.run.xml
+*.toc
+*-blx.bib
+*.idx
